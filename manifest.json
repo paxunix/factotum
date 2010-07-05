@@ -1,0 +1,18 @@
+{
+    "name": "Factotum",
+    "version": "0.0.1",
+    "description": "User-defined functions for Chrome",
+    "icons": {
+        "128": "icons/icon-128.png"
+    },
+    "default_locale": "en",
+
+    // Request all the permissions we can.
+    "permissions": [
+        "bookmarks",
+        "http://*/", "https://*/",
+        "notifications",
+        "tabs",
+        "unlimited_storage"
+    ]
+}
