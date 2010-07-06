@@ -10,7 +10,7 @@
     // Request all the permissions we can.
     "permissions": [
         "bookmarks",
-        "http://*/", "https://*/",
+        "http://*/*", "https://*/*",
         "notifications",
         "tabs",
         "unlimited_storage"
