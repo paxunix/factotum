@@ -14,9 +14,10 @@ function shellWordSplit(arg)
     {
         var ch = arg.charAt(i);
 
-        // whitespace delimits a word
+        // Whitespace delimits a word.
         if (/^\s$/.test(ch))
         {
+            // If in a word, save it and reset for next word.
             if (wordStartOffset >= 0)
             {
                 argv.push(arg.substring(wordStartOffset, i));
@@ -25,12 +26,13 @@ function shellWordSplit(arg)
         }
         else
         {
-            // Any character starts a word unless already in a word
+            // Any character starts a word unless already in a word.
             if (wordStartOffset === -1)
                 wordStartOffset = i;
         }
     }
 
+    // Save the final word.
     if (wordStartOffset !== -1)
     {
         argv.push(arg.substring(wordStartOffset, i));
