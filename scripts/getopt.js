@@ -106,7 +106,7 @@ GetOpt.shellWordSplit = function (arg)
 //      }
 //
 //      <option-name> is an option to be matched against shell-words in
-//      args.  A leading '-' is assumed.  Long option names can be
+//      args.  A single leading '-' is assumed.  Long option names can be
 //      represented by prepending a '-'.
 //
 //      An option name ending with '!' can be negated.  If 'verbose!' were
@@ -140,7 +140,17 @@ GetOpt.getOptions = function (spec, args)
 
             if (optName in spec)
             {
-                // XXX
+                switch (spec[optName])
+                {
+                  case "boolean":
+                      opts[optName] = true;
+                      break;
+
+                  default:
+                      throw("Unknown option type 'spec[optName]'.");
+                };
+
+                continue;
             }
         }
 

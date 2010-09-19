@@ -179,16 +179,42 @@ describe("GetOpt.getOptions", function() {
         ).toEqual({ opts: {}, argv: []});
     });
 
+    it("yields no options and expected args (even if they look like options) for an empty option spec", function() {
+        expect(
+            GetOpt.getOptions({}, "-a -b -c")
+        ).toEqual({ opts: {}, argv: ["-a", "-b", "-c"]});
+    });
+
+    it("understands simple boolean options", function() {
+        expect(
+            GetOpt.getOptions({ "a" : "boolean" }, "-a -- arg")
+        ).toEqual({ opts: { "a": true },
+                    argv: ["arg"]});
+    });
+
     it("delimits options from arguments with --", function() {
         expect(
-            GetOpt.getOptions({}, "-a -b -- one two")
-        ).toEqual({ opts: {}, argv: [ "-a", "-b", "one", "two" ]});
+            GetOpt.getOptions({ "a": "boolean",
+                                "b": "boolean" }, "-a -b -- one two")
+        ).toEqual({ opts: { "a": true,
+                            "b": true },
+                    argv: [ "one", "two" ]});
     });
 
     it("accepts no options and -- delimiting args", function() {
         expect(
             GetOpt.getOptions({}, "-- one two")
-        ).toEqual({ opts: {}, argv: [ "one", "two" ]});
+        ).toEqual({ opts: {},
+                    argv: [ "one", "two" ]});
+    });
+
+    it("accepts mixed options and arguments", function() {
+        expect(
+            GetOpt.getOptions({ "a": "boolean",
+                                "b": "boolean" }, "-a one -b two -- three")
+        ).toEqual({ opts: { "a": true,
+                            "b": true },
+                    argv: [ "one", "two", "three" ]});
     });
 
     it("treats options not in spec as arguments", function() {
@@ -196,6 +222,12 @@ describe("GetOpt.getOptions", function() {
             GetOpt.getOptions({}, "-a --b ---c one two three")
         ).toEqual({ opts: {},
                     argv: ["-a", "--b", "---c", "one", "two", "three"]});
+    });
+
+    it("throws an exception on options with unknown types", function() {
+        expect(function() {
+            GetOpt.getOptions({ "a": "UnKnOwN" }, "-a -- arg")
+        }).toThrow("Unknown option type 'spec[optName]'.");
     });
 
 }); // GetOpt.getOptions
