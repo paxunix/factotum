@@ -1,5 +1,13 @@
+var GetOpt = {};
 
-function shellWordSplit(arg)
+
+// Function: GetOpt.shellWordSplit
+//      Split a string into words according to shell-like rules.
+// Parameters:
+//      arg - string to parse
+// Returns:
+//      array of words
+GetOpt.shellWordSplit = function (arg)
 {
     arg = arg || "";
 
