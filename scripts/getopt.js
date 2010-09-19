@@ -1,41 +1,37 @@
 
 function shellWordSplit(arg)
 {
-    var argv = [];
-
     arg = arg || "";
 
-    var wordDelimiter = null;
-    var wordStartOffset = -1;
+    var argv = [];
+    var curWord = 0;
+    var inWord = false;
+    var quote = "";
+    var ch = "";
 
     for (var i = 0;
          i < arg.length;
          ++i)
     {
-        var ch = arg.charAt(i);
+        ch = arg.charAt(i);
 
-        // Whitespace delimits a word.
+        // Whitespace
         if (/^\s$/.test(ch))
         {
-            // If in a word, save it and reset for next word.
-            if (wordStartOffset >= 0)
+            // If currently in a word, whitespace delimits the word.
+            if (inWord)
             {
-                argv.push(arg.substring(wordStartOffset, i));
-                wordStartOffset = -1;
+                curWord++;
+                inWord = false;
             }
-        }
-        else
-        {
-            // Any character starts a word unless already in a word.
-            if (wordStartOffset === -1)
-                wordStartOffset = i;
-        }
-    }
 
-    // Save the final word.
-    if (wordStartOffset !== -1)
-    {
-        argv.push(arg.substring(wordStartOffset, i));
+            // Whitespace is ignored.
+            continue;
+        }
+
+        // Append character to the current word.
+        inWord = true;
+        argv[curWord] = (argv[curWord] || "") + ch;
     }
 
     return argv;

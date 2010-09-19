@@ -1,9 +1,5 @@
-var onRequest = function(request, sender, sendResponse)
-{
-    window.alert("hooray");
-};
+var omnibox = chrome.experimental.omnibox;
 
-(function()
+var onInputStarted = function()
 {
-    chrome.extension.onRequest.addListener(onRequest);
-})();
+};
