@@ -7,7 +7,13 @@ function shellWordSplit(arg)
     var curWord = 0;
     var inWord = false;
     var quote = "";
-    var ch = "";
+    var ch;
+
+    function appendToWord(s)
+    {
+        inWord = true;
+        argv[curWord] = (argv[curWord] || "") + ch;
+    }
 
     for (var i = 0;
          i < arg.length;
@@ -15,7 +21,19 @@ function shellWordSplit(arg)
     {
         ch = arg.charAt(i);
 
-        // Whitespace
+        // Escaping next character always appends to word and resumes at
+        // following character.
+        if (ch === "\\")
+        {
+            ++i;
+            ch = arg.charAt(i);
+            if (ch !== "")
+                appendToWord(ch);
+
+            continue;
+        }
+
+        // Whitespace is ignored.
         if (/^\s$/.test(ch))
         {
             // If currently in a word, whitespace delimits the word.
@@ -25,13 +43,11 @@ function shellWordSplit(arg)
                 inWord = false;
             }
 
-            // Whitespace is ignored.
             continue;
         }
 
         // Append character to the current word.
-        inWord = true;
-        argv[curWord] = (argv[curWord] || "") + ch;
+        appendToWord(ch);
     }
 
     return argv;
