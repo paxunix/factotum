@@ -6,7 +6,7 @@ function shellWordSplit(arg)
     var argv = [];
     var curWord = 0;
     var inWord = false;
-    var quote = "";
+    var openQuote = "";
     var ch;
 
     function appendToWord(s)
@@ -33,15 +33,48 @@ function shellWordSplit(arg)
             continue;
         }
 
-        // Whitespace is ignored.
+        // Handle whitespace.
         if (/^\s$/.test(ch))
         {
-            // If currently in a word, whitespace delimits the word.
-            if (inWord)
+            // If currently in a word and not in quotes, whitespace delimits
+            // the word.
+            if (inWord && openQuote === "")
             {
                 curWord++;
                 inWord = false;
             }
+
+            // If in quotes, whitespace is kept.
+            if (openQuote !== "")
+            {
+                appendToWord(ch);
+            }
+
+            continue;
+        }
+
+        // Single or double quote may need to be matched.
+        if (ch === "'" || ch === "\"")
+        {
+            // Closing quote.
+            if (openQuote === ch)
+            {
+                // Only delimits current word if whitespace follows.
+                if (/^\s$/.test(arg.charAt(i + 1)))
+                {
+                    curWord++;
+                    inWord = false;
+                }
+
+                openQuote = "";
+            }
+            // Keep track of quote type so we can close it only if we aren't
+            // already tracking a quote.
+            else if (openQuote === "")
+                openQuote = ch;
+            // If quote is already open, save this one.
+            else
+                appendToWord(ch);
 
             continue;
         }
