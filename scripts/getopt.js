@@ -93,3 +93,60 @@ GetOpt.shellWordSplit = function (arg)
 
     return argv;
 }   // shellWordSplit
+
+
+// Function:
+//      GetOpt.getOptions
+// Parameters:
+//      spec - option specification object:
+//
+//      {
+//          <option-name>: obj,
+//          <option2-name>: obj2
+//      }
+//
+//      <option-name> is an option to be matched against shell-words in
+//      args.  A leading '-' is assumed.  Long option names can be
+//      represented by prepending a '-'.
+//
+//      An option name ending with '!' can be negated.  If 'verbose!' were
+//      given, --verbose would set the option to true and --noverbose would
+//      set it to false.
+//
+// Returns:
+//      object containing options and their values, and arguments.
+GetOpt.getOptions = function (spec, args)
+{
+    var argv = GetOpt.shellWordSplit(args);
+    var opts = {};
+    var retArgv = [];
+
+    // Pull options and their values out of argv.
+    while (argv.length > 0)
+    {
+        var word = argv.shift();
+
+        // Everything else is an argument.
+        if (word === "--")
+        {
+            retArgv = retArgv.concat(argv);
+            break;
+        }
+
+        // Options start with '-'.
+        if (word.charAt(0) === "-")
+        {
+            var optName = word.substring(1);
+
+            if (optName in spec)
+            {
+                // XXX
+            }
+        }
+
+        // Must be an argument.
+        retArgv.push(word);
+    }
+
+    return { opts: opts, argv: retArgv };
+}   // GetOpt.getOptions 

@@ -170,3 +170,32 @@ describe("GetOpt.shellWordSplit", function() {
 
 }); // shellWordSplit spec
 
+
+describe("GetOpt.getOptions", function() {
+
+    it("yields no options and no args for an empty arg string", function() {
+        expect(
+            GetOpt.getOptions({}, "")
+        ).toEqual({ opts: {}, argv: []});
+    });
+
+    it("delimits options from arguments with --", function() {
+        expect(
+            GetOpt.getOptions({}, "-a -b -- one two")
+        ).toEqual({ opts: {}, argv: [ "-a", "-b", "one", "two" ]});
+    });
+
+    it("accepts no options and -- delimiting args", function() {
+        expect(
+            GetOpt.getOptions({}, "-- one two")
+        ).toEqual({ opts: {}, argv: [ "one", "two" ]});
+    });
+
+    it("treats options not in spec as arguments", function() {
+        expect(
+            GetOpt.getOptions({}, "-a --b ---c one two three")
+        ).toEqual({ opts: {},
+                    argv: ["-a", "--b", "---c", "one", "two", "three"]});
+    });
+
+}); // GetOpt.getOptions
