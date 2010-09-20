@@ -204,10 +204,10 @@ describe("GetOpt.getOptions", function() {
                     argv: []});
     });
 
-    it("understands toggle-type options", function() {
+    it("understands no-boolean-type options", function() {
         expect(
-            GetOpt.getOptions({ "a": "toggle",
-                                "b": "toggle" }, "-a -no-b -- arg")
+            GetOpt.getOptions({ "a": "boolean",
+                                "b": "boolean" }, "-a -no-b -- arg")
         ).toEqual({ opts: { "a": true,
                             "b": false},
                     argv: ["arg"]});

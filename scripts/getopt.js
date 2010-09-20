@@ -109,6 +109,10 @@ GetOpt.shellWordSplit = function (arg)
 //      args.  A single leading '-' is assumed.  Long option names can be
 //      represented by prepending a '-'.
 //
+//      If <obj> is "boolean", the option is set to true if the option is
+//      present, false if not.  The option is also set to false if
+//      "no-<option-name>" or "no<option-name" is present.
+//
 // Returns:
 //      object containing options and their values, and arguments.
 GetOpt.getOptions = function (spec, args)
@@ -133,7 +137,7 @@ GetOpt.getOptions = function (spec, args)
         var rawOptName = (word.match(/^-+(.*)/) || [ null, "" ])[1];
         if (rawOptName !== "")
         {
-            // Check if option appears to be toggleable.
+            // Check if option is a "no-" boolean.
             var lookupOptName = rawOptName;
             var toggleCheck =
                 rawOptName.match(/^no-?(.*)/) || [ "", rawOptName ];
@@ -145,8 +149,6 @@ GetOpt.getOptions = function (spec, args)
             if (lookupOptName in spec)
             {
                 if (spec[lookupOptName] === "boolean")
-                    opts[lookupOptName] = true;
-                else if (spec[lookupOptName] === "toggle")
                     opts[lookupOptName] = !isToggledOff;
                 else
                     throw("Unknown option type '" + spec[lookupOptName] + "'.");
