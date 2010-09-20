@@ -109,10 +109,6 @@ GetOpt.shellWordSplit = function (arg)
 //      args.  A single leading '-' is assumed.  Long option names can be
 //      represented by prepending a '-'.
 //
-//      An option name ending with '!' can be negated.  If 'verbose!' were
-//      given, --verbose would set the option to true and --noverbose would
-//      set it to false.
-//
 // Returns:
 //      object containing options and their values, and arguments.
 GetOpt.getOptions = function (spec, args)
@@ -133,22 +129,27 @@ GetOpt.getOptions = function (spec, args)
             break;
         }
 
-        // Options start with '-'.
-        if (word.charAt(0) === "-")
+        // Options start with any number of '-'.
+        var rawOptName = (word.match(/^-+(.*)/) || [ null, "" ])[1];
+        if (rawOptName !== "")
         {
-            var optName = word.substring(1);
+            // Check if option appears to be toggleable.
+            var lookupOptName = rawOptName;
+            var toggleCheck =
+                rawOptName.match(/^no-?(.*)/) || [ "", rawOptName ];
+            var isToggledOff = (toggleCheck[0] !== "");
+            if (isToggledOff)
+                lookupOptName = toggleCheck[1];
 
-            if (optName in spec)
+            // Check for option in spec.
+            if (lookupOptName in spec)
             {
-                switch (spec[optName])
-                {
-                  case "boolean":
-                      opts[optName] = true;
-                      break;
-
-                  default:
-                      throw("Unknown option type 'spec[optName]'.");
-                };
+                if (spec[lookupOptName] === "boolean")
+                    opts[lookupOptName] = true;
+                else if (spec[lookupOptName] === "toggle")
+                    opts[lookupOptName] = !isToggledOff;
+                else
+                    throw("Unknown option type '" + spec[lookupOptName] + "'.");
 
                 continue;
             }

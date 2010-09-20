@@ -185,10 +185,31 @@ describe("GetOpt.getOptions", function() {
         ).toEqual({ opts: {}, argv: ["-a", "-b", "-c"]});
     });
 
-    it("understands simple boolean options", function() {
+    it("understands simple boolean-type options", function() {
         expect(
-            GetOpt.getOptions({ "a" : "boolean" }, "-a -- arg")
+            GetOpt.getOptions({ "a" : "boolean" }, "-a")
         ).toEqual({ opts: { "a": true },
+                    argv: []});
+    });
+
+    it("considers any number of leading - to indicate an option", function() {
+        expect(
+            GetOpt.getOptions({ "help": "boolean",
+                                "h": "boolean",
+                                "three": "boolean" },
+                                "-h --help --h -help ---three")
+        ).toEqual({ opts: { "help": true,
+                            "h": true,
+                            "three": true },
+                    argv: []});
+    });
+
+    it("understands toggle-type options", function() {
+        expect(
+            GetOpt.getOptions({ "a": "toggle",
+                                "b": "toggle" }, "-a -no-b -- arg")
+        ).toEqual({ opts: { "a": true,
+                            "b": false},
                     argv: ["arg"]});
     });
 
@@ -227,7 +248,7 @@ describe("GetOpt.getOptions", function() {
     it("throws an exception on options with unknown types", function() {
         expect(function() {
             GetOpt.getOptions({ "a": "UnKnOwN" }, "-a -- arg")
-        }).toThrow("Unknown option type 'spec[optName]'.");
+        }).toThrow("Unknown option type 'UnKnOwN'.");
     });
 
 }); // GetOpt.getOptions
