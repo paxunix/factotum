@@ -153,7 +153,14 @@ GetOpt.getOptions = function (spec, args)
             if (lookupOptName in spec)
             {
                 if (spec[lookupOptName].type === "boolean")
+                {
                     opts[lookupOptName] = !isToggledOff;
+                }
+                else if (spec[lookupOptName].type === "incremental")
+                {
+                    opts[lookupOptName] = (opts[lookupOptName] || 0) +
+                        (isToggledOff ? -1 : +1);
+                }
                 else
                     throw("Unknown option type '" +
                           spec[lookupOptName].type + "'.");

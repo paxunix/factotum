@@ -260,4 +260,18 @@ describe("GetOpt.getOptions", function() {
         }).toThrow("Unknown option type 'UnKnOwN'.");
     });
 
+    it("supports incremental-type options", function() {
+        expect(
+            GetOpt.getOptions({ "a": { type: "incremental" } },
+                              "-a -a -a")
+        ).toEqual({ opts: { "a": 3 }, argv: []});
+    });
+
+    it("decrements an incremental option's value if the no-opt form is used", function() {
+        expect(
+            GetOpt.getOptions({ "a": { type: "incremental" } },
+                              "-a -noa -a -a")
+        ).toEqual({ opts: { "a": 2 }, argv: []});
+    });
+
 }); // GetOpt.getOptions
