@@ -204,10 +204,19 @@ describe("GetOpt.getOptions", function() {
                     argv: []});
     });
 
-    it("understands no-boolean-type options", function() {
+    it("understands 'no'-boolean-type options with hyphen separator", function() {
         expect(
             GetOpt.getOptions({ "a": { type: "boolean" },
                                 "b": { type: "boolean" } }, "-a -no-b -- arg")
+        ).toEqual({ opts: { "a": true,
+                            "b": false},
+                    argv: ["arg"]});
+    });
+
+    it("understands 'no'-boolean-type options without hyphen separator", function() {
+        expect(
+            GetOpt.getOptions({ "a": { type: "boolean" },
+                                "b": { type: "boolean" } }, "-a -nob -- arg")
         ).toEqual({ opts: { "a": true,
                             "b": false},
                     argv: ["arg"]});
