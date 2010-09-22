@@ -274,4 +274,11 @@ describe("GetOpt.getOptions", function() {
         ).toEqual({ opts: { "a": 2 }, argv: []});
     });
 
+    it("won't decrement an incremental option's value below 0", function() {
+        expect(
+            GetOpt.getOptions({ "a": { type: "incremental" } },
+                              "-no-a -no-a ---no-a")
+        ).toEqual({ opts: { "a": 0 }, argv: []});
+    });
+
 }); // GetOpt.getOptions
