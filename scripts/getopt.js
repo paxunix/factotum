@@ -101,7 +101,11 @@ GetOpt.shellWordSplit = function (arg)
 //      spec - option specification object:
 //
 //      {
-//          <option-name>: obj,
+//          <option-name>: {
+//              type: t,
+//              default: d,
+//              aliases: []
+//          },
 //          <option2-name>: obj2
 //      }
 //
@@ -109,8 +113,8 @@ GetOpt.shellWordSplit = function (arg)
 //      args.  A single leading '-' is assumed.  Long option names can be
 //      represented by prepending a '-'.
 //
-//      If <obj> is "boolean", the option is set to true if the option is
-//      present, false if not.  The option is also set to false if
+//      If option.type is "boolean", the option is set to true if the option
+//      is present, false if not.  The option is also set to false if
 //      "no-<option-name>" or "no<option-name" is present.
 //
 // Returns:
@@ -148,10 +152,11 @@ GetOpt.getOptions = function (spec, args)
             // Check for option in spec.
             if (lookupOptName in spec)
             {
-                if (spec[lookupOptName] === "boolean")
+                if (spec[lookupOptName].type === "boolean")
                     opts[lookupOptName] = !isToggledOff;
                 else
-                    throw("Unknown option type '" + spec[lookupOptName] + "'.");
+                    throw("Unknown option type '" +
+                          spec[lookupOptName].type + "'.");
 
                 continue;
             }

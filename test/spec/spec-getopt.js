@@ -187,16 +187,16 @@ describe("GetOpt.getOptions", function() {
 
     it("understands simple boolean-type options", function() {
         expect(
-            GetOpt.getOptions({ "a" : "boolean" }, "-a")
+            GetOpt.getOptions({ "a" : { type: "boolean" } }, "-a")
         ).toEqual({ opts: { "a": true },
                     argv: []});
     });
 
     it("considers any number of leading - to indicate an option", function() {
         expect(
-            GetOpt.getOptions({ "help": "boolean",
-                                "h": "boolean",
-                                "three": "boolean" },
+            GetOpt.getOptions({ "help": { type: "boolean" },
+                                "h": { type: "boolean" },
+                                "three": { type: "boolean" } },
                                 "-h --help --h -help ---three")
         ).toEqual({ opts: { "help": true,
                             "h": true,
@@ -206,8 +206,8 @@ describe("GetOpt.getOptions", function() {
 
     it("understands no-boolean-type options", function() {
         expect(
-            GetOpt.getOptions({ "a": "boolean",
-                                "b": "boolean" }, "-a -no-b -- arg")
+            GetOpt.getOptions({ "a": { type: "boolean" },
+                                "b": { type: "boolean" } }, "-a -no-b -- arg")
         ).toEqual({ opts: { "a": true,
                             "b": false},
                     argv: ["arg"]});
@@ -215,8 +215,8 @@ describe("GetOpt.getOptions", function() {
 
     it("delimits options from arguments with --", function() {
         expect(
-            GetOpt.getOptions({ "a": "boolean",
-                                "b": "boolean" }, "-a -b -- one two")
+            GetOpt.getOptions({ "a": { type: "boolean" },
+                                "b": { type: "boolean" } }, "-a -b -- one two")
         ).toEqual({ opts: { "a": true,
                             "b": true },
                     argv: [ "one", "two" ]});
@@ -231,8 +231,8 @@ describe("GetOpt.getOptions", function() {
 
     it("accepts mixed options and arguments", function() {
         expect(
-            GetOpt.getOptions({ "a": "boolean",
-                                "b": "boolean" }, "-a one -b two -- three")
+            GetOpt.getOptions({ "a": { type: "boolean" },
+                                "b": { type: "boolean" } }, "-a one -b two -- three")
         ).toEqual({ opts: { "a": true,
                             "b": true },
                     argv: [ "one", "two", "three" ]});
@@ -247,7 +247,7 @@ describe("GetOpt.getOptions", function() {
 
     it("throws an exception on options with unknown types", function() {
         expect(function() {
-            GetOpt.getOptions({ "a": "UnKnOwN" }, "-a -- arg")
+            GetOpt.getOptions({ "a": { type: "UnKnOwN" } }, "-a -- arg")
         }).toThrow("Unknown option type 'UnKnOwN'.");
     });
 
