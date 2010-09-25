@@ -225,10 +225,10 @@ describe("GetOpt.getOptions", function() {
     it("delimits options from arguments with --", function() {
         expect(
             GetOpt.getOptions({ "a": { type: "boolean" },
-                                "b": { type: "boolean" } }, "-a -b -- one two")
+                                "b": { type: "boolean" } }, "-a -b -- one -two")
         ).toEqual({ opts: { "a": true,
                             "b": true },
-                    argv: [ "one", "two" ]});
+                    argv: [ "one", "-two" ]});
     });
 
     it("accepts no options and -- delimiting args", function() {
