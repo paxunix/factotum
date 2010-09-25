@@ -158,6 +158,7 @@ GetOpt.getOptions = function (spec, args)
                 }
                 else if (spec[lookupOptName].type === "incremental")
                 {
+                    // Incremental option values >= 0.
                     opts[lookupOptName] =
                         Math.max(0, (opts[lookupOptName] || 0) +
                             (isToggledOff ? -1 : +1));
