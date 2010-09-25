@@ -281,4 +281,26 @@ describe("GetOpt.getOptions", function() {
         ).toEqual({ opts: { "a": 0 }, argv: []});
     });
 
+    it("supports string value-type options", function() {
+        expect(
+            GetOpt.getOptions({ "opt": { type: "value" } },
+                              "--opt val")
+        ).toEqual({ opts: { "opt": "val" }, argv: []});
+    });
+
+    it("throws exception if no value is given for a value-type option", function() {
+        expect(function() {
+            GetOpt.getOptions({ "opt": { type: "value" },
+                                "b": { type: "boolean" } },
+                              "--b --opt")
+        }).toThrow("Option 'opt' requires a value.");
+    });
+
+    it("uses the final value for same-name value options", function() {
+        expect(
+            GetOpt.getOptions({ "opt": { type: "value" } },
+                              "--opt val --opt val2 --a arg --opt final")
+        ).toEqual({ opts: { "opt": "final" }, argv: [ "--a", "arg" ]});
+    });
+
 }); // GetOpt.getOptions

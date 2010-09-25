@@ -163,6 +163,13 @@ GetOpt.getOptions = function (spec, args)
                         Math.max(0, (opts[lookupOptName] || 0) +
                             (isToggledOff ? -1 : +1));
                 }
+                else if (spec[lookupOptName].type === "value")
+                {
+                    opts[lookupOptName] = argv.shift() || null;
+                    if (opts[lookupOptName] === null)
+                        throw("Option '" + lookupOptName +
+                              "' requires a value.");
+                }
                 else
                     throw("Unknown option type '" +
                           spec[lookupOptName].type + "'.");
