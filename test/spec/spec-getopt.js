@@ -378,4 +378,11 @@ describe("GetOpt.getOptions", function() {
                     argv: [ "arg" ]});
     });
 
+    it("assigns the latest, non-empty-string to the optional-valued value-option if an in-between occurrence has no value", function() {
+        expect(GetOpt.getOptions({ "opt": { type: "value", optional: true } },
+                              "--opt blah --opt --opt 42 -- arg")
+        ).toEqual({ opts: { "opt": "42" },
+                    argv: [ "arg" ]});
+    });
+
 }); // GetOpt.getOptions
