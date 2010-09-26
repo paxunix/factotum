@@ -385,4 +385,18 @@ describe("GetOpt.getOptions", function() {
                     argv: [ "arg" ]});
     });
 
+    it("supports array-accumulation of value options", function() {
+        expect(GetOpt.getOptions({ "opt": { type: "value", array: true } },
+                              "--opt blah --opt test --opt '1 2 3' -- arg")
+        ).toEqual({ opts: { "opt": [ "blah", "test", "1 2 3" ] },
+                    argv: [ "arg" ]});
+    });
+
+    it("supports (though weird) array-accumulation of boolean options", function() {
+        expect(GetOpt.getOptions({ "opt": { type: "boolean", array: true } },
+                              "--opt --no-opt --opt --noopt -- arg")
+        ).toEqual({ opts: { "opt": [ true, false, true, false ] },
+                    argv: [ "arg" ]});
+    });
+
 }); // GetOpt.getOptions

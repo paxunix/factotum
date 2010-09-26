@@ -126,6 +126,14 @@ GetOpt.getOptions = function (spec, args)
     var retArgv = [];
     var saveToOptName = null;
 
+    function saveValue(opt, value)
+    {
+        if (spec[opt].array)
+            opts[opt] = [].concat(opts[opt] || [], value);
+        else
+            opts[opt] = value;
+    }
+
     // Pull options and their values out of argv.
     while (argv.length > 0)
     {
@@ -157,14 +165,14 @@ GetOpt.getOptions = function (spec, args)
 
                 if (spec[lookupOptName].type === "boolean")
                 {
-                    opts[lookupOptName] = !isToggledOff;
+                    saveValue(lookupOptName, !isToggledOff);
                 }
                 else if (spec[lookupOptName].type === "incremental")
                 {
                     // Incremental option values >= 0.
-                    opts[lookupOptName] =
+                    saveValue(lookupOptName,
                         Math.max(0, (opts[lookupOptName] || 0) +
-                            (isToggledOff ? -1 : +1));
+                            (isToggledOff ? -1 : +1)));
                 }
                 else if (spec[lookupOptName].type === "value")
                 {
@@ -181,7 +189,7 @@ GetOpt.getOptions = function (spec, args)
         // If we are already "in" an option, save its value.
         if (saveToOptName !== null)
         {
-            opts[saveToOptName] = word;
+            saveValue(saveToOptName, word);
             saveToOptName = null;
             continue;
         }
@@ -198,7 +206,7 @@ GetOpt.getOptions = function (spec, args)
                 if (!spec[opt].optional)
                     throw("Option '" + opt + "' requires a value.");
                 else
-                    opts[opt] = "";
+                    saveValue(opt, "");
     }
 
     return { opts: opts, argv: retArgv };
