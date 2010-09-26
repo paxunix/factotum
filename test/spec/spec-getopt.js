@@ -399,4 +399,14 @@ describe("GetOpt.getOptions", function() {
                     argv: [ "arg" ]});
     });
 
+    it("supports option aliases", function() {
+        expect(GetOpt.getOptions({
+            "opt": { type: "boolean",
+                     array: true,
+                     aliases: [ "o", "option" ] } },
+            "--opt --no-o --o --option -- arg")
+        ).toEqual({ opts: { "opt": [ true ] },
+                    argv: [ "arg" ]});
+    });
+
 }); // GetOpt.getOptions
