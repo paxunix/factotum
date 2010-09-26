@@ -303,4 +303,19 @@ describe("GetOpt.getOptions", function() {
         ).toEqual({ opts: { "opt": "final" }, argv: [ "--a", "arg" ]});
     });
 
+    it("throws an exception if the value would be the -- opt/arg separator", function() {
+        expect(function() {
+            GetOpt.getOptions({ "opt": { type: "value" } },
+                              "--opt -- arg ")
+        }).toThrow("Option 'opt' requires a value.");
+    });
+
+    it("if a value-option is given a value and then no value, the final value is used", function() {
+        expect(
+            GetOpt.getOptions({ "opt": { type: "value" } },
+                              "--opt val1 --opt val2 --opt -- blah --a arg --opt final")
+        ).toEqual({ opts: { "opt": "val2" },
+                    argv: [ "blah", "--a", "arg", "--opt", "final" ]});
+    });
+
 }); // GetOpt.getOptions

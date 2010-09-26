@@ -124,6 +124,7 @@ GetOpt.getOptions = function (spec, args)
     var argv = GetOpt.shellWordSplit(args);
     var opts = {};
     var retArgv = [];
+    var saveToOptName = null;
 
     // Pull options and their values out of argv.
     while (argv.length > 0)
@@ -135,6 +136,14 @@ GetOpt.getOptions = function (spec, args)
         {
             retArgv = retArgv.concat(argv);
             break;
+        }
+
+        // If we are already "in" an option, save its value.
+        if (saveToOptName !== null)
+        {
+            opts[saveToOptName] = word;
+            saveToOptName = null;
+            continue;
         }
 
         // Options start with any number of '-'.
@@ -165,10 +174,8 @@ GetOpt.getOptions = function (spec, args)
                 }
                 else if (spec[lookupOptName].type === "value")
                 {
-                    opts[lookupOptName] = argv.shift() || null;
-                    if (opts[lookupOptName] === null)
-                        throw("Option '" + lookupOptName +
-                              "' requires a value.");
+                    saveToOptName = lookupOptName;
+                    // XXX: what if next word is a supported option?
                 }
                 else
                     throw("Unknown option type '" +
@@ -180,6 +187,13 @@ GetOpt.getOptions = function (spec, args)
 
         // Must be an argument.
         retArgv.push(word);
+    }
+
+    // Option validation.
+    for (var opt in spec)
+    {
+        if (spec[opt].type === "value" && !(opt in opts))
+            throw("Option '" + opt + "' requires a value.");
     }
 
     return { opts: opts, argv: retArgv };
