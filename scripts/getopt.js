@@ -134,15 +134,15 @@ GetOpt.getOptions = function (spec, args)
             opts[opt] = value;
     }
 
-    // Return the option key name if opt is an alias or is a key in spec.
+    // Return the option spec's name if opt is an alias or is a key in spec.
     function getOptionName(opt)
     {
         if (opt in spec)
             return opt;
 
         for (var i in spec)
-            if ((spec[i].aliases || []).indexOf(i) != -1)
-                return opt;
+            if ((spec[i].aliases || []).indexOf(opt) != -1)
+                return i;
 
         return null;
     }
