@@ -126,6 +126,7 @@ GetOpt.getOptions = function (spec, args)
     var retArgv = [];
     var saveToOptName = null;
 
+
     function saveValue(opt, value)
     {
         if (spec[opt].array)
@@ -134,26 +135,40 @@ GetOpt.getOptions = function (spec, args)
             opts[opt] = value;
     }
 
+
     // Return an object with details about the arg/opt in s.
     function getOptionOrArg(s)
     {
-        var optName = (s.match(/^-+(.*)/) || [ null, null ])[1];
+        // Options start with any number of '-'.  If the option name is
+        // followed by '=', save everything after it as a value to be used
+        // for that option.
+        var optMatch =
+            (s.match(/^-+(.+?)(?:=(.*))?$/) ||
+            [ null, null, null ]);
 
-        if (optName !== null)
+        if (optMatch[1] !== null)
         {
-            // Exact matches are preferred.
-            if (optName in spec)
-                return { opt: optName };
+            var ret = { opt: optMatch[1] };
 
-            // Otherwise, see if it's an alias.
+            if (optMatch[2] !== null && typeof(optMatch[2]) !== "undefined")
+                ret.value = optMatch[2];
+
+            // Exact matches are preferred.
+            if (ret.opt in spec)
+                return ret;
+
+            // Otherwise, see if it's an exact alias match.
             for (var i in spec)
-                if ((spec[i].aliases || []).indexOf(optName) != -1)
-                    return { opt: i };
+                if ((spec[i].aliases || []).indexOf(ret.opt) != -1)
+                {
+                    ret.opt = i;
+                    return ret;
+                }
 
             // If it starts with 'no' or 'no-' try it as a boolean or an
             // incremental option that's been toggled off.
             var toggleCheck =
-                optName.match(/^no-?(.*)/) || [ null ];
+                ret.opt.match(/^no-?(.*)/) || [ null ];
             if (toggleCheck[0] !== null)
             {
                 // Recursively retry with the non-negated name.
@@ -161,15 +176,19 @@ GetOpt.getOptions = function (spec, args)
                 if (trueOpt.opt &&
                     (spec[trueOpt.opt].type === "boolean" ||
                      spec[trueOpt.opt].type === "incremental"))
-                    return { opt: trueOpt.opt, isToggledOff: true };
+                {
+                    ret.opt = trueOpt.opt;
+                    ret.isToggledOff = true;
+                }
 
-                return { opt: optName };
+                return ret;
             }
         }
 
         // Not an option, so consider it a word.
         return { word: s };
     }   // getOptionOrArg
+
 
     // Pull options and their values out of argv.
     while (argv.length > 0)
@@ -186,6 +205,19 @@ GetOpt.getOptions = function (spec, args)
         var thing = getOptionOrArg(word);
         if (thing.opt)
         {
+            // If there was an '=value' for this option, force it to be the
+            // next word, but only if this option is a value-type.
+            // Otherwise, this word should be considered an arg, not an
+            // option.
+            if ('value' in thing)
+                if (spec[thing.opt].type === "value")
+                    argv.unshift(thing.value);
+                else
+                {
+                    retArgv.push(word);
+                    continue;
+                }
+
             saveToOptName = null;
 
             if (spec[thing.opt].type === "boolean")

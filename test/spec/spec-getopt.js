@@ -448,4 +448,19 @@ describe("GetOpt.getOptions", function() {
                     argv: [ "arg" ]});
     });
 
+    it("handles 'option=value' value-options", function() {
+        expect(GetOpt.getOptions({
+            "a": { type: "value" } },
+            "--a='the value' arg")
+        ).toEqual({ opts: { "a": "the value" },
+                    argv: [ "arg" ]});
+    });
+
+    it("treats non-value options with '=<value>' suffix as args", function() {
+        expect(GetOpt.getOptions({
+            "a": { type: "boolean" } },
+            "--a='the value' arg")
+        ).toEqual({ opts: { }, argv: [ "--a=the value", "arg" ]});
+    });
+
 }); // GetOpt.getOptions
