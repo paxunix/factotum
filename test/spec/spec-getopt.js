@@ -349,4 +349,33 @@ describe("GetOpt.getOptions", function() {
         ).toEqual({ opts: { "opt": "---" }, argv: [ "arg" ]});
     });
 
+    it("supports value-option with optional value", function() {
+        expect(GetOpt.getOptions({ "opt": { type: "value", optional: true } },
+                              "--opt 'testing 1 2 3' -- arg")
+        ).toEqual({ opts: { "opt": "testing 1 2 3"},
+                    argv: [ "arg" ]});
+    });
+
+    it("supports value-option without optional value", function() {
+        expect(GetOpt.getOptions({ "opt": { type: "value", optional: true } },
+                              "--opt -- arg")
+        ).toEqual({ opts: { "opt": ""},
+                    argv: [ "arg" ]});
+    });
+
+    it("supports value-option without optional value followed by a valid option", function() {
+        expect(GetOpt.getOptions({ "opt": { type: "value", optional: true },
+                                   "b": { type: "value" } },
+                              "--opt -b blah -- arg")
+        ).toEqual({ opts: { "opt": "", "b": "blah" },
+                    argv: [ "arg" ]});
+    });
+
+    it("assigns the latest, non-empty-string to the optional-valued value-option if the final occurrence has no value", function() {
+        expect(GetOpt.getOptions({ "opt": { type: "value", optional: true } },
+                              "--opt blah --opt -- arg")
+        ).toEqual({ opts: { "opt": "blah" },
+                    argv: [ "arg" ]});
+    });
+
 }); // GetOpt.getOptions

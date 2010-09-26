@@ -193,8 +193,12 @@ GetOpt.getOptions = function (spec, args)
     // Option validation.
     for (var opt in spec)
     {
-        if (spec[opt].type === "value" && !(opt in opts))
-            throw("Option '" + opt + "' requires a value.");
+        if (spec[opt].type === "value")
+            if (!(opt in opts))
+                if (!spec[opt].optional)
+                    throw("Option '" + opt + "' requires a value.");
+                else
+                    opts[opt] = "";
     }
 
     return { opts: opts, argv: retArgv };
