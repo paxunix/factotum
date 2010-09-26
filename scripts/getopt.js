@@ -134,18 +134,42 @@ GetOpt.getOptions = function (spec, args)
             opts[opt] = value;
     }
 
-    // Return the option spec's name if opt is an alias or is a key in spec.
-    function getOptionName(opt)
+    // Return an object with details about the arg/opt in s.
+    function getOptionOrArg(s)
     {
-        if (opt in spec)
-            return opt;
+        var optName = (s.match(/^-+(.*)/) || [ null, null ])[1];
 
-        for (var i in spec)
-            if ((spec[i].aliases || []).indexOf(opt) != -1)
-                return i;
+        if (optName !== null)
+        {
+            // Exact matches are preferred.
+            if (optName in spec)
+                return { opt: optName };
 
-        return null;
-    }
+            // Otherwise, see if it's an alias.
+            for (var i in spec)
+                if ((spec[i].aliases || []).indexOf(optName) != -1)
+                    return { opt: i };
+
+            // If it starts with 'no' or 'no-' try it as a boolean or an
+            // incremental option that's been toggled off.
+            var toggleCheck =
+                optName.match(/^no-?(.*)/) || [ null ];
+            if (toggleCheck[0] !== null)
+            {
+                // Recursively retry with the non-negated name.
+                var trueOpt = getOptionOrArg("-" + toggleCheck[1]);
+                if (trueOpt.opt &&
+                    (spec[trueOpt.opt].type === "boolean" ||
+                     spec[trueOpt.opt].type === "incremental"))
+                    return { opt: trueOpt.opt, isToggledOff: true };
+
+                return { opt: optName };
+            }
+        }
+
+        // Not an option, so consider it a word.
+        return { word: s };
+    }   // getOptionOrArg
 
     // Pull options and their values out of argv.
     while (argv.length > 0)
@@ -159,57 +183,44 @@ GetOpt.getOptions = function (spec, args)
             break;
         }
 
-        // Options start with any number of '-'.
-        var rawOptName = (word.match(/^-+(.*)/) || [ null, "" ])[1];
-        if (rawOptName !== "")
+        var thing = getOptionOrArg(word);
+        if (thing.opt)
         {
-            // Check if option is a "no-" boolean.
-            var lookupOptName = rawOptName;
-            var toggleCheck =
-                rawOptName.match(/^no-?(.*)/) || [ "", rawOptName ];
-            var isToggledOff = (toggleCheck[0] !== "");
-            if (isToggledOff)
-                lookupOptName = toggleCheck[1];
+            saveToOptName = null;
 
-            lookupOptName = getOptionName(lookupOptName);
-            if (lookupOptName !== null)
+            if (spec[thing.opt].type === "boolean")
             {
-                saveToOptName = null;
-
-                if (spec[lookupOptName].type === "boolean")
-                {
-                    saveValue(lookupOptName, !isToggledOff);
-                }
-                else if (spec[lookupOptName].type === "incremental")
-                {
-                    // Incremental option values >= 0.
-                    saveValue(lookupOptName,
-                        Math.max(0, (opts[lookupOptName] || 0) +
-                            (isToggledOff ? -1 : +1)));
-                }
-                else if (spec[lookupOptName].type === "value")
-                {
-                    saveToOptName = lookupOptName;
-                }
-                else
-                    throw("Unknown option type '" +
-                          spec[lookupOptName].type + "'.");
-
-                continue;
+                saveValue(thing.opt, !thing.isToggledOff);
             }
-        }
+            else if (spec[thing.opt].type === "incremental")
+            {
+                // Incremental option values >= 0.
+                saveValue(thing.opt,
+                    Math.max(0, (opts[thing.opt] || 0) +
+                        (thing.isToggledOff ? -1 : +1)));
+            }
+            else if (spec[thing.opt].type === "value")
+            {
+                saveToOptName = thing.opt;
+            }
+            else
+                throw("Unknown option type '" +
+                      spec[thing.opt].type + "'.");
+
+            continue;
+        }   // if it's an option
 
         // If we are already "in" an option, save its value.
         if (saveToOptName !== null)
         {
-            saveValue(saveToOptName, word);
+            saveValue(saveToOptName, thing.word);
             saveToOptName = null;
             continue;
         }
 
         // Must be an argument.
-        retArgv.push(word);
-    }
+        retArgv.push(thing.word);
+    }   // while
 
     // Option validation.
     for (var opt in spec)

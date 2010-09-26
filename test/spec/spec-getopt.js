@@ -402,10 +402,49 @@ describe("GetOpt.getOptions", function() {
     it("supports option aliases", function() {
         expect(GetOpt.getOptions({
             "opt": { type: "boolean",
-                     array: true,
                      aliases: [ "o", "option" ] } },
-            "--opt --no-o --o --option -- arg")
-        ).toEqual({ opts: { "opt": [ true ] },
+            "--option -o -- arg")
+        ).toEqual({ opts: { "opt": true },
+                    argv: [ "arg" ]});
+    });
+
+    it("supports value options starting with 'no'", function() {
+        expect(GetOpt.getOptions({
+            "noopt": { type: "value" } },
+            "--noopt val -- arg")
+        ).toEqual({ opts: { "noopt": "val" },
+                    argv: [ "arg" ]});
+    });
+
+    it("supports boolean option aliases starting with 'no'", function() {
+        expect(GetOpt.getOptions({
+            "o": { type: "boolean", aliases: [ "opt", "option" ] } },
+            "--no-option -- arg")
+        ).toEqual({ opts: { "o": false },
+                    argv: [ "arg" ]});
+    });
+
+    it("supports incremental options starting with 'no'", function() {
+        expect(GetOpt.getOptions({
+            "noopt": { type: "incremental" } },
+            "--noopt -noopt arg")
+        ).toEqual({ opts: { "noopt": 2 },
+                    argv: [ "arg" ]});
+    });
+
+    it("supports boolean options starting with 'no'", function() {
+        expect(GetOpt.getOptions({
+            "noopt": { type: "boolean" } },
+            "--noopt arg")
+        ).toEqual({ opts: { "noopt": true },
+                    argv: [ "arg" ]});
+    });
+
+    it("supports negated boolean options starting with 'no'", function() {
+        expect(GetOpt.getOptions({
+            "noopt": { type: "boolean" } },
+            "--nonoopt --no-noopt arg")
+        ).toEqual({ opts: { "noopt": false },
                     argv: [ "arg" ]});
     });
 
