@@ -138,14 +138,6 @@ GetOpt.getOptions = function (spec, args)
             break;
         }
 
-        // If we are already "in" an option, save its value.
-        if (saveToOptName !== null)
-        {
-            opts[saveToOptName] = word;
-            saveToOptName = null;
-            continue;
-        }
-
         // Options start with any number of '-'.
         var rawOptName = (word.match(/^-+(.*)/) || [ null, "" ])[1];
         if (rawOptName !== "")
@@ -161,6 +153,8 @@ GetOpt.getOptions = function (spec, args)
             // Check for option in spec.
             if (lookupOptName in spec)
             {
+                saveToOptName = null;
+
                 if (spec[lookupOptName].type === "boolean")
                 {
                     opts[lookupOptName] = !isToggledOff;
@@ -183,6 +177,14 @@ GetOpt.getOptions = function (spec, args)
 
                 continue;
             }
+        }
+
+        // If we are already "in" an option, save its value.
+        if (saveToOptName !== null)
+        {
+            opts[saveToOptName] = word;
+            saveToOptName = null;
+            continue;
         }
 
         // Must be an argument.

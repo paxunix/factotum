@@ -318,4 +318,21 @@ describe("GetOpt.getOptions", function() {
                     argv: [ "blah", "--a", "arg", "--opt", "final" ]});
     });
 
+    it("throws an exception if value-option with no value is followed by a valid option", function() {
+        expect(function() {
+            GetOpt.getOptions({ "opt": { type: "value" },
+                                "b": { type: "boolean" } },
+                              "--opt -b -- arg ")
+        }).toThrow("Option 'opt' requires a value.");
+    });
+
+    it("handles sequence of value-options with values", function() {
+        expect(GetOpt.getOptions({ "opt": { type: "value" },
+                                "b": { type: "value" } },
+                              "--opt 'testing 1 2 3' -b \"blah\" -- arg ")
+        ).toEqual({ opts: { "opt": "testing 1 2 3",
+                            "b": "blah" },
+                    argv: [ "arg" ]});
+    });
+
 }); // GetOpt.getOptions
