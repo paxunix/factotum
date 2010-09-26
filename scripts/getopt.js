@@ -169,7 +169,6 @@ GetOpt.getOptions = function (spec, args)
                 else if (spec[lookupOptName].type === "value")
                 {
                     saveToOptName = lookupOptName;
-                    // XXX: what if next word is a supported option?
                 }
                 else
                     throw("Unknown option type '" +
