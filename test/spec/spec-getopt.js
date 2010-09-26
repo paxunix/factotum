@@ -335,4 +335,18 @@ describe("GetOpt.getOptions", function() {
                     argv: [ "arg" ]});
     });
 
+    it("supports value-type option with a '-' value", function() {
+        expect(
+            GetOpt.getOptions({ "opt": { type: "value" } },
+                              "--opt - arg")
+        ).toEqual({ opts: { "opt": "-" }, argv: [ "arg" ]});
+    });
+
+    it("supports value-type option with a '---' value", function() {
+        expect(
+            GetOpt.getOptions({ "opt": { type: "value" } },
+                              "--opt --- arg")
+        ).toEqual({ opts: { "opt": "---" }, argv: [ "arg" ]});
+    });
+
 }); // GetOpt.getOptions
