@@ -265,5 +265,5 @@ GetOpt.getOptions = function (spec, args)
                     saveValue(opt, "");
     }
 
-    return { opts: opts, argv: retArgv };
+    return { opts: opts, argv: retArgv, cmdline: args };
 }   // GetOpt.getOptions 
