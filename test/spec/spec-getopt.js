@@ -463,4 +463,9 @@ describe("GetOpt.getOptions", function() {
         ).toEqual({ opts: { }, argv: [ "--a=the value", "arg" ]});
     });
 
+    it("accepts an array of words to be parsed", function() {
+        expect(GetOpt.getOptions({ }, [ "this is one word", "two", "--three" ])
+        ).toEqual({ opts: { }, argv: [ "this is one word", "two", "--three" ]});
+    });
+
 }); // GetOpt.getOptions

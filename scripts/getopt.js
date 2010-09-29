@@ -121,7 +121,12 @@ GetOpt.shellWordSplit = function (arg)
 //      object containing options and their values, and arguments.
 GetOpt.getOptions = function (spec, args)
 {
-    var argv = GetOpt.shellWordSplit(args);
+    var argv;
+    if (toString.call(args) === "[object Array]")
+        argv = args;
+    else
+        argv = GetOpt.shellWordSplit(args);
+
     var opts = {};
     var retArgv = [];
     var saveToOptName = null;
@@ -265,5 +270,5 @@ GetOpt.getOptions = function (spec, args)
                     saveValue(opt, "");
     }
 
-    return { opts: opts, argv: retArgv, cmdline: args };
+    return { opts: opts, argv: retArgv };
 }   // GetOpt.getOptions 
