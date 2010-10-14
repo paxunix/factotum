@@ -15,9 +15,13 @@
 
     // Request all the permissions we can.
     "permissions": [
-        "experimental",
         "bookmarks",
+        "cookies",
+        "experimental",
+        "geolocation",
+        "history",
         "http://*/*", "https://*/*",
+        "management",
         "notifications",
         "tabs",
         "unlimited_storage"
@@ -29,5 +33,7 @@
         "default_icon": "icons/factotum-128.png",
         "default_title": "Factotum",
         "popup": "popup.html"
-    }
+    },
+
+    "incognito": "split"
 }
