@@ -19,13 +19,14 @@
       or disabled, since F's management interface listens for extensions
       being uninstalled, disabled, or enabled and won't dispatch to F
       commands that are not active.
-    - XXX: what about duplicate command names?
-        - is user notified at registration time?
-        - how does the user choose which to use?  Could set the omnibox
-          results.
-            - does the user assign a priority?  No, too manual.
-            - does Factotum track which commands are used more frequently
-              and populates the omnibox results with those ahead of others?
+    - if a command is registered by more than one extension, we can present
+      both of them as possible omnibox choices.
+        - user does not need to be notified at registration time that
+          duplicates exist
+        - should the user be able to specify an order?  This could be done
+          on the management page.  Or should F learn which is more commonly
+          used and put that one first?  If so, how does one reset the order?
+          Maybe a combination and manually reordering them resets the order.
 
 - F supports
     - listening for extensions being disabled/enabled to know when to
@@ -42,3 +43,8 @@
         - is possible to enable an F command in a disabled extension by
           prompting to re-enable the extension.
     - shows their help content
+
+- should F populate the omnibox results list based on the prefix of a
+  command that has already been executed?  Should there be a separate popup?
+  Probably only if there is a preview mode for that command.  Otherwise,
+  it's just what you get in the omnibox.
