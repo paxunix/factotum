@@ -1,3 +1,8 @@
+var Factotum = {};
+
+Factotum.commands = {};
+
+
 // Function: listener
 //      Listen for requests from other extensions.
 //
@@ -9,7 +14,7 @@
 //              optionSpec:  option specification (see GetOpt.getOptions)
 //                  for the commands
 //              }
-function listener(request, sender, sendResponse)
+Factotum.listener = function(request, sender, sendResponse)
 {
     var response = {
         success: false,
@@ -44,7 +49,8 @@ function listener(request, sender, sendResponse)
     }
 
     sendResponse(response);
-}  // listener
+};  // listener
 
-chrome.extension.onRequestExternal.addListener(listener);
-chrome.extension.onRequest.addListener(listener);       // for testing
+
+chrome.extension.onRequestExternal.addListener(Factotum.listener);
+chrome.extension.onRequest.addListener(Factotum.listener);       // for testing
