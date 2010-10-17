@@ -168,6 +168,12 @@ describe("GetOpt.shellWordSplit", function() {
         ).toEqual(["blah", "   ", "arg", "-b", "--long-opt", "-d=1", "--opt=one two three", "-debug", "--verbose=yes", "--", "arg3", "arg4", "--arg5", 'arg six "has multiple" words', '"'])
    });
 
+    it("throws an exception if a non-string arg is passed", function() {
+        expect(function() {
+            GetOpt.shellWordSplit({})
+        }).toThrow("Argument must be a string.");
+    });
+
 }); // shellWordSplit spec
 
 

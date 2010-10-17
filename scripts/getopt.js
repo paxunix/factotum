@@ -11,6 +11,9 @@ GetOpt.shellWordSplit = function (arg)
 {
     arg = arg || "";
 
+    if (typeof(arg) !== "string")
+        throw("Argument must be a string.");
+
     var argv = [];
     var curWord = 0;
     var inWord = false;
