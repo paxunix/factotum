@@ -1,5 +1,6 @@
 var Factotum = {};
 
+// Hash of command names to metadata for those commands.
 Factotum.commands = {};
 
 
@@ -37,6 +38,15 @@ Factotum.listener = function(request, sender, sendResponse)
         {
             throw("request.register.optionSpec must be an Object.");
         }
+
+        jQuery.each(request.register.factotumCommands, function (n, cmdName)
+        {
+            // XXX: how to handle duplicate from different extensions?
+            Factotum.commands[cmdName] = {
+                optspec:  request.register.optionSpec || {},
+                extensionId:  sender.id
+            };
+        });
 
         response = { success: true };
 
