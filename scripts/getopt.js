@@ -12,7 +12,7 @@ GetOpt.shellWordSplit = function (arg)
     arg = arg || "";
 
     if (typeof(arg) !== "string")
-        throw("Argument must be a string.");
+        throw("GetOpt.shellWordSplit:  Argument must be a string.");
 
     var argv = [];
     var curWord = 0;
@@ -106,7 +106,6 @@ GetOpt.shellWordSplit = function (arg)
 //      {
 //          <option-name>: {
 //              type: t,
-//              default: d,
 //              aliases: []
 //          },
 //          <option2-name>: obj2
@@ -124,12 +123,10 @@ GetOpt.shellWordSplit = function (arg)
 //      object containing options and their values, and arguments.
 GetOpt.getOptions = function (spec, args)
 {
-    var argv;
-    if (toString.call(args) === "[object Array]")
-        argv = args;
-    else
-        argv = GetOpt.shellWordSplit(args);
+    if (!jQuery.isPlainObject(spec))
+        throw("GetOpt.getOptions: spec must be an Object.");
 
+    var argv = jQuery.isArray(args) ? args : GetOpt.shellWordSplit(args);
     var opts = {};
     var retArgv = [];
     var saveToOptName = null;

@@ -171,7 +171,7 @@ describe("GetOpt.shellWordSplit", function() {
     it("throws an exception if a non-string arg is passed", function() {
         expect(function() {
             GetOpt.shellWordSplit({})
-        }).toThrow("Argument must be a string.");
+        }).toThrow("GetOpt.shellWordSplit:  Argument must be a string.");
     });
 
 }); // shellWordSplit spec
@@ -472,6 +472,12 @@ describe("GetOpt.getOptions", function() {
     it("accepts an array of words to be parsed", function() {
         expect(GetOpt.getOptions({ }, [ "this is one word", "two", "--three" ])
         ).toEqual({ opts: { }, argv: [ "this is one word", "two", "--three" ]});
+    });
+
+    it("throws an exception if a non-object spec is passed", function() {
+        expect(function() {
+            GetOpt.getOptions([], "cmdline")
+        }).toThrow("GetOpt.getOptions: spec must be an Object.");
     });
 
 }); // GetOpt.getOptions
