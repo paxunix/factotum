@@ -1,0 +1,44 @@
+- F commands are installed as plain old extensions
+    - benefits from Chrome's existing sandbox model for security
+    - benefits from Chrome's existing mechanism for automatic extension updates
+    - no additional storage requirements for F commands
+    - when installed, register themselves as supplying F commands
+        - can supply more than one F command in a single extension
+        - REJECTED: F could instead scan the list of installed extensions
+          and send a command to each to see if it "exports" F commands, but
+          that seems noisy and messy
+        - an extension registers itself with F by supplying
+            - an optspec for command line parsing for each F command
+            - the name of each F command
+        - an extension listens for F requests (the parsed command line is
+          passed in every case)
+            - command
+            - help content
+            - dynamic previewing
+    - no need to register with F when an F command extension is uninstalled
+      or disabled, since F's management interface listens for extensions
+      being uninstalled, disabled, or enabled and won't dispatch to F
+      commands that are not active.
+    - XXX: what about duplicate command names?
+        - is user notified at registration time?
+        - how does the user choose which to use?  Could set the omnibox
+          results.
+            - does the user assign a priority?  No, too manual.
+            - does Factotum track which commands are used more frequently
+              and populates the omnibox results with those ahead of others?
+
+- F supports
+    - listening for extensions being disabled/enabled to know when to
+      enable/disable corresponding F commands
+  
+- F provides a management interface just for F commands
+    - shows a list of commands and the extensions that supply them
+    - supports enabling/disabling F commands
+        - does not disable the extension, otherwise extensions that supply F
+          commands as well as other functionality would have that other
+          functionaly shut off also.
+            - disabling the extension would also make it impossible to
+              disable a subset of F commands supplied by an extension
+        - is possible to enable an F command in a disabled extension by
+          prompting to re-enable the extension.
+    - shows their help content
