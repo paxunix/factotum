@@ -5,7 +5,7 @@
 //      request - data request object.  Possible requests:
 //          register: {     - registers the sending extension as a handler
 //                            for the commands in commandList.
-//              commandList:  array of commands
+//              factotumCommands:  array of command names
 //              optionSpec:  option specification (see GetOpt.getOptions)
 //                  for the commands
 //              }
@@ -25,6 +25,12 @@ function listener(request, sender, sendResponse)
         if (!jQuery.isArray(request.register.factotumCommands))
         {
             throw("request.register.factotumCommands must be an array.");
+        }
+
+        if (request.register.optionSpec &&
+            !jQuery.isPlainObject(request.register.optionSpec))
+        {
+            throw("request.register.optionSpec must be an Object.");
         }
 
         response = { success: true };
