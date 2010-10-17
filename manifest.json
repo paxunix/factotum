@@ -15,16 +15,12 @@
 
     // Request all the permissions we can.
     "permissions": [
-        "bookmarks",
-        "cookies",
         "experimental",
-        "geolocation",
-        "history",
         "http://*/*", "https://*/*",
         "management",
         "notifications",
         "tabs",
-        "unlimited_storage"
+        "unlimitedStorage"
     ],
 
     "background_page": "background.html",
