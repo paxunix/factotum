@@ -48,3 +48,11 @@
   command that has already been executed?  Should there be a separate popup?
   Probably only if there is a preview mode for that command.  Otherwise,
   it's just what you get in the omnibox.
+
+- should F should install a content script everywhere that can run code on
+  behalf of registered F commands?  Otherwise, every F command that needs to
+  do DOM work will need its own content script.  Possible, but is that
+  messy?
+    - this is preferable to each F command installing its own content script
+      because F commands are only run on demand, which means a content
+      script that is loaded all the time isn't necessary.
