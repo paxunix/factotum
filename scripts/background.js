@@ -1,6 +1,8 @@
 var Factotum = {};
 
-// Hash of command names to metadata for those commands.
+// Hash of command names to arrays of metadata for those commands.  Arrays
+// are used because the same command may be registered by multiple
+// extensions.
 Factotum.commands = {};
 
 
@@ -41,11 +43,16 @@ Factotum.listener = function(request, sender, sendResponse)
 
         jQuery.each(request.register.factotumCommands, function (n, cmdName)
         {
-            // XXX: how to handle duplicate from different extensions?
-            Factotum.commands[cmdName] = {
-                optspec:  request.register.optionSpec || {},
-                extensionId:  sender.id
-            };
+            // XXX:  should return an error if the command was already
+            // registered by the same extension.
+
+            // Command metadata is stored in an array since a single command
+            // may be registered by more than one extension.
+            Factotum.commands[cmdName] =
+                (Factotum.commands[cmdName] || []).concat([{
+                    optspec:  request.register.optionSpec || {},
+                    extensionId:  sender.id
+                }]);
         });
 
         response = { success: true };

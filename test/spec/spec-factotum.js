@@ -90,10 +90,10 @@ describe("Factotum", function() {
             });
             expect(chrome.extension.getBackgroundPage().
                 Factotum.commands.test).
-                    toEqual({ optspec: optspec, extensionId: extensionId });
+                    toEqual([{ optspec: optspec, extensionId: extensionId }]);
             expect(chrome.extension.getBackgroundPage().
                 Factotum.commands.testing).
-                    toEqual({ optspec: optspec, extensionId: extensionId });
+                    toEqual([{ optspec: optspec, extensionId: extensionId }]);
         });
     });
 
@@ -120,7 +120,7 @@ describe("Factotum", function() {
             });
             expect(chrome.extension.getBackgroundPage().
                 Factotum.commands.test2).
-                    toEqual({ optspec: {}, extensionId: extensionId });
+                    toEqual([{ optspec: {}, extensionId: extensionId }]);
         });
     });
 
