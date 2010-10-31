@@ -126,4 +126,46 @@ describe("Factotum", function() {
         });
     });
 
+    it("responds with error if an extension tries to register the same command more than once", function() {
+        var response = { };
+        var cmdName = "test";
+
+        chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
+
+        chrome.extension.sendRequest({
+            register: {
+                factotumCommands: [ cmdName ]
+                }
+            },
+            function(r) {
+                response = r;
+            }
+        );
+
+        waitsFor(function() {
+            return typeof(response.success) !== "undefined"
+        }, "request to finish.", 2000);
+
+        chrome.extension.sendRequest({
+            register: {
+                factotumCommands: [ cmdName ]
+                }
+            },
+            function(r) {
+                response = r;
+            }
+        );
+
+        waitsFor(function() {
+            return typeof(response.success) !== "undefined"
+        }, "request to finish.", 2000);
+
+        runs(function() {
+            expect(response).toEqual({
+                success: false,
+                error: "Extension " + extensionId + " has already registered command '" + cmdName + "'."
+            })
+        });
+    });
+
 });    // Factotum

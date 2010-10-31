@@ -50,8 +50,14 @@ Factotum.listener = function(request, sender, sendResponse)
 
         jQuery.each(request.register.factotumCommands, function (n, cmdName)
         {
-            // XXX:  should return an error if the command was already
-            // registered by the same extension.
+            // If the sender extension has already registered this command,
+            // respond with error.
+            if (jQuery.grep(Factotum.commands[cmdName] || [], function(el, n) {
+                    return el.extensionId === sender.id;
+                }).length != 0)
+            {
+                throw("Extension " + sender.id + " has already registered command '" + cmdName + "'.");
+            }
 
             // Command metadata is stored in an array since a single command
             // may be registered by more than one extension.
