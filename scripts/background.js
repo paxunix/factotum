@@ -6,6 +6,13 @@ var Factotum = {};
 Factotum.commands = {};
 
 
+// Primarily useful as a function during testing.
+Factotum.clear = function()
+{
+    Factotum.commands = {};
+};  // Factotum.clear
+
+
 // Function: listener
 //      Listen for requests from other extensions.
 //
@@ -66,7 +73,7 @@ Factotum.listener = function(request, sender, sendResponse)
     }
 
     sendResponse(response);
-};  // listener
+};  // Factotum.listener
 
 
 chrome.extension.onRequestExternal.addListener(Factotum.listener);
