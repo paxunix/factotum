@@ -11,7 +11,7 @@ describe("Factotum", function() {
 
         waitsFor(function() {
             return typeof(response.success) !== "undefined"
-        }, "Unrecognized request error.", 2000);
+        }, "request to finish.", 2000);
 
         runs(function() {
             expect(response).toEqual({
@@ -30,7 +30,7 @@ describe("Factotum", function() {
 
         waitsFor(function() {
             return typeof(response.success) !== "undefined"
-        }, "Unrecognized request error.", 2000);
+        }, "request to finish.", 2000);
 
         runs(function() {
             expect(response).toEqual({
@@ -55,7 +55,7 @@ describe("Factotum", function() {
 
         waitsFor(function() {
             return typeof(response.success) !== "undefined"
-        }, "Unrecognized request error.", 2000);
+        }, "request to finish.", 2000);
 
         runs(function() {
             expect(response).toEqual({
@@ -68,6 +68,7 @@ describe("Factotum", function() {
     it("saves each registered command name and optspec", function() {
         var response = { };
         var optspec = { "a": { type: "boolean" } };
+        chrome.extension.getBackgroundPage().Factotum.commands = { };    // clear any existing commands
 
         chrome.extension.sendRequest({
             register: {
@@ -82,7 +83,7 @@ describe("Factotum", function() {
 
         waitsFor(function() {
             return typeof(response.success) !== "undefined"
-        }, "Unrecognized request error.", 2000);
+        }, "request to finish.", 2000);
 
         runs(function() {
             expect(response).toEqual({
@@ -99,6 +100,7 @@ describe("Factotum", function() {
 
     it("request.register.optionSpec can be missing and an empty optspec will be used", function() {
         var response = { };
+        chrome.extension.getBackgroundPage().Factotum.commands = { };    // clear any existing commands
 
         chrome.extension.sendRequest({
             register: {
@@ -112,7 +114,7 @@ describe("Factotum", function() {
 
         waitsFor(function() {
             return typeof(response.success) !== "undefined"
-        }, "Unrecognized request error.", 2000);
+        }, "request to finish.", 2000);
 
         runs(function() {
             expect(response).toEqual({
