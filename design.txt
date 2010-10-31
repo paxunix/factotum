@@ -56,3 +56,11 @@
     - this is preferable to each F command installing its own content script
       because F commands are only run on demand, which means a content
       script that is loaded all the time isn't necessary.
+
+- if you disable F then re-enable it, does it need to have commands
+  re-registered?
+    - if none of its data is cleared, I'd say no because the registrations
+      that were in effect at disable will still be in effect.  HOWEVER, upon
+      re-enable, if any of the registered commands' extensions are disabled
+      or gone, F needs to update the state of those commands (e.g. an F
+      command is uninstalled/disabled while F is disabled).
