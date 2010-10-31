@@ -98,7 +98,7 @@ describe("Factotum", function() {
         });
     });
 
-    it("request.register.optionSpec can be missing and an empty optspec will be used", function() {
+    it("uses an empty optspec if request.register.optionSpec is missing", function() {
         var response = { };
         chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
 
