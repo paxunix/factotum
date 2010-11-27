@@ -90,5 +90,7 @@ Factotum.listener = function(request, sender, sendResponse)
 };  // Factotum.listener
 
 
+// Listeners for communicating with self (primarily for testing) and other
+// extensions.
 chrome.extension.onRequestExternal.addListener(Factotum.listener);
-chrome.extension.onRequest.addListener(Factotum.listener);       // for testing
+chrome.extension.onRequest.addListener(Factotum.listener);
