@@ -101,7 +101,19 @@ Factotum.listener = function(request, sender, sendResponse)
 //      text:  string entered by user in Omnibox
 Factotum.omniboxOnInputEntered = function(text)
 {
-    console.log("Received omnibox text: '" + text + "'");
+    // Check if the first word is a known F-command.
+    var argv = GetOpt.shellWordSplit(text);
+
+    if (argv.length < 1)
+        return;
+
+    if (!(argv[0] in Factotum.commands))
+    {
+        console.debug("Unknown F-command: " + argv[0]);
+        return;
+    }
+
+    console.debug("Known F-command: " + argv[0]);
 };  // Factotum.omniboxOnInputEntered 
 
 
