@@ -74,7 +74,6 @@ Factotum.listener = function(request, sender, sendResponse)
                     extensionId:  sender.id,
                     shortDesc: request.register.shortDesc
                 }]);
-//XXX:  all command metadata needs to be stored 
         });
 
         response = { success: true };
@@ -85,7 +84,7 @@ Factotum.listener = function(request, sender, sendResponse)
         {
             response.error = e;
         }
-    }
+    }   // if request.register
 
     sendResponse(response);
 };  // Factotum.listener
