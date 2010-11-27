@@ -107,13 +107,14 @@ Factotum.omniboxOnInputEntered = function(text)
     if (argv.length < 1)
         return;
 
-    if (!(argv[0] in Factotum.commands))
+    var cmd = argv.shift();
+    if (!(cmd in Factotum.commands))
     {
-        console.debug("Unknown F-command: " + argv[0]);
+        // XXX: should user receive indication?
         return;
     }
 
-    console.debug("Known F-command: " + argv[0]);
+    var cmdline = GetOpt.getOptions(Factotum.commands[cmd].optspec, argv);
 };  // Factotum.omniboxOnInputEntered 
 
 
