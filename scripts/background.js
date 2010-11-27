@@ -90,7 +90,22 @@ Factotum.listener = function(request, sender, sendResponse)
 };  // Factotum.listener
 
 
+// Function: omniboxOnInputEntered
+//      Handles requests when an Omnibox input has been entered.
+//
+// Parameters:
+//      text:  string entered by user in Omnibox
+Factotum.omniboxOnInputEntered = function(text)
+{
+    console.log("Received omnibox text: '" + text + "'");
+};  // Factotum.omniboxOnInputEntered 
+
+
 // Listeners for communicating with self (primarily for testing) and other
 // extensions.
 chrome.extension.onRequestExternal.addListener(Factotum.listener);
 chrome.extension.onRequest.addListener(Factotum.listener);
+
+// Register Omnibox listeners.
+chrome.experimental.omnibox.
+    onInputEntered.addListener(Factotum.omniboxOnInputEntered);
