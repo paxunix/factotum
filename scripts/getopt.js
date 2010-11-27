@@ -119,6 +119,9 @@ GetOpt.shellWordSplit = function (arg)
 //      is present, false if not.  The option is also set to false if
 //      "no-<option-name>" or "no<option-name" is present.
 //
+//      args - an array of shell words or a string to be split into shell
+//      words.
+//
 // Returns:
 //      object containing options and their values, and arguments.
 GetOpt.getOptions = function (spec, args)
