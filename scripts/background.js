@@ -23,6 +23,8 @@ Factotum.clear = function()
 //              factotumCommands:  array of command names
 //              optionSpec:  option specification (see GetOpt.getOptions)
 //                  for the commands
+//              shortDesc: show this description in the omnibox for these
+//                  commands
 //              }
 Factotum.listener = function(request, sender, sendResponse)
 {
@@ -48,6 +50,11 @@ Factotum.listener = function(request, sender, sendResponse)
             throw("request.register.optionSpec must be an Object.");
         }
 
+        if (typeof(request.register.shortDesc) !== "string")
+        {
+            throw("request.register.shortDesc must be a string.");
+        }
+
         jQuery.each(request.register.factotumCommands, function (n, cmdName)
         {
             // If the sender extension has already registered this command,
@@ -64,8 +71,10 @@ Factotum.listener = function(request, sender, sendResponse)
             Factotum.commands[cmdName] =
                 (Factotum.commands[cmdName] || []).concat([{
                     optspec:  request.register.optionSpec || {},
-                    extensionId:  sender.id
+                    extensionId:  sender.id,
+                    shortDesc: request.register.shortDesc
                 }]);
+//XXX:  all command metadata needs to be stored 
         });
 
         response = { success: true };
