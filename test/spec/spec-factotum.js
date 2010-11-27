@@ -210,5 +210,40 @@ describe("Factotum", function() {
         });
     });
 
+    it("F-command names are stored in lowercase", function() {
+        var response = { };
+        chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
+
+        chrome.extension.sendRequest({
+            register: {
+                factotumCommands: [ "TEST2" ],
+                shortDesc: "Testing 1 2 3"
+                }
+            },
+            function(r) {
+                response = r;
+            }
+        );
+
+        waitsFor(function() {
+            return typeof(response.success) !== "undefined"
+        }, "request to finish.", 2000);
+
+        runs(function() {
+            expect(response).toEqual({
+                success: true,
+            });
+            expect(chrome.extension.getBackgroundPage().
+                Factotum.commands.test2).
+                    toEqual([{
+                        optspec: {},
+                        extensionId: extensionId,
+                        shortDesc: "Testing 1 2 3" }]);
+        });
+    });
+
+    // empty omnibox input string is harmless
+    // unquoted all-whitespace empty omnibox input string is harmless
+    // unknown F-command omnibox input is harmless
 
 });    // Factotum

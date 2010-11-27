@@ -57,6 +57,10 @@ Factotum.listener = function(request, sender, sendResponse)
 
         jQuery.each(request.register.factotumCommands, function (n, cmdName)
         {
+            // All command names are stored in lowercase to facilitate
+            // case-insensitive comparison.
+            cmdName = cmdName.toLowerCase();
+
             // If the sender extension has already registered this command,
             // respond with error.
             if (jQuery.grep(Factotum.commands[cmdName] || [], function(el, n) {
