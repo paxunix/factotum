@@ -289,7 +289,6 @@ describe("Factotum", function() {
     });
 
 
-    // unknown F-command omnibox input is harmless
     it("does nothing with unknown F-commands", function() {
         spyOn(chrome.extension.getBackgroundPage().GetOpt, "getOptions");
 
@@ -303,4 +302,5 @@ describe("Factotum", function() {
     });
 
 
+    // test F-command lookups are case-insensitive
 });    // Factotum
