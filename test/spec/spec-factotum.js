@@ -278,6 +278,13 @@ describe("Factotum", function() {
 
 
     // unknown F-command omnibox input is harmless
+    it("does nothing with unknown F-commands", function() {
+        expect(function() {
+            chrome.extension.getBackgroundPage().
+                Factotum.omniboxOnInputEntered("testcommand");
+        }).not.toThrow();
+        // XXX: more effective if it tested that no F-command was  run
+    });
 
 
 });    // Factotum
