@@ -250,7 +250,7 @@ describe("Factotum", function() {
     });
 
 
-    it("it accepts an empty omnibox input string", function() {
+    it("accepts an empty omnibox input string", function() {
         expect(function() {
             chrome.extension.getBackgroundPage().
                 Factotum.omniboxOnInputEntered("");
@@ -259,7 +259,7 @@ describe("Factotum", function() {
     });
 
 
-    it("it accepts an undefined omnibox input string", function() {
+    it("accepts an undefined omnibox input string", function() {
         expect(function() {
             chrome.extension.getBackgroundPage().
                 Factotum.omniboxOnInputEntered();
@@ -267,7 +267,8 @@ describe("Factotum", function() {
         // XXX: more effective if it tested that no F-command was  run
     });
 
-    it("it accepts an all whitespace omnibox input string", function() {
+
+    it("accepts an all whitespace omnibox input string", function() {
         expect(function() {
             chrome.extension.getBackgroundPage().
                 Factotum.omniboxOnInputEntered("  \t \t \n \r    ");
@@ -275,6 +276,8 @@ describe("Factotum", function() {
         // XXX: more effective if it tested that no F-command was  run
     });
 
+
     // unknown F-command omnibox input is harmless
+
 
 });    // Factotum
