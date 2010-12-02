@@ -250,40 +250,56 @@ describe("Factotum", function() {
     });
 
 
-    it("accepts an empty omnibox input string", function() {
+    it("does nothing on empty omnibox input string", function() {
+        spyOn(chrome.extension.getBackgroundPage().GetOpt, "getOptions");
+
         expect(function() {
             chrome.extension.getBackgroundPage().
                 Factotum.omniboxOnInputEntered("");
         }).not.toThrow();
-        // XXX: more effective if it tested that no F-command was  run
+
+        expect(chrome.extension.getBackgroundPage().GetOpt.getOptions).
+            not.toHaveBeenCalled();
     });
 
 
-    it("accepts an undefined omnibox input string", function() {
+    it("does nothing on undefined omnibox input string", function() {
+        spyOn(chrome.extension.getBackgroundPage().GetOpt, "getOptions");
+
         expect(function() {
             chrome.extension.getBackgroundPage().
                 Factotum.omniboxOnInputEntered();
         }).not.toThrow();
-        // XXX: more effective if it tested that no F-command was  run
+
+        expect(chrome.extension.getBackgroundPage().GetOpt.getOptions).
+            not.toHaveBeenCalled();
     });
 
 
-    it("accepts an all whitespace omnibox input string", function() {
+    it("does nothing on all whitespace omnibox input string", function() {
+        spyOn(chrome.extension.getBackgroundPage().GetOpt, "getOptions");
+
         expect(function() {
             chrome.extension.getBackgroundPage().
                 Factotum.omniboxOnInputEntered("  \t \t \n \r    ");
         }).not.toThrow();
-        // XXX: more effective if it tested that no F-command was  run
+
+        expect(chrome.extension.getBackgroundPage().GetOpt.getOptions).
+            not.toHaveBeenCalled();
     });
 
 
     // unknown F-command omnibox input is harmless
     it("does nothing with unknown F-commands", function() {
+        spyOn(chrome.extension.getBackgroundPage().GetOpt, "getOptions");
+
         expect(function() {
             chrome.extension.getBackgroundPage().
                 Factotum.omniboxOnInputEntered("testcommand");
         }).not.toThrow();
-        // XXX: more effective if it tested that no F-command was  run
+
+        expect(chrome.extension.getBackgroundPage().GetOpt.getOptions).
+            not.toHaveBeenCalled();
     });
 
 
