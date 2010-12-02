@@ -2,6 +2,7 @@ var extensionId = chrome.extension.getURL().match(/:\/\/([^\/]+)/)[1];
 
 describe("Factotum", function() {
 
+
     it("returns an error response if an unknown request is received", function() {
         var response = { };
 
@@ -21,6 +22,7 @@ describe("Factotum", function() {
         });
     });
 
+
     it("returns an error response if request.register.factotumCommands is not an array", function() {
         var response = { };
 
@@ -39,6 +41,7 @@ describe("Factotum", function() {
             })
         });
     });
+
 
     it("returns an error response if request.register.optionSpec is not an object", function() {
         var response = { };
@@ -65,6 +68,7 @@ describe("Factotum", function() {
             })
         });
     });
+
 
     it("saves each registered command", function() {
         var response = { };
@@ -106,6 +110,7 @@ describe("Factotum", function() {
         });
     });
 
+
     it("uses an empty optspec if request.register.optionSpec is missing", function() {
         var response = { };
         chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
@@ -137,6 +142,7 @@ describe("Factotum", function() {
                         shortDesc: "" }]);
         });
     });
+
 
     it("responds with error if an extension tries to register the same command more than once", function() {
         var response = { };
@@ -182,6 +188,7 @@ describe("Factotum", function() {
         });
     });
 
+
     it("requires request.register.shortDesc is required and must be a string", function() {
         var response = { };
         chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
@@ -210,7 +217,8 @@ describe("Factotum", function() {
         });
     });
 
-    it("F-command names are stored in lowercase", function() {
+
+    it("stores F-command names in lowercase", function() {
         var response = { };
         chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
 
@@ -242,7 +250,22 @@ describe("Factotum", function() {
         });
     });
 
-    // empty omnibox input string is harmless
+
+    it("it accepts an empty omnibox input string", function() {
+        expect(function() {
+            chrome.extension.getBackgroundPage().
+                Factotum.omniboxOnInputEntered("");
+        }).not.toThrow();
+    });
+
+
+    it("it accepts an undefined omnibox input string", function() {
+        expect(function() {
+            chrome.extension.getBackgroundPage().
+                Factotum.omniboxOnInputEntered();
+        }).not.toThrow();
+    });
+
     // unquoted all-whitespace empty omnibox input string is harmless
     // unknown F-command omnibox input is harmless
 
