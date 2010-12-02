@@ -111,10 +111,25 @@ Factotum.omniboxOnInputEntered = function(text)
     if (!(cmd in Factotum.commands))
     {
         // XXX: should user receive indication?
+        console.debug("Unknown F-command: " + cmd);
         return;
     }
 
     var cmdline = GetOpt.getOptions(Factotum.commands[cmd].optspec, argv);
+
+    // Dispatch command by request to the extension that handles it.
+    chrome.extension.sendRequest(
+        Factotum.commands[cmd].extensionId,
+        { commandLine: cmdline },
+        function (response) {
+            if (typeof(response) !== "undefined" &&
+                !response.success)
+            {
+                // XXX: what to do if we got back failure???
+                console.debug("F-command request returned failure.");
+            }
+        }
+    );
 };  // Factotum.omniboxOnInputEntered 
 
 
