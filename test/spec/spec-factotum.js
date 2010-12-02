@@ -2,6 +2,11 @@ var extensionId = chrome.extension.getURL().match(/:\/\/([^\/]+)/)[1];
 
 describe("Factotum", function() {
 
+    beforeEach(function() {
+        // clear any existing F-commands before each test
+        chrome.extension.getBackgroundPage().Factotum.clear();
+    });
+
 
     it("returns an error response if an unknown request is received", function() {
         var response = { };
@@ -73,7 +78,6 @@ describe("Factotum", function() {
     it("saves each registered command", function() {
         var response = { };
         var optspec = { "a": { type: "boolean" } };
-        chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
 
         chrome.extension.sendRequest({
             register: {
@@ -113,7 +117,6 @@ describe("Factotum", function() {
 
     it("uses an empty optspec if request.register.optionSpec is missing", function() {
         var response = { };
-        chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
 
         chrome.extension.sendRequest({
             register: {
@@ -147,8 +150,6 @@ describe("Factotum", function() {
     it("responds with error if an extension tries to register the same command more than once", function() {
         var response = { };
         var cmdName = "test";
-
-        chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
 
         chrome.extension.sendRequest({
             register: {
@@ -191,7 +192,6 @@ describe("Factotum", function() {
 
     it("requires request.register.shortDesc is required and must be a string", function() {
         var response = { };
-        chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
 
         chrome.extension.sendRequest({
             register: {
@@ -220,7 +220,6 @@ describe("Factotum", function() {
 
     it("stores F-command names in lowercase", function() {
         var response = { };
-        chrome.extension.getBackgroundPage().Factotum.clear();    // clear any existing commands
 
         chrome.extension.sendRequest({
             register: {
