@@ -256,6 +256,7 @@ describe("Factotum", function() {
             chrome.extension.getBackgroundPage().
                 Factotum.omniboxOnInputEntered("");
         }).not.toThrow();
+        // XXX: more effective if it tested that no F-command was  run
     });
 
 
@@ -264,9 +265,17 @@ describe("Factotum", function() {
             chrome.extension.getBackgroundPage().
                 Factotum.omniboxOnInputEntered();
         }).not.toThrow();
+        // XXX: more effective if it tested that no F-command was  run
     });
 
-    // unquoted all-whitespace empty omnibox input string is harmless
+    it("it accepts an all whitespace omnibox input string", function() {
+        expect(function() {
+            chrome.extension.getBackgroundPage().
+                Factotum.omniboxOnInputEntered("  \t \t \n \r    ");
+        }).not.toThrow();
+        // XXX: more effective if it tested that no F-command was  run
+    });
+
     // unknown F-command omnibox input is harmless
 
 });    // Factotum
