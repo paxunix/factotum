@@ -14,7 +14,7 @@ Factotum.clear = function()
 
 
 // Function: listener
-//      Listen for requests from other extensions.
+//      Listen for requests from this or other extensions.
 //
 // Parameters:
 //      request - data request object.  Possible requests:
