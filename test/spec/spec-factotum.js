@@ -255,7 +255,7 @@ describe("Factotum", function() {
 
         expect(function() {
             chrome.extension.getBackgroundPage().
-                Factotum.omniboxOnInputEntered("");
+                Factotum.onOmniboxInputEntered("");
         }).not.toThrow();
 
         expect(chrome.extension.getBackgroundPage().GetOpt.getOptions).
@@ -268,7 +268,7 @@ describe("Factotum", function() {
 
         expect(function() {
             chrome.extension.getBackgroundPage().
-                Factotum.omniboxOnInputEntered();
+                Factotum.onOmniboxInputEntered();
         }).not.toThrow();
 
         expect(chrome.extension.getBackgroundPage().GetOpt.getOptions).
@@ -281,7 +281,7 @@ describe("Factotum", function() {
 
         expect(function() {
             chrome.extension.getBackgroundPage().
-                Factotum.omniboxOnInputEntered("  \t \t \n \r    ");
+                Factotum.onOmniboxInputEntered("  \t \t \n \r    ");
         }).not.toThrow();
 
         expect(chrome.extension.getBackgroundPage().GetOpt.getOptions).
@@ -294,7 +294,7 @@ describe("Factotum", function() {
 
         expect(function() {
             chrome.extension.getBackgroundPage().
-                Factotum.omniboxOnInputEntered("testcommand");
+                Factotum.onOmniboxInputEntered("testcommand");
         }).not.toThrow();
 
         expect(chrome.extension.getBackgroundPage().GetOpt.getOptions).

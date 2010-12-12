@@ -1,5 +1,10 @@
 var Factotum = {};
 
+// We need to know our extension ID so we can dispatch internal F-Commands
+// directly, rather than through sendRequest (which does not work if the
+// listener and sender are within the same file).
+Factotum.extensionId = chrome.extension.getURL().match(/:\/\/([^\/]+)/)[1];
+
 // Hash of command names to arrays of metadata for those commands.  Arrays
 // are used because the same command may be registered by multiple
 // extensions.
@@ -93,12 +98,6 @@ Factotum.listener = function(request, sender, sendResponse)
         Factotum.registerCommand(request.register, sender.id);
     }   // if request.register
     else
-    // Handle internal Factotum F-commands.
-    if (request.command)
-    {
-        console.debug("request: ", request);
-    }
-    else
     {
         throw("Unrecognized request.");
     }
@@ -116,12 +115,10 @@ Factotum.listener = function(request, sender, sendResponse)
 };  // Factotum.listener
 
 
-// Function: omniboxOnInputEntered
-//      Handles requests when an Omnibox input has been entered.
-//
-// Parameters:
-//      text:  string entered by user in Omnibox
-Factotum.omniboxOnInputEntered = function(text)
+// Given an F-command string, dispatch it to the approriate command.  If the
+// command is internal, it will be called directly.  Otherwise, a request is
+// sent to the extension for that F-command.
+Factotum.dispatchCommand = function(text)
 {
     // Check if the first word is a known F-command.
     var argv = GetOpt.shellWordSplit(text);
@@ -129,34 +126,54 @@ Factotum.omniboxOnInputEntered = function(text)
     if (argv.length < 1)
         return;
 
-    var cmd = argv.shift();
+    var cmd = argv.shift().toLowerCase();
     if (!(cmd in Factotum.commands))
+        throw("Unknown F-command.");
+
+    // XXX: since commands[cmd] is an array of possible commands, for now we
+    // just take the first one.  We will have to check for and use the
+    // active one.
+    var cmdObj = Factotum.commands[cmd][0];
+    var cmdlineObj = GetOpt.getOptions(cmdObj.optspec, argv);
+
+    // If command is an internal command, dispatch directly (sendRequest
+    // will do nothing because the listener and sender are in the same
+    // process).  XXX: should show any feedback if command fails or that a
+    // response was received?
+    if (cmdObj.extensionId === Factotum.extensionId)
     {
-        // XXX: should user receive indication?
-        console.debug("Unknown F-command: " + cmd);
-        return;
+        if (cmd.internalCommandFunc)
+            cmd.internalCommandFunc(cmdlineObj);
+    }
+    else
+    {
+        // Otherwise, dispatch command by request to the extension that
+        // handles it.
+        chrome.extension.sendRequest(
+            cmdObj.extensionId,
+            {
+                command: cmd,
+                opts: cmdline.opts,
+                argv: cmdline.argv
+            }
+        );
+    }
+};  // Factotum.dispatchCommand
+
+
+// Listener for Omnibox entered input.
+Factotum.onOmniboxInputEntered = function(text)
+{
+    try {
+        Factotum.dispatchCommand(text);
     }
 
-    var cmdline = GetOpt.getOptions(Factotum.commands[cmd].optspec, argv);
-
-    // Dispatch command by request to the extension that handles it.
-    chrome.extension.sendRequest(
-        Factotum.commands[cmd].extensionId,
-        {
-            command: cmd,
-            opts: cmdline.opts,
-            argv: cmdline.argv
-        },
-        function (response) {
-            if (typeof(response) !== "undefined" &&
-                !response.success)
-            {
-                // XXX: what to do if we got back failure???
-                console.debug("F-command request returned failure.");
-            }
-        }
-    );
-};  // Factotum.omniboxOnInputEntered 
+    catch (e)
+    {
+        // XXX:  should user get feedback if command failed?
+        console.debug("Failed to dispatch F-command: ", e);
+    }
+};  // Factotum.onOmniboxInputEntered 
 
 
 // Listeners for communicating with self (primarily for testing) and other
@@ -166,4 +183,10 @@ chrome.extension.onRequest.addListener(Factotum.listener);
 
 // Register Omnibox listeners.
 chrome.experimental.omnibox.
-    onInputEntered.addListener(Factotum.omniboxOnInputEntered);
+    onInputEntered.addListener(Factotum.onOmniboxInputEntered);
+
+// Register internal Factotum F-commands.
+Factotum.registerCommand({
+    factotumCommands: [ "HELP" ],
+    shortDesc: "Factotum help"
+}, extensionId);
