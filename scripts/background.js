@@ -13,6 +13,53 @@ Factotum.clear = function()
 };  // Factotum.clear
 
 
+// Register the given command.
+// Throws an error string if there is any problem.
+Factotum.registerCommand = function(cmdData)
+{
+    if (!jQuery.isArray(cmdData.factotumCommands))
+    {
+        throw("factotumCommands must be an array.");
+    }
+
+    if (cmdData.optionSpec &&
+        !jQuery.isPlainObject(cmdData.optionSpec))
+    {
+        throw("optionSpec must be an Object.");
+    }
+
+    if (typeof(cmdData.shortDesc) !== "string")
+    {
+        throw("shortDesc must be a string.");
+    }
+
+    jQuery.each(cmdData.factotumCommands, function (n, cmdName)
+    {
+        // All command names are stored in lowercase to facilitate
+        // case-insensitive comparison.
+        cmdName = cmdName.toLowerCase();
+
+        // If the sender extension has already registered this command,
+        // respond with error.
+        if (jQuery.grep(Factotum.commands[cmdName] || [], function(el, n) {
+                return el.extensionId === cmdData.sender.id;
+            }).length != 0)
+        {
+            throw("Extension " + cmdData.sender.id + " has already registered command '" + cmdName + "'.");
+        }
+
+        // Command metadata is stored in an array since a single command
+        // may be registered by more than one extension.
+        Factotum.commands[cmdName] =
+            (Factotum.commands[cmdName] || []).concat([{
+                optspec:  cmdData.optionSpec || {},
+                extensionId:  cmdData.sender.id,
+                shortDesc: cmdData.shortDesc
+            }]);
+    });
+};  // Factotum.registerCommand 
+
+
 // Function: listener
 //      Listen for requests from this or other extensions.
 //
@@ -26,69 +73,45 @@ Factotum.clear = function()
 //              shortDesc: show this description in the omnibox for these
 //                  commands
 //              }
+//          command: {  - this is a request to execute this command
+//              name:   lowercased command name (always a non-empty string)
+//              opts:   hash of options to their values
+//              argv:   shell-split list of "command line" words
+//          }
 Factotum.listener = function(request, sender, sendResponse)
 {
     var response = {
         success: false,
-        error: "Unrecognized request."
     };
+
+    // Need to catch all exceptions so an error due to bad data from a
+    // request doesn't kill us.
+    try {
 
     if (request.register)
     {
-        // Need to catch all exceptions so an error due to bad data from a
-        // request doesn't kill us.
-        try {
-
-        if (!jQuery.isArray(request.register.factotumCommands))
-        {
-            throw("request.register.factotumCommands must be an array.");
-        }
-
-        if (request.register.optionSpec &&
-            !jQuery.isPlainObject(request.register.optionSpec))
-        {
-            throw("request.register.optionSpec must be an Object.");
-        }
-
-        if (typeof(request.register.shortDesc) !== "string")
-        {
-            throw("request.register.shortDesc must be a string.");
-        }
-
-        jQuery.each(request.register.factotumCommands, function (n, cmdName)
-        {
-            // All command names are stored in lowercase to facilitate
-            // case-insensitive comparison.
-            cmdName = cmdName.toLowerCase();
-
-            // If the sender extension has already registered this command,
-            // respond with error.
-            if (jQuery.grep(Factotum.commands[cmdName] || [], function(el, n) {
-                    return el.extensionId === sender.id;
-                }).length != 0)
-            {
-                throw("Extension " + sender.id + " has already registered command '" + cmdName + "'.");
-            }
-
-            // Command metadata is stored in an array since a single command
-            // may be registered by more than one extension.
-            Factotum.commands[cmdName] =
-                (Factotum.commands[cmdName] || []).concat([{
-                    optspec:  request.register.optionSpec || {},
-                    extensionId:  sender.id,
-                    shortDesc: request.register.shortDesc
-                }]);
-        });
-
-        response = { success: true };
-
-        }   // try
-
-        catch (e)
-        {
-            response.error = e;
-        }
+        request.register.sender = sender;
+        Factotum.registerCommand(request.register);
     }   // if request.register
+    else
+    // Handle internal Factotum F-commands.
+    if (request.command)
+    {
+        console.debug("request: ", request);
+    }
+    else
+    {
+        throw("Unrecognized request.");
+    }
+
+    response = { success: true };
+
+    }   // try
+
+    catch (e)
+    {
+        response.error = e;
+    }
 
     sendResponse(response);
 };  // Factotum.listener
@@ -120,7 +143,11 @@ Factotum.omniboxOnInputEntered = function(text)
     // Dispatch command by request to the extension that handles it.
     chrome.extension.sendRequest(
         Factotum.commands[cmd].extensionId,
-        { commandLine: cmdline },
+        {
+            command: cmd,
+            opts: cmdline.opts,
+            argv: cmdline.argv
+        },
         function (response) {
             if (typeof(response) !== "undefined" &&
                 !response.success)

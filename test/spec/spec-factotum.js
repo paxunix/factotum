@@ -42,7 +42,7 @@ describe("Factotum", function() {
         runs(function() {
             expect(response).toEqual({
                 success: false,
-                error: "request.register.factotumCommands must be an array."
+                error: "factotumCommands must be an array."
             })
         });
     });
@@ -69,7 +69,7 @@ describe("Factotum", function() {
         runs(function() {
             expect(response).toEqual({
                 success: false,
-                error: "request.register.optionSpec must be an Object."
+                error: "optionSpec must be an Object."
             })
         });
     });
@@ -210,7 +210,7 @@ describe("Factotum", function() {
         runs(function() {
             expect(response).toEqual({
                 success: false,
-                error: "request.register.shortDesc must be a string."
+                error: "shortDesc must be a string."
             });
             expect(chrome.extension.getBackgroundPage().
                 Factotum.commands).toEqual([]);
