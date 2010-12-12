@@ -15,7 +15,7 @@ Factotum.clear = function()
 
 // Register the given command.
 // Throws an error string if there is any problem.
-Factotum.registerCommand = function(cmdData)
+Factotum.registerCommand = function(cmdData, senderId)
 {
     if (!jQuery.isArray(cmdData.factotumCommands))
     {
@@ -42,10 +42,10 @@ Factotum.registerCommand = function(cmdData)
         // If the sender extension has already registered this command,
         // respond with error.
         if (jQuery.grep(Factotum.commands[cmdName] || [], function(el, n) {
-                return el.extensionId === cmdData.sender.id;
+                return el.extensionId === senderId;
             }).length != 0)
         {
-            throw("Extension " + cmdData.sender.id + " has already registered command '" + cmdName + "'.");
+            throw("Extension " + senderId + " has already registered command '" + cmdName + "'.");
         }
 
         // Command metadata is stored in an array since a single command
@@ -53,7 +53,7 @@ Factotum.registerCommand = function(cmdData)
         Factotum.commands[cmdName] =
             (Factotum.commands[cmdName] || []).concat([{
                 optspec:  cmdData.optionSpec || {},
-                extensionId:  cmdData.sender.id,
+                extensionId:  senderId,
                 shortDesc: cmdData.shortDesc
             }]);
     });
@@ -90,8 +90,7 @@ Factotum.listener = function(request, sender, sendResponse)
 
     if (request.register)
     {
-        request.register.sender = sender;
-        Factotum.registerCommand(request.register);
+        Factotum.registerCommand(request.register, sender.id);
     }   // if request.register
     else
     // Handle internal Factotum F-commands.
