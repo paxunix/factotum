@@ -212,8 +212,6 @@ describe("Factotum", function() {
                 success: false,
                 error: "shortDesc must be a string."
             });
-            expect(chrome.extension.getBackgroundPage().
-                Factotum.commands).toEqual([]);
         });
     });
 
@@ -302,5 +300,29 @@ describe("Factotum", function() {
     });
 
 
-    // test F-command lookups are case-insensitive
+    it("treats F-command words case-insensitively", function() {
+        spyOn(chrome.extension.getBackgroundPage().
+              Factotum.internalCmd2Func, "help");
+
+        expect(function() {
+            chrome.extension.getBackgroundPage().
+                Factotum.onOmniboxInputEntered("HeLp");
+        }).not.toThrow();
+
+        expect(chrome.extension.getBackgroundPage().
+                Factotum.internalCmd2Func.help).
+            toHaveBeenCalled();
+    });
+
+
+    // *Factotum.unregisterCommand only removes a command from the given
+    // sender
+
+    // *Factotum.unregisterCommand has no effect if the command doesn't
+    // exist.
+
+    // *Factotum.unregisterCommand considers commands case-insensitively.
+
+    // *Factotum.unregisterCommand removes the command word from the
+    // commands hash if there are no more senders for that command
 });    // Factotum

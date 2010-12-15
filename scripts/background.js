@@ -11,10 +11,20 @@ Factotum.extensionId = chrome.extension.getURL().match(/:\/\/([^\/]+)/)[1];
 Factotum.commands = {};
 
 
+// Internal commands are called directly.
+Factotum.internalCmd2Func = {
+    help: function(command, opts, argv) {
+              console.debug("XXX: 'help' called; command: ", command,
+                            "opts:", opts, "argv:", argv);
+          },
+};
+
+
 // Primarily useful as a function during testing.
 Factotum.clear = function()
 {
     Factotum.commands = {};
+    Factotum.registerInternalCommands();
 };  // Factotum.clear
 
 
@@ -128,7 +138,10 @@ Factotum.dispatchCommand = function(text)
 
     var cmd = argv.shift().toLowerCase();
     if (!(cmd in Factotum.commands))
-        throw("Unknown F-command.");
+    {
+        // XXX:  should user be notified?
+        return;
+    }
 
     // XXX: since commands[cmd] is an array of possible commands, for now we
     // just take the first one.  We will have to check for and use the
@@ -142,8 +155,9 @@ Factotum.dispatchCommand = function(text)
     // response was received?
     if (cmdObj.extensionId === Factotum.extensionId)
     {
-        if (cmd.internalCommandFunc)
-            cmd.internalCommandFunc(cmdlineObj);
+        if (Factotum.internalCmd2Func[cmd])
+            Factotum.internalCmd2Func[cmd](cmd, cmdlineObj.opts,
+                                           cmdlineObj.argv);
     }
     else
     {
@@ -153,26 +167,28 @@ Factotum.dispatchCommand = function(text)
             cmdObj.extensionId,
             {
                 command: cmd,
-                opts: cmdline.opts,
-                argv: cmdline.argv
+                opts: cmdlineObj.opts,
+                argv: cmdlineObj.argv
             }
         );
     }
 };  // Factotum.dispatchCommand
 
 
+// Register internal Factotum F-commands.
+Factotum.registerInternalCommands = function()
+{
+    Factotum.registerCommand({
+        factotumCommands: [ "HELP" ],
+        shortDesc: "Factotum help"
+    }, Factotum.extensionId);
+};
+
+
 // Listener for Omnibox entered input.
 Factotum.onOmniboxInputEntered = function(text)
 {
-    try {
-        Factotum.dispatchCommand(text);
-    }
-
-    catch (e)
-    {
-        // XXX:  should user get feedback if command failed?
-        console.debug("Failed to dispatch F-command: ", e);
-    }
+    Factotum.dispatchCommand(text);
 };  // Factotum.onOmniboxInputEntered 
 
 
@@ -185,8 +201,4 @@ chrome.extension.onRequest.addListener(Factotum.listener);
 chrome.experimental.omnibox.
     onInputEntered.addListener(Factotum.onOmniboxInputEntered);
 
-// Register internal Factotum F-commands.
-Factotum.registerCommand({
-    factotumCommands: [ "HELP" ],
-    shortDesc: "Factotum help"
-}, extensionId);
+Factotum.registerInternalCommands();
