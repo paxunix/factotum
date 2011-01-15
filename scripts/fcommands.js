@@ -24,6 +24,9 @@ Fcommands.set = function(commandData)
     if (!jQuery.isArray(commandData.names))
         throw("commandData.names must be an array.");
 
+    if (commandData.names.length < 1)
+        throw("commandData.names array must have at least one element.");
+
     if (!('execute' in commandData))
         throw("commandData.execute is required.");
 

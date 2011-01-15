@@ -21,6 +21,13 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData.names must be an array.");
         });
 
+    it("throws if the 'names' array has no elements",
+        function() {
+            expect(function() {
+                Fcommands.set({ names: [] });
+            }).toThrow("commandData.names array must have at least one element.");
+        });
+
     it("throws if the parameter has no 'execute' property",
         function() {
             expect(function() {
