@@ -7,6 +7,7 @@ var Fcommands = {
 // to
 //      description:  string to describe what this F-command does.  Will
 //          be used in the Omnibox.
+//      execute:  function to do this F-command's action(s)
 };
 
 
@@ -20,4 +21,7 @@ Fcommands.set = function(commandData)
 
     if (!('description' in commandData))
         throw("commandData.description is required.");
+
+    if (!('execute' in commandData))
+        throw("commandData.execute is required.");
 }   // Fcommands.get

@@ -21,4 +21,11 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData.description is required.");
         });
 
+    it("throws if the parameter has no 'execute' property",
+        function() {
+            expect(function() {
+                Fcommands.set({name: "blah", description: "blah" });
+            }).toThrow("commandData.execute is required.");
+        });
+
 }); // Fcommands.set
