@@ -13,6 +13,7 @@ var Fcommands = { };
 //          a function, it is called when the description is needed and
 //          should return a string.
 //      execute:  function to do this command's action(s)
+//      icon: URL for a favicon-type icon for this command.
 Fcommands.set = function(commandData)
 {
     if (!jQuery.isPlainObject(commandData))
@@ -42,4 +43,7 @@ Fcommands.set = function(commandData)
         (typeof(commandData.description) !== 'string' &&
          !jQuery.isFunction(commandData.description)))
         throw("commandData.description must be a string or a function.");
+
+    if ('icon' in commandData && typeof(commandData.icon) !== 'string')
+        throw("commandData.icon must be a string.");
 }   // Fcommands.get

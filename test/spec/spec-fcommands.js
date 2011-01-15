@@ -72,4 +72,14 @@ describe("Fcommands.set", function() {
             }).not.toThrow();
         });
 
+    it("throws if the 'icon' value is not a string",
+        function() {
+            expect(function() {
+                Fcommands.set({
+                    names: ["blah"],
+                    execute: function() {},
+                    icon: {} });
+            }).toThrow("commandData.icon must be a string.");
+        });
+
 }); // Fcommands.set
