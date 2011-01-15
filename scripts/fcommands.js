@@ -35,6 +35,9 @@ Fcommands.set = function(commandData)
     if (!('execute' in commandData))
         throw("commandData.execute is required.");
 
+    if (!jQuery.isFunction(commandData.execute))
+        throw("commandData.execute must be a function.");
+
     if ('description' in commandData &&
         (typeof(commandData.description) !== 'string' &&
          !jQuery.isFunction(commandData.description)))

@@ -42,6 +42,15 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData.execute is required.");
         });
 
+    it("throws if the 'execute' value is not a function",
+        function() {
+            expect(function() {
+                Fcommands.set({
+                    names: ["blah"],
+                    execute: "blah" });
+            }).toThrow("commandData.execute must be a function.");
+        });
+
     it("throws if the parameter's 'description' property is not a string or function",
         function() {
             expect(function() {
