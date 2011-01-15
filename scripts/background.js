@@ -75,6 +75,25 @@ Factotum.registerCommand = function(cmdData, senderId)
 };  // Factotum.registerCommand 
 
 
+// Unregister the given command from the given sender.
+// If the command doesn't exist, do nothing.
+Factotum.unregisterCommand = function(cmdName, senderId)
+{
+    cmdName = cmdName.toLowerCase();
+
+    if (cmdName in Factotum.commands)
+    {
+        Factotum.commands[cmdName] =
+            jQuery.grep(Factotum.commands[cmdName], function (el, i) {
+                return el.extensionId !== senderId;
+            });
+
+        if (Factotum.commands[cmdName].length === 0)
+            delete Factotum.commands[cmdName];
+    }
+};  // Factotum.unregisterCommand
+
+
 // Function: listener
 //      Listen for requests from this or other extensions.
 //
