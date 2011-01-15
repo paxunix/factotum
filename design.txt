@@ -1,3 +1,11 @@
+- F commands are javascript stored in local storage.
+  - doesn't clog up the extensions list
+  - simple
+  - use an abstraction that maps onto localStorage (making it easier to
+    support alternate storage mechanisms as needed)
+
+
+--------
 - F commands are installed as plain old extensions
     - benefits from Chrome's existing sandbox model for security
     - benefits from Chrome's existing mechanism for automatic extension updates
