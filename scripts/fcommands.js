@@ -27,6 +27,11 @@ Fcommands.set = function(commandData)
     if (commandData.names.length < 1)
         throw("commandData.names array must have at least one element.");
 
+    if (jQuery.grep(commandData.names, function (el,n) {
+            return typeof(el) !== 'string'
+        }).length > 0)
+        throw("commandData.names must contain strings.");
+
     if (!('execute' in commandData))
         throw("commandData.execute is required.");
 

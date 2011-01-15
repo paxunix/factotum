@@ -28,6 +28,13 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData.names array must have at least one element.");
         });
 
+    it("throws if the 'names' array has non-strings",
+        function() {
+            expect(function() {
+                Fcommands.set({ names: [ "a", {} ] });
+            }).toThrow("commandData.names must contain strings.");
+        });
+
     it("throws if the parameter has no 'execute' property",
         function() {
             expect(function() {
