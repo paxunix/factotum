@@ -1,10 +1,14 @@
-describe("Fcommands", function() {
+describe("Fcommands.set", function() {
 
-    it("has a get() method that returns null if the name has no value",
+    it("throws if the parameter is not an object",
         function() {
-            expect(
-                Fcommands.get("")
-            ).toEqual(null)
+            expect(function() {
+                Fcommands.set("")
+            }).toThrow("commandData must be an object.");
+
+            expect(function() {
+                Fcommands.set({})
+            }).not.toThrow();
         });
 
 }); // Fcommands

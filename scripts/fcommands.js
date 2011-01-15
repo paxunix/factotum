@@ -1,11 +1,14 @@
 // Storage and manipulation of F-commands.
 
 
-var Fcommands = {};
+var Fcommands = {
+    // name:  name used to execute command
+    // optionSpec:  optionSpec used to parse command line
+};
 
 
-Fcommands.get = function(name)
+Fcommands.set = function(commandData)
 {
-    if (!localStorage.getItem(name))
-        return null;
+    if (!jQuery.isPlainObject(commandData))
+        throw("commandData must be an object.");
 }   // Fcommands.get
