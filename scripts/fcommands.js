@@ -2,10 +2,11 @@
 
 
 var Fcommands = {
-    // name:  name used to execute command
-    // description:  string to describe what this F-command does.  Will be
-    //      used in the Omnibox.
-    // optionSpec:  optionSpec used to parse command line
+// Hash of
+//      name:  name used to execute command
+// to
+//      description:  string to describe what this F-command does.  Will
+//          be used in the Omnibox.
 };
 
 
