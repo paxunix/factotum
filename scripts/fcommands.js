@@ -1,27 +1,31 @@
 // Storage and manipulation of F-commands.
 
 
-var Fcommands = {
-// Hash of
-//      name:  name used to execute command
-// to
-//      description:  string to describe what this F-command does.  Will
-//          be used in the Omnibox.
-//      execute:  function to do this F-command's action(s)
-};
+var Fcommands = { };
 
 
+// Install the given Fcommand.
+// commandData is a hash of
+//      names:  array of names used to execute command.
+//      aliases: optional array of alias names for this command.
+//      description:  optional string or function to describe what this
+//          command does.  If not given, a default string will be used.  If
+//          a function, it is called when the description is needed and
+//          should return a string.
+//      execute:  function to do this command's action(s)
 Fcommands.set = function(commandData)
 {
     if (!jQuery.isPlainObject(commandData))
         throw("commandData must be an object.");
 
-    if (!('name' in commandData))
-        throw("commandData.name is required.");
-
-    if (!('description' in commandData))
-        throw("commandData.description is required.");
+    if (!('names' in commandData))
+        throw("commandData.names is required.");
 
     if (!('execute' in commandData))
         throw("commandData.execute is required.");
+
+    if ('description' in commandData &&
+        (typeof(commandData.description) !== 'string' &&
+         !jQuery.isFunction(commandData.description)))
+        throw("commandData.description must be a string or a function.");
 }   // Fcommands.get

@@ -7,25 +7,39 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData must be an object.");
         });
 
-    it("throws if the parameter has no 'name' property",
+    it("throws if the parameter has no 'names' property",
         function() {
             expect(function() {
                 Fcommands.set({});
-            }).toThrow("commandData.name is required.");
-        });
-
-    it("throws if the parameter has no 'description' property",
-        function() {
-            expect(function() {
-                Fcommands.set({name: "blah"});
-            }).toThrow("commandData.description is required.");
+            }).toThrow("commandData.names is required.");
         });
 
     it("throws if the parameter has no 'execute' property",
         function() {
             expect(function() {
-                Fcommands.set({name: "blah", description: "blah" });
+                Fcommands.set({names: "blah"});
             }).toThrow("commandData.execute is required.");
+        });
+
+    it("throws if the parameter's 'description' property is not a string or function",
+        function() {
+            expect(function() {
+                Fcommands.set({names: "blah",
+                               execute: function() {},
+                               description: {} });
+            }).toThrow("commandData.description must be a string or a function.");
+
+            expect(function() {
+                Fcommands.set({names: "blah",
+                               execute: function() {},
+                               description: "desc" });
+            }).not.toThrow();
+
+            expect(function() {
+                Fcommands.set({names: "blah",
+                               execute: function() {},
+                               description: function() {} });
+            }).not.toThrow();
         });
 
 }); // Fcommands.set
