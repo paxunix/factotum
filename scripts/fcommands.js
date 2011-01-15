@@ -11,4 +11,7 @@ Fcommands.set = function(commandData)
 {
     if (!jQuery.isPlainObject(commandData))
         throw("commandData must be an object.");
+
+    if (!('name' in commandData))
+        throw("commandData.name is required.");
 }   // Fcommands.get
