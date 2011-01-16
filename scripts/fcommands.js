@@ -46,4 +46,4 @@ Fcommands.set = function(commandData)
 
     if ('icon' in commandData && typeof(commandData.icon) !== 'string')
         throw("commandData.icon must be a string.");
-}   // Fcommands.get
+}   // Fcommands.set
