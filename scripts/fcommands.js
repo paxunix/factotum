@@ -6,7 +6,7 @@ var Fcommands = { };
 
 // Install the given Fcommand.
 // commandData is a hash of
-//      names:  array of names used to execute command.
+//      name:  name used to execute command.
 //      aliases: optional array of alias names for this command.
 //      description:  optional string or function to describe what this
 //          command does.  If not given, a default string will be used.  If
@@ -19,19 +19,11 @@ Fcommands.set = function(commandData)
     if (!jQuery.isPlainObject(commandData))
         throw("commandData must be an object.");
 
-    if (!('names' in commandData))
-        throw("commandData.names is required.");
+    if (!('name' in commandData))
+        throw("commandData.name is required.");
 
-    if (!jQuery.isArray(commandData.names))
-        throw("commandData.names must be an array.");
-
-    if (commandData.names.length < 1)
-        throw("commandData.names array must have at least one element.");
-
-    if (jQuery.grep(commandData.names, function (el,n) {
-            return typeof(el) !== 'string'
-        }).length > 0)
-        throw("commandData.names must contain strings.");
+    if (typeof(commandData.name) !== "string")
+        throw("commandData.name must be a string.");
 
     if (!('execute' in commandData))
         throw("commandData.execute is required.");

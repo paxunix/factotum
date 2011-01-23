@@ -7,38 +7,24 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData must be an object.");
         });
 
-    it("throws if the parameter has no 'names' property",
+    it("throws if the parameter has no 'name' property",
         function() {
             expect(function() {
                 Fcommands.set({});
-            }).toThrow("commandData.names is required.");
+            }).toThrow("commandData.name is required.");
         });
 
-    it("throws if the 'names' property is not an array",
+    it("throws if the 'name' property is not a string",
         function() {
             expect(function() {
-                Fcommands.set({ names: {} });
-            }).toThrow("commandData.names must be an array.");
-        });
-
-    it("throws if the 'names' array has no elements",
-        function() {
-            expect(function() {
-                Fcommands.set({ names: [] });
-            }).toThrow("commandData.names array must have at least one element.");
-        });
-
-    it("throws if the 'names' array has non-strings",
-        function() {
-            expect(function() {
-                Fcommands.set({ names: [ "a", {} ] });
-            }).toThrow("commandData.names must contain strings.");
+                Fcommands.set({ name: {} });
+            }).toThrow("commandData.name must be a string.");
         });
 
     it("throws if the parameter has no 'execute' property",
         function() {
             expect(function() {
-                Fcommands.set({names: ["blah"]});
+                Fcommands.set({name: "blah"});
             }).toThrow("commandData.execute is required.");
         });
 
@@ -46,7 +32,7 @@ describe("Fcommands.set", function() {
         function() {
             expect(function() {
                 Fcommands.set({
-                    names: ["blah"],
+                    name: "blah",
                     execute: "blah" });
             }).toThrow("commandData.execute must be a function.");
         });
@@ -54,19 +40,19 @@ describe("Fcommands.set", function() {
     it("throws if the parameter's 'description' property is not a string or function",
         function() {
             expect(function() {
-                Fcommands.set({names: ["blah"],
+                Fcommands.set({name: "blah",
                                execute: function() {},
                                description: {} });
             }).toThrow("commandData.description must be a string or a function.");
 
             expect(function() {
-                Fcommands.set({names: ["blah"],
+                Fcommands.set({name: "blah",
                                execute: function() {},
                                description: "desc" });
             }).not.toThrow();
 
             expect(function() {
-                Fcommands.set({names: ["blah"],
+                Fcommands.set({name: "blah",
                                execute: function() {},
                                description: function() {} });
             }).not.toThrow();
@@ -76,7 +62,7 @@ describe("Fcommands.set", function() {
         function() {
             expect(function() {
                 Fcommands.set({
-                    names: ["blah"],
+                    name: "blah",
                     execute: function() {},
                     icon: {} });
             }).toThrow("commandData.icon must be a string.");
