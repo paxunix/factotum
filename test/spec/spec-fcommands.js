@@ -18,36 +18,36 @@ describe("Fcommands.set", function() {
         function() {
             expect(function() {
                 Fcommands.set({
-                    name: { },
+                    names: { },
                     guid: {}
                 });
             }).toThrow("commandData.guid must be a string.");
         });
 
-    it("throws if the parameter has no 'name' property",
+    it("throws if the parameter has no 'names' property",
         function() {
             expect(function() {
                 Fcommands.set({
                     guid: "asdf"
                 });
-            }).toThrow("commandData.name is required.");
+            }).toThrow("commandData.names is required.");
         });
 
-    it("throws if the 'name' property is not a string",
+    it("throws if the 'names' property is not an array",
         function() {
             expect(function() {
                 Fcommands.set({
-                    name: { },
+                    names: { },
                     guid: "asdf"
                 });
-            }).toThrow("commandData.name must be a string.");
+            }).toThrow("commandData.names must be an array.");
         });
 
     it("throws if the parameter has no 'execute' property",
         function() {
             expect(function() {
                 Fcommands.set({
-                    name: "blah",
+                    names: [ "blah" ],
                     guid: "asdf"
                 });
             }).toThrow("commandData.execute is required.");
@@ -57,7 +57,7 @@ describe("Fcommands.set", function() {
         function() {
             expect(function() {
                 Fcommands.set({
-                    name: "blah",
+                    names: [ "blah" ],
                     guid: "asdf",
                     execute: "blah"
                 });
@@ -68,7 +68,7 @@ describe("Fcommands.set", function() {
         function() {
             expect(function() {
                 Fcommands.set({
-                    name: "blah",
+                    names: [ "blah" ],
                     guid: "asdf",
                     execute: function() {},
                     description: {}
@@ -77,7 +77,7 @@ describe("Fcommands.set", function() {
 
             expect(function() {
                 Fcommands.set({
-                    name: "blah",
+                    names: [ "blah" ],
                     guid: "asdf",
                     execute: function() {},
                     description: "desc"
@@ -86,7 +86,7 @@ describe("Fcommands.set", function() {
 
             expect(function() {
                 Fcommands.set({
-                    name: "blah",
+                    names: [ "blah" ],
                     guid: "asdf",
                     execute: function() {},
                     description: function() {}
@@ -98,7 +98,7 @@ describe("Fcommands.set", function() {
         function() {
             expect(function() {
                 Fcommands.set({
-                    name: "blah",
+                    names: [ "blah" ],
                     guid: "asdf",
                     execute: function() {},
                     icon: {}

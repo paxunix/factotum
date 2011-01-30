@@ -7,7 +7,7 @@ var guid2Command = { };
 
 // Install the given Fcommand.
 // commandData is a hash of
-//      name:  name used to execute command.
+//      names:  array of names used to execute command.
 //      guid:  identifier to be used for this command.
 //      description:  optional string or function to describe what this
 //          command does.  If not given, a default string will be used.  If
@@ -26,11 +26,11 @@ Fcommands.set = function(commandData)
     if (typeof(commandData.guid) !== "string")
         throw("commandData.guid must be a string.");
 
-    if (!('name' in commandData))
-        throw("commandData.name is required.");
+    if (!('names' in commandData))
+        throw("commandData.names is required.");
 
-    if (typeof(commandData.name) !== "string")
-        throw("commandData.name must be a string.");
+    if (!jQuery.isArray(commandData.names))
+        throw("commandData.names must be an array.");
 
     if (!('execute' in commandData))
         throw("commandData.execute is required.");
