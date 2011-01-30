@@ -23,6 +23,9 @@ Fcommands.set = function(commandData)
     if (!('guid' in commandData))
         throw("commandData.guid is required.");
 
+    if (typeof(commandData.guid) !== "string")
+        throw("commandData.guid must be a string.");
+
     if (!('name' in commandData))
         throw("commandData.name is required.");
 

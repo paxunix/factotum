@@ -14,6 +14,16 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData.guid is required.");
         });
 
+    it("throws if the 'guid' property is not a string",
+        function() {
+            expect(function() {
+                Fcommands.set({
+                    name: { },
+                    guid: {}
+                });
+            }).toThrow("commandData.guid must be a string.");
+        });
+
     it("throws if the parameter has no 'name' property",
         function() {
             expect(function() {
