@@ -17,21 +17,29 @@ describe("Fcommands.set", function() {
     it("throws if the parameter has no 'name' property",
         function() {
             expect(function() {
-                Fcommands.set({ guid: "asdf" });
+                Fcommands.set({
+                    guid: "asdf"
+                });
             }).toThrow("commandData.name is required.");
         });
 
     it("throws if the 'name' property is not a string",
         function() {
             expect(function() {
-                Fcommands.set({ name: { }, guid: "asdf" } });
+                Fcommands.set({
+                    name: { },
+                    guid: "asdf"
+                });
             }).toThrow("commandData.name must be a string.");
         });
 
     it("throws if the parameter has no 'execute' property",
         function() {
             expect(function() {
-                Fcommands.set({name: "blah", guid: "asdf" });
+                Fcommands.set({
+                    name: "blah",
+                    guid: "asdf"
+                });
             }).toThrow("commandData.execute is required.");
         });
 
@@ -41,7 +49,8 @@ describe("Fcommands.set", function() {
                 Fcommands.set({
                     name: "blah",
                     guid: "asdf",
-                    execute: "blah" });
+                    execute: "blah"
+                });
             }).toThrow("commandData.execute must be a function.");
         });
 
@@ -52,7 +61,8 @@ describe("Fcommands.set", function() {
                     name: "blah",
                     guid: "asdf",
                     execute: function() {},
-                    description: {} });
+                    description: {}
+                });
             }).toThrow("commandData.description must be a string or a function.");
 
             expect(function() {
@@ -60,14 +70,17 @@ describe("Fcommands.set", function() {
                     name: "blah",
                     guid: "asdf",
                     execute: function() {},
-                    description: "desc" });
+                    description: "desc"
+                });
             }).not.toThrow();
 
             expect(function() {
-                Fcommands.set({name: "blah",
-                               guid: "asdf",
-                               execute: function() {},
-                               description: function() {} });
+                Fcommands.set({
+                    name: "blah",
+                    guid: "asdf",
+                    execute: function() {},
+                    description: function() {}
+                });
             }).not.toThrow();
         });
 
@@ -78,7 +91,8 @@ describe("Fcommands.set", function() {
                     name: "blah",
                     guid: "asdf",
                     execute: function() {},
-                    icon: {} });
+                    icon: {}
+                });
             }).toThrow("commandData.icon must be a string.");
         });
 
