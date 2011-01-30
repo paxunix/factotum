@@ -3,11 +3,12 @@
 
 var Fcommands = { };
 
+var guid2Command = { };
 
 // Install the given Fcommand.
 // commandData is a hash of
 //      name:  name used to execute command.
-//      aliases: optional array of alias names for this command.
+//      guid:  identifier to be used for this command.
 //      description:  optional string or function to describe what this
 //          command does.  If not given, a default string will be used.  If
 //          a function, it is called when the description is needed and
@@ -18,6 +19,9 @@ Fcommands.set = function(commandData)
 {
     if (!jQuery.isPlainObject(commandData))
         throw("commandData must be an object.");
+
+    if (!('guid' in commandData))
+        throw("commandData.guid is required.");
 
     if (!('name' in commandData))
         throw("commandData.name is required.");
