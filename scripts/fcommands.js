@@ -50,4 +50,5 @@ Fcommands.set = function(commandData)
 
     if ('icon' in commandData && typeof(commandData.icon) !== 'string')
         throw("commandData.icon must be a string.");
+    // XXX:  need default favicon???
 }   // Fcommands.set
