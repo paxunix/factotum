@@ -106,4 +106,16 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData.icon must be a string.");
         });
 
+    it("throws if the 'optSpec' value is not an object",
+        function() {
+            expect(function() {
+                Fcommands.set({
+                    names: [ "blah" ],
+                    guid: "asdf",
+                    execute: function() {},
+                    optSpec: 1,
+                });
+            }).toThrow("commandData.optSpec must be an object.");
+        });
+
 }); // Fcommands.set
