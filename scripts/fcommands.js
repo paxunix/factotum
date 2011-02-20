@@ -39,10 +39,14 @@ Fcommands.set = function(commandData)
     if (!jQuery.isFunction(commandData.execute))
         throw("commandData.execute must be a function.");
 
-    if ('description' in commandData &&
-        (typeof(commandData.description) !== 'string' &&
-         !jQuery.isFunction(commandData.description)))
-        throw("commandData.description must be a string or a function.");
+    if ('description' in commandData)
+    {
+        if (typeof(commandData.description) !== 'string' &&
+            !jQuery.isFunction(commandData.description))
+            throw("commandData.description must be a string or a function.");
+    }
+    else
+        commandData.description = "XXX: default description";
 
     if ('icon' in commandData && typeof(commandData.icon) !== 'string')
         throw("commandData.icon must be a string.");
