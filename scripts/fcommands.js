@@ -5,6 +5,7 @@ var Fcommands = { };
 
 var guid2Command = { };
 
+
 // Install the given Fcommand.
 // commandData is a hash of
 //      names:  array of names used to execute command.
@@ -14,7 +15,7 @@ var guid2Command = { };
 //          a function, it is called when the description is needed and
 //          should return a string.
 //      execute:  function to do this command's action(s)
-//      icon: URL for a favicon-type icon for this command.
+//      icon: optional URL for a favicon-type icon for this command.
 Fcommands.set = function(commandData)
 {
     if (!jQuery.isPlainObject(commandData))
