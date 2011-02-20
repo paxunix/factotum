@@ -14,6 +14,7 @@ var guid2Command = { };
 //          command does.  If not given, a default string will be used.  If
 //          a function, it is called when the description is needed and
 //          should return a string.
+//      optSpec: optional command line parse object specification
 //      execute:  function to do this command's action(s)
 //      icon: optional URL for a favicon-type icon for this command.
 Fcommands.set = function(commandData)
@@ -51,4 +52,11 @@ Fcommands.set = function(commandData)
     if ('icon' in commandData && typeof(commandData.icon) !== 'string')
         throw("commandData.icon must be a string.");
     // XXX:  need default favicon???
+
+    if ('optSpec' in commandData &&
+        !jQuery.isPlainObject(commandData.optSpec))
+        throw("commandData.optSpec must be an object.");
+
+    guid2Command[commandData.guid] = commandData;
+    delete guid2Command[commandData.guid].guid;
 }   // Fcommands.set
