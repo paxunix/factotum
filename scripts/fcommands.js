@@ -58,5 +58,20 @@ Fcommands.set = function(commandData)
         throw("commandData.optSpec must be an object.");
 
     guid2Command[commandData.guid] = commandData;
-    delete guid2Command[commandData.guid].guid;
 }   // Fcommands.set
+
+
+// Return array of Fcommand objects corresponding to the given command name.
+Fcommands.getCommandsByName = function (cmd)
+{
+    var commandList = [];
+
+    jQuery.each(guid2Command, function (k, v) {
+        if (jQuery.inArray(cmd, v.names) !== -1)
+            commandList.push(v)
+    });
+
+    return commandList;
+}   // Fcommands.getCommandsByName
+
+

@@ -119,3 +119,33 @@ describe("Fcommands.set", function() {
         });
 
 }); // Fcommands.set
+
+
+describe("Fcommands.getCommandsByName", function() {
+
+    it("returns an empty array if the given Fcommand name isn't known",
+        function() {
+            expect(Fcommands.getCommandsByName("")).
+                toEqual([]);
+        });
+
+    // XXX:  skipped because Jasmine doesn't properly compare functions as
+    // values in objects.
+    xit("returns an array with one known Fcommand for a given string",
+        function() {
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "asdf",
+                execute: function() {},
+            });
+
+            expect(Fcommands.getCommandsByName("blah")).
+                toEqual([{
+                    names: [ "blah" ],
+                    guid: "asdf",
+                    execute: function() {},
+                    description: "XXX: default description",
+                }]);
+        });
+
+}); // Fcommands.getCommandsByName
