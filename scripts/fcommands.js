@@ -75,3 +75,8 @@ Fcommands.getCommandsByName = function (cmd)
 }   // Fcommands.getCommandsByName
 
 
+// Delete all Fcommands.
+Fcommands.clearAll = function ()
+{
+    guid2Command = { };
+}   // Fcommands.clearAll
