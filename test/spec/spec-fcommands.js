@@ -184,7 +184,6 @@ describe("Fcommands.getCommandsByName", function() {
                 }]));
         });
 
-
     it("returns an array with all known Fcommands for a given string",
         function() {
             Fcommands.set({
@@ -208,6 +207,36 @@ describe("Fcommands.getCommandsByName", function() {
                 },
                 {
                     names: [ "blah" ],
+                    guid: "guid1",
+                    execute: function() {},
+                    description: "XXX: default description",
+                },
+                ]));
+        });
+
+    it("looks up Fcommands case-insensitively, but preserves their case.",
+        function() {
+            Fcommands.set({
+                names: [ "BlAh" ],
+                guid: "guid1",
+                execute: function() {},
+            });
+
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "guid2",
+                execute: function() {},
+            });
+
+            expect(sortFcommandsByGuid(Fcommands.getCommandsByName("BLAH"))).
+                toEqual(sortFcommandsByGuid([{
+                    names: [ "blah" ],
+                    guid: "guid2",
+                    execute: function() {},
+                    description: "XXX: default description",
+                },
+                {
+                    names: [ "BlAh" ],
                     guid: "guid1",
                     execute: function() {},
                     description: "XXX: default description",
