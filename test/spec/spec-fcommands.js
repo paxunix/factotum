@@ -1,27 +1,14 @@
-// HACK:  A bug in Jasmine prevents toEqual() tests from passing if they
-// involve objects with Function values.
-// https://github.com/pivotal/jasmine/issues/#issue/60
-function jasmineFnFilterHack(ar)
-{
-    return jQuery.map(ar, function (el) {
-        for (var p in el)
-            if (jQuery.isFunction(el[p]))
-                delete el[p];
-
-        return el;
-    });
-}   // jasmineFnFilterHack
-
-
-// Helper for Jasmine comparison functions to make sure arrays of Fcommands
-// can be compared for equality.
+// Order array of Fcommands by guid.  This is a helper for Jasmine
+// comparison functions.
 function sortFcommandsByGuid(ar)
 {
-    return jasmineFnFilterHack(ar).sort(function(a, b) {
+    ar.sort(function(a, b) {
         if ('guid' in a && 'guid' in b)
             return a.guid < b.guid;
         return -1;      // if neither has guid, we don't care
-    })
+    });
+
+    return ar;
 }   // sortFcommandsByGuid
 
 
@@ -175,13 +162,13 @@ describe("Fcommands.getCommandsByName", function() {
                 execute: function() {},
             });
 
-            expect(jasmineFnFilterHack(Fcommands.getCommandsByName("blah"))).
-                toEqual(jasmineFnFilterHack([{
+            expect(Fcommands.getCommandsByName("blah")).
+                toEqual([{
                     names: [ "blah" ],
                     guid: "asdf",
-                    execute: function() {},
+                    execute: jasmine.any(Function),
                     description: "XXX: default description",
-                }]));
+                }]);
         });
 
     it("returns an array with all known Fcommands for a given string",
@@ -202,13 +189,13 @@ describe("Fcommands.getCommandsByName", function() {
                 toEqual(sortFcommandsByGuid([{
                     names: [ "blah" ],
                     guid: "guid2",
-                    execute: function() {},
+                    execute: jasmine.any(Function),
                     description: "XXX: default description",
                 },
                 {
                     names: [ "blah" ],
                     guid: "guid1",
-                    execute: function() {},
+                    execute: jasmine.any(Function),
                     description: "XXX: default description",
                 },
                 ]));
@@ -232,13 +219,13 @@ describe("Fcommands.getCommandsByName", function() {
                 toEqual(sortFcommandsByGuid([{
                     names: [ "blah" ],
                     guid: "guid2",
-                    execute: function() {},
+                    execute: jasmine.any(Function),
                     description: "XXX: default description",
                 },
                 {
                     names: [ "BlAh" ],
                     guid: "guid1",
-                    execute: function() {},
+                    execute: jasmine.any(Function),
                     description: "XXX: default description",
                 },
                 ]));
