@@ -66,9 +66,19 @@ Fcommands.getCommandsByName = function (cmd)
 {
     var commandList = [];
 
-    jQuery.each(guid2Command, function (k, v) {
-        if (jQuery.inArray(cmd, v.names) !== -1)
-            commandList.push(v)
+    // Loop through each Fcommand's aliases and save the Fcommands with any
+    // alias that case-insensitively equals cmd.
+    jQuery.each(guid2Command, function (guid, fcmd) {
+        jQuery.each(fcmd.names, function (i, name) {
+            if (name.toLowerCase() === cmd.toLowerCase())
+            {
+                commandList.push(fcmd);
+
+                // This Fcommand matches, no need to check the rest of its
+                // aliases.
+                return false;
+            }
+        });
     });
 
     return commandList;
