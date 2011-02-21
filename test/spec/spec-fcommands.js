@@ -13,7 +13,25 @@ function jasmineFnFilterHack(ar)
 }   // jasmineFnFilterHack
 
 
+// Helper for Jasmine comparison functions to make sure arrays of Fcommands
+// can be compared for equality.
+function sortFcommandsByGuid(ar)
+{
+    return jasmineFnFilterHack(ar).sort(function(a, b) {
+        if ('guid' in a && 'guid' in b)
+            return a.guid < b.guid;
+        return -1;      // if neither has guid, we don't care
+    })
+}   // sortFcommandsByGuid
+
+
 describe("Fcommands.set", function() {
+
+    beforeEach(function() {
+        // clear any existing F-commands before each test
+        Fcommands.clearAll();
+    });
+
 
     it("throws if the parameter is not an object",
         function() {
@@ -138,6 +156,11 @@ describe("Fcommands.set", function() {
 
 describe("Fcommands.getCommandsByName", function() {
 
+    beforeEach(function() {
+        // clear any existing F-commands before each test
+        Fcommands.clearAll();
+    });
+
     it("returns an empty array if the given Fcommand name isn't known",
         function() {
             expect(Fcommands.getCommandsByName("")).
@@ -161,4 +184,34 @@ describe("Fcommands.getCommandsByName", function() {
                 }]));
         });
 
+
+    it("returns an array with all known Fcommands for a given string",
+        function() {
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "guid1",
+                execute: function() {},
+            });
+
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "guid2",
+                execute: function() {},
+            });
+
+            expect(sortFcommandsByGuid(Fcommands.getCommandsByName("blah"))).
+                toEqual(sortFcommandsByGuid([{
+                    names: [ "blah" ],
+                    guid: "guid2",
+                    execute: function() {},
+                    description: "XXX: default description",
+                },
+                {
+                    names: [ "blah" ],
+                    guid: "guid1",
+                    execute: function() {},
+                    description: "XXX: default description",
+                },
+                ]));
+        });
 }); // Fcommands.getCommandsByName
