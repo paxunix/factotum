@@ -144,9 +144,6 @@ describe("Fcommands.getCommandsByName", function() {
                 toEqual([]);
         });
 
-    // XXX:  skipped because Jasmine doesn't properly compare functions as
-    // values in objects.
-    // https://github.com/pivotal/jasmine/issues/#issue/60
     it("returns an array with one known Fcommand for a given string",
         function() {
             Fcommands.set({
