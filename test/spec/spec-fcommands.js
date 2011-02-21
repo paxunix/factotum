@@ -1,3 +1,18 @@
+// HACK:  A bug in Jasmine prevents toEqual() tests from passing if they
+// involve objects with Function values.
+// https://github.com/pivotal/jasmine/issues/#issue/60
+function jasmineFnFilterHack(ar)
+{
+    return jQuery.map(ar, function (el) {
+        for (var p in el)
+            if (jQuery.isFunction(el[p]))
+                delete el[p];
+
+        return el;
+    });
+}   // jasmineFnFilterHack
+
+
 describe("Fcommands.set", function() {
 
     it("throws if the parameter is not an object",
@@ -131,7 +146,8 @@ describe("Fcommands.getCommandsByName", function() {
 
     // XXX:  skipped because Jasmine doesn't properly compare functions as
     // values in objects.
-    xit("returns an array with one known Fcommand for a given string",
+    // https://github.com/pivotal/jasmine/issues/#issue/60
+    it("returns an array with one known Fcommand for a given string",
         function() {
             Fcommands.set({
                 names: [ "blah" ],
@@ -139,13 +155,13 @@ describe("Fcommands.getCommandsByName", function() {
                 execute: function() {},
             });
 
-            expect(Fcommands.getCommandsByName("blah")).
-                toEqual([{
+            expect(jasmineFnFilterHack(Fcommands.getCommandsByName("blah"))).
+                toEqual(jasmineFnFilterHack([{
                     names: [ "blah" ],
                     guid: "asdf",
                     execute: function() {},
                     description: "XXX: default description",
-                }]);
+                }]));
         });
 
 }); // Fcommands.getCommandsByName
