@@ -85,8 +85,15 @@ Fcommands.getCommandsByName = function (cmd)
 }   // Fcommands.getCommandsByName
 
 
+// Delete a single Fcommand by guid.
+Fcommands.delete = function (guid)
+{
+    delete guid2Command[guid];
+}   // Fcommands.delete
+
+
 // Delete all Fcommands.
-Fcommands.clearAll = function ()
+Fcommands.deleteAll = function ()
 {
     guid2Command = { };
-}   // Fcommands.clearAll
+}   // Fcommands.deleteAll
