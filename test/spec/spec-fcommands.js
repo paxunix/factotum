@@ -16,7 +16,7 @@ describe("Fcommands.set", function() {
 
     beforeEach(function() {
         // clear any existing F-commands before each test
-        Fcommands.clearAll();
+        Fcommands.deleteAll();
     });
 
 
@@ -145,7 +145,7 @@ describe("Fcommands.getCommandsByName", function() {
 
     beforeEach(function() {
         // clear any existing F-commands before each test
-        Fcommands.clearAll();
+        Fcommands.deleteAll();
     });
 
     it("returns an empty array if the given Fcommand name isn't known",
@@ -230,4 +230,60 @@ describe("Fcommands.getCommandsByName", function() {
                 },
                 ]));
         });
+
 }); // Fcommands.getCommandsByName
+
+
+describe("Fcommands.delete", function() {
+
+    beforeEach(function() {
+        // clear any existing F-commands before each test
+        Fcommands.deleteAll();
+    });
+
+    it("delete an Fcommand by guid",
+        function() {
+            Fcommands.set({
+                names: [ "BlAh" ],
+                guid: "guid1",
+                execute: function() {},
+            });
+
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "guid2",
+                execute: function() {},
+            });
+
+            Fcommands.delete("guid1");
+
+            expect(sortFcommandsByGuid(Fcommands.getCommandsByName("BLAH"))).
+                toEqual([{
+                    names: [ "blah" ],
+                    guid: "guid2",
+                    execute: jasmine.any(Function),
+                    description: "XXX: default description",
+                }]);
+        });
+
+    it("delete all Fcommands",
+        function() {
+            Fcommands.set({
+                names: [ "BlAh" ],
+                guid: "guid1",
+                execute: function() {},
+            });
+
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "guid2",
+                execute: function() {},
+            });
+
+            Fcommands.deleteAll();
+
+            expect(Fcommands.getCommandsByName("BLAH")).
+                toEqual([]);
+        });
+}); // Fcommands.delete
+
