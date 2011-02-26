@@ -154,7 +154,7 @@ describe("Fcommands.getCommandsByName", function() {
                 toEqual([]);
         });
 
-    it("returns an array with one known Fcommand for a given string",
+    it("returns an array with one known Fcommand for a given Fcommand name",
         function() {
             Fcommands.set({
                 names: [ "blah" ],
@@ -287,3 +287,109 @@ describe("Fcommands.delete", function() {
         });
 }); // Fcommands.delete
 
+
+describe("Fcommands.dispatch", function() {
+
+    beforeEach(function() {
+        // clear any existing F-commands before each test
+        Fcommands.deleteAll();
+    });
+
+    it("does nothing if dispatching to an empty Fcommand name",
+        function() {
+            spyOn(Fcommands, "getCommandsByName");
+
+            expect(function() {
+                Fcommands.dispatch("");
+            }).not.toThrow();
+
+            expect(Fcommands.getCommandsByName).not.toHaveBeenCalled();
+        });
+
+    it("does nothing if dispatching to an unknown Fcommand name",
+        function() {
+            //XXX:spyOn(Fcommands, "getCommandsByName").andCallThrough();
+
+            expect(function() {
+                Fcommands.dispatch("bogus");
+            }).not.toThrow();
+
+            //XXX:expect(Fcommands.getCommandsByName).toHaveBeenCalled();
+        });
+
+    it("passes a command line object to the function when dispatching to the given Fcommand",
+        function() {
+            var action = jasmine.createSpy();
+
+            Fcommands.set({
+                names: [ "test" ],
+                guid: "testguid",
+                execute: action,
+            });
+
+            expect(function() {
+                Fcommands.dispatch("test 1 2 3");
+            }).not.toThrow();
+
+            expect(action).toHaveBeenCalledWith({
+                opts: {},
+                argv: ["1", "2", "3"]
+            });
+        });
+
+    it("returns the value returned by the Fcommand's execute function",
+        function() {
+            var action = jasmine.createSpy().andReturn(42);
+
+            Fcommands.set({
+                names: [ "test" ],
+                guid: "testguid",
+                execute: action,
+            });
+
+            expect(Fcommands.dispatch("test 1 2 3")).toEqual(42);
+        });
+
+    it("captures exceptions thrown by an Fcommand's execute function and returns undefined",
+        function() {
+            Fcommands.set({
+                names: [ "test" ],
+                guid: "testguid",
+                execute: function () { throw 42; },
+            });
+
+            var rval = 1;
+            expect(function() {
+                rval = Fcommands.dispatch("test 1 2 3");
+            }).not.toThrow(42);
+
+            expect(rval).toEqual(undefined);
+        });
+
+    it("passes a command line object to the function when dispatching to the given Fcommand with an optspec",
+        function() {
+            var action = jasmine.createSpy();
+
+            Fcommands.set({
+                names: [ "test" ],
+                guid: "testguid",
+                optSpec: {
+                    opt: {
+                        type: "boolean"
+                    },
+                },
+                execute: action,
+            });
+
+            expect(function() {
+                Fcommands.dispatch("test -opt -- 1 2 3");
+            }).not.toThrow();
+
+            expect(action).toHaveBeenCalledWith({
+                opts: { opt: true },
+                argv: ["1", "2", "3"]
+            });
+        });
+
+
+}); // Fcommands.dispatch
