@@ -85,6 +85,47 @@ Fcommands.getCommandsByName = function (cmd)
 }   // Fcommands.getCommandsByName
 
 
+// Given a command line, figure out the Fcommand and run its function.
+Fcommands.dispatch = function(cmdline)
+{
+    // At least one word is needed in command line.
+    var argv = GetOpt.shellWordSplit(cmdline);
+    if (argv.length < 1)
+        return;
+
+    var cmdName = argv.shift();
+    var commandList = Fcommands.getCommandsByName(cmdName);
+
+    if (commandList.length === 0)
+    {
+        // XXX:  should user be notified?
+        return;
+    }
+
+    // XXX: for now we just take the first one.  We will have to check for
+    // and use the active one.
+    var fcommand = commandList[0];
+
+    // Parse the remaining words of the command line, using the Fcommand's
+    // option spec if there is one.
+    var cmdlineObj = GetOpt.getOptions(fcommand.optSpec || {}, argv);
+
+    // Dispatch.
+    try
+    {
+        return fcommand.execute(cmdlineObj);
+    }
+
+    catch (e)
+    {
+        // XXX:  how to report error to user?
+        console.log("Fcommand '" + cmdName + "' threw: " + e);
+    }
+
+    return undefined;
+}   // Fcommands.dispatch
+
+
 // Delete a single Fcommand by guid.
 Fcommands.delete = function (guid)
 {
