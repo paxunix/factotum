@@ -1,9 +1,9 @@
 // Storage and manipulation of F-commands.
 
 
-var Fcommands = { };
-
-var guid2Command = { };
+var Fcommands = {
+    guid2Command: { }
+};
 
 
 // Install the given Fcommand.
@@ -57,7 +57,7 @@ Fcommands.set = function(commandData)
         !jQuery.isPlainObject(commandData.optSpec))
         throw("commandData.optSpec must be an object.");
 
-    guid2Command[commandData.guid] = commandData;
+    Fcommands.guid2Command[commandData.guid] = commandData;
 }   // Fcommands.set
 
 
@@ -68,7 +68,7 @@ Fcommands.getCommandsByName = function (cmd)
 
     // Loop through each Fcommand's aliases and save the Fcommands with any
     // alias that case-insensitively equals cmd.
-    jQuery.each(guid2Command, function (guid, fcmd) {
+    jQuery.each(Fcommands.guid2Command, function (guid, fcmd) {
         jQuery.each(fcmd.names, function (i, name) {
             if (name.toLowerCase() === cmd.toLowerCase())
             {
@@ -129,12 +129,12 @@ Fcommands.dispatch = function(cmdline)
 // Delete a single Fcommand by guid.
 Fcommands.delete = function (guid)
 {
-    delete guid2Command[guid];
+    delete Fcommands.guid2Command[guid];
 }   // Fcommands.delete
 
 
 // Delete all Fcommands.
 Fcommands.deleteAll = function ()
 {
-    guid2Command = { };
+    Fcommands.guid2Command = { };
 }   // Fcommands.deleteAll
