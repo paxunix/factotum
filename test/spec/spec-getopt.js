@@ -237,11 +237,18 @@ describe("GetOpt.getOptions", function() {
                     argv: [ "one", "-two" ]});
     });
 
-    it("accepts no options and -- delimiting args", function() {
+    it("accepts no options and consumes -- delimiting args", function() {
         expect(
             GetOpt.getOptions({}, "-- one two")
         ).toEqual({ opts: {},
                     argv: [ "one", "two" ]});
+    });
+
+    it("accepts no options and consumes --, allows following --", function() {
+        expect(
+            GetOpt.getOptions({}, "-- --")
+        ).toEqual({ opts: {},
+                    argv: [ "--" ]});
     });
 
     it("accepts mixed options and arguments", function() {
