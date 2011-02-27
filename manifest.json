@@ -9,7 +9,7 @@
         "128": "icons/factotum-128.png"
     },
 
-    "omnibox_keyword": "f",
+    "omnibox": { "keyword": "f" },
 
     "default_locale": "en",
 
