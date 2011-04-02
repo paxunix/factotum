@@ -245,6 +245,12 @@ describe("Fcommands.getCommandsByPrefix", function() {
                 execute: function() {},
             });
 
+            Fcommands.set({
+                names: [ "nomatch" ],
+                guid: "guid3",
+                execute: function() {},
+            });
+
             expect(Fcommands.getCommandsByPrefix("cmd")).
                 toEqual([{
                     names: [ "cmdfirst" ],
