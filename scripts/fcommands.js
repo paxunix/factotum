@@ -61,18 +61,20 @@ Fcommands.set = function(commandData)
 }   // Fcommands.set
 
 
-// Return array of Fcommand objects corresponding to the given command name.
-Fcommands.getCommandsByName = function (cmd)
+// Return array of Fcommand objects whose command names begin with the
+// prefix.  The array is ordered lexicographically by matching command name.
+Fcommands.getCommandsByPrefix = function (prefix)
 {
     var commandList = [];
+    var prefixRegex = new RegExp("^" + prefix, "i");
 
     // Loop through each Fcommand's aliases and save the Fcommands with any
-    // alias that case-insensitively equals cmd.
+    // alias that case-insensitively matches /^prefix/.
     jQuery.each(Fcommands.guid2Command, function (guid, fcmd) {
         jQuery.each(fcmd.names, function (i, name) {
-            if (name.toLowerCase() === cmd.toLowerCase())
+            if (name.search(prefixRegex) != -1)
             {
-                commandList.push(fcmd);
+                commandList.push({name: name, command: fcmd});
 
                 // This Fcommand matches, no need to check the rest of its
                 // aliases.
@@ -81,8 +83,14 @@ Fcommands.getCommandsByName = function (cmd)
         });
     });
 
-    return commandList;
-}   // Fcommands.getCommandsByName
+    commandList.sort(function (a, b) {
+        return a.name.localeCompare(b.name);
+    });
+
+    return jQuery.map(commandList, function (el, i) {
+        return el.command;
+    });
+}   // Fcommands.getCommandsByPrefix
 
 
 // Given a command line, figure out the Fcommand and run its function.
@@ -94,7 +102,7 @@ Fcommands.dispatch = function(cmdline)
         return;
 
     var cmdName = argv.shift();
-    var commandList = Fcommands.getCommandsByName(cmdName);
+    var commandList = Fcommands.getCommandsByPrefix(cmdName);
 
     if (commandList.length === 0)
     {
