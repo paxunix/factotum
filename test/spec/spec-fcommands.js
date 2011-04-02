@@ -141,7 +141,7 @@ describe("Fcommands.set", function() {
 }); // Fcommands.set
 
 
-describe("Fcommands.getCommandsByName", function() {
+describe("Fcommands.getCommandsByPrefix", function() {
 
     beforeEach(function() {
         // clear any existing F-commands before each test
@@ -150,7 +150,7 @@ describe("Fcommands.getCommandsByName", function() {
 
     it("returns an empty array if the given Fcommand name isn't known",
         function() {
-            expect(Fcommands.getCommandsByName("")).
+            expect(Fcommands.getCommandsByPrefix("")).
                 toEqual([]);
         });
 
@@ -162,7 +162,7 @@ describe("Fcommands.getCommandsByName", function() {
                 execute: function() {},
             });
 
-            expect(Fcommands.getCommandsByName("blah")).
+            expect(Fcommands.getCommandsByPrefix("blah")).
                 toEqual([{
                     names: [ "blah" ],
                     guid: "asdf",
@@ -185,7 +185,7 @@ describe("Fcommands.getCommandsByName", function() {
                 execute: function() {},
             });
 
-            expect(sortFcommandsByGuid(Fcommands.getCommandsByName("blah"))).
+            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("blah"))).
                 toEqual(sortFcommandsByGuid([{
                     names: [ "blah" ],
                     guid: "guid2",
@@ -215,7 +215,7 @@ describe("Fcommands.getCommandsByName", function() {
                 execute: function() {},
             });
 
-            expect(sortFcommandsByGuid(Fcommands.getCommandsByName("BLAH"))).
+            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("BLAH"))).
                 toEqual(sortFcommandsByGuid([{
                     names: [ "blah" ],
                     guid: "guid2",
@@ -231,7 +231,37 @@ describe("Fcommands.getCommandsByName", function() {
                 ]));
         });
 
-}); // Fcommands.getCommandsByName
+    it("returns an array with all known Fcommands matching a given prefix",
+        function() {
+            Fcommands.set({
+                names: [ "cmdsecond" ],
+                guid: "guid2",
+                execute: function() {},
+            });
+
+            Fcommands.set({
+                names: [ "cmdfirst" ],
+                guid: "guid1",
+                execute: function() {},
+            });
+
+            expect(Fcommands.getCommandsByPrefix("cmd")).
+                toEqual([{
+                    names: [ "cmdfirst" ],
+                    guid: "guid1",
+                    execute: jasmine.any(Function),
+                    description: "XXX: default description",
+                },
+                {
+                    names: [ "cmdsecond" ],
+                    guid: "guid2",
+                    execute: jasmine.any(Function),
+                    description: "XXX: default description",
+                },
+                ]);
+        });
+
+}); // Fcommands.getCommandsByPrefix
 
 
 describe("Fcommands.delete", function() {
@@ -257,7 +287,7 @@ describe("Fcommands.delete", function() {
 
             Fcommands.delete("guid1");
 
-            expect(sortFcommandsByGuid(Fcommands.getCommandsByName("BLAH"))).
+            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("BLAH"))).
                 toEqual([{
                     names: [ "blah" ],
                     guid: "guid2",
@@ -282,7 +312,7 @@ describe("Fcommands.delete", function() {
 
             Fcommands.deleteAll();
 
-            expect(Fcommands.getCommandsByName("BLAH")).
+            expect(Fcommands.getCommandsByPrefix("BLAH")).
                 toEqual([]);
         });
 }); // Fcommands.delete
@@ -297,24 +327,24 @@ describe("Fcommands.dispatch", function() {
 
     it("does nothing if dispatching to an empty Fcommand name",
         function() {
-            spyOn(Fcommands, "getCommandsByName");
+            spyOn(Fcommands, "getCommandsByPrefix");
 
             expect(function() {
                 Fcommands.dispatch("");
             }).not.toThrow();
 
-            expect(Fcommands.getCommandsByName).not.toHaveBeenCalled();
+            expect(Fcommands.getCommandsByPrefix).not.toHaveBeenCalled();
         });
 
     it("does nothing if dispatching to an unknown Fcommand name",
         function() {
-            //XXX:spyOn(Fcommands, "getCommandsByName").andCallThrough();
+            //XXX:spyOn(Fcommands, "getCommandsByPrefix").andCallThrough();
 
             expect(function() {
                 Fcommands.dispatch("bogus");
             }).not.toThrow();
 
-            //XXX:expect(Fcommands.getCommandsByName).toHaveBeenCalled();
+            //XXX:expect(Fcommands.getCommandsByPrefix).toHaveBeenCalled();
         });
 
     it("passes a command line object to the function when dispatching to the given Fcommand",
