@@ -267,6 +267,35 @@ describe("Fcommands.getCommandsByPrefix", function() {
                 ]);
         });
 
+    it("does not fail when an Fcommand input prefix is an invalid Regexp",
+        function() {
+            Fcommands.set({
+                names: [ "c**" ],
+                guid: "guid1",
+                execute: function() {},
+            });
+
+            expect(Fcommands.getCommandsByPrefix("c**")).
+                toEqual([{
+                    names: [ "c**" ],
+                    guid: "guid1",
+                    execute: jasmine.any(Function),
+                    description: "XXX: default description",
+                }]);
+        });
+
+    it("only matches input prefixes at the start of Fcommand names",
+        function() {
+            Fcommands.set({
+                names: [ "cmdtest" ],
+                guid: "guid1",
+                execute: function() {},
+            });
+
+            expect(Fcommands.getCommandsByPrefix("test")).
+                toEqual([]);
+        });
+
 }); // Fcommands.getCommandsByPrefix
 
 

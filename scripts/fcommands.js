@@ -66,13 +66,12 @@ Fcommands.set = function(commandData)
 Fcommands.getCommandsByPrefix = function (prefix)
 {
     var commandList = [];
-    var prefixRegex = new RegExp("^" + prefix, "i");
 
     // Loop through each Fcommand's aliases and save the Fcommands with any
     // alias that case-insensitively matches /^prefix/.
     jQuery.each(Fcommands.guid2Command, function (guid, fcmd) {
         jQuery.each(fcmd.names, function (i, name) {
-            if (name.search(prefixRegex) != -1)
+            if (name.toLowerCase().indexOf(prefix.toLowerCase()) == 0)
             {
                 commandList.push({name: name, command: fcmd});
 
