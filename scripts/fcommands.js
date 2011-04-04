@@ -13,7 +13,8 @@ var Fcommands = {
 //      description:  optional string or function to describe what this
 //          command does.  If not given, a default string will be used.  If
 //          a function, it is called when the description is needed and
-//          should return a string.
+//          should return a string (receives the argv for the command, no
+//          command name).
 //      optSpec: optional command line parse object specification
 //      execute:  function to do this command's action(s)
 //      icon: optional URL for a favicon-type icon for this command.
