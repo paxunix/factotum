@@ -146,3 +146,20 @@ Fcommands.deleteAll = function ()
 {
     Fcommands.guid2Command = { };
 }   // Fcommands.deleteAll
+
+
+var FcommandStorageKey = "FcommandData";
+
+// Save all Fcommands.
+Fcommands.persist = function()
+{
+    localStorage.setItem(FcommandStorageKey, Fcommands.guid2Command);
+}   // Fcommands.persist
+
+
+// Delete persisted Fcommands.  This does not affect internal data
+// structures containing Fcommands.
+Fcommands.unPersist = function()
+{
+    localStorage.removeItem(FcommandStorageKey);
+}   // Fcommands.unPersist
