@@ -14,8 +14,12 @@ function sortFcommandsByGuid(ar)
 
 describe("Fcommands.set", function() {
 
+    // Clear all Fcommands before and after each test
     beforeEach(function() {
-        // clear any existing F-commands before each test
+        Fcommands.deleteAll();
+    });
+
+    afterEach(function() {
         Fcommands.deleteAll();
     });
 
@@ -138,13 +142,30 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData.optSpec must be an object.");
         });
 
+    it("persists the fcommands whenever one is set",
+        function() {
+            spyOn(Fcommands, "persist");
+
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "asdf",
+                execute: function() {},
+            });
+
+            expect(Fcommands.persist).toHaveBeenCalled();
+        });
+
 }); // Fcommands.set
 
 
 describe("Fcommands.getCommandsByPrefix", function() {
 
+    // Clear all Fcommands before and after each test
     beforeEach(function() {
-        // clear any existing F-commands before each test
+        Fcommands.deleteAll();
+    });
+
+    afterEach(function() {
         Fcommands.deleteAll();
     });
 
@@ -301,8 +322,12 @@ describe("Fcommands.getCommandsByPrefix", function() {
 
 describe("Fcommands.delete", function() {
 
+    // Clear all Fcommands before and after each test
     beforeEach(function() {
-        // clear any existing F-commands before each test
+        Fcommands.deleteAll();
+    });
+
+    afterEach(function() {
         Fcommands.deleteAll();
     });
 
@@ -331,13 +356,9 @@ describe("Fcommands.delete", function() {
                 }]);
         });
 
-    it("delete all Fcommands",
+    it("persists the fcommands whenever one is deleted",
         function() {
-            Fcommands.set({
-                names: [ "BlAh" ],
-                guid: "guid1",
-                execute: function() {},
-            });
+            spyOn(Fcommands, "persist");
 
             Fcommands.set({
                 names: [ "blah" ],
@@ -345,20 +366,24 @@ describe("Fcommands.delete", function() {
                 execute: function() {},
             });
 
-            Fcommands.deleteAll();
+            Fcommands.delete("guid2");
 
-            expect(Fcommands.getCommandsByPrefix("BLAH")).
-                toEqual([]);
+            expect(Fcommands.persist).toHaveBeenCalled();
         });
 }); // Fcommands.delete
 
 
 describe("Fcommands.dispatch", function() {
 
+    // Clear all Fcommands before and after each test
     beforeEach(function() {
-        // clear any existing F-commands before each test
         Fcommands.deleteAll();
     });
+
+    afterEach(function() {
+        Fcommands.deleteAll();
+    });
+
 
     it("does nothing if dispatching to an empty Fcommand name",
         function() {
@@ -458,3 +483,78 @@ describe("Fcommands.dispatch", function() {
 
 
 }); // Fcommands.dispatch
+
+
+describe("Fcommands.deleteAll", function() {
+
+    // Clear all Fcommands before and after each test
+    beforeEach(function() {
+        Fcommands.deleteAll();
+    });
+
+    afterEach(function() {
+        Fcommands.deleteAll();
+    });
+
+
+    it("delete all Fcommands",
+        function() {
+            Fcommands.set({
+                names: [ "BlAh" ],
+                guid: "guid1",
+                execute: function() {},
+            });
+
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "guid2",
+                execute: function() {},
+            });
+
+            Fcommands.deleteAll();
+
+            expect(Fcommands.getCommandsByPrefix("BLAH")).
+                toEqual([]);
+        });
+
+    it("persists the empty fcommand set whenever all of them are deleted",
+        function() {
+            spyOn(Fcommands, "persist");
+
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "guid2",
+                execute: function() {},
+            });
+
+            Fcommands.deleteAll();
+
+            expect(Fcommands.persist).toHaveBeenCalled();
+        });
+}); // Fcommands.deleteAll
+
+
+describe("Fcommands.load", function() {
+
+    // Clear all Fcommands before and after each test
+    beforeEach(function() {
+        Fcommands.deleteAll();
+    });
+
+    afterEach(function() {
+        Fcommands.deleteAll();
+    });
+
+
+    xit("returns the same Fcommands that were persisted",
+        function() {
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "guid2",
+                execute: function() {},
+            });
+
+            expect(Fcommands.guid2Command).toEqual(Fcommands.load());
+        });
+
+}); // Fcommands.persist
