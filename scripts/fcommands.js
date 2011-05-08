@@ -2,7 +2,8 @@
 
 
 var Fcommands = {
-    guid2Command: { }
+    FcommandStorageKey: "FcommandData",
+    guid2Command: { },
 };
 
 
@@ -59,6 +60,7 @@ Fcommands.set = function(commandData)
         throw("commandData.optSpec must be an object.");
 
     Fcommands.guid2Command[commandData.guid] = commandData;
+    Fcommands.persist();
 }   // Fcommands.set
 
 
@@ -138,6 +140,7 @@ Fcommands.dispatch = function(cmdline)
 Fcommands.delete = function (guid)
 {
     delete Fcommands.guid2Command[guid];
+    Fcommands.persist();
 }   // Fcommands.delete
 
 
@@ -145,21 +148,22 @@ Fcommands.delete = function (guid)
 Fcommands.deleteAll = function ()
 {
     Fcommands.guid2Command = { };
+    Fcommands.persist();
 }   // Fcommands.deleteAll
 
-
-var FcommandStorageKey = "FcommandData";
 
 // Save all Fcommands.
 Fcommands.persist = function()
 {
-    localStorage.setItem(FcommandStorageKey, Fcommands.guid2Command);
+    localStorage.setItem(Fcommands.FcommandStorageKey,
+        JSON.stringify(Fcommands.guid2Command));
 }   // Fcommands.persist
 
 
-// Delete persisted Fcommands.  This does not affect internal data
-// structures containing Fcommands.
-Fcommands.unPersist = function()
+// Load persisted Fcommands and return an object representing them.
+Fcommands.load = function()
 {
-    localStorage.removeItem(FcommandStorageKey);
-}   // Fcommands.unPersist
+    return JSON.parse(
+        localStorage.getItem(Fcommands.FcommandStorageKey) || "{}"
+    );
+}   // Fcommands.load
