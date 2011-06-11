@@ -546,15 +546,20 @@ describe("Fcommands.load", function() {
     });
 
 
-    xit("returns the same Fcommands that were persisted",
+    it("returns the same Fcommand data structure that was persisted",
         function() {
-            Fcommands.set({
+            var cmd = {
                 names: [ "blah" ],
                 guid: "guid2",
                 execute: function() {},
-            });
+            };
 
-            expect(Fcommands.guid2Command).toEqual(Fcommands.load());
+            Fcommands.set(cmd);
+
+            loadedFcommands = Fcommands.load();
+            loadedFcommands.guid2.execute = jasmine.any(Function);
+
+            expect(Fcommands.guid2Command).toEqual(loadedFcommands);
         });
 
 }); // Fcommands.persist
