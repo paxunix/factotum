@@ -155,15 +155,47 @@ Fcommands.deleteAll = function ()
 // Save all Fcommands.
 Fcommands.persist = function()
 {
+    // Since JSON won't stringify functions, any Fcommand properties that
+    // are functions must be converted to a string before storage.  We also
+    // persist which properties were converted so that we can turn the
+    // strings back into functions only if they were not strings to begin
+    // with (this matters for the description property, which can be a
+    // string or a function).
+
+    var guid2CommandCopy = jQuery.extend(true, {}, Fcommands.guid2Command);
+    jQuery.each(guid2CommandCopy, function (guid, fcommand) {
+        jQuery.each(fcommand, function (k, v) {
+            if (jQuery.isFunction(v))
+            {
+                fcommand[k] = v.toString();
+                fcommand["_converted_" + k] = 1;
+            }
+        });
+    });
+
     localStorage.setItem(Fcommands.FcommandStorageKey,
-        JSON.stringify(Fcommands.guid2Command));
+        JSON.stringify(guid2CommandCopy));
 }   // Fcommands.persist
 
 
 // Load persisted Fcommands and return an object representing them.
 Fcommands.load = function()
 {
-    return JSON.parse(
+    var guid2Command = JSON.parse(
         localStorage.getItem(Fcommands.FcommandStorageKey) || "{}"
     );
+
+    jQuery.each(guid2Command, function (guid, fcommand) {
+        jQuery.each(fcommand, function (k, v) {
+            // If the property was one we converted (see Fcommands.persist),
+            // turn the string back into a function.
+            if (("_converted_" + k) in fcommand)
+            {
+                delete fcommand["_converted_"+ k];
+                fcommand[k] = eval("(" + v + ")");
+            }
+        });
+    });
+
+    return guid2Command;
 }   // Fcommands.load
