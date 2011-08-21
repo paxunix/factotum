@@ -59,6 +59,8 @@ Fcommands.set = function(commandData)
         !jQuery.isPlainObject(commandData.optSpec))
         throw("commandData.optSpec must be an object.");
 
+    // XXX:  check for the unlikely possibility that you are overwriting an
+    // existing Fcommand with this guid?
     Fcommands.guid2Command[commandData.guid] = commandData;
     Fcommands.persist();
 }   // Fcommands.set
