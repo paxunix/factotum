@@ -1,0 +1,40 @@
+- allow for any JS (or CSS) to be loaded into the page (via
+  chrome.tabs.executeScript or chrome.tabs.insertCSS).  Each Fcommand gets a
+  new property that is an array of things to be injected into the page
+  immediately before that command executes.
+    - may need to guard against multiple inclusion.
+    - actually, this same mechanism should probably be used to inject the
+      Fcommand into the page so it can execute in that context once all the
+      prerequisites were loaded.
+
+- prior to each Fcommand's execution, load any requested additional
+  functionality into the current page.
+
+- provide a management interface on the options page just for F commands
+    - shows a list of commands
+    - support enabling/disabling F commands
+    - support enable/disable of individual aliases for Fcommands???
+        - useful if you have an Fcommand that supplies an alias you don't
+          want because it's supplied by a different Fcommand
+    - shows their help content
+    - editing commands
+    - exporting commands
+
+- internal Fcommand 'help' should pull up the help content for the given
+  Fcommand
+
+- support commands from non-local sources
+    - e.g. specifying a URL will pull the Fcommand from the URL and use it.
+        - need to specify the data format.
+    - can these be edited locally???
+
+- support commands that aren't commands at all but are actually JS libs?
+  Same for CSS?
+    - this provides a mechanism to load common libs locally, rather
+      than from an external source upon use.
+    - these can be requested for load by an Fcommand; give them aliases?  No
+      need: they can just be requested via URL, then cached.
+    - cache them?  Then only refresh them whenever the Factotum extension is
+      activated?  If so, then maybe it's not necessary to have commands that
+      aren't commands--they can be demand-loaded via the above mechanism and
+      since they're cached, subsequent loads will be fast.
