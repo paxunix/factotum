@@ -142,6 +142,18 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData.optSpec must be an object.");
         });
 
+    it("throws if the 'help' value is not a string",
+        function() {
+            expect(function() {
+                Fcommands.set({
+                    names: [ "blah" ],
+                    guid: "asdf",
+                    execute: function() {},
+                    help: [],
+                });
+            }).toThrow("commandData.help must be a string.");
+        });
+
     it("persists the fcommands whenever one is set",
         function() {
             spyOn(Fcommands, "persist");
