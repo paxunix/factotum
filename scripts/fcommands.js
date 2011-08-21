@@ -199,7 +199,7 @@ Fcommands.load = function()
             // turn the string back into a function.
             if (("_converted_" + k) in fcommand)
             {
-                delete fcommand["_converted_"+ k];
+                delete fcommand["_converted_" + k];
                 fcommand[k] = eval("(" + v + ")");
             }
         });
