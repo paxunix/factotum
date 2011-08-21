@@ -129,6 +129,9 @@ Fcommands.dispatch = function(cmdline)
     var cmdlineObj = GetOpt.getOptions(fcommand.optSpec || {}, argv);
 
     // Dispatch.
+    // XXX: this runs the command in the context of the background page,
+    // which is wrong.  Instead, inject any required prerequisites into the
+    // page and then inject the Fcommand to execute.
     try
     {
         return fcommand.execute(cmdlineObj);
