@@ -38,3 +38,6 @@
       activated?  If so, then maybe it's not necessary to have commands that
       aren't commands--they can be demand-loaded via the above mechanism and
       since they're cached, subsequent loads will be fast.
+
+- popup page could show the last N Fcommands and/or the most frequently used
+  Fcommands
