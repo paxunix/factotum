@@ -15,7 +15,8 @@ var Fcommands = {
 //          command does.  If not given, a default string will be used.  If
 //          a function, it is called when the description is needed and
 //          should return a string (receives the argv for the command, no
-//          command name).
+//          command name).  This is used to generate the text that appears
+//          in the omnibox when this command is entered.
 //      optSpec: optional command line parse object specification
 //      execute:  function to do this command's action(s)
 //      icon: optional URL for a favicon-type icon for this command.
