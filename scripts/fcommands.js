@@ -20,6 +20,8 @@ var Fcommands = {
 //      optSpec: optional command line parse object specification
 //      execute:  function to do this command's action(s)
 //      icon: optional URL for a favicon-type icon for this command.
+//      help: optional string containing HTML markup 'help text' for this
+//          function.
 Fcommands.set = function(commandData)
 {
     if (!jQuery.isPlainObject(commandData))
@@ -59,6 +61,9 @@ Fcommands.set = function(commandData)
     if ('optSpec' in commandData &&
         !jQuery.isPlainObject(commandData.optSpec))
         throw("commandData.optSpec must be an object.");
+
+    if ('help' in commandData && typeof(commandData.help) !== "string")
+        throw("commandData.help must be a string.");
 
     // XXX:  check for the unlikely possibility that you are overwriting an
     // existing Fcommand with this guid?
