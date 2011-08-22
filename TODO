@@ -41,3 +41,15 @@
 
 - popup page could show the last N Fcommands and/or the most frequently used
   Fcommands
+
+- description property should always be a string.  Need to provide some way
+  of indicating it is actually JS.  Storing every property as a string (or
+  at least, a non-function) will make persistence easier).
+
+- since we are injecting the Fcommand into the current page as a content
+  script, it means Fcommands won't work when run on chrome: URL pages.
+  Workarounds:
+    - open a new tab, then close it when the Fcommand is done.  This looks
+      messy, but may be the cleanest and most stable approach.
+    - run it in the context of the background page.  This could introduce
+      instability if the Fcommand does anything except read data.
