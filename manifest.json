@@ -16,7 +16,7 @@
     // Request all the permissions we can.
     "permissions": [
         "experimental",
-        "http://*/*", "https://*/*",
+        "<all_urls>",
         "management",
         "notifications",
         "tabs",
