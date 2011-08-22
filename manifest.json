@@ -1,6 +1,10 @@
 {
     "name": "Factotum",
 
+    // XXX: "homepage_url": "",
+
+    "minimum_chrome_version": "13", // XXX:  I think
+
     "version": "0.0.1",
 
     "description": "User-defined functions for Chrome",
@@ -15,9 +19,9 @@
 
     // Request all the permissions we can.
     "permissions": [
-        "experimental",
         "<all_urls>",
-        "management",
+        "chrome://favicon/",
+        "experimental",
         "notifications",
         "tabs",
         "unlimitedStorage"
