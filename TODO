@@ -76,8 +76,15 @@
     - actually, it makes a lot of sense to run internal Fcommands from the
       background page:  we want them to be available everywhere, even on
       internal chrome pages.
+    - this means the _converted_-key stuff can probably go away because any
+      internal functions don't need to be persisted (if it's an actual
+      function, it is defined by the extension itself and so doesn't need to
+      be stored).
 
 - should move away from using localStorage for Fcommands since we're stuck
   at 2.5MB:
   http://code.google.com/p/chromium/issues/detail?id=58985
   Looks like IndexedDB is the best candidate.
+
+- need to check if Fcommand has already been injected into the page before
+  doing so again???
