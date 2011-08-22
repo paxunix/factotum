@@ -410,13 +410,13 @@ describe("Fcommands.dispatch", function() {
 
     it("does nothing if dispatching to an unknown Fcommand name",
         function() {
-            //XXX:spyOn(Fcommands, "getCommandsByPrefix").andCallThrough();
+            spyOn(Fcommands, "getCommandsByPrefix").andCallThrough();
 
             expect(function() {
                 Fcommands.dispatch("bogus");
             }).not.toThrow();
 
-            //XXX:expect(Fcommands.getCommandsByPrefix).toHaveBeenCalled();
+            expect(Fcommands.getCommandsByPrefix).toHaveBeenCalled();
         });
 
     it("passes a command line object to the function when dispatching to the given Fcommand",
