@@ -53,3 +53,31 @@
       messy, but may be the cleanest and most stable approach.
     - run it in the context of the background page.  This could introduce
       instability if the Fcommand does anything except read data.
+
+- all Fcommand invocations should be wrapped in a try/catch that augments
+  the exception with something indicating it was from an Fcommand.
+  Actually, the exception should be communicated back to Factotum so it can
+  be displayed through some Factotum UI (like in the browser action popup).
+    - maybe also a notification using the notifaction API?
+
+- since chrome.tabs.executeScript doesn't support remote URLs, we need to do
+  an XHR from the background page to pull the script content, then inject
+  that into the page
+
+- Fcommand 'execute' property can be a function or a string.  The only time
+  it will be a function is if it's an internally-implemented Fcommand,
+  because in all other cases, the code will have come from a string.  Since
+  that's the case, maybe we only need internal functions to run within the
+  background page, rather than the content page.  E.g.  the 'help' Fcommand
+  should popup some window with information about the given command.  There
+  is no need for it to run in the content page since it won't need access to
+  anything there.  Is it true that will be the case for all internal
+  Fcommands?
+    - actually, it makes a lot of sense to run internal Fcommands from the
+      background page:  we want them to be available everywhere, even on
+      internal chrome pages.
+
+- should move away from using localStorage for Fcommands since we're stuck
+  at 2.5MB:
+  http://code.google.com/p/chromium/issues/detail?id=58985
+  Looks like IndexedDB is the best candidate.
