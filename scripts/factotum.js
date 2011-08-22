@@ -7,8 +7,8 @@ Factotum.registerInternalCommands = function()
         names: [ "help" ],
         guid: "c274b610-4215-11e0-9207-0800200c9a66",
         description: "Factotum Help",
-        execute: function(cmdobj) { // XXX
-            console.log("Factotum help. Args:", cmdobj);
+        execute: function () { // XXX:  temp impl
+            console.log("Factotum help. document:", document, "Args:", cmdlineObj);
         }
     });
 };  // Factotum.registerInternalCommands
