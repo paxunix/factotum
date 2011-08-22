@@ -18,10 +18,13 @@ var Fcommands = {
 //          command name).  This is used to generate the text that appears
 //          in the omnibox when this command is entered.
 //      optSpec: optional command line parse object specification
-//      execute:  function to do this command's action(s)
+//      execute:  string or text representation of code to run for this
+//          command.
 //      icon: optional URL for a favicon-type icon for this command.
 //      help: optional string containing HTML markup 'help text' for this
 //          function.
+//      scriptUrls: optional array containing URLs for scripts to be
+//          injected into the page prior to this command's execution.
 Fcommands.set = function(commandData)
 {
     if (!jQuery.isPlainObject(commandData))
@@ -42,8 +45,9 @@ Fcommands.set = function(commandData)
     if (!('execute' in commandData))
         throw("commandData.execute is required.");
 
-    if (!jQuery.isFunction(commandData.execute))
-        throw("commandData.execute must be a function.");
+    if (typeof(commandData.execute) !== "string" &&
+        !jQuery.isFunction(commandData.execute))
+            throw("commandData.execute must be a string or a function.");
 
     if ('description' in commandData)
     {
@@ -64,6 +68,17 @@ Fcommands.set = function(commandData)
 
     if ('help' in commandData && typeof(commandData.help) !== "string")
         throw("commandData.help must be a string.");
+
+    if ('scriptUrls' in commandData)
+    {
+        if (!jQuery.isArray(commandData.scriptUrls))
+            throw("commandData.scriptUrls must be an array.");
+
+        // Each script URL needs to be a string.
+        for (var i = 0; i < commandData.scriptUrls.length; ++i)
+            if (typeof(commandData.scriptUrls[i]) !== 'string')
+                throw("commandData.scriptUrls[" + i + "] is not a string.");
+    }
 
     // XXX:  check for the unlikely possibility that you are overwriting an
     // existing Fcommand with this guid?
@@ -128,22 +143,52 @@ Fcommands.dispatch = function(cmdline)
     // option spec if there is one.
     var cmdlineObj = GetOpt.getOptions(fcommand.optSpec || {}, argv);
 
-    // Dispatch.
-    // XXX: this runs the command in the context of the background page,
-    // which is wrong.  Instead, inject any required prerequisites into the
-    // page and then inject the Fcommand to execute.
-    try
+    // Inject any required prerequisite scripts and CSS into the page and
+    // then inject the Fcommand to execute so it all runs within the page
+    // context.
+    // XXX: need to insert CSS also
+    // XXX:  this means Factotum commands won't work if the current tab is a
+    // chrome: URL.
+
+    // Each load chains to the prior one so we know all loads are finished
+    // before the Fcommand script is chained to the final load.
+    var scriptUrls = fcommand.scriptUrls || [];
+    function scriptLoader(index)
     {
-        return fcommand.execute(cmdlineObj);
+        if (index >= scriptUrls.length)
+        {
+            // Establish a context in which the Fcommand will be executed.
+            // XXX:  document somewhere about 'cmdlineObj' being available
+            // to the function.
+
+            var codeBlock = [
+                "(function (cmdlineObj) { ",
+            ];
+
+            // If the Fcommand's 'execute' property is a function, it'll
+            // need to be invoked within the context.
+            if (jQuery.isFunction(fcommand.execute))
+            {
+                codeBlock.push("(", fcommand.execute.toString(), ")();");
+            }
+            else
+            {
+                codeBlock.push(fcommand.execute);
+            }
+
+            codeBlock.push("}(", JSON.stringify(cmdlineObj), "))");
+
+            chrome.tabs.executeScript(null, { code: codeBlock.join("") },
+                  function() { console.log("callback args: ", arguments); });
+            return;
+        }
+
+        chrome.tabs.executeScript(null,
+            { file: scriptUrls[index] },
+            function() { scriptLoader(index + 1); });
     }
 
-    catch (e)
-    {
-        // XXX:  how to report error to user?
-        console.log("Fcommand '" + cmdName + "' threw: " + e);
-    }
-
-    return undefined;
+    scriptLoader(0);
 }   // Fcommands.dispatch
 
 
