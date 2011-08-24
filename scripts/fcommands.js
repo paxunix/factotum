@@ -179,8 +179,7 @@ Fcommands.dispatch = function(cmdline)
 
             codeBlock.push("}(", JSON.stringify(cmdlineObj), "))");
 
-            chrome.tabs.executeScript(null, { code: codeBlock.join("") },
-                  function() { console.log("callback args: ", arguments); });
+            chrome.tabs.executeScript(null, { code: codeBlock.join("") });
             return;
         }
 
