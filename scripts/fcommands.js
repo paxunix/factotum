@@ -158,6 +158,7 @@ Fcommands.dispatch = function(cmdline)
         if (index >= scriptUrls.length)
         {
             // Establish a context in which the Fcommand will be executed.
+            // Stringify the function and inject it into the page.
             // XXX:  document somewhere about 'cmdlineObj' being available
             // to the function.
 
