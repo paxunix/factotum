@@ -3,9 +3,6 @@
   new property that is an array of things to be injected into the page
   immediately before that command executes.
     - may need to guard against multiple inclusion.
-    - actually, this same mechanism should probably be used to inject the
-      Fcommand into the page so it can execute in that context once all the
-      prerequisites were loaded.
 
 - prior to each Fcommand's execution, load any requested additional
   functionality into the current page.
