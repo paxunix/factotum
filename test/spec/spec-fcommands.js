@@ -486,22 +486,6 @@ describe("Fcommands.dispatch", function() {
             });
         });
 
-    // XXX:  This test can no longer pass because the action is now
-    // (correctly) executed in the context of the current page, not the
-    // background page this test code is executed in.
-    xit("returns the value returned by the Fcommand's execute function",
-        function() {
-            var action = jasmine.createSpy().andReturn(42);
-
-            Fcommands.set({
-                names: [ "test" ],
-                guid: "testguid",
-                execute: action,
-            });
-
-            expect(Fcommands.dispatch("test 1 2 3")).toEqual(42);
-        });
-
     it("captures exceptions thrown by an Fcommand's execute function and returns undefined",
         function() {
             Fcommands.set({
