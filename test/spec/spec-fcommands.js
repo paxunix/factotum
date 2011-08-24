@@ -486,7 +486,11 @@ describe("Fcommands.dispatch", function() {
             });
         });
 
-    it("captures exceptions thrown by an Fcommand's execute function and returns undefined",
+    // XXX:  this test is no longer meaningful because it executes in the
+    // context of the current page, not the background page (i.e. the
+    // exception is thrown in the current page and therefore isn't available
+    // to the extension).
+    xit("captures exceptions thrown by an Fcommand's execute function and returns undefined",
         function() {
             Fcommands.set({
                 names: [ "test" ],
