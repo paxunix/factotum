@@ -118,6 +118,38 @@ Fcommands.getCommandsByPrefix = function (prefix)
 }   // Fcommands.getCommandsByPrefix
 
 
+// This function's source has FACTOTUM_fnBody replaced with the stringified
+// Fcommand and is injected into the page to execute.  This wrapper exists
+// to catch errors and report them back to Factotum in a standard fashion.
+Fcommands.wrapperFunc = function Factotum_wrapper(cmdlineObj)
+{
+    try {
+        // The Fcommand code is wrapped in eval so any errors from its
+        // parsing are caught by this try/catch as well as any exceptions it
+        // throws.
+        eval(FACTOTUM_fnBody);
+    }
+    catch (e)
+    {
+        var msg = "Error from Factotum command '" + cmdlineObj.cmdName + "'";
+        if (Object.prototype.toString.call(e) === "[object Error]")
+        {
+            msg += ": " + e.message;
+        }
+        else
+        {
+            msg += ": " + e;
+        }
+
+        //XXX: send request back to background page with error message.
+        //Stack too?  Maybe the error object itself; not sure if the error
+        //object can be sent from the page to the background and still be
+        //valid.
+        console.log(msg);
+    }
+}   // Fcommands.wrapperFunc
+
+
 // Given a command line, figure out the Fcommand and run its function.
 Fcommands.dispatch = function(cmdline)
 {
@@ -140,8 +172,11 @@ Fcommands.dispatch = function(cmdline)
     var fcommand = commandList[0];
 
     // Parse the remaining words of the command line, using the Fcommand's
-    // option spec if there is one.
+    // option spec if there is one.  Also include the name of the Fcommand
+    // being invoked (note, we don't use cmdName because it may only be the
+    // prefix of an Fcommand name).
     var cmdlineObj = GetOpt.getOptions(fcommand.optSpec || {}, argv);
+    cmdlineObj.cmdName = fcommand.names[0];
 
     // Inject any required prerequisite scripts and CSS into the page and
     // then inject the Fcommand to execute so it all runs within the page
@@ -157,29 +192,32 @@ Fcommands.dispatch = function(cmdline)
     {
         if (index >= scriptUrls.length)
         {
-            // Establish a context in which the Fcommand will be executed.
-            // Stringify the function and inject it into the page.
+            // Build the code string to be injected into the current page.
             // XXX:  document somewhere about 'cmdlineObj' being available
             // to the function.
-
-            var codeBlock = [
-                "(function (cmdlineObj) { ",
-            ];
+            var codeStr;
 
             // If the Fcommand's 'execute' property is a function, it'll
             // need to be invoked within the context.
             if (jQuery.isFunction(fcommand.execute))
             {
-                codeBlock.push("(", fcommand.execute.toString(), ")();");
+                codeStr = "(" + fcommand.execute.toString() + ")();";
             }
             else
             {
-                codeBlock.push(fcommand.execute);
+                codeStr = fcommand.execute;
             }
 
-            codeBlock.push("}(", JSON.stringify(cmdlineObj), "))");
+            var codeStr = "(" +
+                Fcommands.wrapperFunc.toString().
+                    replace(/FACTOTUM_fnBody/,
+                        JSON.stringify(codeStr)) +
+                ")(" + JSON.stringify(cmdlineObj) + ")";
 
-            chrome.tabs.executeScript(null, { code: codeBlock.join("") });
+            // XXX: in all frames???  Perhaps this needs to be part of the
+            // Fcommand metadata, since it won't make sense to always or
+            // never be true.
+            chrome.tabs.executeScript(null, { code: codeStr });
             return;
         }
 
