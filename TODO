@@ -75,7 +75,7 @@
   Fcommands?
     - actually, it makes a lot of sense to run internal Fcommands from the
       background page:  we want them to be available everywhere, even on
-      internal chrome pages.
+      internal chrome pages (which they actually can't be anyway).
     - this means the _converted_-key stuff can probably go away because any
       internal functions don't need to be persisted (if it's an actual
       function, it is defined by the extension itself and so doesn't need to
@@ -83,8 +83,15 @@
 
 - should move away from using localStorage for Fcommands since we're stuck
   at 2.5MB:
-  http://code.google.com/p/chromium/issues/detail?id=58985
-  Looks like IndexedDB is the best candidate.
+  http://code.google.com/p/chromium/issues/detail?id=58985 Looks like
+  IndexedDB or FileSystem is the best candidate.  Given that we probably
+  don't need anything approaching a DB, FileSystem might be tidiest.
 
 - need to check if Fcommand has already been injected into the page before
   doing so again???
+
+- useful to make distinction between commands that require the current
+  page's context and those that don't?
+    - e.g. if an Fcommand is only opening a new tab, there's no need for it
+      to run within the current page--it can run fine in the background page
+    - too difficult to explain to users?
