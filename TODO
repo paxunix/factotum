@@ -87,8 +87,20 @@
   IndexedDB or FileSystem is the best candidate.  Given that we probably
   don't need anything approaching a DB, FileSystem might be tidiest.
 
-- need to check if Fcommand has already been injected into the page before
-  doing so again???
+- To prevent re-injecting the same code over and over
+    - inject the wrapper script once per tab.  Factotum tracks tab ID and
+      whether or not the wrapper has been injected for that tab.  Since tab
+      IDs are unique per browser session, this is fine.
+    - on the first Factotum command for a tab, inject the wrapper function.
+        - the injected code must include more than just the wrapper
+          function, it also needs an onConnect handler to listen for
+          requests from Factotum.
+    - send a message to the content script that contains the Fcommand code
+      and any other needed details.
+    - the content script onconnect handler gets the message and runs the
+      code from the message, then passes back any error message to Factotum.
+    - to prune dead tab IDs from the list we could list for tab close
+      actions
 
 - useful to make distinction between commands that require the current
   page's context and those that don't?
