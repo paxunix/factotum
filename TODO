@@ -107,3 +107,25 @@
     - e.g. if an Fcommand is only opening a new tab, there's no need for it
       to run within the current page--it can run fine in the background page
     - too difficult to explain to users?
+
+- don't call deleteAll in test specs--that will blow away any saved
+  Fcommands.  Modify all test to use conspicuous Fcommand names (like
+  _FACTOTUM_TEST_blahblah) and only remove those before each test.
+
+- dispatch() takes a responseCallback function that should be called by the
+  response handler that gets the completion message back from the Fcommand
+  in the page.
+    - anything returned by the Fcommand should be passed by that callback.
+    - this will be useful for testing (maybe only for testing)
+
+- Fcommands.dispatch and .scriptLoader belong in Factotum, not Fcommands.
+
+- chrome bug:  executeScript{file:xxx} doesn't seem to make the file's
+  source available to developer tools.  I expected to be able to debug it,
+  but it's innaccessible.  Furthermore, if there is an exception in the
+  loaded file's code, it shows up in stack traces as "unknown source" with
+  no line number info or anything.
+
+- fcommand's response object could have an extra field that if somehow set
+  by the Fcommand's code (and the code succeeded) would indicate the
+  extension should popup a notification with custom content.
