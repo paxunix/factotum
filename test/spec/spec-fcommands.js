@@ -194,9 +194,9 @@ describe("Fcommands.set", function() {
             }).toThrow("commandData.scriptUrls[1] is not a string.");
         });
 
-    xit("XXX: scriptUrls loads remote content", function() {});
+    xit("scriptUrls loads remote content");
 
-    xit("XXX: scriptUrls loads the Fcommand last", function() {});
+    xit("scriptUrls loads the Fcommand last");
 
     it("persists the fcommands whenever one is set",
         function() {
