@@ -106,4 +106,46 @@ describe("Factotum.getSuggestion", function() {
     });
 
 
+}); // Factotum.getSuggestion
+
+
+describe("Factotum", function() {
+
+
+    beforeEach(function() {
+        // clear any existing F-commands before each test
+        Fcommands.deleteAll();
+    });
+
+
+    xit("Fcommand response contains command name", function() {
+        var name = "test";
+        var argv = [ "a", "b", "c" ];
+
+        Fcommands.set({
+            names: [ name ],
+            guid: "testguid",
+            execute: "invalid javascript code",
+        });
+
+        var responseHandler = jasmine.createSpy();
+
+        Fcommands.dispatch("test -opt -- 1 2 3", responseHandler);
+
+        expect(responseHandler).toHaveBeenCalledWith({
+            XXX: 1,
+            opts: { opt: true },
+            argv: ["1", "2", "3"]
+        });
+    });
+
+    xit("receives an error response if Fcommand code fails parsing");
+
+    xit("receives an error response if Fcommand code throws");
+
+    xit("receives an non-error response if Fcommand did not throw");
+
+    xit("notifies user if an Fcommand throws");
+
+
 }); // Factotum

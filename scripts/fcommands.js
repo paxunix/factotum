@@ -6,6 +6,8 @@ var Fcommands = {
     guid2Command: { },
 };
 
+var injectedTabIds = { };
+
 
 // Install the given Fcommand.
 // commandData is a hash of
@@ -79,6 +81,10 @@ Fcommands.set = function(commandData)
             if (typeof(commandData.scriptUrls[i]) !== 'string')
                 throw("commandData.scriptUrls[" + i + "] is not a string.");
     }
+    else
+    {
+        commandData.scriptUrls = [];
+    }
 
     // XXX:  check for the unlikely possibility that you are overwriting an
     // existing Fcommand with this guid?
@@ -118,40 +124,68 @@ Fcommands.getCommandsByPrefix = function (prefix)
 }   // Fcommands.getCommandsByPrefix
 
 
-// This function's source has FACTOTUM_fnBody replaced with the stringified
-// Fcommand and is injected into the page to execute.  This wrapper exists
-// to catch errors and report them back to Factotum in a standard fashion.
-Fcommands.wrapperFunc = function Factotum_wrapper(cmdlineObj)
+// Injects Fcommand dependent scripts and Factotum content script into the
+// current page.  This function is called recursively to ensure all loads are
+// finished before the Fcommand script is loaded last.
+// XXX:  inject all CSS beforehand
+// XXX:  this should only happen once per tab id
+// XXX:  this means Factotum commands won't work if the current tab is a chrome:
+//          URL.
+Fcommands.scriptLoader = function (index, tabId, fcommand, cmdlineObj, responseFn)
 {
-    try {
-        // The Fcommand code is wrapped in eval so any errors from its
-        // parsing are caught by this try/catch as well as any exceptions it
-        // throws.
-        eval(FACTOTUM_fnBody);
-    }
-    catch (e)
+    if (index >= fcommand.scriptUrls.length)
     {
-        var msg = "Error from Factotum command '" + cmdlineObj.cmdName + "'";
-        if (Object.prototype.toString.call(e) === "[object Error]")
+        // All prerequisite scripts are done, now load the Fcommand content
+        // script.
+
+        // Build the code string to be loaded into the current page.
+        // XXX: document somewhere about 'cmdlineObj' being available to the
+        // function.
+        var codeStr;
+
+        // If the Fcommand's 'execute' property is a function, it'll
+        // need to be invoked within the context.
+        if (jQuery.isFunction(fcommand.execute))
         {
-            msg += ": " + e.message;
+            codeStr = "(" + fcommand.execute.toString() + ")();";
         }
         else
         {
-            msg += ": " + e;
+            codeStr = fcommand.execute;
         }
 
-        //XXX: send request back to background page with error message.
-        //Stack too?  Maybe the error object itself; not sure if the error
-        //object can be sent from the page to the background and still be
-        //valid.
-        console.log(msg);
-    }
-}   // Fcommands.wrapperFunc
+        // XXX: in all frames???  Perhaps this needs to be part of
+        // the Fcommand metadata, since it won't make sense to
+        // always or never be true.
+        chrome.tabs.executeScript(tabId,
+            { file: "scripts/dyn-content.js" },
+            function () {
+                chrome.tabs.sendRequest(tabId, {
+                        codeString: codeStr,
+                        cmdlineObj: cmdlineObj
+                    }, function (response) {
+                        console.log("XXX: Content response:", response);
+                });
+            }
+        );
+
+        return;
+    }   // index >= fcommand.scriptUrls.length
+
+    chrome.tabs.executeScript(tabId,
+        { file: fcommand.scriptUrls[index] },    // XXX: only files local to extension
+        function() {
+            Fcommands.scriptLoader(index + 1, tabId, fcommand,
+                cmdlineObj, responseFn || null);  //XXX: not null
+        }
+    );
+}   // Fcommands.scriptLoader
 
 
-// Given a command line, figure out the Fcommand and run its function.
-Fcommands.dispatch = function(cmdline)
+// Given a command line, figure out the Fcommand and run its function.  Once the
+// function has executed, run the response callback, passing the response from
+// the function.
+Fcommands.dispatch = function(cmdline, responseFn)
 {
     // At least one word is needed in command line.
     var argv = GetOpt.shellWordSplit(cmdline);
@@ -178,55 +212,10 @@ Fcommands.dispatch = function(cmdline)
     var cmdlineObj = GetOpt.getOptions(fcommand.optSpec || {}, argv);
     cmdlineObj.cmdName = fcommand.names[0];
 
-    // Inject any required prerequisite scripts and CSS into the page and
-    // then inject the Fcommand to execute so it all runs within the page
-    // context.
-    // XXX: need to insert CSS also
-    // XXX:  this means Factotum commands won't work if the current tab is a
-    // chrome: URL.
-
-    // Each load chains to the prior one so we know all loads are finished
-    // before the Fcommand script is chained to the final load.
-    var scriptUrls = fcommand.scriptUrls || [];
-    function scriptLoader(index)
-    {
-        if (index >= scriptUrls.length)
-        {
-            // Build the code string to be injected into the current page.
-            // XXX:  document somewhere about 'cmdlineObj' being available
-            // to the function.
-            var codeStr;
-
-            // If the Fcommand's 'execute' property is a function, it'll
-            // need to be invoked within the context.
-            if (jQuery.isFunction(fcommand.execute))
-            {
-                codeStr = "(" + fcommand.execute.toString() + ")();";
-            }
-            else
-            {
-                codeStr = fcommand.execute;
-            }
-
-            var codeStr = "(" +
-                Fcommands.wrapperFunc.toString().
-                    replace(/FACTOTUM_fnBody/,
-                        JSON.stringify(codeStr)) +
-                ")(" + JSON.stringify(cmdlineObj) + ")";
-
-            // XXX: in all frames???  Perhaps this needs to be part of the
-            // Fcommand metadata, since it won't make sense to always or
-            // never be true.
-            chrome.tabs.executeScript(null, { code: codeStr });
-            return;
-        }
-
-        chrome.tabs.executeScript(null,
-            { file: scriptUrls[index] },
-            function() { scriptLoader(index + 1); });
-    }
-
-    scriptLoader(0);
+    // Ensure everything from this point happens in the current tab.
+    chrome.tabs.getSelected(null, function (tab) {
+        Fcommands.scriptLoader(0, tab.id, fcommand, cmdlineObj, responseFn);
+    });
 }   // Fcommands.dispatch
 
 
