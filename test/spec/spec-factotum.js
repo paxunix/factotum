@@ -145,6 +145,8 @@ describe("Factotum", function() {
 
     xit("receives an non-error response if Fcommand did not throw");
 
+    xit("receives a stack dump if Fcommand throws a builtin exception");
+
     xit("notifies user if an Fcommand throws");
 
 
