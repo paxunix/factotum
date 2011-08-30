@@ -131,7 +131,7 @@ Fcommands.getCommandsByPrefix = function (prefix)
 // XXX:  this should only happen once per tab id
 // XXX:  this means Factotum commands won't work if the current tab is a chrome:
 //          URL.
-Fcommands.scriptLoader = function (index, tabId, fcommand, cmdlineObj, responseFn)
+Fcommands.scriptLoader = function (index, tabId, fcommand, cmdlineObj)
 {
     if (index >= fcommand.scriptUrls.length)
     {
@@ -161,13 +161,10 @@ Fcommands.scriptLoader = function (index, tabId, fcommand, cmdlineObj, responseF
             { file: "scripts/dyn-content.js" },
             function () {
                 chrome.tabs.sendRequest(tabId, {
-                        codeString: codeStr,
-                        cmdlineObj: cmdlineObj
-                    }, function (response) {
-                        console.log("XXX: Content response:", response);
-                });
-            }
-        );
+                    codeString: codeStr,
+                    cmdlineObj: cmdlineObj
+                }, Factotum.responseHandler);
+            });
 
         return;
     }   // index >= fcommand.scriptUrls.length
@@ -175,8 +172,7 @@ Fcommands.scriptLoader = function (index, tabId, fcommand, cmdlineObj, responseF
     chrome.tabs.executeScript(tabId,
         { file: fcommand.scriptUrls[index] },    // XXX: only files local to extension
         function() {
-            Fcommands.scriptLoader(index + 1, tabId, fcommand,
-                cmdlineObj, responseFn || null);  //XXX: not null
+            Fcommands.scriptLoader(index + 1, tabId, fcommand, cmdlineObj);
         }
     );
 }   // Fcommands.scriptLoader
@@ -185,7 +181,7 @@ Fcommands.scriptLoader = function (index, tabId, fcommand, cmdlineObj, responseF
 // Given a command line, figure out the Fcommand and run its function.  Once the
 // function has executed, run the response callback, passing the response from
 // the function.
-Fcommands.dispatch = function(cmdline, responseFn)
+Fcommands.dispatch = function(cmdline)
 {
     // At least one word is needed in command line.
     var argv = GetOpt.shellWordSplit(cmdline);
@@ -214,7 +210,7 @@ Fcommands.dispatch = function(cmdline, responseFn)
 
     // Ensure everything from this point happens in the current tab.
     chrome.tabs.getSelected(null, function (tab) {
-        Fcommands.scriptLoader(0, tab.id, fcommand, cmdlineObj, responseFn);
+        Fcommands.scriptLoader(0, tab.id, fcommand, cmdlineObj);
     });
 }   // Fcommands.dispatch
 

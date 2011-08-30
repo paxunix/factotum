@@ -78,3 +78,40 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
         });
     }
 };  // Factotum.onOmniboxInputChanged
+
+
+// Called when each Fcommand has finished executing.
+//   response       - the object returned from the content script.
+//      .errorData  - an object containing exception data if the Fcommand failed
+//                    by throwing an exception.  If no throw occurred, this
+//                    property will not exist.
+//          .message   - the message text of the exception.
+//          .stack     - stack dump of the exception (if the exception was a
+//                       builtin exception; e.g. SyntaxError, ReferenceError,
+//                       etc.)  XXX:  where should we show the stack if there is
+//                       one?
+Factotum.responseHandler = function (response)
+{
+    if (response.errorData)
+    {
+        // XXX: Should all errors be logged?  Should store a rotated log of
+        // these to help users troubleshoot problems with Fcommands?
+
+        // XXX: consider an option to choose desktop notifications or infobars.
+        // Infobars would neatly associate the error notification with the tab
+        // in which the code was executed.
+        var notification = webkitNotifications.createNotification(
+            "icons/error.png",
+            "Command Error",
+            response.errorData.message
+        );
+
+        notification.show();
+
+        // Remove the notification after 10 seconds.
+        // XXX:  Should that period be configurable?
+        setTimeout(function () {
+                notification.cancel();
+            }, 10000);
+    }
+};  // Factotum.responseHandler
