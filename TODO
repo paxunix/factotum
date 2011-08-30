@@ -51,14 +51,7 @@
     - run it in the context of the background page.  This could introduce
       instability if the Fcommand does anything except read data.
 
-- all Fcommand invocations should be wrapped in a try/catch that augments
-  the exception with something indicating it was from an Fcommand.
-  Actually, the exception should be communicated back to Factotum so it can
-  be displayed through some Factotum UI (like in the browser action popup).
-    - since that's not possible, it will have to be via the notification
-      API.  Should also be logged in the background page's console and/or
-      saved somewhere for end-user troubleshooting.
-    - need an option to toggle those on/off?
+- need an option to toggle error notifications on/off?
 
 - since chrome.tabs.executeScript doesn't support remote URLs, we need to do
   an XHR from the background page to pull the script content, then inject
