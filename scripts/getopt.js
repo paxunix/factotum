@@ -274,4 +274,4 @@ GetOpt.getOptions = function (spec, args)
     }
 
     return { opts: opts, argv: retArgv };
-}   // GetOpt.getOptions 
+}   // GetOpt.getOptions

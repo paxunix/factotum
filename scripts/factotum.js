@@ -18,7 +18,7 @@ Factotum.registerInternalCommands = function()
 Factotum.onOmniboxInputEntered = function(text)
 {
     Fcommands.dispatch(text);
-};  // Factotum.onOmniboxInputEntered 
+};  // Factotum.onOmniboxInputEntered
 
 
 // Return an omnibox suggestion object with content string matching argv and
