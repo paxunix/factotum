@@ -105,12 +105,6 @@
   Fcommands.  Modify all test to use conspicuous Fcommand names (like
   _FACTOTUM_TEST_blahblah) and only remove those before each test.
 
-- dispatch() takes a responseCallback function that should be called by the
-  response handler that gets the completion message back from the Fcommand
-  in the page.
-    - anything returned by the Fcommand should be passed by that callback.
-    - this will be useful for testing (maybe only for testing)
-
 - Fcommands.dispatch and .scriptLoader belong in Factotum, not Fcommands.
 
 - chrome bug:  executeScript{file:xxx} doesn't seem to make the file's
