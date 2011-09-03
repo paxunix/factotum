@@ -245,6 +245,7 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     guid: "asdf",
                     execute: jasmine.any(Function),
                     description: "No description provided.",
+                    scriptUrls: [],
                 }]);
         });
 
@@ -268,12 +269,14 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     guid: "guid2",
                     execute: jasmine.any(Function),
                     description: "No description provided.",
+                    scriptUrls: [],
                 },
                 {
                     names: [ "blah" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
                     description: "No description provided.",
+                    scriptUrls: [],
                 },
                 ]));
         });
@@ -298,12 +301,14 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     guid: "guid2",
                     execute: jasmine.any(Function),
                     description: "No description provided.",
+                    scriptUrls: [],
                 },
                 {
                     names: [ "BlAh" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
                     description: "No description provided.",
+                    scriptUrls: [],
                 },
                 ]));
         });
@@ -334,12 +339,14 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     guid: "guid1",
                     execute: jasmine.any(Function),
                     description: "No description provided.",
+                    scriptUrls: [],
                 },
                 {
                     names: [ "cmdsecond" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
                     description: "No description provided.",
+                    scriptUrls: [],
                 },
                 ]);
         });
@@ -358,6 +365,7 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     guid: "guid1",
                     execute: jasmine.any(Function),
                     description: "No description provided.",
+                    scriptUrls: [],
                 }]);
         });
 
@@ -409,6 +417,7 @@ describe("Fcommands.delete", function() {
                     guid: "guid2",
                     execute: jasmine.any(Function),
                     description: "No description provided.",
+                    scriptUrls: [],
                 }]);
         });
 
