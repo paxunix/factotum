@@ -58,7 +58,7 @@ Fcommands.set = function(commandData)
             throw("commandData.description must be a string or a function.");
     }
     else
-        commandData.description = "XXX: default description";
+        commandData.description = "No description provided.";
 
     if ('icon' in commandData && typeof(commandData.icon) !== 'string')
         throw("commandData.icon must be a string.");
