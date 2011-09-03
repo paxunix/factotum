@@ -118,24 +118,26 @@ describe("Factotum", function() {
     });
 
 
+    // None of these tests will work because of
+    // http://code.google.com/p/chromium/issues/detail?id=30756
+    // (can't executeScript() into an extension's page, even if
+    // it's the same extension)
     xit("Fcommand response contains command name", function() {
-        var name = "test";
-        var argv = [ "a", "b", "c" ];
-
         Fcommands.set({
-            names: [ name ],
+            names: [ "test" ],
             guid: "testguid",
-            execute: "invalid javascript code",
+            execute: "return 42;",
         });
 
-        var responseHandler = jasmine.createSpy();
+        spyOn(Factotum, "responseHandler").andCallThrough();
 
-        Fcommands.dispatch("test -opt -- 1 2 3", responseHandler);
+        Fcommands.dispatch("test 1 2 3");
 
-        expect(responseHandler).toHaveBeenCalledWith({
-            XXX: 1,
-            opts: { opt: true },
-            argv: ["1", "2", "3"]
+        expect(Factotum.responseHandler).toHaveBeenCalledWith({
+            cmdlineObj: {
+                opts: { },
+                argv: ["1", "2", "3"]
+            }
         });
     });
 
@@ -143,7 +145,7 @@ describe("Factotum", function() {
 
     xit("receives an error response if Fcommand code throws");
 
-    xit("receives an non-error response if Fcommand did not throw");
+    xit("receives a non-error response if Fcommand did not throw");
 
     xit("receives a stack dump if Fcommand throws a builtin exception");
 
