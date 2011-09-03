@@ -244,7 +244,7 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "blah" ],
                     guid: "asdf",
                     execute: jasmine.any(Function),
-                    description: "XXX: default description",
+                    description: "No description provided.",
                 }]);
         });
 
@@ -267,13 +267,13 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "blah" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
-                    description: "XXX: default description",
+                    description: "No description provided.",
                 },
                 {
                     names: [ "blah" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
-                    description: "XXX: default description",
+                    description: "No description provided.",
                 },
                 ]));
         });
@@ -297,13 +297,13 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "blah" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
-                    description: "XXX: default description",
+                    description: "No description provided.",
                 },
                 {
                     names: [ "BlAh" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
-                    description: "XXX: default description",
+                    description: "No description provided.",
                 },
                 ]));
         });
@@ -333,13 +333,13 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "cmdfirst" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
-                    description: "XXX: default description",
+                    description: "No description provided.",
                 },
                 {
                     names: [ "cmdsecond" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
-                    description: "XXX: default description",
+                    description: "No description provided.",
                 },
                 ]);
         });
@@ -357,7 +357,7 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "c**" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
-                    description: "XXX: default description",
+                    description: "No description provided.",
                 }]);
         });
 
@@ -408,7 +408,7 @@ describe("Fcommands.delete", function() {
                     names: [ "blah" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
-                    description: "XXX: default description",
+                    description: "No description provided.",
                 }]);
         });
 
