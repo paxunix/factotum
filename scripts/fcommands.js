@@ -215,18 +215,18 @@ Fcommands.dispatch = function(cmdline)
 
     // XXX: for now we just take the first one.  We will have to check for
     // and use the active one.
-    var fcommand = commandList[0];
+    var fcommandObj = commandList[0];
 
     // Parse the remaining words of the command line, using the Fcommand's
     // option spec if there is one.  Also include the name of the Fcommand
     // being invoked (note, we don't use cmdName because it may only be the
     // prefix of an Fcommand name).
-    var cmdlineObj = GetOpt.getOptions(fcommand.optSpec || {}, argv);
-    cmdlineObj.cmdName = fcommand.names[0];
+    var cmdlineObj = GetOpt.getOptions(fcommandObj.optSpec || {}, argv);
+    cmdlineObj.cmdName = fcommandObj.names[0];
 
-    // Ensure everything from this point happens in the current tab.
+    // Ensure everything from this point happens for the current tab.
     chrome.tabs.getSelected(null, function (tab) {
-        Fcommands.scriptLoader(0, tab.id, fcommand, cmdlineObj);
+        Factotum.sendScriptRequest(tab.id, fcommandObj, cmdlineObj);
     });
 }   // Fcommands.dispatch
 
