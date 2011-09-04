@@ -131,7 +131,7 @@ describe("Factotum.responseHandler", function() {
 
         spyOn(Factotum, "responseHandler").andCallThrough();
 
-        Fcommands.dispatch("test 1 2 3");
+        Factotum.dispatch("test 1 2 3");
 
         expect(Factotum.responseHandler).toHaveBeenCalledWith({
             cmdlineObj: {
@@ -154,6 +154,114 @@ describe("Factotum.responseHandler", function() {
     xit("receives a response even if the Fcommand explicitly returns");
 
 }); // Factotum.responseHandler
+
+
+describe("Factotum.dispatch", function() {
+
+    // Clear all Fcommands before and after each test
+    beforeEach(function() {
+        Fcommands.deleteAll();
+    });
+
+    afterEach(function() {
+        Fcommands.deleteAll();
+    });
+
+
+    it("does nothing if dispatching to an empty Fcommand name",
+        function() {
+            spyOn(Fcommands, "getCommandsByPrefix");
+
+            expect(function() {
+                Factotum.dispatch("");
+            }).not.toThrow();
+
+            expect(Fcommands.getCommandsByPrefix).not.toHaveBeenCalled();
+        });
+
+    it("does nothing if dispatching to an unknown Fcommand name",
+        function() {
+            spyOn(Fcommands, "getCommandsByPrefix").andCallThrough();
+
+            expect(function() {
+                Factotum.dispatch("bogus");
+            }).not.toThrow();
+
+            expect(Fcommands.getCommandsByPrefix).toHaveBeenCalled();
+        });
+
+    // XXX:  This test can no longer pass because the action is now
+    // (correctly) executed in the context of the current page, not the
+    // background page this test code is executed in.
+    xit("passes a command line object to the function when dispatching to the given Fcommand",
+        function() {
+            var action = jasmine.createSpy();
+
+            Fcommands.set({
+                names: [ "test" ],
+                guid: "testguid",
+                execute: action,
+            });
+
+            expect(function() {
+                Factotum.dispatch("test 1 2 3");
+            }).not.toThrow();
+
+            expect(action).toHaveBeenCalledWith({
+                opts: {},
+                argv: ["1", "2", "3"]
+            });
+        });
+
+    // XXX:  this test is no longer meaningful because it executes in the
+    // context of the current page, not the background page (i.e. the
+    // exception is thrown in the current page and therefore isn't available
+    // to the extension).
+    xit("captures exceptions thrown by an Fcommand's execute function and returns undefined",
+        function() {
+            Fcommands.set({
+                names: [ "test" ],
+                guid: "testguid",
+                execute: function () { throw 42; },
+            });
+
+            var rval = 1;
+            expect(function() {
+                rval = Factotum.dispatch("test 1 2 3");
+            }).not.toThrow(42);
+
+            expect(rval).toEqual(undefined);
+        });
+
+    // XXX:  This test can no longer pass because the action is now
+    // (correctly) executed in the context of the current page, not the
+    // background page this test code is executed in.
+    xit("passes a command line object to the function when dispatching to the given Fcommand with an optspec",
+        function() {
+            var action = jasmine.createSpy();
+
+            Fcommands.set({
+                names: [ "test" ],
+                guid: "testguid",
+                optSpec: {
+                    opt: {
+                        type: "boolean"
+                    },
+                },
+                execute: action,
+            });
+
+            expect(function() {
+                Factotum.dispatch("test -opt -- 1 2 3");
+            }).not.toThrow();
+
+            expect(action).toHaveBeenCalledWith({
+                opts: { opt: true },
+                argv: ["1", "2", "3"]
+            });
+        });
+
+}); // Factotum.dispatch
 
 
 describe("Fcommands.sendScriptRequest", function() {
