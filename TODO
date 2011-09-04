@@ -39,14 +39,6 @@
 - popup page could show the last N Fcommands and/or the most frequently used
   Fcommands
 
-- since we are injecting the Fcommand into the current page as a content
-  script, it means Fcommands won't work when run on chrome: URL pages.
-  Workarounds:
-    - open a new tab, then close it when the Fcommand is done.  This looks
-      messy, but may be the cleanest and most stable approach.
-    - run it in the context of the background page.  This could introduce
-      instability if the Fcommand does anything except read data.
-
 - need an option to toggle error notifications on/off?
 
 - since chrome.tabs.executeScript doesn't support remote URLs, we need to do

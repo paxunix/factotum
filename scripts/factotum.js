@@ -44,6 +44,23 @@ Factotum.getSuggestion = function(fcommand, argv)
 // Listener for Omnibox changes
 Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 {
+    // If the current tab's URL is an internal one, Fcommands won't work.  Show
+    // an omnibox suggestion to indicate that.
+    chrome.tabs.getSelected(null, function (tab) {
+
+
+    // XXX:  it is possible for some Fcommands to run (e.g. those that can run
+    // fine in the background page).  For now, disallow them all when run
+    // on an internal Chrome page).
+    if (tab.url.search(/^(chrome|about)/) !== -1)
+    {
+        chrome.omnibox.setDefaultSuggestion({
+            description: '<match>Factotum commands cannot be run from Chrome pages.</match>'
+        });
+
+        return;
+    }
+
     // At least one word is needed in command line.
     var argv = GetOpt.shellWordSplit(text);
     if (argv.length < 1)
@@ -77,6 +94,9 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
                 "</match>' is an unknown command."
         });
     }
+
+
+    });   // chrome.tabs.getSelected
 };  // Factotum.onOmniboxInputChanged
 
 
