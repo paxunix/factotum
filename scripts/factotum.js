@@ -26,17 +26,11 @@ Factotum.onOmniboxInputEntered = function(text)
 // associated with the command.
 Factotum.getSuggestion = function(fcommand, argv)
 {
-    // If the Fcommand's description property is a function, call it with
-    // the command args to get the description string to use.
-    var desc = jQuery.isFunction(fcommand.description) ?
-        fcommand.description(argv) :
-        fcommand.description;
-
     return {
         content: fcommand.names[0] + " " + argv.join(" "),
         description: '<dim>Factotum:</dim> <match>' +
-            fcommand.names[0] + "</match>" +
-            (desc ? " <dim>(" + desc + ")</dim>" : "")
+            fcommand.names[0] + "</match><dim> (" +
+            fcommand.description + ")</dim>"
     };
 }   // Factotum.getSuggestion
 

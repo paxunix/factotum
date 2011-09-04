@@ -104,6 +104,26 @@ describe("Fcommands.set", function() {
             }).not.toThrow();
         });
 
+    it("uses a default description string if the parameter's 'description' property is not specified",
+        function() {
+            expect(function() {
+                Fcommands.set({
+                    names: [ "blah" ],
+                    guid: "asdf",
+                    execute: function() {},
+                });
+            }).not.toThrow();
+
+            expect(Fcommands.getCommandsByPrefix("blah")).
+                toEqual([{
+                    names: [ "blah" ],
+                    guid: "asdf",
+                    execute: jasmine.any(Function),
+                    description: jasmine.any(String),
+                    scriptUrls: [],
+                }]);
+        });
+
     it("throws if the parameter's 'description' property is not a string",
         function() {
             expect(function() {
@@ -235,7 +255,7 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "blah" ],
                     guid: "asdf",
                     execute: jasmine.any(Function),
-                    description: "No description provided.",
+                    description: jasmine.any(String),
                     scriptUrls: [],
                 }]);
         });
@@ -259,14 +279,14 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "blah" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
-                    description: "No description provided.",
+                    description: jasmine.any(String),
                     scriptUrls: [],
                 },
                 {
                     names: [ "blah" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
-                    description: "No description provided.",
+                    description: jasmine.any(String),
                     scriptUrls: [],
                 },
                 ]));
@@ -291,14 +311,14 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "blah" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
-                    description: "No description provided.",
+                    description: jasmine.any(String),
                     scriptUrls: [],
                 },
                 {
                     names: [ "BlAh" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
-                    description: "No description provided.",
+                    description: jasmine.any(String),
                     scriptUrls: [],
                 },
                 ]));
@@ -329,14 +349,14 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "cmdfirst" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
-                    description: "No description provided.",
+                    description: jasmine.any(String),
                     scriptUrls: [],
                 },
                 {
                     names: [ "cmdsecond" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
-                    description: "No description provided.",
+                    description: jasmine.any(String),
                     scriptUrls: [],
                 },
                 ]);
@@ -355,7 +375,7 @@ describe("Fcommands.getCommandsByPrefix", function() {
                     names: [ "c**" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
-                    description: "No description provided.",
+                    description: jasmine.any(String),
                     scriptUrls: [],
                 }]);
         });
@@ -407,7 +427,7 @@ describe("Fcommands.delete", function() {
                     names: [ "blah" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
-                    description: "No description provided.",
+                    description: jasmine.any(String),
                     scriptUrls: [],
                 }]);
         });
