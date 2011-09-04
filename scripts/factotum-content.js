@@ -7,7 +7,6 @@
 // XXX:  this code should be responsible for loading prerequisite scripts and
 // CSS, otherwise Factotum has to keep track of whether or not it has been done
 // for this page already.
-// XXX:  should restrict requests to only be executed if sent by Factotum.
 function factotumListener(_request, _sender, _responseFunc)
 {
     var cmdlineObj = _request.cmdlineObj;
