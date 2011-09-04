@@ -80,6 +80,14 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 };  // Factotum.onOmniboxInputChanged
 
 
+// Send a request to the wrapper content script to evaluate the Fcommand code
+// contained in the given request.
+Factotum.sendScriptRequest = function(tabId, request)
+{
+    chrome.tabs.sendRequest(tabId, request, Factotum.responseHandler);
+};  // Factotum.sendScriptRequest
+
+
 // Called when each Fcommand has finished executing.
 //   response       - the object returned from the content script.
 //      .errorData  - an object containing exception data if the Fcommand failed
@@ -105,6 +113,11 @@ Factotum.responseHandler = function (response)
             "Command Error",
             response.errorData.message
         );
+
+        if ('stack' in response.errorData)
+        {
+            console.log("Fcommand '" + responseStack:", response.errorData.stack);
+        }
 
         notification.show();
 

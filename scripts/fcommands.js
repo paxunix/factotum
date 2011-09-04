@@ -128,7 +128,6 @@ Fcommands.getCommandsByPrefix = function (prefix)
 // current page.  This function is called recursively to ensure all loads are
 // finished before the Fcommand script is loaded last.
 // XXX:  inject all CSS beforehand
-// XXX:  this should only happen once per tab id
 // XXX:  this means Factotum commands won't work if the current tab is a chrome:
 //          URL.
 Fcommands.scriptLoader = function (index, tabId, fcommand, cmdlineObj)
@@ -154,17 +153,34 @@ Fcommands.scriptLoader = function (index, tabId, fcommand, cmdlineObj)
             codeStr = fcommand.execute;
         }
 
-        // XXX: in all frames???  Perhaps this needs to be part of
-        // the Fcommand metadata, since it won't make sense to
-        // always or never be true.
-        chrome.tabs.executeScript(tabId,
-            { file: "scripts/dyn-content.js" },
-            function () {
-                chrome.tabs.sendRequest(tabId, {
-                    codeString: codeStr,
-                    cmdlineObj: cmdlineObj
-                }, Factotum.responseHandler);
-            });
+        var requestObj = {
+            codeString: codeStr,
+            cmdlineObj: cmdlineObj
+        };
+
+        // If the tab has already had the wrapper injected, just evaluate the
+        // Fcommand.  Otherwise, inject the wrapper, then evaluate the command.
+        // XXX:  need to listen to tab-close events to remove the tab Id from
+        // the hash.
+        // XXX:  a page reload does not seem to create a new tab ID, but the
+        // wrapper will need to be reinjected.
+        if (tabId in injectedTabIds)
+        {
+            Factotum.sendScriptRequest(tabId, requestObj);
+        }
+        else
+        {
+            // XXX: in all frames???  Perhaps this needs to be part of
+            // the Fcommand metadata, since it won't make sense to
+            // always or never be true.
+            chrome.tabs.executeScript(tabId,
+                { file: "scripts/dyn-content.js" },
+                function () {
+                    injectedTabIds[tabId] = 1;
+                    Factotum.sendScriptRequest(tabId, requestObj,
+                        Factotum.responseHandler);
+                });
+        }
 
         return;
     }   // index >= fcommand.scriptUrls.length
