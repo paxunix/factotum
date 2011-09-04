@@ -7,7 +7,7 @@
 function factotumListener(request, sender, responseFunc)
 {
     var response = {
-        cmdLineObj: request.cmdlineObj,
+        cmdlineObj: request.cmdlineObj,
     };
 
     try {
