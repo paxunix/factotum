@@ -119,3 +119,7 @@
       evaluation.  This is probably okay, it just seems a little odd.
     - also, that will make it impossible to have one-time injection of
       multiple prequisite scripts.
+    - or, don't dynamically inject the wrapper; just make it a genuine
+      content script and let Chrome manage it.  The downside is that pages
+      that don't need it will still load it.  It's thin, so that shouldn't
+      be much of a burdern.  That sounds like the best approach
