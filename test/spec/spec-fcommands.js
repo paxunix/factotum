@@ -543,8 +543,6 @@ describe("Fcommands.dispatch", function() {
             });
         });
 
-    xit("does not re-inject the run wrapper code into pages");
-
 }); // Fcommands.dispatch
 
 
@@ -639,8 +637,5 @@ describe("Fcommands.execute", function() {
     afterEach(function() {
         Fcommands.deleteAll();
     });
-
-
-    xit("Fcommand code has 'cmdlineObj' in scope.");
 
 }); // Fcommands.execute
