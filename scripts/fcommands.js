@@ -122,45 +122,6 @@ Fcommands.getCommandsByPrefix = function (prefix)
 }   // Fcommands.getCommandsByPrefix
 
 
-// Given a command line, figure out the Fcommand and run its function.  Once the
-// function has executed, run the response callback, passing the response from
-// the function.
-Fcommands.dispatch = function(cmdline)
-{
-    // At least one word is needed in command line.
-    var argv = GetOpt.shellWordSplit(cmdline);
-    if (argv.length < 1)
-        return;
-
-    var invokedCmdName = argv.shift();
-    var commandList = Fcommands.getCommandsByPrefix(invokedCmdName);
-
-    if (commandList.length === 0)
-    {
-        // XXX:  should user be notified?
-        return;
-    }
-
-    // XXX: for now we just take the first one.  We will have to check for
-    // and use the active one.
-    var fcommandObj = commandList[0];
-
-    // Parse the remaining words of the command line, using the Fcommand's
-    // option spec if there is one.  Also include the real and invoked names of
-    // the Fcommand being executed.
-    var cmdlineObj = GetOpt.getOptions(fcommandObj.optSpec || {}, argv);
-    cmdlineObj.commandName = {
-        real: fcommandObj.names[0],
-        invoked: invokedCmdName
-    };
-
-    // Ensure everything from this point happens for the current tab.
-    chrome.tabs.getSelected(null, function (tab) {
-        Factotum.sendScriptRequest(tab.id, fcommandObj, cmdlineObj);
-    });
-}   // Fcommands.dispatch
-
-
 // Delete a single Fcommand by guid.
 Fcommands.delete = function (guid)
 {
