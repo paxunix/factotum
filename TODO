@@ -90,7 +90,7 @@
   Fcommands.  Modify all test to use conspicuous Fcommand names (like
   _FACTOTUM_TEST_blahblah) and only remove those before each test.
 
-- Fcommands.dispatch and .scriptLoader belong in Factotum, not Fcommands.
+- Fcommands.dispatch belongs in Factotum, not Fcommands.
 
 - fcommand's response object could have an extra field that if somehow set
   by the Fcommand's code (and the code succeeded) would indicate the
