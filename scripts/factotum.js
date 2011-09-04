@@ -116,7 +116,7 @@ Factotum.responseHandler = function (response)
 
         if ('stack' in response.errorData)
         {
-            console.log("Fcommand '" + responseStack:", response.errorData.stack);
+            console.log("Stack:", response.errorData.stack);
         }
 
         notification.show();
