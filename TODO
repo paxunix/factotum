@@ -104,22 +104,3 @@
 
 - to the Fcommand, pass both the actual Fcommand name and the one that was
   used to look up the actual name.  e.g. "hel" for "help".
-
-- there is an issue where if the Fcommand extension is reloaded, the
-  previous wrapper will still be live in any page that ran an Fcommand.
-  This may be problematic because the new Fcommand will not be listening to
-  that wrapper.
-    - perhaps this means the injected code should always include the wrapper
-      as well and execute entirely self-contained within the page.  This may
-      also mean we don't have to track if the wrapper's been injected
-      already.
-    - however, doing that means we no longer have  the request/response
-      communication like now.  Instead, the injected code makes its own
-      request to the extension to let it know the results of the code
-      evaluation.  This is probably okay, it just seems a little odd.
-    - also, that will make it impossible to have one-time injection of
-      multiple prequisite scripts.
-    - or, don't dynamically inject the wrapper; just make it a genuine
-      content script and let Chrome manage it.  The downside is that pages
-      that don't need it will still load it.  It's thin, so that shouldn't
-      be much of a burdern.  That sounds like the best approach
