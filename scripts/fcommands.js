@@ -132,8 +132,8 @@ Fcommands.dispatch = function(cmdline)
     if (argv.length < 1)
         return;
 
-    var cmdName = argv.shift();
-    var commandList = Fcommands.getCommandsByPrefix(cmdName);
+    var invokedCmdName = argv.shift();
+    var commandList = Fcommands.getCommandsByPrefix(invokedCmdName);
 
     if (commandList.length === 0)
     {
@@ -146,11 +146,13 @@ Fcommands.dispatch = function(cmdline)
     var fcommandObj = commandList[0];
 
     // Parse the remaining words of the command line, using the Fcommand's
-    // option spec if there is one.  Also include the name of the Fcommand
-    // being invoked (note, we don't use cmdName because it may only be the
-    // prefix of an Fcommand name).
+    // option spec if there is one.  Also include the real and invoked names of
+    // the Fcommand being executed.
     var cmdlineObj = GetOpt.getOptions(fcommandObj.optSpec || {}, argv);
-    cmdlineObj.cmdName = fcommandObj.names[0];
+    cmdlineObj.commandName = {
+        real: fcommandObj.names[0],
+        invoked: invokedCmdName
+    };
 
     // Ensure everything from this point happens for the current tab.
     chrome.tabs.getSelected(null, function (tab) {

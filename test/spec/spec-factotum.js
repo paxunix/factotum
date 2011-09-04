@@ -176,9 +176,9 @@ describe("Fcommands.sendScriptRequest", function() {
 
     xit("Fcommand code's cmdlineObj has command's opts.");
 
-    xit("Fcommand code's cmdlineObj.cmdName is command's first real name.");
+    xit("Fcommand code's cmdlineObj.commandName.real is command's first real name.");
 
-    xit("Fcommand code's cmdlineObj.invokedName is command's invoked name.");
+    xit("Fcommand code's cmdlineObj.commandName.invoked is command's invoked name.");
 
 
 }); // Fcommands.sendScriptRequest

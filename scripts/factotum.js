@@ -131,7 +131,7 @@ Factotum.responseHandler = function (response)
         // in which the code was executed.
         var notification = webkitNotifications.createNotification(
             "icons/error.png",
-            "Command Error",
+            "Error in '" + response.cmdlineObj.commandName.real + "' command",
             response.errorData.message
         );
 
