@@ -31,6 +31,7 @@ function factotumListener(_request, _sender, _responseFunc)
     {
         // The exception from the page can't be passed back to the extension, so
         // copy the data out of it.
+        // XXX:  this poorly handles non-object exceptions (e.g. throw 42)
         _response.errorData = {
             message: e.message,
             stack: e.stack,
