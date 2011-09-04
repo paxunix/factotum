@@ -104,7 +104,7 @@ describe("Fcommands.set", function() {
             }).not.toThrow();
         });
 
-    it("throws if the parameter's 'description' property is not a string or function",
+    it("throws if the parameter's 'description' property is not a string",
         function() {
             expect(function() {
                 Fcommands.set({
@@ -113,7 +113,7 @@ describe("Fcommands.set", function() {
                     execute: function() {},
                     description: {}
                 });
-            }).toThrow("commandData.description must be a string or a function.");
+            }).toThrow("commandData.description must be a string.");
 
             expect(function() {
                 Fcommands.set({
@@ -121,15 +121,6 @@ describe("Fcommands.set", function() {
                     guid: "asdf",
                     execute: function() {},
                     description: "desc"
-                });
-            }).not.toThrow();
-
-            expect(function() {
-                Fcommands.set({
-                    names: [ "blah" ],
-                    guid: "asdf",
-                    execute: function() {},
-                    description: function() {}
                 });
             }).not.toThrow();
         });

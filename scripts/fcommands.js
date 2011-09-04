@@ -11,12 +11,9 @@ var Fcommands = {
 // commandData is a hash of
 //      names:  array of names used to execute command.
 //      guid:  identifier to be used for this command.
-//      description:  optional string or function to describe what this
-//          command does.  If not given, a default string will be used.  If
-//          a function, it is called when the description is needed and
-//          should return a string (receives the argv for the command, no
-//          command name).  This is used to generate the text that appears
-//          in the omnibox when this command is entered.
+//      description:  optional string to describe what this command does.  If
+//          not given, a default string will be used.  This is used to generate
+//          the text that appears in the omnibox when this command is entered.
 //      optSpec: optional command line parse object specification
 //      execute:  a function or text representation of code to run for this
 //          command.
@@ -51,9 +48,8 @@ Fcommands.set = function(commandData)
 
     if ('description' in commandData)
     {
-        if (typeof(commandData.description) !== 'string' &&
-            !jQuery.isFunction(commandData.description))
-            throw("commandData.description must be a string or a function.");
+        if (typeof(commandData.description) !== 'string')
+            throw("commandData.description must be a string.");
     }
     else
         commandData.description = "No description provided.";
