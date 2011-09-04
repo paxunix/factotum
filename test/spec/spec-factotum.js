@@ -109,7 +109,7 @@ describe("Factotum.getSuggestion", function() {
 }); // Factotum.getSuggestion
 
 
-describe("Factotum", function() {
+describe("Factotum.responseHandler", function() {
 
 
     beforeEach(function() {
@@ -143,7 +143,7 @@ describe("Factotum", function() {
 
     xit("receives an error response if Fcommand code fails parsing");
 
-    xit("receives an error response if Fcommand code throws");
+    xit("receives an error response if Fcommand code explicitly throws");
 
     xit("receives a non-error response if Fcommand did not throw");
 
@@ -151,5 +151,34 @@ describe("Factotum", function() {
 
     xit("notifies user if an Fcommand throws");
 
+    xit("receives a response even if the Fcommand explicitly returns");
 
-}); // Factotum
+}); // Factotum.responseHandler
+
+
+describe("Fcommands.sendScriptRequest", function() {
+
+
+    // Clear all Fcommands before and after each test
+    beforeEach(function() {
+        Fcommands.deleteAll();
+    });
+
+    afterEach(function() {
+        Fcommands.deleteAll();
+    });
+
+    xit("Fcommand executes whether 'execute' property can be a function or a string.");
+
+    xit("Fcommand code has 'cmdlineObj' in scope.");
+
+    xit("Fcommand code's cmdlineObj has command's argv.");
+
+    xit("Fcommand code's cmdlineObj has command's opts.");
+
+    xit("Fcommand code's cmdlineObj.cmdName is command's first real name.");
+
+    xit("Fcommand code's cmdlineObj.invokedName is command's invoked name.");
+
+
+}); // Fcommands.sendScriptRequest
