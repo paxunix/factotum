@@ -92,12 +92,6 @@
 
 - Fcommands.dispatch and .scriptLoader belong in Factotum, not Fcommands.
 
-- chrome bug:  executeScript{file:xxx} doesn't seem to make the file's
-  source available to developer tools.  I expected to be able to debug it,
-  but it's innaccessible.  Furthermore, if there is an exception in the
-  loaded file's code, it shows up in stack traces as "unknown source" with
-  no line number info or anything.
-
 - fcommand's response object could have an extra field that if somehow set
   by the Fcommand's code (and the code succeeded) would indicate the
   extension should popup a notification with custom content.
