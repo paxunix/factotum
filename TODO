@@ -98,3 +98,8 @@
 
 - to the Fcommand, pass both the actual Fcommand name and the one that was
   used to look up the actual name.  e.g. "hel" for "help".
+
+- it may be possible to have the spec runner page load a separate page before
+  executing Fcommands.  Then, force that page's tab to be the current tab
+  when the test runs.  This will hopefully cause the Fcommand to be run in
+  that page, rather than trying (and failing) to run in the spec page.
