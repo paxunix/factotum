@@ -4,29 +4,39 @@
 // Define a connection listener that executes Fcommand code passed from
 // Factotum.  If an exception occurs while executing the Fcommand, the error
 // message is returned to Factotum.
-function factotumListener(request, sender, responseFunc)
+// Variables prefixed with '_' are intended for internal use only.
+// XXX: using some tricks to remove them from the user code's scope would be
+// fancier and better.
+function factotumListener(_request, _sender, _responseFunc)
 {
-    var response = {
-        cmdlineObj: request.cmdlineObj,
+    var cmdlineObj = _request.cmdlineObj;
+    var _response = {
+        // XXX:  should deep-copy this in case the Fcommand code changes the
+        // cmdline data that was passed in.
+        cmdlineObj: _request.cmdlineObj,
     };
 
     try {
         // The Fcommand code is wrapped in eval so any errors from its parsing
         // are caught by this try/catch as well as any exceptions it throws.
-        eval(request.codeString);
+
+        // XXX:  Needs to be wrapped in an anonymous function so if the user
+        // code calls return, it's not this function that is returning (or we'd
+        // fail to call the response function).
+        eval(_request.codeString);
     }
 
     catch (e)
     {
         // The exception from the page can't be passed back to the extension, so
         // copy the data out of it.
-        response.errorData = {
+        _response.errorData = {
             message: e.message,
             stack: e.stack,
         };
     }   // catch
 
-    responseFunc(response);
+    _responseFunc(_response);
 }   // factotumListener
 
 
