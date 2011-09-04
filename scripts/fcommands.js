@@ -18,7 +18,7 @@ var Fcommands = {
 //          command name).  This is used to generate the text that appears
 //          in the omnibox when this command is entered.
 //      optSpec: optional command line parse object specification
-//      execute:  string or text representation of code to run for this
+//      execute:  a function or text representation of code to run for this
 //          command.
 //      icon: optional URL for a favicon-type icon for this command.
 //      help: optional string containing HTML markup 'help text' for this
