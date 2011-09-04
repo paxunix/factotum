@@ -80,21 +80,6 @@
   IndexedDB or FileSystem is the best candidate.  Given that we probably
   don't need anything approaching a DB, FileSystem might be tidiest.
 
-- To prevent re-injecting the same code over and over
-    - inject the wrapper script once per tab.  Factotum tracks tab ID and
-      whether or not the wrapper has been injected for that tab.  Since tab
-      IDs are unique per browser session, this is fine.
-    - on the first Factotum command for a tab, inject the wrapper function.
-        - the injected code must include more than just the wrapper
-          function, it also needs an onConnect handler to listen for
-          requests from Factotum.
-    - send a message to the content script that contains the Fcommand code
-      and any other needed details.
-    - the content script onconnect handler gets the message and runs the
-      code from the message, then passes back any error message to Factotum.
-    - to prune dead tab IDs from the list we could list for tab close
-      actions
-
 - useful to make distinction between commands that require the current
   page's context and those that don't?
     - e.g. if an Fcommand is only opening a new tab, there's no need for it
@@ -116,3 +101,21 @@
 - fcommand's response object could have an extra field that if somehow set
   by the Fcommand's code (and the code succeeded) would indicate the
   extension should popup a notification with custom content.
+
+- to the Fcommand, pass both the actual Fcommand name and the one that was
+  used to look up the actual name.  e.g. "hel" for "help".
+
+- there is an issue where if the Fcommand extension is reloaded, the
+  previous wrapper will still be live in any page that ran an Fcommand.
+  This may be problematic because the new Fcommand will not be listening to
+  that wrapper.
+    - perhaps this means the injected code should always include the wrapper
+      as well and execute entirely self-contained within the page.  This may
+      also mean we don't have to track if the wrapper's been injected
+      already.
+    - however, doing that means we no longer have  the request/response
+      communication like now.  Instead, the injected code makes its own
+      request to the extension to let it know the results of the code
+      evaluation.  This is probably okay, it just seems a little odd.
+    - also, that will make it impossible to have one-time injection of
+      multiple prequisite scripts.
