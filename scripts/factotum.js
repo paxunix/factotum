@@ -82,9 +82,30 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 
 // Send a request to the wrapper content script to evaluate the Fcommand code
 // contained in the given request.
-Factotum.sendScriptRequest = function(tabId, request)
+Factotum.sendScriptRequest = function(tabId, fcommandObj, cmdlineObj)
 {
-    chrome.tabs.sendRequest(tabId, request, Factotum.responseHandler);
+    // Build the code string to be loaded into the current page.
+    // XXX: document somewhere about 'cmdlineObj' being available to the
+    // function.
+    var codeStr;
+
+    // If the Fcommand's 'execute' property is a function, it'll
+    // need to be invoked within the context.
+    if (jQuery.isFunction(fcommandObj.execute))
+    {
+        codeStr = "(" + fcommandObj.execute.toString() + ")();";
+    }
+    else
+    {
+        codeStr = fcommandObj.execute;
+    }
+
+    var requestObj = {
+        codeString: codeStr,
+        cmdlineObj: cmdlineObj
+    };
+
+    chrome.tabs.sendRequest(tabId, requestObj, Factotum.responseHandler);
 };  // Factotum.sendScriptRequest
 
 

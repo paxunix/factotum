@@ -6,8 +6,6 @@ var Fcommands = {
     guid2Command: { },
 };
 
-var injectedTabIds = { };
-
 
 // Install the given Fcommand.
 // commandData is a hash of
@@ -122,76 +120,6 @@ Fcommands.getCommandsByPrefix = function (prefix)
         return el.command;
     });
 }   // Fcommands.getCommandsByPrefix
-
-
-// Injects Fcommand dependent scripts and Factotum content script into the
-// current page.  This function is called recursively to ensure all loads are
-// finished before the Fcommand script is loaded last.
-// XXX:  inject all CSS beforehand
-// XXX:  this means Factotum commands won't work if the current tab is a chrome:
-//          URL.
-Fcommands.scriptLoader = function (index, tabId, fcommand, cmdlineObj)
-{
-    if (index >= fcommand.scriptUrls.length)
-    {
-        // All prerequisite scripts are done, now load the Fcommand content
-        // script.
-
-        // Build the code string to be loaded into the current page.
-        // XXX: document somewhere about 'cmdlineObj' being available to the
-        // function.
-        var codeStr;
-
-        // If the Fcommand's 'execute' property is a function, it'll
-        // need to be invoked within the context.
-        if (jQuery.isFunction(fcommand.execute))
-        {
-            codeStr = "(" + fcommand.execute.toString() + ")();";
-        }
-        else
-        {
-            codeStr = fcommand.execute;
-        }
-
-        var requestObj = {
-            codeString: codeStr,
-            cmdlineObj: cmdlineObj
-        };
-
-        // If the tab has already had the wrapper injected, just evaluate the
-        // Fcommand.  Otherwise, inject the wrapper, then evaluate the command.
-        // XXX:  need to listen to tab-close events to remove the tab Id from
-        // the hash.
-        // XXX:  a page reload does not seem to create a new tab ID, but the
-        // wrapper will need to be reinjected.
-        if (tabId in injectedTabIds)
-        {
-            Factotum.sendScriptRequest(tabId, requestObj);
-        }
-        else
-        {
-            // XXX: in all frames???  Perhaps this needs to be part of
-            // the Fcommand metadata, since it won't make sense to
-            // always or never be true.
-            chrome.tabs.executeScript(tabId,
-                { file: "scripts/dyn-content.js" },
-                function () {
-                    injectedTabIds[tabId] = 1;
-                    Factotum.sendScriptRequest(tabId, requestObj,
-                        Factotum.responseHandler);
-                });
-        }
-
-        return;
-    }   // index >= fcommand.scriptUrls.length
-
-    chrome.tabs.executeScript(tabId,
-        { file: fcommand.scriptUrls[index] },    // XXX: only files local to extension
-        function() {
-            Fcommands.scriptLoader(index + 1, tabId, fcommand, cmdlineObj);
-        }
-    );
-}   // Fcommands.scriptLoader
 
 
 // Given a command line, figure out the Fcommand and run its function.  Once the
