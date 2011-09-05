@@ -232,7 +232,51 @@ describe("Factotum.sendScriptRequest", function() {
 
     xit("Fcommand executes whether 'execute' property can be a function or a string.");
 
-    xit("Fcommand code has 'cmdlineObj' in scope.");
+    // XXX:  this test is a lame proof-of-concept attempt (that doesn't work) of
+    // testing that the response handler is called.
+    xit("Fcommand code has 'cmdlineObj' in scope.", function() {
+        var _spyOn = spyOn;
+        var _expect = expect;
+        var _waitsFor = waitsFor;
+        var _runs = runs;
+        var _waits = waits;
+
+        var done = false;
+
+        _spyOn(Factotum, "responseHandler").andCallThrough();
+        _spyOn(Factotum, "dispatch").andCallThrough();
+
+        chrome.tabs.create({
+            url: "http://www.google.com"    // XXX: any non-Chrome URL will do
+        }, function(tab) {
+
+            Fcommands.set({
+                names: [ "test" ],
+                guid: "testguid",
+                execute: "throwing",
+            });
+
+            _waits(500);
+
+            _runs(function() {
+                Factotum.dispatch("test 1 2 3");
+            });
+
+            _waits(500);
+
+            done = true;
+            //chrome.tabs.remove(tab.id);
+
+        });
+
+        waitsFor(function() {
+            return done;
+        }, "failed", 5000);
+
+        _expect(Factotum.responseHandler).toHaveBeenCalled();
+        _expect(Factotum.dispatch).toHaveBeenCalled();
+
+    });
 
     xit("Fcommand code's cmdlineObj has command's argv.");
 
