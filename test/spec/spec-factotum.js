@@ -218,7 +218,7 @@ describe("Factotum.dispatch", function() {
 }); // Factotum.dispatch
 
 
-describe("Fcommands.sendScriptRequest", function() {
+describe("Factotum.sendScriptRequest", function() {
 
 
     // Clear all Fcommands before and after each test
@@ -243,4 +243,4 @@ describe("Fcommands.sendScriptRequest", function() {
     xit("Fcommand code's cmdlineObj.commandName.invoked is command's invoked name.");
 
 
-}); // Fcommands.sendScriptRequest
+}); // Factotum.sendScriptRequest
