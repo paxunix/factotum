@@ -60,6 +60,9 @@ describe("Factotum.getSuggestion", function() {
     });
 
 
+    xit("messages the user that running an Fcommand on an internal Chrome page is not possible");
+
+
 }); // Factotum.getSuggestion
 
 
