@@ -182,16 +182,15 @@ Factotum.responseHandler = function (response)
         // XXX: consider an option to choose desktop notifications or infobars.
         // Infobars would neatly associate the error notification with the tab
         // in which the code was executed.
+        var title = "Error in '" + response.cmdlineObj.commandName.real +
+            "' command";
         var notification = webkitNotifications.createNotification(
             "icons/error.png",
-            "Error in '" + response.cmdlineObj.commandName.real + "' command",
+            title,
             response.errorData.message
         );
 
-        if ('stack' in response.errorData)
-        {
-            console.log("Stack:", response.errorData.stack);
-        }
+        console.log(title + ": ", response.errorData);
 
         notification.show();
 
