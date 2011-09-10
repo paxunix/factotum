@@ -42,20 +42,33 @@ describe("FileSystem.write", function() {
         });
     });
 
-    xit("writing to file of same name overwrites contents");
+    xit("overwrites the file if it already exists");
 
-    xit("reads a string of data from a filename", function() {
-        var filename = "test";
+    it("truncates the file before writing any new content", function () {
+        var filename = "testfile";
+        var data1In = "longer string";
+        var data2In = "short str";
+        var dataOut = "";
         var done = false;
 
-        var fs = new FileSystem(filename, data, function() {
-            done = true;
+        var fs = new FileSystem(filename, function() {
+            throw "FS failure.";
         });
 
-        waitsFor(function() { return done; }, "file write failed", 5000);
+        fs.writeFile(filename, data1In, function () {
+            fs.writeFile(filename, data2In, function () {
+                fs.readFile(filename, function (data) {
+                    dataOut = data;
+                    done = true;
+                });
+            });
+        });
 
-        // XXX: WTF to expect???
-        expect(suggestion.content).toEqual(name + " " + argv.join(" "));
+        waitsFor(function() { return done; }, "file truncation", 5000);
+
+        runs(function() {
+            expect(dataOut).toEqual(data2In);
+        });
     });
 
 
