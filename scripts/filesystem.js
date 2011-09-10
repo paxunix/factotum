@@ -62,8 +62,6 @@ FileSystem.prototype.writeFile = function (filename, data, onSuccessFn)
 
     var onFsInitSuccess = function (fileSystem)
     {
-        // Uses the Fcommand's guid as the filename in which to store the
-        // Fcommand data.
         fileSystem.root.getFile(filename, { create: true },
             onGetFileSuccess, this.onErrorFn);
     }.bind(this);
@@ -73,26 +71,26 @@ FileSystem.prototype.writeFile = function (filename, data, onSuccessFn)
 };  // FileSystem.prototype.writeFile
 
 
-FileSystem.fileExists = function (fn)
+FileSystem.prototype.readFile = function (filename, onSuccessFn)
 {
 };
 
 
-FileSystem.readFile = function (fn)
+FileSystem.prototype.listFiles = function (fn)
 {
 };
 
 
-FileSystem.listFiles = function (fn)
+FileSystem.prototype.removeFile = function (fn)
 {
 };
 
 
-FileSystem.removeFile = function (fn)
+FileSystem.prototype.removeAllFiles = function (fn)
 {
 };
 
 
-FileSystem.removeAllFiles = function (fn)
+FileSystem.prototype.fileExists = function (fn)
 {
 };
