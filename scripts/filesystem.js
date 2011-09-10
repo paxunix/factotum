@@ -1,4 +1,5 @@
-// Simple, just-as-much-as-needed abstraction of the FileSystem API in Webkit.
+// Simple, just-as-much-as-needed abstraction of the FileSystem API as is needed
+// for Factotum.
 
 function FileSystem(size, onErrorFn)
 {
