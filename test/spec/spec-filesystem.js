@@ -60,3 +60,37 @@ describe("FileSystem.write", function() {
 
 
 }); // FileSystem.write
+
+
+describe("FileSystem.read", function() {
+
+
+    it("reads a string of data from a filename", function() {
+        var filename = "testfile";
+        var dataIn = "1234";
+        var dataOut = "";
+        var done = false;
+
+        var fs = new FileSystem(filename, function() {
+            throw "FS failure.";
+        });
+
+        fs.writeFile(filename, dataIn, function () {
+            fs.readFile(filename, function (data) {
+                dataOut = data;
+                done = true;
+            });
+        });
+
+        waitsFor(function() { return done; }, "file write+read", 5000);
+
+        runs(function() {
+            expect(dataOut).toEqual(dataIn);
+        });
+    });
+
+
+    xit("calls the error function if trying to read a non-existent file");
+
+
+}); // FileSystem.read

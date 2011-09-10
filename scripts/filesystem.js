@@ -73,7 +73,37 @@ FileSystem.prototype.writeFile = function (filename, data, onSuccessFn)
 
 FileSystem.prototype.readFile = function (filename, onSuccessFn)
 {
-};
+    var onFileAccess = function (file)
+    {
+        var reader = new FileReader();
+
+        reader.onerror = this.onErrorFn;
+        reader.onloadend = function (e) {
+            // According to the spec
+            // (http://www.w3.org/TR/FileAPI/#readAsDataText), onloadend is
+            // dispatched on success or failure.  If failure, result will be
+            // null (and onerror will have been called).
+            if (this.result != null)
+                onSuccessFn(this.result);
+        };
+
+        reader.readAsText(file);
+    }.bind(this);
+
+    var onGetFileSuccess = function (fileEntry)
+    {
+        fileEntry.file(onFileAccess, this.onErrorFn);
+    }.bind(this);
+
+    var onFsInitSuccess = function (fileSystem)
+    {
+        fileSystem.root.getFile(filename, null,
+            onGetFileSuccess, this.onErrorFn);
+    }.bind(this);
+
+    webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
+        onFsInitSuccess, this.onErrorFn);
+};  // FileSystem.prototype.readFile
 
 
 FileSystem.prototype.listFiles = function (fn)
