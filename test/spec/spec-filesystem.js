@@ -1,4 +1,4 @@
-describe("FileSystem.write", function() {
+describe("FileSystem.writeFile", function() {
 
 
     it("calls the error function if writing to an undefined filename", function() {
@@ -71,10 +71,10 @@ describe("FileSystem.write", function() {
     });
 
 
-}); // FileSystem.write
+}); // FileSystem.writeFile
 
 
-describe("FileSystem.read", function() {
+describe("FileSystem.readFile", function() {
 
 
     it("reads a string of data from a filename", function() {
