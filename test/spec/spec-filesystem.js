@@ -1,20 +1,20 @@
 describe("FileSystem.write", function() {
 
 
-    it("calls the error function if a problem occurs during a filesystem operation", function() {
-        var msg = "";
+    it("calls the error function if writing to an undefined filename", function() {
+        var errno = "";
         var onError = function(e) {
-            msg = e;
+            errno = e;
         };
         var onSuccess = jasmine.createSpy();
-        
+
         var fs = new FileSystem(1024, onError);
         fs.writeFile(undefined, "bogusdata", onSuccess);
 
-        waitsFor(function() { return msg !== ""; }, "writeFile", 2000);
+        waitsFor(function() { return errno !== ""; }, "writeFile", 2000);
 
         runs(function() {
-            expect(msg).toNotEqual("");
+            expect(errno).toEqual(2);
             expect(onSuccess).not.toHaveBeenCalled();
         });
     });
@@ -30,7 +30,7 @@ describe("FileSystem.write", function() {
         };
 
         spyOn(obj, "onSuccess").andCallThrough();
-        
+
         var fs = new FileSystem(1024, onError);
         fs.writeFile("testfile", "testdata", obj.onSuccess);
 
@@ -42,7 +42,6 @@ describe("FileSystem.write", function() {
         });
     });
 
-    xit("overwrites the file if it already exists");
 
     it("truncates the file before writing any new content", function () {
         var filename = "testfile";
@@ -103,7 +102,23 @@ describe("FileSystem.read", function() {
     });
 
 
-    xit("calls the error function if trying to read a non-existent file");
+    it("calls the error function if trying to read a non-existent file", function() {
+        var errno = "";
+        var onError = function(e) {
+            errno = e;
+        };
+        var onSuccess = jasmine.createSpy();
+
+        var fs = new FileSystem(1024, onError);
+        fs.readFile("filename that doesn't exist", onSuccess);
+
+        waitsFor(function() { return errno !== ""; }, "read file", 2000);
+
+        runs(function() {
+            expect(errno).toEqual(1);
+            expect(onSuccess).not.toHaveBeenCalled();
+        });
+    });
 
 
 }); // FileSystem.read
