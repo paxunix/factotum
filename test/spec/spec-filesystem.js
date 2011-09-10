@@ -121,4 +121,58 @@ describe("FileSystem.readFile", function() {
     });
 
 
-}); // FileSystem.read
+}); // FileSystem.readFile
+
+
+
+describe("FileSystem.removeFile", function() {
+
+
+    it("calls the error function if removing a non-existent file", function() {
+        var errno = "";
+        var onError = function(e) {
+            errno = e;
+        };
+        var onSuccess = jasmine.createSpy();
+
+        var fs = new FileSystem(1024, onError);
+        fs.removeFile("filename that doesn't exist", onSuccess);
+
+        waitsFor(function() { return errno !== ""; }, "remove file", 2000);
+
+        runs(function() {
+            expect(errno).toEqual(1);
+            expect(onSuccess).not.toHaveBeenCalled();
+        });
+    });
+
+
+    it("calls the success function if the file is removed", function () {
+        var filename = "testfile";
+        var onError = jasmine.createSpy();
+        var success = false;
+        var fs = new FileSystem(1024, onError);
+        var obj = { };
+        obj.onRemoveSuccess = function() {
+            success = true;
+        };
+        obj.onWriteSuccess = function() {
+            fs.removeFile(filename, obj.onRemoveSuccess);
+        };
+
+        spyOn(obj, "onRemoveSuccess").andCallThrough();
+        spyOn(obj, "onWriteSuccess").andCallThrough();
+
+        fs.writeFile(filename, "testdata", obj.onWriteSuccess);
+
+        waitsFor(function() { return success; }, "writeFile", 2000);
+
+        runs(function() {
+            expect(success).toBe(true);
+            expect(obj.onRemoveSuccess).toHaveBeenCalled();
+            expect(obj.onWriteSuccess).toHaveBeenCalled();
+        });
+    });
+
+
+}); // FileSystem.removeFile
