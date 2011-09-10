@@ -4,7 +4,7 @@ function FileSystem(size, onErrorFn)
 {
     this.fsSizeBytes = size;
     this.onErrorFn = function(err) {
-        onErrorFn(FileSystem.fileErrorCode2Msg[err.code]);
+        onErrorFn(err.code);
     };
 };  // FileSystem
 
@@ -18,15 +18,23 @@ FileSystem.fileErrorCode2Msg[FileError.INVALID_MODIFICATION_ERR] =
 FileSystem.fileErrorCode2Msg[FileError.INVALID_STATE_ERR] =
     "Filesystem changed externally";
 FileSystem.fileErrorCode2Msg[FileError.NOT_FOUND_ERR] = "File not found";
-FileSystem.fileErrorCode2Msg[FileError.NOT_READABLE_ERR] = "File cannot be read";
+FileSystem.fileErrorCode2Msg[FileError.NOT_READABLE_ERR] =
+    "File cannot be read";
 FileSystem.fileErrorCode2Msg[FileError.NO_MODIFICATION_ALLOWED_ERR] =
     "Filesystem cannot be modified";
 FileSystem.fileErrorCode2Msg[FileError.PATH_EXISTS_ERR] = "File already exists";
-FileSystem.fileErrorCode2Msg[FileError.QUOTA_EXCEEDED_ERR] = "Storage quota exceeded";
+FileSystem.fileErrorCode2Msg[FileError.QUOTA_EXCEEDED_ERR] =
+    "Storage quota exceeded";
 FileSystem.fileErrorCode2Msg[FileError.SECURITY_ERR] = "File security error";
 FileSystem.fileErrorCode2Msg[FileError.SYNTAX_ERR] = "Internal error";
 FileSystem.fileErrorCode2Msg[FileError.TYPE_MISMATCH_ERR] =
     "Mismatched filesystem entity";
+
+
+FileSystem.prototype.getErrorString = function (errno)
+{
+    return FileSystem.fileErrorCode2Msg[errno];
+}   // FileSystem.prototype.getErrorString
 
 
 FileSystem.prototype.writeFile = function (filename, data, onSuccessFn)
