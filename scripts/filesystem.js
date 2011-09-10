@@ -34,15 +34,29 @@ FileSystem.prototype.writeFile = function (filename, data, onSuccessFn)
     var onGetFileSuccess = function (file)
     {
         file.createWriter(function (writer) {
+            var truncated = false;
+
             writer.onerror = this.onErrorFn;
+            writer.onwriteend = function() {
+                // If file has not been truncated, then this event was for the
+                // truncate operation.  If the file has been truncated, the
+                // event was for the write.
+                if (!truncated)
+                {
+                    truncated = true;
 
-            var bb = new WebKitBlobBuilder();
-            bb.append(data);
+                    var bb = new WebKitBlobBuilder();
+                    bb.append(data);
 
-            writer.write(bb.getBlob('text/plain'));
+                    // This queues a second and final writeend event.
+                    writer.write(bb.getBlob('text/plain'));
+                }
+                else if (onSuccessFn)
+                    onSuccessFn();
+            };
 
-            if (onSuccessFn)
-                onSuccessFn();
+            // This queues the first writeend event.
+            writer.truncate(0);
         }, this.onErrorFn);
     }.bind(this);
 
@@ -56,7 +70,7 @@ FileSystem.prototype.writeFile = function (filename, data, onSuccessFn)
 
     webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
         onFsInitSuccess, this.onErrorFn);
-};
+};  // FileSystem.prototype.writeFile
 
 
 FileSystem.fileExists = function (fn)
