@@ -120,9 +120,22 @@ FileSystem.prototype.listFiles = function (fn)
 };
 
 
-FileSystem.prototype.removeFile = function (fn)
+FileSystem.prototype.removeFile = function (filename, onSuccessFn)
 {
-};
+    var onGetFileSuccess = function (fileEntry)
+    {
+        fileEntry.remove(onSuccessFn, this.onErrorFn);
+    }.bind(this);
+
+    var onFsInitSuccess = function (fileSystem)
+    {
+        fileSystem.root.getFile(filename, null,
+            onGetFileSuccess, this.onErrorFn);
+    }.bind(this);
+
+    webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
+        onFsInitSuccess, this.onErrorFn);
+};  // FileSystem.prototype.removeFile
 
 
 FileSystem.prototype.removeAllFiles = function (fn)
