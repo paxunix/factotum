@@ -124,6 +124,43 @@ describe("FileSystem.readFile", function() {
 }); // FileSystem.readFile
 
 
+describe("FileSystem.getFileList", function() {
+
+
+    it("calls the success function with a list of found filenames", function () {
+        var filename = "testfile";
+        var onError = jasmine.createSpy();
+        var success = false;
+
+        var fs = new FileSystem(1024, onError);
+        var obj = { };
+        var fileList = [ ];
+        obj.onList = function(entries) {
+            fileList = entries;
+            success = true;
+        };
+        obj.onWriteSuccess = function() {
+            fs.getFileList(obj.onList);
+        };
+
+        spyOn(obj, "onList").andCallThrough();
+        spyOn(obj, "onWriteSuccess").andCallThrough();
+
+        fs.writeFile(filename, "testdata", obj.onWriteSuccess);
+
+        waitsFor(function() { return success; }, "writeFile", 2000);
+
+        runs(function() {
+            expect(success).toBe(true);
+            expect(obj.onWriteSuccess).toHaveBeenCalled();
+            expect(obj.onList).toHaveBeenCalled();
+            expect(fileList).toContain(filename);
+        });
+    });
+
+
+}); // FileSystem.getFileList
+
 
 describe("FileSystem.removeFile", function() {
 
