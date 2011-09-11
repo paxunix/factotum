@@ -115,9 +115,32 @@ FileSystem.prototype.readFile = function (filename, onSuccessFn)
 };  // FileSystem.prototype.readFile
 
 
-FileSystem.prototype.listFiles = function (fn)
+FileSystem.prototype.getFileList = function (onSuccessFn)
 {
-};
+    var onRead = function(dirReader, returnList) {
+        dirReader.readEntries(function (entries) {
+            if (entries.length == 0)
+            {
+                onSuccessFn(returnList);
+                return;
+            }
+
+            for (var i = 0; i < entries.length; ++i)
+                returnList.push(entries[i].name);
+
+            onRead(dirReader, returnList);
+        }, this.onErrorFn);
+    }.bind(this);
+
+    var onFsInitSuccess = function (fileSystem)
+    {
+        var dirReader = fileSystem.root.createReader();
+        onRead(dirReader, []);
+    };
+
+    webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
+        onFsInitSuccess, this.onErrorFn);
+};  // FileSystem.prototype.getFileList
 
 
 FileSystem.prototype.removeFile = function (filename, onSuccessFn)
