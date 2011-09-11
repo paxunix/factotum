@@ -159,13 +159,3 @@ FileSystem.prototype.removeFile = function (filename, onSuccessFn)
     webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
         onFsInitSuccess, this.onErrorFn);
 };  // FileSystem.prototype.removeFile
-
-
-FileSystem.prototype.removeAllFiles = function (fn)
-{
-};
-
-
-FileSystem.prototype.fileExists = function (fn)
-{
-};
