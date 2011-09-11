@@ -152,8 +152,15 @@ FileSystem.prototype.removeFile = function (filename, onSuccessFn)
 
     var onFsInitSuccess = function (fileSystem)
     {
-        fileSystem.root.getFile(filename, null,
-            onGetFileSuccess, this.onErrorFn);
+        // If the file does not exist, consider it a successful deletion.
+        var catchError = function(e) {
+            if (e.code === FileError.NOT_FOUND_ERR)
+                onSuccessFn();
+            else
+                this.onErrorFn(e);
+        };
+
+        fileSystem.root.getFile(filename, null, onGetFileSuccess, catchError);
     }.bind(this);
 
     webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
