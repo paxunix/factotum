@@ -395,58 +395,34 @@ describe("Fcommands.getCommandsByPrefix", function() {
 }); // Fcommands.getCommandsByPrefix
 
 
-describe("Fcommands.delete", function() {
-
-    // Clear all Fcommands before and after each test
-    beforeEach(function() {
-        Fcommands.deleteAll();
-    });
-
-    afterEach(function() {
-        Fcommands.deleteAll();
-    });
-
-    it("delete an Fcommand by guid",
-        function() {
-            Fcommands.set({
-                names: [ "BlAh" ],
-                guid: "guid1",
-                execute: function() {},
-            });
-
-            Fcommands.set({
-                names: [ "blah" ],
-                guid: "guid2",
-                execute: function() {},
-            });
-
-            Fcommands.delete("guid1");
-
-            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("BLAH"))).
-                toEqual([{
-                    names: [ "blah" ],
-                    guid: "guid2",
-                    execute: jasmine.any(Function),
-                    description: jasmine.any(String),
-                    scriptUrls: [],
-                }]);
+describe("Fcommands.deleteCommand", function() {
+    it("deletes an Fcommand by guid", function() {
+        Fcommands.set({
+            names: [ "_BlAh" ],
+            guid: "guid1",
+            execute: function() {},
         });
 
-    it("persists the fcommands whenever one is deleted",
-        function() {
-            spyOn(Fcommands, "persist");
+        var success = false;
+        var obj = {
+            onSuccessFn: function () {
+                success = true;
+            }
+        };
 
-            Fcommands.set({
-                names: [ "blah" ],
-                guid: "guid2",
-                execute: function() {},
-            });
+        spyOn(obj, "onSuccessFn").andCallThrough();
 
-            Fcommands.delete("guid2");
+        Fcommands.deleteCommand("guid1", obj.onSuccessFn);
 
-            expect(Fcommands.persist).toHaveBeenCalled();
+        waitsFor(function () { return success; }, "delete to succeed", 5000);
+
+        runs(function () {
+            expect(success).toBe(true);
+            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("_BLAH"))).
+                toEqual([]);
         });
-}); // Fcommands.delete
+    });
+}); // Fcommands.deleteCommand
 
 
 describe("Fcommands.deleteAll", function() {

@@ -165,21 +165,22 @@ describe("FileSystem.getFileList", function() {
 describe("FileSystem.removeFile", function() {
 
 
-    it("calls the error function if removing a non-existent file", function() {
-        var errno = "";
-        var onError = function(e) {
-            errno = e;
+    it("calls the success function if removing a non-existent file", function() {
+        var success = false;
+        var onSuccess = function(e) {
+            success = true;
         };
-        var onSuccess = jasmine.createSpy();
+        var onError = jasmine.createSpy();
 
         var fs = new FileSystem(1024, onError);
         fs.removeFile("filename that doesn't exist", onSuccess);
 
-        waitsFor(function() { return errno !== ""; }, "remove file", 2000);
+        waitsFor(function() { return success; },
+            "remove file that doesn't exist", 2000);
 
         runs(function() {
-            expect(errno).toEqual(1);
-            expect(onSuccess).not.toHaveBeenCalled();
+            expect(success).toBe(true);
+            expect(onError).not.toHaveBeenCalled();
         });
     });
 
