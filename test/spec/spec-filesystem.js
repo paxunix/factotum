@@ -137,7 +137,7 @@ describe("FileSystem.getFileList", function() {
         var fileList = [ ];
         obj.onList = function(entries) {
             fileList = entries;
-            success = true;
+            fs.removeFile(filename, function() { success = true; });
         };
         obj.onWriteSuccess = function() {
             fs.getFileList(obj.onList);
