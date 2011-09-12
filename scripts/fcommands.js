@@ -30,6 +30,8 @@ Fcommands.fileSystem = new FileSystem(50 * 1024 * 1024, Fcommands.onFsError);
 //          function.
 //      scriptUrls: optional array containing URLs for scripts to be
 //          injected into the page prior to this command's execution.
+//  XXX:  needs to take a successFn callback that is called once the Fcommand is
+//  successfully saved.
 Fcommands.set = function(commandData)
 {
     if (!jQuery.isPlainObject(commandData))
