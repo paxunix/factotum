@@ -14,16 +14,6 @@ function sortFcommandsByGuid(ar)
 
 describe("Fcommands.set", function() {
 
-    // Clear all Fcommands before and after each test
-    beforeEach(function() {
-        Fcommands.deleteAll();
-    });
-
-    afterEach(function() {
-        Fcommands.deleteAll();
-    });
-
-
     it("throws if the parameter is not an object",
         function() {
             expect(function() {
@@ -108,15 +98,15 @@ describe("Fcommands.set", function() {
         function() {
             expect(function() {
                 Fcommands.set({
-                    names: [ "blah" ],
+                    names: [ "blah1234" ],
                     guid: "asdf",
                     execute: function() {},
                 });
             }).not.toThrow();
 
-            expect(Fcommands.getCommandsByPrefix("blah")).
+            expect(Fcommands.getCommandsByPrefix("blah1234")).
                 toEqual([{
-                    names: [ "blah" ],
+                    names: [ "blah1234" ],
                     guid: "asdf",
                     execute: jasmine.any(Function),
                     description: jasmine.any(String),
@@ -209,17 +199,17 @@ describe("Fcommands.set", function() {
 
     xit("scriptUrls loads the Fcommand last");
 
-    it("persists the fcommands whenever one is set",
+    it("saves the fcommand whenever one is set",
         function() {
-            spyOn(Fcommands, "persist");
+            spyOn(Fcommands, "saveCommand");
 
             Fcommands.set({
                 names: [ "blah" ],
                 guid: "asdf",
-                execute: function() {},
+                execute: "return 10;",
             });
 
-            expect(Fcommands.persist).toHaveBeenCalled();
+            expect(Fcommands.saveCommand).toHaveBeenCalled();
         });
 
 }); // Fcommands.set
@@ -227,32 +217,25 @@ describe("Fcommands.set", function() {
 
 describe("Fcommands.getCommandsByPrefix", function() {
 
-    // Clear all Fcommands before and after each test
-    beforeEach(function() {
-        Fcommands.deleteAll();
-    });
-
-    afterEach(function() {
-        Fcommands.deleteAll();
-    });
-
     it("returns an empty array if the given Fcommand name isn't known",
         function() {
-            expect(Fcommands.getCommandsByPrefix("")).
+            expect(Fcommands.getCommandsByPrefix("totally unknown cmd name")).
                 toEqual([]);
         });
 
     it("returns an array with one known Fcommand for a given Fcommand name",
         function() {
+            var name = "blahlkjaldhas";
+
             Fcommands.set({
-                names: [ "blah" ],
+                names: [ name ],
                 guid: "asdf",
                 execute: function() {},
             });
 
-            expect(Fcommands.getCommandsByPrefix("blah")).
+            expect(Fcommands.getCommandsByPrefix(name)).
                 toEqual([{
-                    names: [ "blah" ],
+                    names: [ name ],
                     guid: "asdf",
                     execute: jasmine.any(Function),
                     description: jasmine.any(String),
@@ -263,27 +246,27 @@ describe("Fcommands.getCommandsByPrefix", function() {
     it("returns an array with all known Fcommands for a given string",
         function() {
             Fcommands.set({
-                names: [ "blah" ],
+                names: [ "blahabcde" ],
                 guid: "guid1",
                 execute: function() {},
             });
 
             Fcommands.set({
-                names: [ "blah" ],
+                names: [ "blahabcdef" ],
                 guid: "guid2",
                 execute: function() {},
             });
 
-            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("blah"))).
+            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("blahabcde"))).
                 toEqual(sortFcommandsByGuid([{
-                    names: [ "blah" ],
+                    names: [ "blahabcdef" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
                     description: jasmine.any(String),
                     scriptUrls: [],
                 },
                 {
-                    names: [ "blah" ],
+                    names: [ "blahabcde" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
                     description: jasmine.any(String),
@@ -295,27 +278,27 @@ describe("Fcommands.getCommandsByPrefix", function() {
     it("looks up Fcommands case-insensitively, but preserves their case.",
         function() {
             Fcommands.set({
-                names: [ "BlAh" ],
+                names: [ "BlAhplplpl" ],
                 guid: "guid1",
                 execute: function() {},
             });
 
             Fcommands.set({
-                names: [ "blah" ],
+                names: [ "blahplplpl" ],
                 guid: "guid2",
                 execute: function() {},
             });
 
-            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("BLAH"))).
+            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("BLAHPLPL"))).
                 toEqual(sortFcommandsByGuid([{
-                    names: [ "blah" ],
+                    names: [ "blahplplpl" ],
                     guid: "guid2",
                     execute: jasmine.any(Function),
                     description: jasmine.any(String),
                     scriptUrls: [],
                 },
                 {
-                    names: [ "BlAh" ],
+                    names: [ "BlAhplplpl" ],
                     guid: "guid1",
                     execute: jasmine.any(Function),
                     description: jasmine.any(String),
@@ -398,7 +381,7 @@ describe("Fcommands.getCommandsByPrefix", function() {
 describe("Fcommands.deleteCommand", function() {
     it("deletes an Fcommand by guid", function() {
         Fcommands.set({
-            names: [ "_BlAh" ],
+            names: [ "_BlAh424242" ],
             guid: "guid1",
             execute: function() {},
         });
@@ -418,103 +401,8 @@ describe("Fcommands.deleteCommand", function() {
 
         runs(function () {
             expect(success).toBe(true);
-            expect(sortFcommandsByGuid(Fcommands.getCommandsByPrefix("_BLAH"))).
-                toEqual([]);
+            expect(sortFcommandsByGuid(Fcommands.
+                getCommandsByPrefix("_BLAH424242"))).toEqual([]);
         });
     });
 }); // Fcommands.deleteCommand
-
-
-describe("Fcommands.deleteAll", function() {
-
-    // Clear all Fcommands before and after each test
-    beforeEach(function() {
-        Fcommands.deleteAll();
-    });
-
-    afterEach(function() {
-        Fcommands.deleteAll();
-    });
-
-
-    it("delete all Fcommands",
-        function() {
-            Fcommands.set({
-                names: [ "BlAh" ],
-                guid: "guid1",
-                execute: function() {},
-            });
-
-            Fcommands.set({
-                names: [ "blah" ],
-                guid: "guid2",
-                execute: function() {},
-            });
-
-            Fcommands.deleteAll();
-
-            expect(Fcommands.getCommandsByPrefix("BLAH")).
-                toEqual([]);
-        });
-
-    it("persists the empty fcommand set whenever all of them are deleted",
-        function() {
-            spyOn(Fcommands, "persist");
-
-            Fcommands.set({
-                names: [ "blah" ],
-                guid: "guid2",
-                execute: function() {},
-            });
-
-            Fcommands.deleteAll();
-
-            expect(Fcommands.persist).toHaveBeenCalled();
-        });
-}); // Fcommands.deleteAll
-
-
-describe("Fcommands.load", function() {
-
-    // Clear all Fcommands before and after each test
-    beforeEach(function() {
-        Fcommands.deleteAll();
-    });
-
-    afterEach(function() {
-        Fcommands.deleteAll();
-    });
-
-
-    it("returns the same Fcommand data structure that was persisted",
-        function() {
-            var cmd = {
-                names: [ "blah" ],
-                guid: "guid2",
-                execute: function() {},
-            };
-
-            Fcommands.set(cmd);
-
-            loadedFcommands = Fcommands.load();
-            loadedFcommands.guid2.execute = jasmine.any(Function);
-
-            expect(Fcommands.guid2Command).toEqual(loadedFcommands);
-        });
-
-}); // Fcommands.persist
-
-
-describe("Fcommands.execute", function() {
-
-
-    // Clear all Fcommands before and after each test
-    beforeEach(function() {
-        Fcommands.deleteAll();
-    });
-
-    afterEach(function() {
-        Fcommands.deleteAll();
-    });
-
-}); // Fcommands.execute

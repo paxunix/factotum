@@ -1,12 +1,5 @@
 describe("Factotum.getSuggestion", function() {
 
-
-    beforeEach(function() {
-        // clear any existing F-commands before each test
-        Fcommands.deleteAll();
-    });
-
-
     it("returns a Chrome omnibox suggestion object", function() {
         var name = "test";
 
@@ -68,13 +61,6 @@ describe("Factotum.getSuggestion", function() {
 
 describe("Factotum.responseHandler", function() {
 
-
-    beforeEach(function() {
-        // clear any existing F-commands before each test
-        Fcommands.deleteAll();
-    });
-
-
     // None of these tests will work because of
     // http://code.google.com/p/chromium/issues/detail?id=30756
     // (can't executeScript() into an extension's page, even if
@@ -114,16 +100,6 @@ describe("Factotum.responseHandler", function() {
 
 
 describe("Factotum.dispatch", function() {
-
-    // Clear all Fcommands before and after each test
-    beforeEach(function() {
-        Fcommands.deleteAll();
-    });
-
-    afterEach(function() {
-        Fcommands.deleteAll();
-    });
-
 
     it("does nothing if dispatching to an empty Fcommand name",
         function() {
@@ -222,16 +198,6 @@ describe("Factotum.dispatch", function() {
 
 
 describe("Factotum.sendScriptRequest", function() {
-
-
-    // Clear all Fcommands before and after each test
-    beforeEach(function() {
-        Fcommands.deleteAll();
-    });
-
-    afterEach(function() {
-        Fcommands.deleteAll();
-    });
 
     xit("Fcommand executes whether 'execute' property can be a function or a string.");
 
