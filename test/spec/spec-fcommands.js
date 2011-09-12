@@ -92,6 +92,8 @@ describe("Fcommands.set", function() {
                     execute: function() { },
                 });
             }).not.toThrow();
+
+            // XXX:  remove asdf2 Fcommand
         });
 
     it("uses a default description string if the parameter's 'description' property is not specified",
@@ -210,6 +212,19 @@ describe("Fcommands.set", function() {
             });
 
             expect(Fcommands.saveCommand).toHaveBeenCalled();
+        });
+
+    it("does not save the fcommand if its execute property is a function",
+        function() {
+            spyOn(Fcommands, "saveCommand");
+
+            Fcommands.set({
+                names: [ "blah" ],
+                guid: "asdf",
+                execute: function () { throw "testing 1 2 3 "; },
+            });
+
+            expect(Fcommands.saveCommand).not.toHaveBeenCalled();
         });
 
 }); // Fcommands.set
