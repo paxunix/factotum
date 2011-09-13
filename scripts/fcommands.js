@@ -150,8 +150,23 @@ Fcommands.saveCommand = function(fcommand, onSuccessFn)
 }   // Fcommands.saveCommand
 
 
-// Load saved Fcommands and return an object representing them.
-Fcommands.load = function()
+// Load saved Fcommands.
+Fcommands.load = function(onDoneFn)
 {
-    throw("XXX:  Not yet implemented.");
+    var setCommand = function (list)
+    {
+        if (list.length == 0)
+            onDoneFn();
+
+        Fcommands.fileSystem.readFile(list.shift(), function (data) {
+            Fcommands.set(JSON.parse(data));
+            // XXX:  setCommand should probably be called in onsuccessfn passed
+            // to Fcommands.set().
+            setCommand(list);
+        });
+    };
+
+    Fcommands.fileSystem.getFileList(function (list) {
+        setCommand(list);
+    });
 }   // Fcommands.load
