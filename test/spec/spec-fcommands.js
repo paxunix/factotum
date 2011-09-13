@@ -93,7 +93,7 @@ describe("Fcommands.set", function() {
                 });
             }).not.toThrow();
 
-            // XXX:  remove asdf2 Fcommand
+            Fcommands.deleteCommand("asdf2");
         });
 
     it("uses a default description string if the parameter's 'description' property is not specified",
