@@ -421,3 +421,10 @@ describe("Fcommands.deleteCommand", function() {
         });
     });
 }); // Fcommands.deleteCommand
+
+
+describe("Fcommands.load", function() {
+    it("loads all saved Fcommands", function () {
+        throw "Not implemented yet.";
+    });
+}); // Fcommands.load
