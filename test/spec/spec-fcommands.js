@@ -214,17 +214,28 @@ describe("Fcommands.set", function() {
             expect(Fcommands.saveCommand).toHaveBeenCalled();
         });
 
-    it("does not save the fcommand if its execute property is a function",
+    it("does not save the fcommand if its execute property is a function; still calls the success fn",
         function() {
+            spyOn(Fcommands.fileSystem, "writeFile");
             spyOn(Fcommands, "saveCommand");
+            var success = false;
+            var onSave = function() {
+                success = true;
+            };
 
             Fcommands.set({
                 names: [ "blah" ],
                 guid: "asdf",
                 execute: function () { throw "testing 1 2 3 "; },
-            });
+            }, onSave);
 
-            expect(Fcommands.saveCommand).not.toHaveBeenCalled();
+            waitsFor(function() { return success; }, "save to finish", 2000);
+
+            runs(function() {
+                expect(Fcommands.fileSystem.writeFile).not.toHaveBeenCalled();
+                expect(Fcommands.saveCommand).not.toHaveBeenCalled();
+                expect(success).toBe(true);
+            });
         });
 
 }); // Fcommands.set

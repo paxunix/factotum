@@ -30,9 +30,7 @@ Fcommands.fileSystem = new FileSystem(50 * 1024 * 1024, Fcommands.onFsError);
 //          function.
 //      scriptUrls: optional array containing URLs for scripts to be
 //          injected into the page prior to this command's execution.
-//  XXX:  needs to take a successFn callback that is called once the Fcommand is
-//  successfully saved.
-Fcommands.set = function(commandData)
+Fcommands.set = function(commandData, onSuccessFn)
 {
     if (!jQuery.isPlainObject(commandData))
         throw("commandData must be an object.");
@@ -91,7 +89,18 @@ Fcommands.set = function(commandData)
     }
 
     Fcommands.guid2Command[commandData.guid] = commandData;
-    Fcommands.saveCommand(commandData); // XXX:  success func?
+
+    // Don't save internal Fcommands (i.e. those whose execute property is a
+    // function) to storage.  These silently succeed.
+    if (jQuery.isFunction(commandData.execute))
+    {
+        if (onSuccessFn)
+            onSuccessFn();
+
+        return;
+    }
+
+    Fcommands.saveCommand(commandData, onSuccessFn);
 }   // Fcommands.set
 
 
@@ -140,17 +149,9 @@ Fcommands.saveCommand = function(fcommand, onSuccessFn)
     // XXX:  check for the unlikely possibility that you are overwriting an
     // existing Fcommand with this guid?
 
-    // Don't save internal Fcommands (i.e. those whose execute property is a
-    // function) to storage.  These silently succeed.
-    if (!jQuery.isFunction(commandData.execute))
-    {
-        onSuccessFn();
-        return;
-    }
-
     // An Fcommand is saved in a file named its guid.
     Fcommands.fileSystem.writeFile(fcommand.guid,
-        JSON.stringify(fcommand), onSuccessFn);
+        JSON.stringify(fcommand), onSuccessFn || function(){});
 }   // Fcommands.saveCommand
 
 
