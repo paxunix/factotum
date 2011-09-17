@@ -91,11 +91,7 @@ Fcommands.set = function(commandData)
     }
 
     Fcommands.guid2Command[commandData.guid] = commandData;
-
-    // Don't save internal Fcommands (i.e. those whose execute property is a
-    // function) to storage.
-    if (!jQuery.isFunction(commandData.execute))
-        Fcommands.saveCommand(commandData); // XXX:  success func?
+    Fcommands.saveCommand(commandData); // XXX:  success func?
 }   // Fcommands.set
 
 
@@ -143,6 +139,14 @@ Fcommands.saveCommand = function(fcommand, onSuccessFn)
 {
     // XXX:  check for the unlikely possibility that you are overwriting an
     // existing Fcommand with this guid?
+
+    // Don't save internal Fcommands (i.e. those whose execute property is a
+    // function) to storage.  These silently succeed.
+    if (!jQuery.isFunction(commandData.execute))
+    {
+        onSuccessFn();
+        return;
+    }
 
     // An Fcommand is saved in a file named its guid.
     Fcommands.fileSystem.writeFile(fcommand.guid,
