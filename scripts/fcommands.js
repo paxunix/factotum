@@ -155,23 +155,10 @@ Fcommands.saveCommand = function(fcommand, onSuccessFn)
 }   // Fcommands.saveCommand
 
 
-// Load saved Fcommands.
-Fcommands.load = function(onDoneFn)
+// Load a saved Fcommand.
+Fcommands.loadCommand = function(guid, onDoneFn)
 {
-    var setCommand = function (list)
-    {
-        if (list.length == 0)
-            onDoneFn();
-
-        Fcommands.fileSystem.readFile(list.shift(), function (data) {
-            Fcommands.set(JSON.parse(data));
-            // XXX:  setCommand should probably be called in onsuccessfn passed
-            // to Fcommands.set().
-            setCommand(list);
-        });
-    };
-
-    Fcommands.fileSystem.getFileList(function (list) {
-        setCommand(list);
+    Fcommands.fileSystem.readFile(guid, function (data) {
+        Fcommands.set(JSON.parse(data), onDoneFn);
     });
-}   // Fcommands.load
+}   // Fcommands.loadCommand

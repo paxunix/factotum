@@ -434,7 +434,7 @@ describe("Fcommands.deleteCommand", function() {
 }); // Fcommands.deleteCommand
 
 
-describe("Fcommands.load", function() {
+describe("Fcommands.loadCommand", function() {
     it("loads all saved Fcommands", function () {
         throw "Not implemented yet.";
     });
