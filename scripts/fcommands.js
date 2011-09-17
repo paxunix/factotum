@@ -139,7 +139,7 @@ Fcommands.getCommandsByPrefix = function (prefix)
 Fcommands.deleteCommand = function (guid, onSuccessFn)
 {
     delete Fcommands.guid2Command[guid];
-    Fcommands.fileSystem.removeFile(guid, onSuccessFn);
+    Fcommands.fileSystem.removeFile(guid, onSuccessFn || function(){});
 }   // Fcommands.deleteCommand
 
 
