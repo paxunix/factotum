@@ -435,14 +435,13 @@ describe("Fcommands.deleteCommand", function() {
 
 
 describe("Fcommands.loadCommand", function() {
-    // XXX: test always times out; fix scoping of "success".
-    xit("loads an Fcommand", function () {
+    it("loads an Fcommand", function () {
         var success = false;
         var onSuccess = function() {
             success = true;
         };
         var onSetSuccess = function() {
-            spyOn(Fcommands, "set");
+            spyOn(Fcommands, "set").andCallThrough();
             Fcommands.loadCommand("_testguid", onSuccess);
         };
 
