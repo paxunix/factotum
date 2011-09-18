@@ -62,21 +62,11 @@
       function, it is defined by the extension itself and so doesn't need to
       be stored).
 
-- should move away from using localStorage for Fcommands since we're stuck
-  at 2.5MB:
-  http://code.google.com/p/chromium/issues/detail?id=58985 Looks like
-  IndexedDB or FileSystem is the best candidate.  Given that we probably
-  don't need anything approaching a DB, FileSystem might be tidiest.
-
 - useful to make distinction between commands that require the current
   page's context and those that don't?
     - e.g. if an Fcommand is only opening a new tab, there's no need for it
       to run within the current page--it can run fine in the background page
     - too difficult to explain to users?
-
-- don't call deleteAll in test specs--that will blow away any saved
-  Fcommands.  Modify all test to use conspicuous Fcommand names (like
-  _FACTOTUM_TEST_blahblah) and only remove those before each test.
 
 - fcommand's response object could have an extra field that if somehow set
   by the Fcommand's code (and the code succeeded) would indicate the
