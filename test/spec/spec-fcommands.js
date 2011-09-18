@@ -470,4 +470,4 @@ describe("Fcommands.loadCommand", function() {
             Fcommands.deleteCommand("_testguid");
         });
     });
-}); // Fcommands.load
+}); // Fcommands.loadCommand
