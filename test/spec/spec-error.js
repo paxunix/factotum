@@ -1,3 +1,42 @@
+// XXX:  there is a request to modify toThrow to do this:
+//  https://github.com/pivotal/jasmine/pull/120
+function toThrowInstanceOf(expected)
+{
+    var result = false;
+    var exception;
+    if (typeof this.actual != 'function')
+        throw new Error('Actual is not a function');
+
+    try
+    {
+        this.actual();
+    }
+
+    catch (e)
+    {
+        exception = e;
+        result = exception instanceof expected;
+    }
+
+    if (!result)
+    {
+        this.message = function() {
+            return "Expected function " + (this.isNot ? "not" : "") +
+                "to throw " + expected.name + ", but it threw " +
+                exception.name;
+        };
+    }
+    else
+    {
+        this.message = function() {
+            return "Expected function to throw an exception.";
+        };
+    }
+
+    return result;
+}
+
+
 describe("FcommandError", function() {
     it("constructs an FcommandError object with info about the exception", function() {
         var msg = "error info";

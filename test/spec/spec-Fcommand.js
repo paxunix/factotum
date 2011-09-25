@@ -1,66 +1,27 @@
 describe("Fcommand.validate", function() {
 
+    beforeEach(function() {
+        this.addMatchers({ toThrowInstanceOf: toThrowInstanceOf });
+    });
+
     it("throws if the parameter is not an object",
         function() {
             expect(function() {
-                // XXX:  the jasmine toThrow matcher extracts the message
-                // property from the exception, rather than allowing a match on
-                // exception type, so instead: catch, check and rethrow.
-                try {
-                    new Fcommand({});
-                }
-
-                catch (e)
-                {
-                    if (e instanceof FcommandError)
-                        return;
-                    else
-                        throw e;
-                }
-            }).not.toThrow();
+                new Fcommand("");
+            }).toThrowInstanceOf(FcommandError);
         }
     );
 
     it("throws if the parameter is missing required properties",
         function() {
             expect(function() {
-                // XXX:  the jasmine toThrow matcher extracts the message
-                // property from the exception, rather than allowing a match on
-                // exception type, so instead: catch, check and rethrow.
-                try {
-                    new Fcommand({});
-                }
-
-                catch (e)
-                {
-                    if (e instanceof MissingPropertyError)
-                        return;
-                    else
-                        throw e;
-                }
-            }).not.toThrow();
+                new Fcommand({});
+            }).toThrowInstanceOf(MissingPropertyError);
         }
     );
 
-    it("throws if the parameter's 'names' property is not an array, or it does not only contain strings or is empty",
+    it("throws if the parameter's 'names' property has 0 length",
         function() {
-            expect(function() {
-                new Fcommand({
-                    guid: "asdf",
-                    description: "",
-                    execute: "",
-                });
-            }).toThrow("commandData.names must be an array of strings.");
-
-            expect(function() {
-                new Fcommand({
-                    guid: "asdf",
-                    description: "",
-                    execute: "",
-                    names: {},
-                });
-            }).toThrow("commandData.names must be an array of strings.");
-
             expect(function() {
                 new Fcommand({
                     guid: "asdf",
@@ -68,16 +29,7 @@ describe("Fcommand.validate", function() {
                     execute: "",
                     names: [],
                 });
-            }).toThrow("commandData.names must be an array of strings.");
-
-            expect(function() {
-                new Fcommand({
-                    guid: "asdf",
-                    description: "",
-                    execute: "",
-                    names: [ "one", "two", 3]
-                });
-            }).toThrow("commandData.names must be an array of strings.");
+            }).toThrow();
         }
     );
 
