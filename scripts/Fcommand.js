@@ -1,0 +1,72 @@
+/**
+ * @class Represents a single Fcommand.
+ *
+ * @constructor
+ * @param {Object} commandData Data for an Fcommand.
+ * @param {String} commandData.guid Used to uniquely identify this Fcommand.
+ * @param {String[]} commandData.names The names that can be used to execute this Fcommand.
+ * @param {Object} [commandData.optSpec] a {@link GetOpt} specification defining how this Fcommand's command line should be parsed.
+ * @param {String} commandData.description Describes what this command does.  It is used to generate the text that appears in the omnibox when this command is entered.
+ * @param {Function|String} commandData.execute The code to run for this Fcommand.  If a Function, this Fcommand is internal and cannot be saved or loaded.
+ * @param {String} [commandData.iconUrl] URL for a favicon-type icon for this Fcommand.
+ * @param {String} [commandData.helpHtml] HTML markup help text for this Fcommand.  It will be displayed when the general "help" Fcommand is run with any name for this Fcommand as its argument.
+*/
+function Fcommand(commandData)
+{
+    this.data = Fcommand.validate(commandData);
+}   // Fcommand constructor
+
+
+/**
+ * Validate and augment as needed the given Fcommand data.
+ * @param {Object} data An Fcommand's data to be validated.
+ * @throws {String} If the given data is invalid.
+ * @returns {Object} Validated Fcommand data.
+ * @see Fcommand For the set of properties that are expected.
+ */
+Fcommand.validate = function (commandData)
+{
+    var requiredProperties = [
+        "guid",
+        "names",
+        "execute",
+        "description"
+    ];
+
+    if (!jQuery.isPlainObject(commandData))
+        throw new FcommandError("commandData must be an object");
+
+    var missingProperties = [];
+    jQuery.each(requiredProperties, function (i, prop) {
+        if (!(prop in commandData))
+            missingProperties.push(prop);
+    });
+
+    if (missingProperties.length > 0)
+        throw new MissingPropertyError("commandData is missing properties: " +
+            missingProperties.join(", "));
+
+    return; //XXX
+    if (!jQuery.isArray(commandData.names) || commandData.names.length === 0)
+        throw("commandData.names must be a non-empty array.");
+
+    if (!('execute' in commandData) ||
+        typeof(commandData.execute) !== "string" ||
+        !jQuery.isFunction(commandData.execute))
+            throw("commandData.execute is required and must be a string or a function.");
+
+    if (!('description' in commandData) ||
+        typeof(commandData.description) !== 'string')
+            throw("commandData.description is required and must be a string.");
+
+    if ('iconUrl' in commandData && typeof(commandData.iconUrl) !== 'string')
+        throw("commandData.iconUrl must be a string.");
+    // XXX:  need default favicon???
+
+    if ('optSpec' in commandData &&
+        !jQuery.isPlainObject(commandData.optSpec))
+        throw("commandData.optSpec must be an object.");
+
+    if ('helpHtml' in commandData && typeof(commandData.helpHtml) !== "string")
+        throw("commandData.helpHtml must be a string.");
+}   // Fcommand.prototype.validate
