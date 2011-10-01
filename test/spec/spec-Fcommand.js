@@ -46,6 +46,41 @@ describe("Fcommand.validate", function() {
         }
     );
 
+    it("throws if the parameter's 'description' property is not a string",
+        function() {
+            expect(function() {
+                new Fcommand({
+                    guid: "asdf",
+                    description: [],
+                    names: [ "blah" ],
+                    execute: "",
+                });
+            }).toThrowInstanceOf(InvalidData);
+        }
+    );
+
+    it("throws if the Fcommand's description is empty or only whitespace",
+        function() {
+            expect(function() {
+                new Fcommand({
+                    guid: "asdf",
+                    description: "",
+                    names: [ "blah" ],
+                    execute: "",
+                });
+            }).toThrowInstanceOf(InvalidData);
+
+            expect(function() {
+                new Fcommand({
+                    guid: "asdf",
+                    description: "   \t   ",
+                    names: [ "blah" ],
+                    execute: "",
+                });
+            }).toThrowInstanceOf(InvalidData);
+        }
+    );
+
     xit("throws if the 'execute' value or is not a string or a function",
         function() {
             expect(function() {

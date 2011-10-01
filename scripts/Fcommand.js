@@ -49,15 +49,17 @@ Fcommand.validate = function (commandData)
     if (!jQuery.isArray(commandData.names) || commandData.names.length === 0)
         throw new InvalidData("commandData.names must be a non-empty array.");
 
+    if (typeof(commandData.description) !== 'string' ||
+        commandData.description === "" ||
+        commandData.description.search(/\S/) == -1)
+            throw new InvalidData(
+                "commandData.description must be a non-empty string.");
+
     return; //XXX
     if (!('execute' in commandData) ||
         typeof(commandData.execute) !== "string" ||
         !jQuery.isFunction(commandData.execute))
             throw("commandData.execute is required and must be a string or a function.");
-
-    if (!('description' in commandData) ||
-        typeof(commandData.description) !== 'string')
-            throw("commandData.description is required and must be a string.");
 
     if ('iconUrl' in commandData && typeof(commandData.iconUrl) !== 'string')
         throw("commandData.iconUrl must be a string.");
