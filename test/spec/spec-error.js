@@ -23,7 +23,7 @@ function toThrowInstanceOf(expected)
         this.message = function() {
             return "Expected function " + (this.isNot ? "not" : "") +
                 "to throw " + expected.name + ", but it threw " +
-                exception.name;
+                exception.name + "(" + exception + ")";
         };
     }
     else
