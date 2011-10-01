@@ -18,10 +18,9 @@ function Fcommand(commandData)
 
 
 /**
- * Validate and augment as needed the given Fcommand data.
+ * Validate the given Fcommand data.
  * @param {Object} data An Fcommand's data to be validated.
  * @throws {String} If the given data is invalid.
- * @returns {Object} Validated Fcommand data.
  * @see Fcommand For the set of properties that are expected.
  */
 Fcommand.validate = function (commandData)
