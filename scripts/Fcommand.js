@@ -46,10 +46,10 @@ Fcommand.validate = function (commandData)
         throw new MissingPropertyError("commandData is missing properties: " +
             missingProperties.join(", "));
 
-    return; //XXX
     if (!jQuery.isArray(commandData.names) || commandData.names.length === 0)
-        throw("commandData.names must be a non-empty array.");
+        throw new InvalidData("commandData.names must be a non-empty array.");
 
+    return; //XXX
     if (!('execute' in commandData) ||
         typeof(commandData.execute) !== "string" ||
         !jQuery.isFunction(commandData.execute))

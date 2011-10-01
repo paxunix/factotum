@@ -20,20 +20,33 @@ describe("Fcommand.validate", function() {
         }
     );
 
-    it("throws if the parameter's 'names' property has 0 length",
+    it("throws if the parameter's 'names' property is not an array",
         function() {
             expect(function() {
                 new Fcommand({
                     guid: "asdf",
                     description: "",
+                    names: "",
                     execute: "",
-                    names: [],
                 });
-            }).toThrow();
+            }).toThrowInstanceOf(InvalidData);
         }
     );
 
-    it("throws if the 'execute' value or is not a string or a function",
+    it("throws if the parameter's 'names' array is empty",
+        function() {
+            expect(function() {
+                new Fcommand({
+                    guid: "asdf",
+                    description: "",
+                    names: [],
+                    execute: "",
+                });
+            }).toThrowInstanceOf(InvalidData);
+        }
+    );
+
+    xit("throws if the 'execute' value or is not a string or a function",
         function() {
             expect(function() {
                 new Fcommand({
@@ -51,7 +64,7 @@ describe("Fcommand.validate", function() {
             }).toThrow("commandData.execute is required and must be a string or a function.");
         });
 
-    it("throws if the parameter's 'description' property is missing or is not a string",
+    xit("throws if the parameter's 'description' property is missing or is not a string",
         function() {
             expect(function() {
                 new Fcommand({
@@ -71,7 +84,7 @@ describe("Fcommand.validate", function() {
             }).toThrow("commandData.description is required and must be a string.");
         });
 
-    it("throws if the 'iconUrl' value is not a string",
+    xit("throws if the 'iconUrl' value is not a string",
         function() {
             expect(function() {
                 new Fcommand({
@@ -84,7 +97,7 @@ describe("Fcommand.validate", function() {
             }).toThrow("commandData.iconUrl must be a string.");
         });
 
-    it("throws if the 'optSpec' value is not an object",
+    xit("throws if the 'optSpec' value is not an object",
         function() {
             expect(function() {
                 new Fcommand({
@@ -96,7 +109,7 @@ describe("Fcommand.validate", function() {
             }).toThrow("commandData.optSpec must be an object.");
         });
 
-    it("throws if the 'helpHtml' value is not a string",
+    xit("throws if the 'helpHtml' value is not a string",
         function() {
             expect(function() {
                 new Fcommand({
@@ -109,7 +122,7 @@ describe("Fcommand.validate", function() {
             }).toThrow("commandData.helpHtml must be a string.");
         });
 
-    it("throws if the 'scriptUrls' value is not an array",
+    xit("throws if the 'scriptUrls' value is not an array",
         function() {
             expect(function() {
                 Fcommands.set({
@@ -121,7 +134,7 @@ describe("Fcommand.validate", function() {
             }).toThrow("commandData.scriptUrls must be an array.");
         });
 
-    it("throws if the 'scriptUrls' value contains a non-string",
+    xit("throws if the 'scriptUrls' value contains a non-string",
         function() {
             expect(function() {
                 Fcommands.set({
@@ -137,7 +150,7 @@ describe("Fcommand.validate", function() {
 
     xit("scriptUrls loads the Fcommand last");
 
-    it("saves the fcommand whenever one is set",
+    xit("saves the fcommand whenever one is set",
         function() {
             spyOn(Fcommands, "saveCommand");
 
@@ -150,7 +163,7 @@ describe("Fcommand.validate", function() {
             expect(Fcommands.saveCommand).toHaveBeenCalled();
         });
 
-    it("does not save the fcommand if its execute property is a function; still calls the success fn",
+    xit("does not save the fcommand if its execute property is a function; still calls the success fn",
         function() {
             spyOn(Fcommands.fileSystem, "writeFile");
             spyOn(Fcommands, "saveCommand");
