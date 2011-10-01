@@ -54,12 +54,11 @@ Fcommand.validate = function (commandData)
             throw new InvalidData(
                 "commandData.description must be a non-empty string.");
 
-    return; //XXX
-    if (!('execute' in commandData) ||
-        typeof(commandData.execute) !== "string" ||
+    if (typeof(commandData.execute) !== "string" &&
         !jQuery.isFunction(commandData.execute))
-            throw("commandData.execute is required and must be a string or a function.");
+            throw new InvalidData("commandData.execute must be a string or a function.");
 
+    return;//XXX
     if ('iconUrl' in commandData && typeof(commandData.iconUrl) !== 'string')
         throw("commandData.iconUrl must be a string.");
     // XXX:  need default favicon???
