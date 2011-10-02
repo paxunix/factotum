@@ -63,5 +63,5 @@ Fcommand.validate = function (commandData)
             throw new InvalidData("commandData.optSpec must be an object.");
 
     if ('helpHtml' in commandData && typeof(commandData.helpHtml) !== "string")
-        throw("commandData.helpHtml must be a string.");
+        throw new InvalidData("commandData.helpHtml must be a string.");
 }   // Fcommand.prototype.validate

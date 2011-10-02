@@ -135,4 +135,28 @@ describe("Fcommand.validate", function() {
             }).not.toThrow();
         }
     );
+
+    it("throws if the Fcommand's helpHtml is not a string",
+        function() {
+            expect(function() {
+                new Fcommand({
+                    guid: "asdf",
+                    description: "desc",
+                    names: [ "blah" ],
+                    execute: "",
+                    helpHtml: [],
+                });
+            }).toThrowInstanceOf(InvalidData);
+
+            expect(function() {
+                new Fcommand({
+                    guid: "asdf",
+                    description: "desc",
+                    names: [ "blah" ],
+                    execute: function(){},
+                    helpHtml: "",
+                });
+            }).not.toThrow();
+        }
+    );
 }); // Fcommand.validate
