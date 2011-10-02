@@ -60,7 +60,7 @@ Fcommand.validate = function (commandData)
 
     if ('optSpec' in commandData &&
         !jQuery.isPlainObject(commandData.optSpec))
-        throw("commandData.optSpec must be an object.");
+            throw new InvalidData("commandData.optSpec must be an object.");
 
     if ('helpHtml' in commandData && typeof(commandData.helpHtml) !== "string")
         throw("commandData.helpHtml must be a string.");

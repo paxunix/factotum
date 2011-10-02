@@ -112,4 +112,27 @@ describe("Fcommand.validate", function() {
         }
     );
 
+    it("throws if the Fcommand's optspec is not a plain object",
+        function() {
+            expect(function() {
+                new Fcommand({
+                    guid: "asdf",
+                    description: "desc",
+                    names: [ "blah" ],
+                    execute: "",
+                    optSpec: "",
+                });
+            }).toThrowInstanceOf(InvalidData);
+
+            expect(function() {
+                new Fcommand({
+                    guid: "asdf",
+                    description: "desc",
+                    names: [ "blah" ],
+                    execute: function(){},
+                    optSpec: { a: 1 },
+                });
+            }).not.toThrow();
+        }
+    );
 }); // Fcommand.validate
