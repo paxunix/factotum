@@ -64,4 +64,4 @@ Fcommand.validate = function (commandData)
 
     if ('helpHtml' in commandData && typeof(commandData.helpHtml) !== "string")
         throw new InvalidData("commandData.helpHtml must be a string.");
-}   // Fcommand.prototype.validate
+}   // Fcommand.validate
