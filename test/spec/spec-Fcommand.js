@@ -159,4 +159,23 @@ describe("Fcommand.validate", function() {
             }).not.toThrow();
         }
     );
+
+    it("returns if the input object is validated successfully",
+        function() {
+            var fcmd;
+
+            expect(function() {
+                fcmd = new Fcommand({
+                    guid: "asdf",
+                    description: "desc",
+                    names: [ "blah" ],
+                    execute: function(){},
+                    helpHtml: "",
+                    optSpec: {a: { type: "boolean" } },
+                });
+            }).not.toThrow();
+
+            expect(fcmd).toBeDefined();
+        }
+    );
 }); // Fcommand.validate

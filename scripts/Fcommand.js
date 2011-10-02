@@ -13,7 +13,9 @@
 */
 function Fcommand(commandData)
 {
-    this.data = Fcommand.validate(commandData);
+    Fcommand.validate(commandData);
+
+    this.data = commandData;
 }   // Fcommand constructor
 
 
