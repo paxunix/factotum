@@ -179,3 +179,34 @@ describe("Fcommand.validate", function() {
         }
     );
 }); // Fcommand.validate
+
+
+describe("Fcommand.save", function() {
+
+    it("does not save the fcommand if its execute property is a function; still calls the success fn",
+        function() {
+            var onError = jasmine.createSpy();
+            var fs = new FileSystem(1024, onError);
+            var onSuccess = jasmine.createSpy();
+
+            spyOn(fs, "writeFile");
+
+            var fcmd = new Fcommand({
+                guid: "_asdf",
+                description: "desc",
+                names: [ "blah" ],
+                execute: function(){},
+            });
+
+            fcmd.save(fs, onSuccess);
+
+            waitsFor(function() { return onSuccess.wasCalled },
+                "save to finish", 2000);
+
+            runs(function() {
+                expect(onError).not.toHaveBeenCalled();
+                expect(fs.writeFile).not.toHaveBeenCalled();
+                expect(onSuccess).toHaveBeenCalled();
+            });
+        });
+}); // Fcommand.save

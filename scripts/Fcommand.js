@@ -67,3 +67,24 @@ Fcommand.validate = function (commandData)
     if ('helpHtml' in commandData && typeof(commandData.helpHtml) !== "string")
         throw new InvalidData("commandData.helpHtml must be a string.");
 }   // Fcommand.validate
+
+
+/**
+ * Save this Fcommand to disk.
+ * @param {FileSystem} fileSystem Object that does the save.
+ * @param {Function} [onSuccessFn] Callback function for successful write.
+ */
+Fcommand.prototype.save = function(fileSystem, onSuccessFn)
+{
+    onSuccessFn = onSuccessFn || function(){};
+
+    // Don't save an internal Fcommand (i.e. execute is a function).
+    if (jQuery.isFunction(this.data.execute))
+    {
+        onSuccessFn();
+        return;
+    }
+
+    fileSystem.writeFile(this.data.guid,
+        JSON.stringify(this.data), onSuccessFn || function(){});
+}   // Fcommand.prototype.save
