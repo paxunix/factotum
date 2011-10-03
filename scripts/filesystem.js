@@ -75,7 +75,7 @@ FileSystem.prototype.writeFile = function (filename, data, onSuccessFn)
             onGetFileSuccess, this.onErrorFn);
     }.bind(this);
 
-    webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
+    webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
         onFsInitSuccess, this.onErrorFn);
 };  // FileSystem.prototype.writeFile
 
@@ -110,7 +110,7 @@ FileSystem.prototype.readFile = function (filename, onSuccessFn)
             onGetFileSuccess, this.onErrorFn);
     }.bind(this);
 
-    webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
+    webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
         onFsInitSuccess, this.onErrorFn);
 };  // FileSystem.prototype.readFile
 
@@ -138,7 +138,7 @@ FileSystem.prototype.getFileList = function (onSuccessFn)
         onRead(dirReader, []);
     };
 
-    webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
+    webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
         onFsInitSuccess, this.onErrorFn);
 };  // FileSystem.prototype.getFileList
 
@@ -163,6 +163,6 @@ FileSystem.prototype.removeFile = function (filename, onSuccessFn)
         fileSystem.root.getFile(filename, null, onGetFileSuccess, catchError);
     }.bind(this);
 
-    webkitRequestFileSystem(window.PERSISTENT, Fcommands.fileSystemSize,
+    webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
         onFsInitSuccess, this.onErrorFn);
 };  // FileSystem.prototype.removeFile
