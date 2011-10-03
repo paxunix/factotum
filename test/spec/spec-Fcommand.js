@@ -24,7 +24,7 @@ describe("Fcommand.validate", function() {
         function() {
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "",
                     names: "",
                     execute: "",
@@ -37,7 +37,7 @@ describe("Fcommand.validate", function() {
         function() {
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "",
                     names: [],
                     execute: "",
@@ -50,7 +50,7 @@ describe("Fcommand.validate", function() {
         function() {
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: [],
                     names: [ "blah" ],
                     execute: "",
@@ -63,7 +63,7 @@ describe("Fcommand.validate", function() {
         function() {
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "",
                     names: [ "blah" ],
                     execute: "",
@@ -72,7 +72,7 @@ describe("Fcommand.validate", function() {
 
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "   \t   ",
                     names: [ "blah" ],
                     execute: "",
@@ -85,7 +85,7 @@ describe("Fcommand.validate", function() {
         function() {
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "desc",
                     names: [ "blah" ],
                     execute: [],
@@ -94,7 +94,7 @@ describe("Fcommand.validate", function() {
 
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "desc",
                     names: [ "blah" ],
                     execute: "",
@@ -103,7 +103,7 @@ describe("Fcommand.validate", function() {
 
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "desc",
                     names: [ "blah" ],
                     execute: function(){},
@@ -116,7 +116,7 @@ describe("Fcommand.validate", function() {
         function() {
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "desc",
                     names: [ "blah" ],
                     execute: "",
@@ -126,7 +126,7 @@ describe("Fcommand.validate", function() {
 
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "desc",
                     names: [ "blah" ],
                     execute: function(){},
@@ -140,7 +140,7 @@ describe("Fcommand.validate", function() {
         function() {
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "desc",
                     names: [ "blah" ],
                     execute: "",
@@ -150,7 +150,7 @@ describe("Fcommand.validate", function() {
 
             expect(function() {
                 new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "desc",
                     names: [ "blah" ],
                     execute: function(){},
@@ -166,7 +166,7 @@ describe("Fcommand.validate", function() {
 
             expect(function() {
                 fcmd = new Fcommand({
-                    guid: "asdf",
+                    guid: "_asdf",
                     description: "desc",
                     names: [ "blah" ],
                     execute: function(){},
