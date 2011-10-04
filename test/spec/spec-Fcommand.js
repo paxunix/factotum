@@ -209,4 +209,48 @@ describe("Fcommand.save", function() {
                 expect(onSuccess).toHaveBeenCalled();
             });
         });
+
+    it("saves the stringified Fcommand data to a file named its guid",
+        function() {
+            var onError = jasmine.createSpy();
+            var onSuccess = jasmine.createSpy();
+            var fs = new FileSystem(1024, onError);
+            var guid = "_asdf";
+
+            var fcmd = new Fcommand({
+                guid: guid,
+                description: "desc",
+                names: [ "blah" ],
+                execute: "return 42;",
+            });
+
+            fcmd.save(fs, onSuccess);
+
+            waitsFor(function() { return onSuccess.wasCalled },
+                "save to finish", 2000);
+
+            runs(function() {
+                expect(onError).not.toHaveBeenCalled();
+                expect(onSuccess).toHaveBeenCalled();
+
+                onSuccess.reset();
+                onError.reset();
+
+                fs.readFile(guid, onSuccess);
+
+                waitsFor(function() { return onSuccess.wasCalled; },
+                    "read to finish", 2000);
+
+                runs(function() {
+                    expect(onError).not.toHaveBeenCalled();
+                    expect(onSuccess).toHaveBeenCalledWith(jasmine.any(String));
+
+                    onSuccess.reset();
+
+                    fs.removeFile(guid, onSuccess);
+                    waitsFor(function() { return onSuccess.wasCalled; },
+                        "delete to finish", 2000);
+                });
+            });
+        });
 }); // Fcommand.save
