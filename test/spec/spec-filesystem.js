@@ -2,19 +2,16 @@ describe("FileSystem.writeFile", function() {
 
 
     it("calls the error function if writing to an undefined filename", function() {
-        var errno = "";
-        var onError = function(e) {
-            errno = e;
-        };
         var onSuccess = jasmine.createSpy();
+        var onError = jasmine.createSpy();
 
-        var fs = new FileSystem(1024, onError);
-        fs.writeFile(undefined, "bogusdata", onSuccess);
+        var fs = new FileSystem(1024);
+        fs.writeFile(undefined, "bogusdata", onSuccess, onError);
 
-        waitsFor(function() { return errno !== ""; }, "writeFile", 2000);
+        waitsFor(function() { return onError.wasCalled; }, "writeFile", 2000);
 
         runs(function() {
-            expect(errno).toEqual(2);
+            expect(onError.mostRecentCall.args[0].code).toEqual(FileError.SECURITY_ERR);
             expect(onSuccess).not.toHaveBeenCalled();
         });
     });
@@ -22,23 +19,16 @@ describe("FileSystem.writeFile", function() {
 
     it("calls the success function after successfully writing data to a file", function() {
         var onError = jasmine.createSpy();
-        var success = false;
-        var obj = {
-            onSuccess: function() {
-                success = true;
-            }
-        };
+        var onSuccess = jasmine.createSpy();
 
-        spyOn(obj, "onSuccess").andCallThrough();
+        var fs = new FileSystem(1024);
+        fs.writeFile("testfile", "testdata", onSuccess, onError);
 
-        var fs = new FileSystem(1024, onError);
-        fs.writeFile("testfile", "testdata", obj.onSuccess);
-
-        waitsFor(function() { return success; }, "writeFile", 2000);
+        waitsFor(function() { return onSuccess.wasCalled; }, "writeFile", 2000);
 
         runs(function() {
-            expect(success).toBe(true);
-            expect(obj.onSuccess).toHaveBeenCalled();
+            expect(onSuccess).toHaveBeenCalled();
+            expect(onError).not.toHaveBeenCalled();
         });
     });
 
@@ -48,25 +38,25 @@ describe("FileSystem.writeFile", function() {
         var data1In = "longer string";
         var data2In = "short str";
         var dataOut = "";
+        var onError = jasmine.createSpy();
         var done = false;
 
-        var fs = new FileSystem(filename, function() {
-            throw "FS failure.";
-        });
+        var fs = new FileSystem(1024);
 
         fs.writeFile(filename, data1In, function () {
             fs.writeFile(filename, data2In, function () {
                 fs.readFile(filename, function (data) {
                     dataOut = data;
                     done = true;
-                });
-            });
-        });
+                }, onError);
+            }, onError);
+        }, onError);
 
         waitsFor(function() { return done; }, "file truncation", 5000);
 
         runs(function() {
             expect(dataOut).toEqual(data2In);
+            expect(onError).not.toHaveBeenCalled();
         });
     });
 
@@ -82,40 +72,37 @@ describe("FileSystem.readFile", function() {
         var dataIn = "1234";
         var dataOut = "";
         var done = false;
+        var onError = jasmine.createSpy();
 
-        var fs = new FileSystem(filename, function() {
-            throw "FS failure.";
-        });
+        var fs = new FileSystem(1024);
 
         fs.writeFile(filename, dataIn, function () {
             fs.readFile(filename, function (data) {
                 dataOut = data;
                 done = true;
-            });
-        });
+            }, onError);
+        }, onError);
 
         waitsFor(function() { return done; }, "file write+read", 5000);
 
         runs(function() {
             expect(dataOut).toEqual(dataIn);
+            expect(onError).not.toHaveBeenCalled();
         });
     });
 
 
     it("calls the error function if trying to read a non-existent file", function() {
-        var errno = "";
-        var onError = function(e) {
-            errno = e;
-        };
+        var onError = jasmine.createSpy();
         var onSuccess = jasmine.createSpy();
 
-        var fs = new FileSystem(1024, onError);
-        fs.readFile("filename that doesn't exist", onSuccess);
+        var fs = new FileSystem(1024);
+        fs.readFile("filename that doesn't exist", onSuccess, onError);
 
-        waitsFor(function() { return errno !== ""; }, "read file", 2000);
+        waitsFor(function() { return onError.wasCalled; }, "read file", 2000);
 
         runs(function() {
-            expect(errno).toEqual(1);
+            expect(onError.mostRecentCall.args[0].code).toEqual(FileError.NOT_FOUND_ERR);
             expect(onSuccess).not.toHaveBeenCalled();
         });
     });
@@ -132,7 +119,7 @@ describe("FileSystem.getFileList", function() {
         var onError = jasmine.createSpy();
         var success = false;
 
-        var fs = new FileSystem(1024, onError);
+        var fs = new FileSystem(1024);
         var obj = { };
         var fileList = [ ];
         obj.onList = function(entries) {
@@ -146,12 +133,13 @@ describe("FileSystem.getFileList", function() {
         spyOn(obj, "onList").andCallThrough();
         spyOn(obj, "onWriteSuccess").andCallThrough();
 
-        fs.writeFile(filename, "testdata", obj.onWriteSuccess);
+        fs.writeFile(filename, "testdata", obj.onWriteSuccess, onError);
 
         waitsFor(function() { return success; }, "writeFile", 2000);
 
         runs(function() {
             expect(success).toBe(true);
+            expect(onError).not.toHaveBeenCalled();
             expect(obj.onWriteSuccess).toHaveBeenCalled();
             expect(obj.onList).toHaveBeenCalled();
             expect(fileList).toContain(filename);
@@ -172,8 +160,8 @@ describe("FileSystem.removeFile", function() {
         };
         var onError = jasmine.createSpy();
 
-        var fs = new FileSystem(1024, onError);
-        fs.removeFile("filename that doesn't exist", onSuccess);
+        var fs = new FileSystem(1024);
+        fs.removeFile("filename that doesn't exist", onSuccess, onError);
 
         waitsFor(function() { return success; },
             "remove file that doesn't exist", 2000);
@@ -189,7 +177,7 @@ describe("FileSystem.removeFile", function() {
         var filename = "testfile";
         var onError = jasmine.createSpy();
         var success = false;
-        var fs = new FileSystem(1024, onError);
+        var fs = new FileSystem(1024);
         var obj = { };
         obj.onRemoveSuccess = function() {
             success = true;
@@ -201,12 +189,13 @@ describe("FileSystem.removeFile", function() {
         spyOn(obj, "onRemoveSuccess").andCallThrough();
         spyOn(obj, "onWriteSuccess").andCallThrough();
 
-        fs.writeFile(filename, "testdata", obj.onWriteSuccess);
+        fs.writeFile(filename, "testdata", obj.onWriteSuccess, onError);
 
         waitsFor(function() { return success; }, "writeFile", 2000);
 
         runs(function() {
             expect(success).toBe(true);
+            expect(onError).not.toHaveBeenCalled();
             expect(obj.onRemoveSuccess).toHaveBeenCalled();
             expect(obj.onWriteSuccess).toHaveBeenCalled();
         });

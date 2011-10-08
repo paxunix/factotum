@@ -1,12 +1,9 @@
 // Simple, just-as-much-as-needed abstraction of the FileSystem API as is needed
 // for Factotum.
 
-function FileSystem(size, onErrorFn)
+function FileSystem(size)
 {
     this.fsSizeBytes = size;
-    this.onErrorFn = function(err) {
-        onErrorFn(err.code);
-    };
 };  // FileSystem
 
 
@@ -38,14 +35,14 @@ FileSystem.prototype.getErrorString = function (errno)
 }   // FileSystem.prototype.getErrorString
 
 
-FileSystem.prototype.writeFile = function (filename, data, onSuccessFn)
+FileSystem.prototype.writeFile = function (filename, data, onSuccessFn, onErrorFn)
 {
     var onGetFileSuccess = function (file)
     {
         file.createWriter(function (writer) {
             var truncated = false;
 
-            writer.onerror = this.onErrorFn;
+            writer.onerror = onErrorFn;
             writer.onwriteend = function() {
                 // If file has not been truncated, then this event was for the
                 // truncate operation.  If the file has been truncated, the
@@ -66,27 +63,27 @@ FileSystem.prototype.writeFile = function (filename, data, onSuccessFn)
 
             // This queues the first writeend event.
             writer.truncate(0);
-        }, this.onErrorFn);
-    }.bind(this);
+        }, onErrorFn);
+    };
 
     var onFsInitSuccess = function (fileSystem)
     {
         fileSystem.root.getFile(filename, { create: true },
-            onGetFileSuccess, this.onErrorFn);
-    }.bind(this);
+            onGetFileSuccess, onErrorFn);
+    };
 
-    webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
-        onFsInitSuccess, this.onErrorFn);
+    window.webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
+        onFsInitSuccess, onErrorFn);
 };  // FileSystem.prototype.writeFile
 
 
-FileSystem.prototype.readFile = function (filename, onSuccessFn)
+FileSystem.prototype.readFile = function (filename, onSuccessFn, onErrorFn)
 {
     var onFileAccess = function (file)
     {
         var reader = new FileReader();
 
-        reader.onerror = this.onErrorFn;
+        reader.onerror = onErrorFn;
         reader.onloadend = function (e) {
             // According to the spec
             // (http://www.w3.org/TR/FileAPI/#readAsDataText), onloadend is
@@ -97,25 +94,25 @@ FileSystem.prototype.readFile = function (filename, onSuccessFn)
         };
 
         reader.readAsText(file);
-    }.bind(this);
+    };
 
     var onGetFileSuccess = function (fileEntry)
     {
-        fileEntry.file(onFileAccess, this.onErrorFn);
-    }.bind(this);
+        fileEntry.file(onFileAccess, onErrorFn);
+    };
 
     var onFsInitSuccess = function (fileSystem)
     {
         fileSystem.root.getFile(filename, null,
-            onGetFileSuccess, this.onErrorFn);
-    }.bind(this);
+            onGetFileSuccess, onErrorFn);
+    };
 
-    webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
-        onFsInitSuccess, this.onErrorFn);
+    window.webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
+        onFsInitSuccess, onErrorFn);
 };  // FileSystem.prototype.readFile
 
 
-FileSystem.prototype.getFileList = function (onSuccessFn)
+FileSystem.prototype.getFileList = function (onSuccessFn, onErrorFn)
 {
     var onRead = function(dirReader, returnList) {
         dirReader.readEntries(function (entries) {
@@ -129,8 +126,8 @@ FileSystem.prototype.getFileList = function (onSuccessFn)
                 returnList.push(entries[i].name);
 
             onRead(dirReader, returnList);
-        }, this.onErrorFn);
-    }.bind(this);
+        }, onErrorFn);
+    };
 
     var onFsInitSuccess = function (fileSystem)
     {
@@ -138,17 +135,17 @@ FileSystem.prototype.getFileList = function (onSuccessFn)
         onRead(dirReader, []);
     };
 
-    webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
-        onFsInitSuccess, this.onErrorFn);
+    window.webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
+        onFsInitSuccess, onErrorFn);
 };  // FileSystem.prototype.getFileList
 
 
-FileSystem.prototype.removeFile = function (filename, onSuccessFn)
+FileSystem.prototype.removeFile = function (filename, onSuccessFn, onErrorFn)
 {
     var onGetFileSuccess = function (fileEntry)
     {
-        fileEntry.remove(onSuccessFn, this.onErrorFn);
-    }.bind(this);
+        fileEntry.remove(onSuccessFn, onErrorFn);
+    };
 
     var onFsInitSuccess = function (fileSystem)
     {
@@ -157,12 +154,12 @@ FileSystem.prototype.removeFile = function (filename, onSuccessFn)
             if (e.code === FileError.NOT_FOUND_ERR)
                 onSuccessFn();
             else
-                this.onErrorFn(e);
+                onErrorFn(e);
         };
 
         fileSystem.root.getFile(filename, null, onGetFileSuccess, catchError);
-    }.bind(this);
+    };
 
-    webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
-        onFsInitSuccess, this.onErrorFn);
+    window.webkitRequestFileSystem(window.PERSISTENT, this.fsSizeBytes,
+        onFsInitSuccess, onErrorFn);
 };  // FileSystem.prototype.removeFile
