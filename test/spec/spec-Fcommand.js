@@ -185,9 +185,9 @@ describe("Fcommand.save", function() {
 
     it("does not save the fcommand if its execute property is a function; still calls the success fn",
         function() {
-            var onError = jasmine.createSpy();
-            var fs = new FileSystem(1024, onError);
+            var fs = new FileSystem(1024);
             var onSuccess = jasmine.createSpy();
+            var onError = jasmine.createSpy();
 
             spyOn(fs, "writeFile");
 
@@ -198,7 +198,7 @@ describe("Fcommand.save", function() {
                 execute: function(){},
             });
 
-            fcmd.save(fs, onSuccess);
+            fcmd.save(fs, onSuccess, onError);
 
             waitsFor(function() { return onSuccess.wasCalled },
                 "save to finish", 2000);
@@ -214,7 +214,7 @@ describe("Fcommand.save", function() {
         function() {
             var onError = jasmine.createSpy();
             var onSuccess = jasmine.createSpy();
-            var fs = new FileSystem(1024, onError);
+            var fs = new FileSystem(1024);
             var guid = "_asdf";
 
             var fcmd = new Fcommand({
@@ -224,7 +224,7 @@ describe("Fcommand.save", function() {
                 execute: "return 42;",
             });
 
-            fcmd.save(fs, onSuccess);
+            fcmd.save(fs, onSuccess, onError);
 
             waitsFor(function() { return onSuccess.wasCalled },
                 "save to finish", 2000);
@@ -236,7 +236,7 @@ describe("Fcommand.save", function() {
                 onSuccess.reset();
                 onError.reset();
 
-                fs.readFile(guid, onSuccess);
+                fs.readFile(guid, onSuccess, onError);
 
                 waitsFor(function() { return onSuccess.wasCalled; },
                     "read to finish", 2000);

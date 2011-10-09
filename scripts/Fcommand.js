@@ -73,11 +73,10 @@ Fcommand.validate = function (commandData)
  * Save this Fcommand to disk.
  * @param {FileSystem} fileSystem Object that does the save.
  * @param {Function} [onSuccessFn] Callback function for successful write.
+ * @param {Function} [onErrorFn] Callback function for an error during write.
  */
-Fcommand.prototype.save = function(fileSystem, onSuccessFn)
+Fcommand.prototype.save = function(fileSystem, onSuccessFn, onErrorFn)
 {
-    onSuccessFn = onSuccessFn || function(){};
-
     // Don't save an internal Fcommand (i.e. execute is a function).
     if (jQuery.isFunction(this.data.execute))
     {
@@ -86,5 +85,5 @@ Fcommand.prototype.save = function(fileSystem, onSuccessFn)
     }
 
     fileSystem.writeFile(this.data.guid,
-        JSON.stringify(this.data), onSuccessFn || function(){});
+        JSON.stringify(this.data), onSuccessFn, onErrorFn);
 }   // Fcommand.prototype.save
