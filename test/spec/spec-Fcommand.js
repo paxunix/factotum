@@ -183,6 +183,31 @@ describe("Fcommand.validate", function() {
 
 describe("Fcommand.save", function() {
 
+    it("calls the error callback if a FS error occurs during save",
+        function() {
+            var onError = jasmine.createSpy();
+            var onSuccess = jasmine.createSpy();
+            var fs = new FileSystem(1024);
+            var guid = "///////";    // filenames can't have '/' in them
+
+            var fcmd = new Fcommand({
+                guid: guid,
+                description: "desc",
+                names: [ "blah" ],
+                execute: "return 42;",
+            });
+
+            fcmd.save(fs, onSuccess, onError);
+
+            waitsFor(function() { return onError.wasCalled },
+                "save to fail", 2000);
+
+            runs(function() {
+                expect(onError.mostRecentCall.args[0].code).toBe(FileError.SECURITY_ERR);
+                expect(onSuccess).not.toHaveBeenCalled();
+            });
+        });
+
     it("does not save the fcommand if its execute property is a function; still calls the success fn",
         function() {
             var fs = new FileSystem(1024);
