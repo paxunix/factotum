@@ -104,6 +104,12 @@ Fcommand.load = function(guid, fileSystem, onSuccessFn, onErrorFn)
     fileSystem.readFile(guid, function (content) {
         var fcmd;
         try {
+            // While it may seem odd that reading in a saved Fcommand could
+            // throw an exception, we catch them all in case someone has
+            // inappropriately diddled the FileSystem data for this Fcommand or
+            // if the data used to be valid, but is no longer valid (e.g. an
+            // Fcommand upgrade that broke backwards compatibility--which would
+            // be very bad).
             fcmd = new Fcommand(JSON.parse(content));
         } catch (e) {
             onErrorFn(e);
