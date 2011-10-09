@@ -279,3 +279,109 @@ describe("Fcommand.save", function() {
             });
         });
 }); // Fcommand.save
+
+
+describe("Fcommand.load", function() {
+
+    it("calls the error callback with an Error if the file's content is not valid JSON", function() {
+        var onError = jasmine.createSpy();
+        var onSuccess = jasmine.createSpy();
+        var fs = new FileSystem(1024);
+        var guid = "_asdf2";
+
+        fs.writeFile(guid, "not parseable JSON", function() {
+           Fcommand.load(guid, fs, onSuccess, onError);
+        }, onError);
+
+        waitsFor(function() { return onError.wasCalled; },
+            "failed load", 2000);
+
+        runs(function() {
+            expect(onError.mostRecentCall.args[0] instanceof SyntaxError).
+                toBe(true);
+            expect(onSuccess).not.toHaveBeenCalled();
+
+            onSuccess.reset();
+
+            fs.removeFile(guid, onSuccess);
+            waitsFor(function() { return onSuccess.wasCalled; },
+                "delete to finish", 2000);
+        });
+    });
+
+    it("calls the error callback with a FileError if a FS error occurs", function() {
+        var onError = jasmine.createSpy();
+        var onSuccess = jasmine.createSpy();
+        var fs = new FileSystem(1024);
+        var guid = "?";     // invalid filename
+
+        Fcommand.load(guid, fs, onSuccess, onError);
+
+        waitsFor(function() { return onError.wasCalled; });
+
+        runs(function() {
+            expect(onError.mostRecentCall.args[0].code).
+                toBe(FileError.INVALID_MODIFICATION_ERR);
+            expect(onSuccess).not.toHaveBeenCalled();
+        });
+    });
+
+    it("calls the error callback with an FcommandError if constructing the Fcommand from the file's data fails", function() {
+        var onError = jasmine.createSpy();
+        var onSuccess = jasmine.createSpy();
+        var fs = new FileSystem(1024);
+        var guid = "_asdf3";
+
+        fs.writeFile(guid, JSON.stringify("valid JSON, invalid Fcommand"), function() {
+           Fcommand.load(guid, fs, onSuccess, onError);
+        }, onError);
+
+        waitsFor(function() { return onError.wasCalled; },
+            "failed loading Fcommand", 2000);
+
+        runs(function() {
+            console.log(onError.mostRecentCall.args[0]);
+            expect(onError.mostRecentCall.args[0] instanceof FcommandError).
+                toBe(true);
+            expect(onSuccess).not.toHaveBeenCalled();
+
+            onSuccess.reset();
+
+            fs.removeFile(guid, onSuccess);
+            waitsFor(function() { return onSuccess.wasCalled; },
+                "delete to finish", 2000);
+        });
+    });
+
+    it("calls the success callback with an Fcommand object on successful read of a valid Fcommand file", function() {
+        var onError = jasmine.createSpy();
+        var onSuccess = jasmine.createSpy();
+        var fs = new FileSystem(1024);
+        var guid = "_asdf5";
+        var fcmd = new Fcommand({
+            guid: guid,
+            description: "desc",
+            names: [ "blah" ],
+            execute: "return 42;",
+        });
+
+        fcmd.save(fs, function() {
+            Fcommand.load(guid, fs, onSuccess, onError);
+        }, onError);
+
+        waitsFor(function() { return onSuccess.wasCalled;});
+
+        runs(function() {
+            expect(onError).not.toHaveBeenCalled();
+            expect(onSuccess.mostRecentCall.args[0]).toEqual(fcmd);
+
+            onSuccess.reset();
+            onError.reset();
+
+            fs.removeFile(guid, onSuccess);
+            waitsFor(function() { return onSuccess.wasCalled; },
+                "delete to finish", 2000);
+        });
+    });
+
+});

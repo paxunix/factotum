@@ -88,3 +88,28 @@ Fcommand.prototype.save = function(fileSystem, onSuccessFn, onErrorFn)
     fileSystem.writeFile(this.data.guid,
         JSON.stringify(this.data), onSuccessFn, onErrorFn);
 }   // Fcommand.prototype.save
+
+
+/**
+ * Load an Fcommand from disk by its guid.
+ * @param {FileSystem} fileSystem Object that does the load.
+ * @param {String} guid guid of the Fcommand to load.
+ * @param {Function} [onSuccessFn] Callback function for successful read.  Its
+ * parameter is the new Fcommand object.
+ * @param {Function} [onErrorFn] Callback function on error during read.  Its
+ * parameter is a FileError object or an Error (or derived from Error) object.
+ */
+Fcommand.load = function(guid, fileSystem, onSuccessFn, onErrorFn)
+{
+    fileSystem.readFile(guid, function (content) {
+        var fcmd;
+        try {
+            fcmd = new Fcommand(JSON.parse(content));
+        } catch (e) {
+            onErrorFn(e);
+            return;
+        }
+
+        onSuccessFn(fcmd);
+    }, onErrorFn);
+}   // Fcommand.prototype.load
