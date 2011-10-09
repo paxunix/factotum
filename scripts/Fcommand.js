@@ -74,6 +74,7 @@ Fcommand.validate = function (commandData)
  * @param {FileSystem} fileSystem Object that does the save.
  * @param {Function} [onSuccessFn] Callback function for successful write.
  * @param {Function} [onErrorFn] Callback function for an error during write.
+ * Its parameter is a FileError object.
  */
 Fcommand.prototype.save = function(fileSystem, onSuccessFn, onErrorFn)
 {
