@@ -383,5 +383,47 @@ describe("Fcommand.load", function() {
                 "delete to finish", 2000);
         });
     });
-
 });
+
+
+describe("Fcommand.prototype.delete", function() {
+
+    it("calls the success callback and deletes the internal Fcommand data once the Fcommand file is deleted", function() {
+        var onError = jasmine.createSpy();
+        var onSuccess = jasmine.createSpy();
+        var fs = new FileSystem(1024);
+        var guid = "_asdf6";
+
+        var fcmd = new Fcommand({
+            guid: guid,
+            description: "desc",
+            names: [ "blah" ],
+            execute: "return 42;",
+        });
+
+        fcmd.save(fs, function() {
+            fcmd.delete(fs, onSuccess, onError);
+        }, onError);
+
+        waitsFor(function() { return onSuccess.wasCalled; });
+
+        runs(function() {
+            expect(onError).not.toHaveBeenCalled();
+            expect(onSuccess).toHaveBeenCalled();
+            expect(fcmd.data).toBe(undefined);
+
+            var files = [];
+            var done = false;
+            fs.getFileList(function(list) {
+                files = list;
+                done = true;
+            });
+
+            waitsFor(function() { return done; });
+
+            runs(function() {
+                expect(files).not.toContain(guid);
+            });
+        });
+    });
+}); // Fcommand.prototype.delete

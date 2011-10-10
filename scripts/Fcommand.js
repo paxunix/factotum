@@ -119,3 +119,24 @@ Fcommand.load = function(guid, fileSystem, onSuccessFn, onErrorFn)
         onSuccessFn(fcmd);
     }, onErrorFn);
 }   // Fcommand.load
+
+
+/**
+ * Delete an Fcommand from disk by its guid and make this Fcommand unusable.
+ * @param {FileSystem} fileSystem Object that does the load.
+ * @param {Function} onSuccessFn Callback function for successful deletion.
+ * @param {Function} onErrorFn Callback function on error during delete.  Its
+ * parameter is a FileError object or an Error (or derived from Error) object.
+ */
+Fcommand.prototype.delete = function(fileSystem, onSuccessFn, onErrorFn)
+{
+    fileSystem.removeFile(this.data.guid, function() {
+        // Since javascript has no destructors, we allow objects to delete
+        // themselves by discarding their data.  This doesn't actually destroy
+        // the object, but does make it obvious if the caller continues to use a
+        // "deleted" object.  Presumably, the caller will dispose of this object
+        delete this.data;   // "kill" this Fcommand
+
+        onSuccessFn();
+    }.bind(this), onErrorFn);
+}   // Fcommand.prototype.delete
