@@ -72,8 +72,8 @@ Fcommand.validate = function (commandData)
 /**
  * Save this Fcommand to disk.
  * @param {FileSystem} fileSystem Object that does the save.
- * @param {Function} [onSuccessFn] Callback function for successful write.
- * @param {Function} [onErrorFn] Callback function for an error during write.
+ * @param {Function} onSuccessFn Callback function for successful write.
+ * @param {Function} onErrorFn Callback function for an error during write.
  * Its parameter is a FileError object.
  */
 Fcommand.prototype.save = function(fileSystem, onSuccessFn, onErrorFn)
@@ -94,9 +94,9 @@ Fcommand.prototype.save = function(fileSystem, onSuccessFn, onErrorFn)
  * Load an Fcommand from disk by its guid.
  * @param {FileSystem} fileSystem Object that does the load.
  * @param {String} guid guid of the Fcommand to load.
- * @param {Function} [onSuccessFn] Callback function for successful read.  Its
+ * @param {Function} onSuccessFn Callback function for successful read.  Its
  * parameter is the new Fcommand object.
- * @param {Function} [onErrorFn] Callback function on error during read.  Its
+ * @param {Function} onErrorFn Callback function on error during read.  Its
  * parameter is a FileError object or an Error (or derived from Error) object.
  */
 Fcommand.load = function(guid, fileSystem, onSuccessFn, onErrorFn)
@@ -118,4 +118,4 @@ Fcommand.load = function(guid, fileSystem, onSuccessFn, onErrorFn)
 
         onSuccessFn(fcmd);
     }, onErrorFn);
-}   // Fcommand.prototype.load
+}   // Fcommand.load
