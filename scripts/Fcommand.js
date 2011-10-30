@@ -19,6 +19,34 @@ function Fcommand(commandData)
 }   // Fcommand constructor
 
 
+Fcommand.prototype = {
+    get guid() {
+        return this.data.guid;
+    },
+
+    get names() {
+        return this.data.names;
+    },
+
+    get description() {
+        return this.data.description;
+    },
+
+    get execute() {
+        // XXX: could dynamically load this
+        return this.data.execute;
+    },
+
+    get optSpec() {
+        return this.data.optSpec;
+    },
+
+    get helpHtml() {
+        return this.data.helpHtml;
+    },
+};
+
+
 /**
  * Validate the given Fcommand data.
  * @param {Object} data An Fcommand's data to be validated.
@@ -79,13 +107,13 @@ Fcommand.validate = function (commandData)
 Fcommand.prototype.save = function(fileSystem, onSuccessFn, onErrorFn)
 {
     // Don't save an internal Fcommand (i.e. execute is a function).
-    if (jQuery.isFunction(this.data.execute))
+    if (jQuery.isFunction(this.execute))
     {
         onSuccessFn();
         return;
     }
 
-    fileSystem.writeFile(this.data.guid,
+    fileSystem.writeFile(this.guid,
         JSON.stringify(this.data), onSuccessFn, onErrorFn);
 }   // Fcommand.prototype.save
 
@@ -130,7 +158,7 @@ Fcommand.load = function(guid, fileSystem, onSuccessFn, onErrorFn)
  */
 Fcommand.prototype.delete = function(fileSystem, onSuccessFn, onErrorFn)
 {
-    fileSystem.removeFile(this.data.guid, function() {
+    fileSystem.removeFile(this.guid, function() {
         // Since javascript has no destructors, we allow objects to delete
         // themselves by discarding their data.  This doesn't actually destroy
         // the object, but does make it obvious if the caller continues to use a
