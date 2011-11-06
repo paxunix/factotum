@@ -340,7 +340,6 @@ describe("Fcommand.load", function() {
             "failed loading Fcommand", 2000);
 
         runs(function() {
-            console.log(onError.mostRecentCall.args[0]);
             expect(onError.mostRecentCall.args[0] instanceof FcommandError).
                 toBe(true);
             expect(onSuccess).not.toHaveBeenCalled();
