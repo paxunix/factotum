@@ -12,8 +12,7 @@
         - returns list of Fcommand objects given a name.
 
 - Fcommand datastore
-    - names[] : indexed; probably can use a multientry index (except that's not
-      supported in Chrome yet:  http://code.google.com/p/chromium/issues/detail?id=112308
+    - names[] : indexed
     - guid : indexed(?), unique key
     - description
     - execute
