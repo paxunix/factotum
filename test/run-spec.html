@@ -10,23 +10,14 @@
 
   <script type="text/javascript" src="../scripts/getopt.js"></script>
   <script type="text/javascript" src="../scripts/error.js"></script>
-  <script type="text/javascript" src="../scripts/filesystem.js"></script>
-  <script type="text/javascript" src="../scripts/Fcommand.js"></script>
-  <script type="text/javascript" src="../scripts/FcommandManager.js"></script>
 
   <!-- include spec files here... -->
   <script type="text/javascript" src="spec/spec-getopt.js"></script>
   <script type="text/javascript" src="spec/spec-error.js"></script>
-  <script type="text/javascript" src="spec/spec-filesystem.js"></script>
-  <script type="text/javascript" src="spec/spec-Fcommand.js"></script>
-  <script type="text/javascript" src="spec/spec-FcommandManager.js"></script>
 
 </head>
 <body>
-<script type="text/javascript">
-  jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
-  jasmine.getEnv().execute();
-</script>
-
+  <!-- start the tests -->
+  <script type="text/javascript" src="run-spec.js"></script>
 </body>
 </html>
