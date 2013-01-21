@@ -21,6 +21,19 @@
     - enabled
     - priority:  but this has to be per-name
 
+
+- ydn.db schema obj:
+schema = {
+    stores: [{
+        name: "Fcommands",
+        keyPath: "guid",
+        indexes: [{
+            multiEntry: true,
+            keyPath: "names"
+        }]
+    }]
+}
+
 ----------------
 
 
