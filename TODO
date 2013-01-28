@@ -1,3 +1,16 @@
+- should the DB have a separate table of guid->code, rather than storing the
+  code in the same table as the metadata?
+    - if separate, you only ever read in the code for the function about to
+      be executed, saving memory.  Whereas if the code is in the same table,
+      then when getting commands by prefix (or even when listing all
+      commands), you have to pull all the code as well, even if it's not
+      going to be used, which is wasteful.
+
+- given that there is no simple way to retrieve a list of key/values using a
+  prefix as a lookup in an index, there is no compelling reason to use
+  IndexedDB for this.  So, back to the original localstorage scheme I'd
+  started out with two years ago :P  KISS.
+
 - create class that manages Fcommands  FcommandManager
     - Fcommands are stored in an IndexedDB
       - indexed on unique guid
@@ -21,18 +34,6 @@
     - enabled
     - priority:  but this has to be per-name
 
-
-- ydn.db schema obj:
-schema = {
-    stores: [{
-        name: "Fcommands",
-        keyPath: "guid",
-        indexes: [{
-            multiEntry: true,
-            keyPath: "names"
-        }]
-    }]
-}
 
 ----------------
 
