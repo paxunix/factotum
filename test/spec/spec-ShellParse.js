@@ -145,7 +145,7 @@ describe("ShellParse.split", function() {
         ).toEqual(["word testing 1 2 3", "next"]);
     });
 
-    it("does not start a new word of closing single-quote is not followed by whitespace", function() {
+    it("does not start a new word if closing single-quote is not followed by whitespace", function() {
         expect(
             ShellParse.split("All'part of one'word")
         ).toEqual(["Allpart of oneword"]);
