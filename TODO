@@ -1,3 +1,144 @@
+- is it feasible/sensible to use HTML imports to do the actual JS importing?
+  Also for any external resources the injected script requires?  Maybe
+  bundle the whole set up in a document and import the doc?
+    - can import a data URL?  Doesn't seem to be possible (Chrome complained
+      with net::ERR_INVALID_URL
+
+- what if the Fcommands were actually HTML documents?
+    - when installed, they're written to a filesystem object
+    - when run, that file system object is used as an href and imported into
+      the current document
+        - what if you want to import it into the background page?  Or an
+          arbirary background page?  Can you dynamically create a background
+          page?
+    - or just save them as a Blob into an indexeddb (supported as of Chrome
+      38) and use URL.createObjectURL(blob) to get a URL from it
+        - will this work?  if the import is into the background page, it
+          will generate URLs with the extension page's origin and probably
+          not be importable into the page.
+            - probably never import an FCommand into the background page.
+              But what if it really just needs extension APIs?  There's no
+              need to load it into the content page at all, then pass JS
+              back to be executed in background anyway.
+    - this leads to really cool things:
+        - since the Fcommand is an HTML document, then you can use <meta> to
+          specify the metadata for the Fcommand, and programmatically
+          extract it.  This should cut down significantly on the validation
+          needed for Fcommands:  the browser's document parser does much of
+          it already.
+            - Factotum's background script will have to create a document
+              fragment in order to extract the metadata, but that's a
+              one-time fixed cost at first installation of an Fcommand.
+                - What about modifying it?  Do we want to support local
+                  modifications?
+    - then, the document we actually import could even include
+      Factotum-specific stuff after, in order to do any additional setup.
+    - this handles de-duping of resources, allows for Fcommands to include
+      and dependencies they want via the same import mechanism.
+    - It seems like everything will just work:  however, if CORS disallows
+      us from loading a file or blob URL as an import, we're fucked
+        - looks like using a blob, then getting its object URL will work
+          just fine on dynamically-created content because the
+          createObjectURL() on a blob puts the object into the page's origin
+          (and cleans it up when the page is unloaded--or we can call
+          revokeURL on it)
+    - why use an import document?
+        - because then the author can specify all the crazy dependencies
+          they want and we don't have to define a special data format to do
+          it.  They can even define custom markup that they can then clone
+          wholesale into the parent document to use from within their
+          Fcommand script.
+    - how to handle Fcommands that need extension-level permissions to do
+      something, but within the context of a page?  They need to tell the
+      background script to do something on their behalf (like execute
+      arbitrary JS), and return the results when ready.  This seems mostly
+      straightforward:
+        - the background script has a listener for requests from the content
+          script
+        - content script sends a request whose payload is arbitrary JS
+        - bg script receives the payload, executes the JS in a sandbox,
+          sends the results back to the content script (or to the page?)
+    - XXX:  just always run them in a page.  Then you don't need this.
+      should be able to import an Fcommand into the background page also, in
+      case it requires nothing but extension APIs.  That has to run in some
+      kind of sandbox so you can't crash the extension.  May be as simple as
+      evaling the script in a sandboxed iframe within the extension's
+      background page.
+        - seems web workers are also a possibility, although then you don't
+          have access to window property (so you basically get no UI stuff).
+          http://www.html5rocks.com/en/tutorials/security/sandboxed-iframes/
+    - so the background page can collect the metadata from the Fcommand
+      document with:
+              fcommandDoc=jQuery("<div>").append(jQuery.parseHTML(jQuery));
+              guid=fcommandDoc.find("meta[name=guid]:first")[0].prop("content");
+            in order to extract the data for the IndexedDB tables.
+        - can parse HTML using DOMParser:
+            doc = (new DOMParser).parseFromString('<div>testing <script>alert("testing");</script> 1 2 3</div>', "text/html");
+            - no scripts are evaluated; it just builds the DOM
+    - any embedded scripts won't be eval'd in that case (which is what we
+      want), but they _will_ be eval'd when injected into the page via
+      import.  That's why the Fcommand script itself is marked with a bogus
+      mime-type:  you don't want it executed on insertion (XXX:  we're going
+      to do this with <template> instead.  Then you _can_ distinguish
+      between run-on-import and run-as-fcommand-after-import).  Hmm, or do
+      you?
+      Actually, you could let it eval as a normal script.  Any other scripts
+      were already eval'd (even as imports), and if you need to yoink in
+      content from the import, you have to do it anyway when the Fcommand
+      runs.  So, it probably makes the most sense to just make the script be
+      as-is, no mime-type fuckery.
+        - don't need an id on the script tag either, since it's simply going
+          to be evaluated in-place during import--no need to reference it
+          and eval it later.  Actually, this won't work:  we have no control
+          over wrapping it in a script to catch errors, etc.
+          So, you still need the fake mime-type script tag with ID, but if
+          you emit regular script tags, be aware they will execute upon
+          import of the document (this can be handy for some things, like an
+          Fcommand to load jQUery into a page and notify when it's done)
+          - might be able to remove the Fcommand script from the document
+            before importing it; that way you don't bloat the page by
+            duplicating it.  Same for the minimist-opts block.
+                fcommandbody = impdoc.find("script#fcommand").remove().text();
+
+    - figure out what happens if the content script injects the <link>
+      import and it runs a script.  Does the script get run in the
+      content-script's context or in the page's context?  This would matter
+      if they didn't put <template> in (for which there is a valid reason:
+      you're loading a script via import, but you want something done as
+      soon as it finishes)
+
+    - the minimist-opts block is a <script> with a non-script mime-type so
+      that we get the benefit of not having to encode characters as we
+      would if it were within HTML markup
+        - you could just dump a <template> in there that contains the json,
+          then pull out the text nodes and JSON.parse them.  That's not a
+          bad idea, because anything you're likely to put in there won't
+          need encoding anyway and it allows you to put HTML comments in
+          (which are obviously comments because of semantic markup) rather
+          than hacking around it.  Then, no mime-type fuckery.
+
+- need a way to inject into all frames within a page?
+
+- so the content script should be able to pass a function to the bg page,
+  which runs it.  That function returns a result back to the content page
+  via message passing.  The function itself gets run inside a web worker in
+  the bg page (so it has very limited access to the extension, but does have
+  access to chrome APIs -- have to test this).
+    - this is how you get your content script to, say, open a new tab, or
+      make a cross-origin ajax request and get the results
+
+- would be cool to flag an fcommand as taking no parameters and being able
+  to be run from the context menu.  Then we can populate the context menu
+  with those Fcommands and when you click one, it runs it as if you had
+  typed its name in the omnibox
+
+- could just use the chrome filesystem sync api to store the factotum
+  commands on the user's google drive and then make them available in all
+  clients
+    - should be able to toggle which ones you want sync'd and which you
+      don't (so you can have a set of scripts just for work that aren't
+      sync'd to your home account)?  Or just handle this via chrome profiles?
+
 - should the DB have a separate table of guid->code, rather than storing the
   code in the same table as the metadata?
     - if separate, you only ever read in the code for the function about to
@@ -43,6 +184,7 @@
   new property that is an array of things to be injected into the page
   immediately before that command executes.
     - may need to guard against multiple inclusion.
+    - what if we inject a minimal loader in-page and use it for inclusions?
 
 - prior to each Fcommand's execution, load any requested additional
   functionality into the current page.
