@@ -23,22 +23,65 @@
     }],
 
     "permissions": [
-        "<all_urls>",
-        "chrome://favicon/",
-        "experimental",
+        "activeTab",
+        "alarms",
+        "bookmarks",
+        "browsingData",
+        "clipboardRead",
+        "clipboardWrite",
+        "contentSettings",
+        "contextMenus",
+        "cookies",
+        //"copresence",
+        "debugger",
+        "declarativeContent",
+        "declarativeWebRequest",
+        "desktopCapture",
+        //"dns",
+        "downloads",
+        //"enterprise.platformKeys",
+        "fontSettings",
+        "gcm",
+        "geolocation",
+        "history",
+        "identity",
+        "idle",
+        //"idltest",
+        //"infobars",
+        //"location",
+        "management",
+        "nativeMessaging",
+        //"notificationProvider",
         "notifications",
+        "pageCapture",
+        "power",
+        "privacy",
+        //"processes",
+        "proxy",
+        "pushMessaging",
+        "sessions",
+        //"signedInDevices",
+        "storage",
+        "system.cpu",
+        "system.display",
+        "system.memory",
+        "system.storage",
+        "tabCapture",
         "tabs",
-        "unlimitedStorage"
+        "topSites",
+        "tts",
+        "ttsEngine",
+        "webNavigation",
+        "webRequest",
+        "webRequestBlocking"
     ],
 
     "background": {
         "scripts": [
-            "jquery/jquery-1.8.3.js",
-            "scripts/getopt.js",
-            "scripts/error.js",
-            "scripts/fcommands.js",
-            "scripts/factotum.js",
-            "scripts/background.js"
+            "scripts/background.js",
+            "scripts/ShellParse.js",
+            "scripts/Util.js",
+            "scripts/factotum.js"
         ]
     },
 
@@ -48,5 +91,9 @@
         "default_popup": "popup.html"
     },
 
-    "incognito": "split"
+    "incognito": "split",
+
+    // "minimum_chrome_version": XXX,
+
+    "offline_enabled": false
 }
