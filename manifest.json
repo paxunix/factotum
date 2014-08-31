@@ -96,5 +96,9 @@
 
     // "minimum_chrome_version": XXX,
 
-    "offline_enabled": false
+    "offline_enabled": false,
+
+    "web_accessible_resources": [
+        "scripts/help-doc.js"
+    ]
 }

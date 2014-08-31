@@ -53,29 +53,29 @@ Help.extractDialog = function (document, guid)
  * That's bad:  because if there are <script> tags not in a template, they
  * will be executed which is probably not what you want if you only need the
  * help dialog.  Can just parse the document and show the help.
+ *
+ * Why not make this an HTML document that is passed the data it needs and a
+ * script can load that data in?
+ *
  * @param {Dialog} dialog - HTML dialog element that contains the markup to
  * show.
  */
-Help.showDialog = function (dialog)
+Help.showDialog = function (fcommandGuid)
 {
-    var markup = new Blob(dialog.innerHTML, { type: "text/html" });
-    var url = URL.createObjectURL;
-
     // Arbitrarily make the help dialog's container 50% of the screen's
     // width and 70% of the screen's height.
-    var width = window.screen.width * 0.30;
-    var height = window.screen.height * 0.55;
+    // XXX: need min+max range e.g. Math.min(Math.max(300, x), 1000);
+    var width = Math.round(window.screen.width * 0.30);
+    var height = Math.round(window.screen.height * 0.55);
+    var url = chrome.runtime.getURL("html/help.html") + "?guid=" + fcommandGuid;
 
     chrome.windows.create({
-        url: URL.createObjectURL(markup),
+        url: url,
         type: "popup",
-        left: (window.screen.width - width) / 2,
-        top: (window.screen.height - height) / 2,
+        left: Math.round((window.screen.width - width) / 2),
+        top: Math.round((window.screen.height - height) / 2),
         width: width,
         height: height,
         focused: true,
-    }, function onWindowCreate() {
-        URL.revokeObjectURL(url);
     });
-
 }   // Help.showDialog
