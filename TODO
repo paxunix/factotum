@@ -106,6 +106,8 @@
       if they didn't put <template> in (for which there is a valid reason:
       you're loading a script via import, but you want something done as
       soon as it finishes)
+        - this seems obvious:  it has to run in page context since that's
+          the document into which it was injected
 
     - the minimist-opts block is a <script> with a non-script mime-type so
       that we get the benefit of not having to encode characters as we
@@ -116,6 +118,11 @@
           need encoding anyway and it allows you to put HTML comments in
           (which are obviously comments because of semantic markup) rather
           than hacking around it.  Then, no mime-type fuckery.
+
+    - note that the HTML document that contains an Fcommand is just a
+      delivery document.  Data is extracted from it and put into a DB and
+      then various parts of it are rearranged and injected into other
+      documents as needed.
 
 - need a way to inject into all frames within a page?
 
