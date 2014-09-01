@@ -5,7 +5,7 @@ describe("Util.extractParseopts", function() {
         expect(function () {
             Util.extractParseopts(null);
         }).toThrowError(TypeError,
-            "Cannot read property 'getElementById' of null");
+            "Cannot read property 'querySelector' of null");
     });
 
 
