@@ -1,0 +1,228 @@
+<html>
+
+<head>
+
+<title>Load jQuery</title>
+
+<meta charset="UTF-8">
+
+<!-- Here we (ab)use meta tags to supply metadata for this Fcommand. -->
+
+<!-- Author's name and or email.  Optional. -->
+<meta name="author" content="paxunix@gmail.com">
+
+<!-- Description of what this Fcommand does.  Optional. -->
+<meta name="description" content="Loads jQuery into the current page">
+
+<!-- Unique identifier for this Fcommand.  Looks like a guid, and is treated
+     as though it is unique across all Fcommands.  Required. -->
+<meta name="guid" content="21eddb42-7c5b-4437-8b7a-f08df5ef3479">
+
+<!-- Command names used to invoke this Fcommand.  Required. -->
+<meta name="keywords" content="jq,loadjq">
+
+<!-- URL from which to download this Fcommand -->
+<meta name="downloadURL" content="http://example.com/load-jquery.html">
+
+<!-- URL to check for a new version of this Fcommand.  Can return a document
+     with only the <meta name="version"> tag. -->
+<meta name="updateURL" content="http://example.com/load-jquery.html">
+
+<!-- Version of this Fcommand.  Required.  It is suggested to follow
+     semantic versionning:  http://semver.org/ -->
+<!-- XXX: should just use node's semver module for parsing and version
+number comparison.  That way, it works as expected. -->
+<meta name="version" content="1.2.3">
+
+<!-- Context in which the Fcommand's javascript is run.  Optional.
+     If "page", the code is evaluated within the current page and thus has
+     access to the page's javascript.  Otherwise the code is evaluated
+     within the content-script and has no access to page's JS.
+     XXX:  maybe just run them all in context of the page?
+-->
+<meta name="context" content="page">
+
+<!-- Specify the favicon for this Fcommand.  Optional.  -->
+<link rel="icon" type="image/png" href="http://example.com/favicon.png">
+
+<!-- Any scripts to be imported into the page on which the command is
+invoked. -->
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+<!--
+This block is the opts={} declaration for the minimist options parser.  It
+must have id=minimist-opt.
+
+This is extracted by id in the bg script and passed to the minimist options
+parser; then the hash returned by minimist is sent to the fcommand function
+below.
+
+jsonOptSpec = document.getElementById("#minimist-opt").content.textContent || throw
+optSpec = JSON.parse(jsonOptSpec)     // this could throw if parsing fails
+-->
+
+<template id="minimist-opt" type="application/json">
+<!-- This is a regular html comment -->
+{
+  "default": { "version": "latest" },
+  "boolean": [ "min" ],
+  "string": [ "version" ]
+}
+
+<!-- We pull out all the text content and JSON.parse it -->
+</template>
+
+</head>
+
+<body>
+
+<!-- The help for this Fcommand is inside a <template>.  A popup window will
+     be shown by the background script when the Fcommand is invoked with
+     -help.
+
+     There can be any content in here that you wish.  Factotum loads its own
+     styling for the help document and also adds a centered OK button at the
+     bottom, as well as capturing the Esc keypress to close the window.
+     -->
+<template id="help">
+This is the content shown when help is requested for this Fcommand.  It must
+be in a &lt;template&gt; tag, have an id of "help" and can be anywhere in
+the document.
+<p>
+I'm going to write all mine like man pages because that's how I roll.  Maybe
+I'll default the styling to make man pages look awesome. (man7.org)
+<pre>
+loadjq [--min] [--version version]
+</pre>
+<p>
+Defaults to loading the latest version.
+<p>
+</template>
+
+<!--
+XXX:  Maybe there should be no active scripts in the document?  After all,
+we're not going to import this exact document, we're going to build one
+that's a subset of this.  That it's in HTML makes life easier for authors
+because they write what they know, and Factotum can just create the document
+and pull stuff out of it via DOM methods.
+
+However, how do you enforce that no script executes when the document is
+turned into DOM?  If you do it in a worker, would that be sufficient?  Would
+errors occur if DOM manipulation was attempted?  Scripts would still
+execute, though.
+
+Maybe we just don't care?  These are being eval'd not in the background
+script, but in the page itself because the content script is adding an
+import for this doc to the page.  This means any javascript will run, unless
+it has a non-JS mimetype.  By using the non-JS mimetype, we can import this
+whole document in its own "namespace", then access it from the content
+script to pull out whatever is needed.
+
+There isn't really any need to import this doc into the page.  I think we
+want to inject them into the bg page.  Actually, we don't even need that.
+We just need to load the document, parse out what we want and throw the rest
+away.  There is no benefit to keeping it as an import.  The bg page extracts
+the code to run for an Fcommand and sends it over to the content script on
+request.  However, then you don't get dependent scripts and all.  So yeah,
+imports into the actual page seems to make more sense.
+
+The JS still needs to be wrapped so it can feedback to Factotum if there are
+problems.  Also there needs to be a way for it to communicate with Factotum
+(bg page or content script).
+
+This wrapping can be done by the content script.  I think we only need a
+background script so it can do things that call Chrome APIs unavailable to
+content scripts (e.g. open a new tab).
+
+How do you actually eval the JS?  The content script needs to inject a js
+shim into the page whose job is to run the selected Fcommand import and also
+do anything else using the import (e.g. pop the help dialog, etc.).
+
+Should there be a mechanism to say the Fcommand needs to run in the actual
+page (so it has access to the page's JS) versus running in the
+content-script's context (access to the page's DOM but only the
+content-script's JS)?  Can use a web worker to isolate it from the
+content-script's context as well?
+
+It would be awesome to be able to inject that script such that it could be
+debugged in devtools without heroics.  Since it isn't loaded from a separate
+location, is not part of the document on load, and is injected into it, you
+can't set a breakpoint on it.  Maybe some scheme where you can flag a script
+to be debugged and the injector adds "debugger;" to it?  Duh, if you pass
+\-\-debug then it's possible to debug the script.
+-->
+
+<template id="fcommand">
+<!--
+The actual fcommand is inside a <template> so that when this document is
+imported, the content of the template is not immediately evaluated.
+
+So the content script injects a <link> import into the page.  That imports
+this document.  Then the content script has to call importNode() on the
+template in order to have the script evaluated in-page.  Or, we inject the
+Fcommand wrapper into the Fcommand import document, or we inject the wrapper
+as a regular script injection into the page.  Since we can add the guid to
+the <link> tag, the content script can immediately check if an Fcommand was
+already added to the page and not even add another (although harmless)
+<link> tag.
+
+Well, it has to be executed within a wrapper, which must also be injected
+into the page.  I think these things can all remove themselves, but should
+they?  What if you want an Fcommand to stay in page so it can be called
+again?
+
+I guess that's the question:  should Fcommands themselves persist within a
+page?  I think a case can be made for both persisting and self-removal.
+
+-->
+<script>
+var a = "!@#$%^&*()'\"\\{}[]><><|=_-,./?<html &amp;>";
+jQuery(document).ready(function() {
+  jQuery("<div>").
+    text("jQuery " + jQuery.fn.jquery + " Loaded").
+    css({
+        backgroundColor: "red",
+        border: "5px solid white",
+        color: "white",
+        fontSize: "24px",
+        fontWeight: "bold",
+        fontFamily: "Verdana, sans-serif",
+        position: "fixed",
+        top: "100px",
+        left: "100px",
+        padding: "10px",
+        "z-index": 10000
+    }).prependTo(document.body).
+    fadeOut(2000, function () { jQuery(this).remove() });
+});
+</script>
+
+</template>
+
+<script id="fcommand-wrapper" type="application/x-fcommand">
+// XXX:  Possible to instead use promises for this?  The Fcommand returns a
+// promise; the wrapper immediately evaluates it
+var _response;
+
+// XXX: presumes the content-script injected the import with a link tag
+// whose id is the GUID of the Fcommand
+var thisFcommandScript = document.querySelector("link[rel=import][id=" + GUID + "]").import.querySelector("script#fcommand").innerText;   // XXX: could fail
+
+(function(args)
+{
+  try {
+    // XXX: could just prepend this onto the command?
+    eval("( if (args.debug) debugger;\n" + thisFcommandScript + ");");
+  }
+
+  catch (e)
+  {
+    // XXX: feedback to background script so it can pop a notification or
+    // something
+    _response="xxx";
+  }
+
+})(_request, _sender, _responseFunc);
+</script>
+</body>
+</html>
