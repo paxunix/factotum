@@ -1,9 +1,9 @@
-describe("Util.extractParseopts", function() {
+describe("Util.extractOptSpec", function() {
 
 
     it("throws if input document is invalid", function() {
         expect(function () {
-            Util.extractParseopts(null);
+            Util.extractOptSpec(null);
         }).toThrowError(TypeError,
             "Cannot read property 'querySelector' of null");
     });
@@ -12,7 +12,7 @@ describe("Util.extractParseopts", function() {
     it("throws if document has no #minimist-opt", function() {
         expect(function () {
             var doc = (new DOMParser).parseFromString("<div></div>", "text/html");
-            Util.extractParseopts(doc);
+            Util.extractOptSpec(doc);
         }).toThrowError(Error,
             "template#minimist-opt is missing");
     });
@@ -21,7 +21,7 @@ describe("Util.extractParseopts", function() {
     it("throws if document's #minimist-opt is not a <template>", function() {
         expect(function () {
             var doc = (new DOMParser).parseFromString('<div id="minimist-opt"></div>', "text/html");
-            Util.extractParseopts(doc);
+            Util.extractOptSpec(doc);
         }).toThrowError(Error,
             "template#minimist-opt is missing");
     });
@@ -31,11 +31,11 @@ describe("Util.extractParseopts", function() {
         expect(function () {
             var doc = (new DOMParser).
                 parseFromString('<template id="minimist-opt">X</template>', "text/html");
-            Util.extractParseopts(doc);
+            Util.extractOptSpec(doc);
         }).toThrowError(SyntaxError,
             "Unexpected token X");
     });
 
 
 
-}); // Util.extractParseopts
+}); // Util.extractOptSpec
