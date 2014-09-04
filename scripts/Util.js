@@ -25,3 +25,32 @@ Util.extractOptSpec = function (document)
 
     return JSON.parse(template.content.textContent);
 }   // Util.extractOptSpec
+
+
+/**
+ * Retrieve the Fcommand metadata.
+ * @param {Object} document - HTML document object specifying the Fcommand
+ * @returns {Object} Metadata for the Fcommand.
+ */
+Util.extractMetadata = function (document)
+{
+    var data = {};
+    var metaKeys = [
+        "author",
+        "description",
+        "guid",
+        "keywords",
+        "downloadURL",
+        "updateURL",
+        "version",
+        "context"
+    ];
+
+    metaKeys.forEach(function (el) {
+        data[el] = (document.querySelector("head meta[name=" + el + "]") || {}).content
+    });
+
+    data.icon = (document.querySelector("head link[rel=icon]") || {}).getAttribute("href");
+
+    return data;
+}   // Util.extractMetadata
