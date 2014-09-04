@@ -37,5 +37,12 @@ describe("Util.extractOptSpec", function() {
     });
 
 
+    it("returns JSON opt-spec", function() {
+        var doc = (new DOMParser).
+            parseFromString('<template id="minimist-opt">{"string": [ "version" ]}</template>', "text/html");
+        ;
+        expect(Util.extractOptSpec(doc)).toEqual({ string: [ "version" ] });
+    });
+
 
 }); // Util.extractOptSpec
