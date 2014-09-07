@@ -104,6 +104,42 @@ describe("Util.extractMetadata", function() {
     });
 
 
+    it("parses keywords delimited by ',' and disregarding whitespace", function() {
+        var docstr = '<head>';
+        for (var f of Util.requiredFields)
+        {
+            if (f === "keywords")
+                docstr += '<meta name="' + f + '" content=" , , k1 , ,, k2 , , ">';
+            else if (f === "version")
+                docstr += '<meta name="' + f + '" content="1.2.3">';
+            else
+                docstr += '<meta name="' + f + '" content="test '+ f + '">';
+        }
+
+        docstr += "</head>";
+
+        var doc = (new DOMParser).parseFromString(docstr, "text/html");
+
+        expect(Util.extractMetadata(doc)).toEqual({
+            author: "test author",
+            description: "test description",
+            guid: "test guid",
+            keywords: [ "k1", "k2" ],
+            version: "1.2.3",
+            downloadURL: undefined,
+            updateURL: undefined,
+            context: undefined,
+            icon: undefined
+        });
+    });
+
+
+}); // Util.extractMetadata
+
+
+describe("Util.validateMetadata", function() {
+
+
     it("verifies required fields have a defined value", function() {
         var docstr = '<head>';
         for (var f of Util.requiredFields)
@@ -138,36 +174,6 @@ describe("Util.extractMetadata", function() {
     });
 
 
-    it("parses keywords delimited by ',' and disregarding whitespace", function() {
-        var docstr = '<head>';
-        for (var f of Util.requiredFields)
-        {
-            if (f === "keywords")
-                docstr += '<meta name="' + f + '" content=" , , k1 , ,, k2 , , ">';
-            else if (f === "version")
-                docstr += '<meta name="' + f + '" content="1.2.3">';
-            else
-                docstr += '<meta name="' + f + '" content="test '+ f + '">';
-        }
-
-        docstr += "</head>";
-
-        var doc = (new DOMParser).parseFromString(docstr, "text/html");
-
-        expect(Util.extractMetadata(doc)).toEqual({
-            author: "test author",
-            description: "test description",
-            guid: "test guid",
-            keywords: [ "k1", "k2" ],
-            version: "1.2.3",
-            downloadURL: undefined,
-            updateURL: undefined,
-            context: undefined,
-            icon: undefined
-        });
-    });
-
-
     it("throws if a keyword string is empty", function() {
         var docstr = '<head>';
         for (var f of Util.requiredFields)
@@ -190,4 +196,4 @@ describe("Util.extractMetadata", function() {
             Util.validateMetadata(meta);
         }).toThrowError("Keyword string can't be empty");
     });
-}); // Util.extractMetadata
+}); // Util.validateMetadata
