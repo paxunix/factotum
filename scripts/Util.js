@@ -79,11 +79,16 @@ Util.extractMetadata = function (document)
  */
 Util.validateMetadata = function (metadata)
 {
+    // Required fields must be defined
     for (var f of Util.requiredFields)
     {
         if (typeof(metadata[f]) === "undefined")
             throw new Error("Missing " + f);
     };
 
-
+    // Verify the version is valid
+    if (semver.valid(metadata.version) === null)
+    {
+        throw new Error("Version '" + metadata.version + "' is not semver-valid");
+    }
 }   // Util.validateMetadata

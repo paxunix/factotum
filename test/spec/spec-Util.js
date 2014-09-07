@@ -118,4 +118,22 @@ describe("Util.extractMetadata", function() {
             docstr += '<meta name="' + f + '" content="test '+ f + '">';
         }
     });
+
+
+    it("throws if version is not semver-format", function() {
+        var docstr = '<head>';
+        for (var f of Util.requiredFields)
+        {
+            docstr += '<meta name="' + f + '" content="test '+ f + '">';
+        }
+
+        docstr += "</head>";
+
+        var doc = (new DOMParser).parseFromString(docstr, "text/html");
+        var meta = Util.extractMetadata(doc);
+
+        expect(function () {
+            Util.validateMetadata(meta);
+        }).toThrowError("Version 'test version' is not semver-valid");
+    });
 }); // Util.extractMetadata
