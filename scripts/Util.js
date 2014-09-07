@@ -68,6 +68,17 @@ Util.extractMetadata = function (document)
     else
         data.icon = undefined;
 
+    // Keywords is a comma-delimited list of words with no whitespace.
+    if (typeof(data.keywords) !== "undefined")
+    {
+        data.keywords = data.keywords.
+            replace(/\s+/g, "").
+            replace(/,+/g, ",").
+            replace(/^,+/, "").
+            replace(/,+$/, "").
+            split(/,/);
+    }
+
     return data;
 }   // Util.extractMetadata
 
