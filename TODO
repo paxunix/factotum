@@ -123,6 +123,9 @@
       delivery document.  Data is extracted from it and put into a DB and
       then various parts of it are rearranged and injected into other
       documents as needed.
+        - there is no need to import the entire document when we had to
+          extract data from it and store it anyway.  But does it matter?
+          These won't be huge documents.
 
 - need a way to inject into all frames within a page?
 
