@@ -12,6 +12,14 @@ Util.supportedMetaFields = [
     "context"
 ];
 
+Util.requiredFields = [
+    "author",
+    "description",
+    "guid",
+    "keywords",
+    "version"
+];
+
 
 /**
  * Returns a string to be used as the id on the link.import element injected
@@ -62,3 +70,20 @@ Util.extractMetadata = function (document)
 
     return data;
 }   // Util.extractMetadata
+
+
+/**
+ * Validate the Fcommand metadata.
+ * @param {Object} metadata - Object with metadata fields as from extractMetadata().
+ * @throws {Error} On validation failure.
+ */
+Util.validateMetadata = function (metadata)
+{
+    for (var f of Util.requiredFields)
+    {
+        if (typeof(metadata[f]) === "undefined")
+            throw new Error("Missing " + f);
+    };
+
+
+}   // Util.validateMetadata

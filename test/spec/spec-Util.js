@@ -103,4 +103,19 @@ describe("Util.extractMetadata", function() {
         });
     });
 
+
+    it("verifies required fields have a defined value", function() {
+        var docstr = '<head>';
+        for (var f of Util.requiredFields)
+        {
+            var doc = (new DOMParser).parseFromString(docstr + "</head>", "text/html");
+            var meta = Util.extractMetadata(doc);
+
+            expect(function () {
+                Util.validateMetadata(meta);
+            }).toThrowError("Missing " + f);
+
+            docstr += '<meta name="' + f + '" content="test '+ f + '">';
+        }
+    });
 }); // Util.extractMetadata
