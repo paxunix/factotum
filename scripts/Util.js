@@ -1,6 +1,18 @@
 var Util = {};
 
 
+Util.supportedFields = [
+    "author",
+    "description",
+    "guid",
+    "keywords",
+    "downloadURL",
+    "updateURL",
+    "version",
+    "context"
+];
+
+
 /**
  * Returns a string to be used as the id on the link.import element injected
  * into the page.
@@ -36,20 +48,11 @@ Util.extractOptSpec = function (document)
 Util.extractMetadata = function (document)
 {
     var data = {};
-    var metaKeys = [
-        "author",
-        "description",
-        "guid",
-        "keywords",
-        "downloadURL",
-        "updateURL",
-        "version",
-        "context"
-    ];
 
-    metaKeys.forEach(function (el) {
+    for (var el of Util.supportedFields)
+    {
         data[el] = (document.querySelector("head meta[name=" + el + "]") || {}).content
-    });
+    };
 
     var el = document.querySelector("head link[rel=icon]");
     if (el !== null)
