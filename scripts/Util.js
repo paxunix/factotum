@@ -100,4 +100,7 @@ Util.validateMetadata = function (metadata)
     // Verify the version is valid
     if (semver.valid(metadata.version) === null)
         throw new Error("Version '" + metadata.version + "' is not semver-valid");
+
+    if (metadata.keywords[0] === "")
+        throw new Error("Keyword string can't be empty");
 }   // Util.validateMetadata

@@ -166,4 +166,28 @@ describe("Util.extractMetadata", function() {
             icon: undefined
         });
     });
+
+
+    it("throws if a keyword string is empty", function() {
+        var docstr = '<head>';
+        for (var f of Util.requiredFields)
+        {
+            if (f === "keywords")
+                docstr += '<meta name="' + f + '" content="">';
+            else if (f === "version")
+                docstr += '<meta name="' + f + '" content="1.2.3">';
+            else
+                docstr += '<meta name="' + f + '" content="test '+ f + '">';
+        }
+
+        docstr += "</head>";
+
+        var doc = (new DOMParser).parseFromString(docstr, "text/html");
+
+        var meta = Util.extractMetadata(doc);
+
+        expect(function () {
+            Util.validateMetadata(meta);
+        }).toThrowError("Keyword string can't be empty");
+    });
 }); // Util.extractMetadata
