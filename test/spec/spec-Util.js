@@ -60,7 +60,7 @@ describe("Util.extractMetadata", function() {
     });
 
 
-    it("extracts supported data from head's meta tags", function() {
+    it("returns supported data from head's meta tags", function() {
         var doc = (new DOMParser).
             parseFromString('<head>' +
                 '<meta name="author" content="test author">' +
@@ -87,5 +87,22 @@ describe("Util.extractMetadata", function() {
         });
     });
 
+
+    it("returns missing metadata fields as undefined", function() {
+        var doc = (new DOMParser).
+            parseFromString('<head></head>', "text/html");
+
+        expect(Util.extractMetadata(doc)).toEqual({
+            author: undefined,
+            description: undefined,
+            guid: undefined,
+            keywords: undefined,
+            downloadURL: undefined,
+            updateURL: undefined,
+            version: undefined,
+            context: undefined,
+            icon: undefined
+        });
+    });
 
 }); // Util.extractMetadata

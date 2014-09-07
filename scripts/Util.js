@@ -30,7 +30,8 @@ Util.extractOptSpec = function (document)
 /**
  * Retrieve the Fcommand metadata.
  * @param {Object} document - HTML document object specifying the Fcommand
- * @returns {Object} Metadata for the Fcommand.
+ * @returns {Object} Metadata for the Fcommand.  Fields that don't exist in
+ * the document get a value of undefined.
  */
 Util.extractMetadata = function (document)
 {
@@ -50,7 +51,11 @@ Util.extractMetadata = function (document)
         data[el] = (document.querySelector("head meta[name=" + el + "]") || {}).content
     });
 
-    data.icon = (document.querySelector("head link[rel=icon]") || {}).getAttribute("href");
+    var el = document.querySelector("head link[rel=icon]");
+    if (el !== null)
+        data.icon = el.getAttribute("href");
+    else
+        data.icon = undefined;
 
     return data;
 }   // Util.extractMetadata
