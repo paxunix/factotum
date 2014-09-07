@@ -1,7 +1,7 @@
 var Util = {};
 
 
-Util.supportedFields = [
+Util.supportedMetaFields = [
     "author",
     "description",
     "guid",
@@ -49,7 +49,7 @@ Util.extractMetadata = function (document)
 {
     var data = {};
 
-    for (var el of Util.supportedFields)
+    for (var el of Util.supportedMetaFields)
     {
         data[el] = (document.querySelector("head meta[name=" + el + "]") || {}).content
     };
