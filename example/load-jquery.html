@@ -168,7 +168,10 @@ again?
 I guess that's the question:  should Fcommands themselves persist within a
 page?  I think a case can be made for both persisting and self-removal.
 
+The Fcommand can persist whatever it wants within the page if it's executing
+in page context.  No special handling is required to do that.
 -->
+
 <script>
 var a = "!@#$%^&*()'\"\\{}[]><><|=_-,./?<html &amp;>";
 jQuery(document).ready(function() {
