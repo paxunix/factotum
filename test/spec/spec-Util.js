@@ -9,21 +9,9 @@ describe("Util.extractOptSpec", function() {
     });
 
 
-    it("throws if document has no #minimist-opt", function() {
-        expect(function () {
-            var doc = (new DOMParser).parseFromString("<div></div>", "text/html");
-            Util.extractOptSpec(doc);
-        }).toThrowError(Error,
-            "template#minimist-opt is missing");
-    });
-
-
-    it("throws if document's #minimist-opt is not a <template>", function() {
-        expect(function () {
-            var doc = (new DOMParser).parseFromString('<div id="minimist-opt"></div>', "text/html");
-            Util.extractOptSpec(doc);
-        }).toThrowError(Error,
-            "template#minimist-opt is missing");
+    it("returns null if document has no template#minimist-opt", function() {
+        var doc = (new DOMParser).parseFromString("<div></div>", "text/html");
+        expect(Util.extractOptSpec(doc)).toEqual(null);
     });
 
 

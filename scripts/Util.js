@@ -33,7 +33,7 @@ Util.getFcommandImportId = function (guid)
 
 
 /**
- * Returns an object that can be passed to minist for options parsing.
+ * Returns an object that can be passed to minimist for options parsing.
  * @returns {Object} Option parsing data
  */
 Util.extractOptSpec = function (document)
@@ -41,7 +41,7 @@ Util.extractOptSpec = function (document)
     var sel = "template#minimist-opt";
     var template = document.querySelector(sel);
     if (!template)
-        throw Error(sel + " is missing");
+        return null;
 
     return JSON.parse(template.content.textContent);
 }   // Util.extractOptSpec
