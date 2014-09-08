@@ -194,6 +194,6 @@ describe("Util.validateMetadata", function() {
 
         expect(function () {
             Util.validateMetadata(meta);
-        }).toThrowError("Keyword string can't be empty");
+        }).toThrowError("Keyword field must have at least one keyword");
     });
 }); // Util.validateMetadata

@@ -102,5 +102,5 @@ Util.validateMetadata = function (metadata)
         throw new Error("Version '" + metadata.version + "' is not semver-valid");
 
     if (metadata.keywords[0] === "")
-        throw new Error("Keyword string can't be empty");
+        throw new Error("Keyword field must have at least one keyword");
 }   // Util.validateMetadata
