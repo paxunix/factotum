@@ -54,20 +54,16 @@ must be a <template> with id=minimist-opt.
 This is extracted by id in the bg script and passed to the minimist options
 parser; then the hash returned by minimist is sent to the fcommand function
 below.
-
-jsonOptSpec = document.getElementById("#minimist-opt").content.textContent || throw
-optSpec = JSON.parse(jsonOptSpec)     // this could throw if parsing fails
 -->
 
 <template id="minimist-opt" type="application/json">
-<!-- This is a regular html comment -->
+<!-- You can have regular HTML comments in here. -->
+<!-- See https://github.com/substack/minimist for the spec. -->
 {
   "default": { "version": "latest" },
   "boolean": [ "min" ],
   "string": [ "version" ]
 }
-
-<!-- We pull out all the text content and JSON.parse it -->
 </template>
 
 </head>
