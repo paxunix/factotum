@@ -185,3 +185,29 @@ describe("Util.validateMetadata", function() {
         }).toThrowError("Keyword field must have at least one keyword");
     });
 }); // Util.validateMetadata
+
+
+describe("Util.fetchFcommand", function() {
+
+
+    it("throws when retrieving an Fcommand document via invalid URL", function(done) {
+        var p = Util.fetchFcommand("this is not a URL");
+        expect(p instanceof Promise).toBe(true);
+        p.catch(function (err) {
+            expect(err.statusText).toEqual("error");
+            done();
+        });
+    });
+
+
+    it("retrieves an Fcommand document via URL", function(done) {
+        var p = Util.fetchFcommand(chrome.runtime.getURL("example/load-jquery.html"));
+        expect(p instanceof Promise).toBe(true);
+        p.then(function (response) {
+            expect(response).not.toEqual("");
+            done();
+        });
+    });
+
+
+}); // Util.fetchFcommand

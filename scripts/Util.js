@@ -104,3 +104,13 @@ Util.validateMetadata = function (metadata)
     if (metadata.keywords[0] === "")
         throw new Error("Keyword field must have at least one keyword");
 }   // Util.validateMetadata
+
+
+/**
+ * Retrieve the Fcommand HTML document from the given URL.
+ * @return {Promise} The results of the retrieval.
+ */
+Util.fetchFcommand = function (url)
+{
+    return Promise.resolve(jQuery.get(url));
+}   // Util.fetchFcommand
