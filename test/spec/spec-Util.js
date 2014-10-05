@@ -211,3 +211,70 @@ describe("Util.fetchFcommand", function() {
 
 
 }); // Util.fetchFcommand
+
+
+describe("Util.getFromLangSelector", function() {
+
+
+    it("returns first element with exact case-insensitive lang match", function() {
+        var docstr = '<div id="bad1" lang="fr"></div>' +
+                     '<div id="bad1.5" lang="en-GB"></div>' +
+                     '<div id="good" lang="en-Us"></div>' +
+                     '<div id="good2" lang="en-Us"></div>' +
+                     '<div id="bad2" lang="en-us"></div>';
+        var doc = (new DOMParser).parseFromString(docstr, "text/html");
+        expect(Util.getFromLangSelector(doc, "div", "en-us").id).toEqual("good");
+    });
+
+
+    it("returns first element with exact lang subtag match", function() {
+        var docstr = '<div id="bad1" lang="fr"></div>' +
+                     '<div id="good" lang="EN"></div>' +
+                     '<div id="good2" lang="EN"></div>' +
+                     '<div id="bad3" lang="en"></div>' +
+                     '<div id="bad2" lang="fr-fr"></div>';
+        var doc = (new DOMParser).parseFromString(docstr, "text/html");
+        expect(Util.getFromLangSelector(doc, "div", "en-us").id).toEqual("good");
+    });
+
+
+    it("returns first element with no lang match", function() {
+        var docstr = '<div id="bad1" lang="fr"></div>' +
+                     '<div id="bad3" lang="en-us-ny"></div>' +
+                     '<div id="good"></div>' +
+                     '<div id="good2"></div>' +
+                     '<div id="bad2" lang="fr-fr"></div>';
+        var doc = (new DOMParser).parseFromString(docstr, "text/html");
+        expect(Util.getFromLangSelector(doc, "div", "en-us").id).toEqual("good");
+    });
+
+
+    it("returns first element with empty lang match", function() {
+        var docstr = '<div id="bad1" lang="fr"></div>' +
+                     '<div id="good" lang=""></div>' +
+                     '<div id="good2" lang=""></div>' +
+                     '<div id="bad2" lang="fr-fr"></div>';
+        var doc = (new DOMParser).parseFromString(docstr, "text/html");
+        expect(Util.getFromLangSelector(doc, "div", "en-us").id).toEqual("good");
+    });
+
+
+    it("returns null if no lang match", function() {
+        var docstr = '<div id="bad1" lang="fr"></div>' +
+                     '<div id="bad2" lang="fr-qc"></div>' +
+                     '<div id="bad3" lang="fr-fr"></div>';
+        var doc = (new DOMParser).parseFromString(docstr, "text/html");
+        expect(Util.getFromLangSelector(doc, "div", "en-us")).toBe(null);
+    });
+
+
+    it("returns null if no selector match", function() {
+        var docstr = '<div id="bad1" lang="fr"></div>' +
+                     '<div id="bad2" lang="fr-qc"></div>' +
+                     '<div id="bad3" lang="fr-fr"></div>';
+        var doc = (new DOMParser).parseFromString(docstr, "text/html");
+        expect(Util.getFromLangSelector(doc, "span", "fr")).toBe(null);
+    });
+
+
+}); // Util.getFromLangSelector

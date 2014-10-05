@@ -1,3 +1,8 @@
+- how to support multiple languages where it matters?
+    - since the Fcommand doc is an HTML5 document, all the usual lang
+      attributes apply.  This probably should govern which tags we pull from
+      the doc when surfacing its data.
+
 - is it feasible/sensible to use HTML imports to do the actual JS importing?
   Also for any external resources the injected script requires?  Maybe
   bundle the whole set up in a document and import the doc?

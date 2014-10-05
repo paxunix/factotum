@@ -1,10 +1,12 @@
+<!DOCTYPE html>   <!-- We're HTML5 -->
+
 <html>
 
 <head>
 
 <title>Load jQuery</title>
 
-<meta charset="UTF-8">
+<meta charset="UTF-8">  <!-- no lang by default -->
 
 <!-- Here we (ab)use meta tags to supply metadata for this Fcommand. -->
 
@@ -13,6 +15,11 @@
 
 <!-- Description of what this Fcommand does.  Required. -->
 <meta name="description" content="Loads jQuery into the current page">
+
+<!-- The string from navigator.language is used to find the most
+appropriate tags when looking up localizable string content to be presented
+to the user.  -->
+<meta name="description" lang="fr" content="Faire la chose en français">
 
 <!-- Unique identifier for this Fcommand.  Looks like a guid, and is treated
      as though it is unique across all Fcommands.  Required. -->

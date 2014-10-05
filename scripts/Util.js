@@ -114,3 +114,32 @@ Util.fetchFcommand = function (url)
 {
     return Promise.resolve(jQuery.get(url));
 }   // Util.fetchFcommand
+
+
+/**
+ * Return one HTML object for the given selector, preferring elements with
+ * the given language attribute and falling back as necessary.
+ * @param {HTMLDocument} document - HTML document to search
+ * @param {String} selector - document query selector
+ * @param {String} lang - BCP47 language string
+ */
+Util.getFromLangSelector = function (document, selector, lang)
+{
+    var elements = document.querySelectorAll(selector);
+
+    // List of languages in order of preference:  given language (presumably
+    // from the browser), given language with no subtags, no language
+    var langList = [ lang.toLowerCase(), lang.toLowerCase().split("-")[0], "" ];
+
+    for (var l of langList)
+    {
+        //for (var el of elements)      XXX: won't work in Chrome yet: https://code.google.com/p/chromium/issues/detail?id=401699
+        for (var i = 0; i < elements.length; ++i)
+        {
+            if (l === elements[i].lang.toLowerCase())
+                return elements[i];
+        }
+    }
+
+    return null;
+}   // Util.getFromLangSelector
