@@ -1,17 +1,19 @@
+var lang = navigator.language || "en-us";
+
 describe("Util.extractOptSpec", function() {
 
 
     it("throws if input document is invalid", function() {
         expect(function () {
-            Util.extractOptSpec(null);
+            Util.extractOptSpec(null, lang);
         }).toThrowError(TypeError,
-            "Cannot read property 'querySelector' of null");
+            "Cannot read property 'querySelectorAll' of null");
     });
 
 
     it("returns null if document has no template#minimist-opt", function() {
         var doc = (new DOMParser).parseFromString("<div></div>", "text/html");
-        expect(Util.extractOptSpec(doc)).toEqual(null);
+        expect(Util.extractOptSpec(doc, lang)).toEqual(null);
     });
 
 
@@ -19,7 +21,7 @@ describe("Util.extractOptSpec", function() {
         expect(function () {
             var doc = (new DOMParser).
                 parseFromString('<template id="minimist-opt">X</template>', "text/html");
-            Util.extractOptSpec(doc);
+            Util.extractOptSpec(doc, lang);
         }).toThrowError(SyntaxError,
             "Unexpected token X");
     });
@@ -29,7 +31,7 @@ describe("Util.extractOptSpec", function() {
         var doc = (new DOMParser).
             parseFromString('<template id="minimist-opt">{"string": [ "version" ]}</template>', "text/html");
         ;
-        expect(Util.extractOptSpec(doc)).toEqual({ string: [ "version" ] });
+        expect(Util.extractOptSpec(doc, lang)).toEqual({ string: [ "version" ] });
     });
 
 
@@ -42,9 +44,9 @@ describe("Util.extractMetadata", function() {
 
     it("throws if input document is invalid", function() {
         expect(function () {
-            Util.extractMetadata(null);
+            Util.extractMetadata(null, lang);
         }).toThrowError(TypeError,
-            "Cannot read property 'querySelector' of null");
+            "Cannot read property 'querySelectorAll' of null");
     });
 
 
@@ -60,7 +62,7 @@ describe("Util.extractMetadata", function() {
 
         var doc = (new DOMParser).parseFromString(docstr, "text/html");
 
-        expect(Util.extractMetadata(doc)).toEqual( {
+        expect(Util.extractMetadata(doc, lang)).toEqual( {
             author: "test author",
             description: "test description",
             guid: "test guid",
@@ -78,7 +80,7 @@ describe("Util.extractMetadata", function() {
         var doc = (new DOMParser).
             parseFromString('<head></head>', "text/html");
 
-        expect(Util.extractMetadata(doc)).toEqual({
+        expect(Util.extractMetadata(doc, lang)).toEqual({
             author: undefined,
             description: undefined,
             guid: undefined,
@@ -108,7 +110,7 @@ describe("Util.extractMetadata", function() {
 
         var doc = (new DOMParser).parseFromString(docstr, "text/html");
 
-        expect(Util.extractMetadata(doc)).toEqual({
+        expect(Util.extractMetadata(doc, lang)).toEqual({
             author: "test author",
             description: "test description",
             guid: "test guid",
@@ -133,7 +135,7 @@ describe("Util.validateMetadata", function() {
         for (var f of Util.requiredFields)
         {
             var doc = (new DOMParser).parseFromString(docstr + "</head>", "text/html");
-            var meta = Util.extractMetadata(doc);
+            var meta = Util.extractMetadata(doc, lang);
 
             expect(function () {
                 Util.validateMetadata(meta);
@@ -154,7 +156,7 @@ describe("Util.validateMetadata", function() {
         docstr += "</head>";
 
         var doc = (new DOMParser).parseFromString(docstr, "text/html");
-        var meta = Util.extractMetadata(doc);
+        var meta = Util.extractMetadata(doc, lang);
 
         expect(function () {
             Util.validateMetadata(meta);
@@ -178,7 +180,7 @@ describe("Util.validateMetadata", function() {
 
         var doc = (new DOMParser).parseFromString(docstr, "text/html");
 
-        var meta = Util.extractMetadata(doc);
+        var meta = Util.extractMetadata(doc, lang);
 
         expect(function () {
             Util.validateMetadata(meta);

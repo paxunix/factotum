@@ -34,12 +34,14 @@ Util.getFcommandImportId = function (guid)
 
 /**
  * Returns an object that can be passed to minimist for options parsing.
+ * @param {Object} document - HTML document object specifying the Fcommand
+ * @param {String} lang - extracts metadata for this BCP47 language string
  * @returns {Object} Option parsing data
  */
-Util.extractOptSpec = function (document)
+Util.extractOptSpec = function (document, lang)
 {
     var sel = "template#minimist-opt";
-    var template = document.querySelector(sel);
+    var template = Util.getFromLangSelector(document, sel, lang);
     if (!template)
         return null;
 
@@ -50,19 +52,20 @@ Util.extractOptSpec = function (document)
 /**
  * Retrieve the Fcommand metadata.
  * @param {Object} document - HTML document object specifying the Fcommand
+ * @param {String} lang - extracts metadata for this BCP47 language string
  * @returns {Object} Metadata for the Fcommand.  Fields that don't exist in
  * the document get a value of undefined.
  */
-Util.extractMetadata = function (document)
+Util.extractMetadata = function (document, lang)
 {
     var data = {};
 
     for (var el of Util.supportedMetaFields)
     {
-        data[el] = (document.querySelector("head meta[name=" + el + "]") || {}).content
+        data[el] = (Util.getFromLangSelector(document, "head meta[name=" + el + "]", lang) || {}).content
     };
 
-    var el = document.querySelector("head link[rel=icon]");
+    var el = Util.getFromLangSelector(document, "head link[rel=icon]", lang);
     if (el !== null)
         data.icon = el.getAttribute("href");
     else
