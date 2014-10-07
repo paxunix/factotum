@@ -2,8 +2,9 @@
  * Loaded in the popup window that displays an Fcommand's help.
  */
 
-var okButton = document.querySelector("#ok-button");
-var helpWrapper = document.querySelector("#wrap-help");
+var lang = navigator.language || "en-us";
+var okButton = Util.getFromLangSelector(document, "#ok-button", lang);
+var helpWrapper = Util.getFromLangSelector(document, "#wrap-help", lang);
 var fcommandGuid = window.location.search.split("?guid=")[1];
 // XXX: Retrieve markup from DB for this fcommand.
 
