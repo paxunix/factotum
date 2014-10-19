@@ -189,11 +189,11 @@ describe("Util.validateMetadata", function() {
 }); // Util.validateMetadata
 
 
-describe("Util.fetchFcommand", function() {
+describe("Util.fetchDocument", function() {
 
 
     it("throws when retrieving an Fcommand document via invalid URL", function(done) {
-        var p = Util.fetchFcommand("this is not a URL");
+        var p = Util.fetchDocument("this is not a URL");
         expect(p instanceof Promise).toBe(true);
         p.catch(function (err) {
             expect(err.statusText).toEqual("error");
@@ -203,7 +203,7 @@ describe("Util.fetchFcommand", function() {
 
 
     it("retrieves an Fcommand document via URL", function(done) {
-        var p = Util.fetchFcommand(chrome.runtime.getURL("example/load-jquery.html"));
+        var p = Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html"));
         expect(p instanceof Promise).toBe(true);
         p.then(function (response) {
             expect(response).not.toEqual("");
@@ -212,7 +212,7 @@ describe("Util.fetchFcommand", function() {
     });
 
 
-}); // Util.fetchFcommand
+}); // Util.fetchDocument
 
 
 describe("Util.getFromLangSelector", function() {

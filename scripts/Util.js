@@ -110,13 +110,13 @@ Util.validateMetadata = function (metadata)
 
 
 /**
- * Retrieve the Fcommand HTML document from the given URL.
+ * Retrieve a document from a URL.
  * @return {Promise} The results of the retrieval.
  */
-Util.fetchFcommand = function (url)
+Util.fetchDocument = function (url)
 {
     return Promise.resolve(jQuery.get(url));
-}   // Util.fetchFcommand
+}   // Util.fetchDocument
 
 
 /**
