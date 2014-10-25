@@ -114,16 +114,6 @@
         - this seems obvious:  it has to run in page context since that's
           the document into which it was injected
 
-    - the minimist-opts block is a <script> with a non-script mime-type so
-      that we get the benefit of not having to encode characters as we
-      would if it were within HTML markup
-        - you could just dump a <template> in there that contains the json,
-          then pull out the text nodes and JSON.parse them.  That's not a
-          bad idea, because anything you're likely to put in there won't
-          need encoding anyway and it allows you to put HTML comments in
-          (which are obviously comments because of semantic markup) rather
-          than hacking around it.  Then, no mime-type fuckery.
-
     - note that the HTML document that contains an Fcommand is just a
       delivery document.  Data is extracted from it and put into a DB and
       then various parts of it are rearranged and injected into other
@@ -161,11 +151,6 @@
       then when getting commands by prefix (or even when listing all
       commands), you have to pull all the code as well, even if it's not
       going to be used, which is wasteful.
-
-- given that there is no simple way to retrieve a list of key/values using a
-  prefix as a lookup in an index, there is no compelling reason to use
-  IndexedDB for this.  So, back to the original localstorage scheme I'd
-  started out with two years ago :P  KISS.
 
 - create class that manages Fcommands  FcommandManager
     - Fcommands are stored in an IndexedDB
