@@ -124,13 +124,18 @@
 
 - need a way to inject into all frames within a page?
 
-- so the content script should be able to pass a function to the bg page,
+- NOW:  so the content script should be able to pass a function to the bg page,
   which runs it.  That function returns a result back to the content page
   via message passing.  The function itself gets run inside a web worker in
   the bg page (so it has very limited access to the extension, but does have
   access to chrome APIs -- have to test this).
     - this is how you get your content script to, say, open a new tab, or
       make a cross-origin ajax request and get the results
+    - doesn't work because web workers have no access to chrome APIs
+        - so, this implies that having a web worker in the background page
+          to do things is pointless.  Need to establish a cleaner context
+          for evaluating code for bg Fcommands and passed from the content
+          script on behalf of an Fcommand.
 
 - would be cool to flag an fcommand as taking no parameters and being able
   to be run from the context menu.  Then we can populate the context menu
