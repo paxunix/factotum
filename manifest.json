@@ -96,8 +96,6 @@
         "default_popup": "popup.html"
     },
 
-    "incognito": "split",
-
     // "minimum_chrome_version": XXX,
 
     "offline_enabled": false,
