@@ -78,11 +78,11 @@
 
     "background": {
         "scripts": [
-            "scripts/background.js",
-            "scripts/Help.js",
-            "scripts/ShellParse.js",
             "scripts/Util.js",
-            "scripts/factotum.js"
+            "scripts/ShellParse.js",
+            "scripts/factotum.js",
+            "scripts/background.js",
+            "scripts/Help.js"
         ]
     },
 
