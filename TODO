@@ -136,7 +136,11 @@
           extract data from it and store it anyway.  But does it matter?
           These won't be huge documents.
 
-- need a way to inject into all frames within a page?
+- need a way to inject into all frames within a page?  Can already have the
+  content script inserted into all frames (via manifest properties), but
+  there can only be one listener per tab.  How to specify which frame should
+  run the Fcommand?  Should it always be the top frame?  Should an Fcommand
+  be able to decide which frame should run it?
 
 - NOW:  so the content script should be able to pass a function to the bg page,
   which runs it.  That function returns a result back to the content page
@@ -186,13 +190,18 @@
 
 - Fcommand datastore
     - names[] : indexed
-    - guid : indexed(?), unique key
+    - guid : indexed, unique key
+    - original document string
     - description
-    - execute
-    - helpHtml
     - optSpec
+    - help document string?
+    - cooked document string?
+    - all of the metadata fields (if showing them separately, might as well
+      make them separate fields, although it seems silly to store the
+      original document then duplicate all its data in separate fields)
     - enabled
-    - priority:  but this has to be per-name
+    - priority[]: integer associated with name[].  Lower number == highest
+      priority.  Priorities are per name, not per Fcommand (i.e. you may have 2 Fcommands with the name "foo", and you want one to have higher priority than the other.  Priority is used only to determine the order of the Fcommand names in the omnibox dropdown)
 
 
 ----------------
