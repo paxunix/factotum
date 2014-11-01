@@ -47,7 +47,21 @@
           createObjectURL() on a blob puts the object into the page's origin
           (and cleans it up when the page is unloaded--or we can call
           revokeURL on it)
-    - why use an import document?
+            - DONE:  creating the blob URL in the bg page and trying to
+              import it in the content script doesn't work.
+            - VERIFIED: this means sending the Fcommand HTML to the content
+              script every time and it creates a Blob URL.  Actually, it
+              should be able to revoke it whenever the Fcommand finishes
+              executing, because it's only needed until the import document
+              is generated.  Then the Fcommand itself is executed in the
+              onload for the Fcommand import doc.
+                - if an Fcommand is updated, though, and it had been
+                  executed on that page, it means the old Fcommand content
+                  will be used, not the new one until the page is loaded.
+                    - if the update timestamp on the fcommand is known, it
+                      can be used by the content script to determine if
+                      there is new content for that Fcommand and it can do a
+                      new import.
         - because then the author can specify all the crazy dependencies
           they want and we don't have to define a special data format to do
           it.  They can even define custom markup that they can then clone
@@ -275,3 +289,12 @@
   reprioritized.  There aren't many of them (maybe even only "help").  They are
   detected when the command line is parsed and before it is dispatched.
   This simplifies the Fcommand.execute property logic.
+
+- loading a predefined Fcommand from the extension itself (run this in the
+  background page after you know the tab ID of the page that should get the
+  import doc):
+  chrome.tabs.sendRequest(590, { argv: "testing 1 2 3", importFcommandDocumentUrl: chrome.runtime.getURL("example/load-jquery.html")}, Factotum.responseHandler)
+    - note that the URL path within the extension must be in the manifest's
+      web_accessible_resources list
+
+- 

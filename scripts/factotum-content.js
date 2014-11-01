@@ -1,29 +1,56 @@
+// XXX: refactor this into a script that is loaded as another content script
+// and also by the background page, since it will be used for both.
+var id2BlobUrlCache = {};
+getStringBlobUrl = function (id, content, mimeType)
+{
+    if (!(id in id2BlobUrlCache))
+    {
+        var blob = new Blob([content], { type: mimeType });
+        id2BlobUrlCache[id] = URL.createObjectURL(blob);
+    }
+
+    return id2BlobUrlCache[id];
+}   // getStringBlobUrl
+
+
 // Define a connection listener that executes Fcommand code passed from
 // Factotum.  If an exception occurs while executing the Fcommand, the error
 // message is returned to Factotum.
 // Variables prefixed with '_' are intended for internal use only.
+//
+// _request => {
+//      // the URL to use as the import document for the Fcommand
+//      document: String,
+//
+//      // minimist opts parsed object containing parameters for the Fcommand
+//      opts: Object,
+// }
+//
+//
 // XXX: using some tricks to remove them from the user code's scope would be
 // fancier and better.
-// XXX:  this code should be responsible for loading prerequisite scripts and
-// CSS, otherwise Factotum has to keep track of whether or not it has been done
-// for this page already.
 function factotumListener(_request, _sender, _responseFunc)
 {
-    var cmdlineObj = _request.cmdlineObj;
     var _response = {
-        // XXX:  should deep-copy this in case the Fcommand code changes the
-        // cmdline data that was passed in.
-        cmdlineObj: _request.cmdlineObj,
+        // Save a copy of the request data
+        request: JSON.parse(JSON.stringify(_request)),
     };
 
     try {
-        // The Fcommand code is wrapped in eval so any errors from its parsing
-        // are caught by this try/catch as well as any exceptions it throws.
-
-        // XXX:  Needs to be wrapped in an anonymous function so if the user
-        // code calls return, it's not this function that is returning (or we'd
-        // fail to call the response function).
-        eval(_request.codeString);
+        // Add the import link for the Fcommand's document to the page
+        // XXX: while the import mechanism won't include the same resource
+        // multiple times, there is no reason to add the import more than
+        // once (an Fcommand may be used many times on a single page).
+        if (_request.document)
+        {
+            var url = getStringBlobUrl("XXXID", _request.document, "text/html");
+            var link = document.createElement("link");
+            link.rel = "import";
+            link.href = url;
+            //link.onload = function(e) {...};
+            //link.onerror = function(e) {...};
+            document.head.appendChild(link);
+        }
     }
 
     catch (e)
@@ -31,10 +58,11 @@ function factotumListener(_request, _sender, _responseFunc)
         // The exception from the page can't be passed back to the extension, so
         // copy the data out of it.
         // XXX:  this poorly handles non-object exceptions (e.g. throw 42)
-        _response.errorData = {
-            message: e.message,
-            stack: e.stack,
-        };
+        //_response.errorData = {
+            //message: e.message,
+            //stack: e.stack,
+        //};
+        _response.exception = e;
     }   // catch
 
     _responseFunc(_response);
