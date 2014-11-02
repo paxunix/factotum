@@ -97,15 +97,15 @@ Util.validateMetadata = function (metadata)
     for (var f of Util.requiredFields)
     {
         if (typeof(metadata[f]) === "undefined")
-            throw new Error("Missing " + f);
+            throw Error("Missing " + f);
     }
 
     // Verify the version is valid
     if (semver.valid(metadata.version) === null)
-        throw new Error("Version '" + metadata.version + "' is not semver-valid");
+        throw Error("Version '" + metadata.version + "' is not semver-valid");
 
     if (metadata.keywords[0] === "")
-        throw new Error("Keyword field must have at least one keyword");
+        throw Error("Keyword field must have at least one keyword");
 }   // Util.validateMetadata
 
 
