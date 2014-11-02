@@ -17,7 +17,7 @@ Factotum.getSuggestion = function(fcommand, argv)
 {
     return {
         content: argv.join(" "),
-        description: '<dim>Factotum:</dim> <match>' +
+        description: '<match>' +
             fcommand + "</match><dim>" + argv.join(" ") + "</dim>"
     };
 }   // Factotum.getSuggestion
