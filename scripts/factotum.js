@@ -1,5 +1,7 @@
 var Factotum = {};
 
+// XXX: variables in this global scope are visible to the response code
+// string.
 
 // Listener for Omnibox input.
 Factotum.onOmniboxInputEntered = function(text)
@@ -98,4 +100,18 @@ Factotum.responseHandler = function (response)
         function () { console.log("XXX notification args:", arguments); }
     );
 
+    try
+    {
+        // XXX:  this is extremely dangerous, since it means user-space code
+        // can execute in the background page.  This is the only way to call
+        // chrome.* APIs, though, and some Fcommands will need that.
+        // Avoid creating a closure (i.e. don't use eval()), so the code has
+        // no access to any local variables currently in scope.
+        (new Function(response.codeString))();
+    }
+
+    catch (e)
+    {
+        console.log("Response code failure:", e);
+    }
 };  // Factotum.responseHandler
