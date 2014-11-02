@@ -35,21 +35,12 @@
       Factotum-specific stuff after, in order to do any additional setup.
     - this handles de-duping of resources, allows for Fcommands to include
       and dependencies they want via the same import mechanism.
-    - It seems like everything will just work:  however, if CORS disallows
-      us from loading a file or blob URL as an import, we're fucked
-        - looks like using a blob, then getting its object URL will work
-          just fine on dynamically-created content because the
-          createObjectURL() on a blob puts the object into the page's origin
-          (and cleans it up when the page is unloaded--or we can call
-          revokeURL on it)
-            - DONE:  creating the blob URL in the bg page and trying to
-              import it in the content script doesn't work.
             - VERIFIED: this means sending the Fcommand HTML to the content
               script every time and it creates a Blob URL.  Actually, it
-              should be able to revoke it whenever the Fcommand finishes
-              executing, because it's only needed until the import document
-              is generated.  Then the Fcommand itself is executed in the
-              onload for the Fcommand import doc.
+              should be able to revoke it once the import is actually loaded,
+              because the document will then already be part of the page.
+              Then the Fcommand itself is executed in the onload for the
+              Fcommand import doc.
                 - if an Fcommand is updated, though, and it had been
                   executed on that page, it means the old Fcommand content
                   will be used, not the new one until the page is loaded.
