@@ -110,6 +110,7 @@
     "offline_enabled": false,
 
     "web_accessible_resources": [
-        "scripts/help-doc.js"
+        "scripts/help-doc.js",
+        "example/load-jquery.html"     // XXX: testing only
     ]
 }
