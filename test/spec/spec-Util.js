@@ -1,6 +1,10 @@
+describe("Util", function() {
+
+
 var lang = navigator.language || "en-us";
 
-describe("Util.extractOptSpec", function() {
+
+describe("extractOptSpec", function() {
 
 
     it("throws if input document is invalid", function() {
@@ -35,11 +39,11 @@ describe("Util.extractOptSpec", function() {
     });
 
 
-}); // Util.extractOptSpec
+}); // extractOptSpec
 
 
 
-describe("Util.extractMetadata", function() {
+describe("extractMetadata", function() {
 
 
     it("throws if input document is invalid", function() {
@@ -124,10 +128,10 @@ describe("Util.extractMetadata", function() {
     });
 
 
-}); // Util.extractMetadata
+}); // extractMetadata
 
 
-describe("Util.validateMetadata", function() {
+describe("validateMetadata", function() {
 
 
     it("verifies required fields have a defined value", function() {
@@ -186,10 +190,10 @@ describe("Util.validateMetadata", function() {
             Util.validateMetadata(meta);
         }).toThrowError("Keyword field must have at least one keyword");
     });
-}); // Util.validateMetadata
+}); // validateMetadata
 
 
-describe("Util.fetchDocument", function() {
+describe("fetchDocument", function() {
 
 
     it("throws when retrieving an Fcommand document via invalid URL", function(done) {
@@ -212,10 +216,10 @@ describe("Util.fetchDocument", function() {
     });
 
 
-}); // Util.fetchDocument
+}); // fetchDocument
 
 
-describe("Util.getFromLangSelector", function() {
+describe("getFromLangSelector", function() {
 
 
     it("returns first element with exact case-insensitive lang match", function() {
@@ -279,4 +283,7 @@ describe("Util.getFromLangSelector", function() {
     });
 
 
-}); // Util.getFromLangSelector
+}); // getFromLangSelector
+
+
+}); // Util
