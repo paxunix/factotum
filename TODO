@@ -288,7 +288,7 @@
 - loading a predefined Fcommand from the extension itself (run this in the
   background page after you know the tab ID of the page that should get the
   import doc):
-  chrome.tabs.sendRequest(590, { argv: "testing 1 2 3", importFcommandDocumentUrl: chrome.runtime.getURL("example/load-jquery.html")}, Factotum.responseHandler)
+  chrome.tabs.sendMessage(760, { fcommandId: "123", documentURL: chrome.runtime.getURL("example/load-jquery.xxxhtml")}, Factotum.responseHandler)
     - note that the URL path within the extension must be in the manifest's
       web_accessible_resources list
 
