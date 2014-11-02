@@ -148,6 +148,33 @@ Util.getFromLangSelector = function (document, selector, lang)
 }   // Util.getFromLangSelector
 
 
+/**
+ * Create a <link> import element to be inserted in the parentDocument.
+ * @param {HTMLDocument} parentDocument - The document the <link> element will be appended to
+ * @param {String} id - ID unique within the document
+ * @param {Object} opts - Specifies the import document as a string, or URL to retrieve for the import document.  options.documentString (preferred) or options.documentURL.
+ * @return {HTMLLinkElement} - A <link> element.
+ *
+ * Reuses a prior import document if it was already specified for the given ID.
+ */
+Util.createImportLink = function (parentDocument, id, opts)
+{
+    var link = parentDocument.createElement("link");
+    link.rel = "import";
+    link.id = id;
+
+    if ("documentString" in opts)
+        link.href = blobUrlCache.get(id) ||
+            blobUrlCache.set(id, documentString, "text/html");
+    else if ("documentURL" in opts)
+        link.href = opts.documentURL;
+    else
+        throw Error("documentString or documentURL is required");
+
+    return link;
+}   // Util.createImportLink
+
+
 /*
  * Creates an object containing data from the Fcommand document suitable
  * for storage.

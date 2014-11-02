@@ -1,30 +1,19 @@
-// XXX: refactor this into a script that is loaded as another content script
-// and also by the background page, since it will be used for both.
-// XXX: if an Fcommand is updated, how to clear this cache?  The only reason
-// to have this cache is to prevent adding another <link> tag to the
-// document (since the browser will already avoid importing from the same
-// URL).
-var id2BlobUrlCache = {};
-getStringBlobUrl = function (id, content, mimeType)
-{
-    if (!(id in id2BlobUrlCache))
-    {
-        var blob = new Blob([content], { type: mimeType });
-        id2BlobUrlCache[id] = URL.createObjectURL(blob);
-    }
-
-    return id2BlobUrlCache[id];
-}   // getStringBlobUrl
+var blobUrlCache = new BlobUrlCache();
 
 
 // Define a connection listener that executes Fcommand code passed from
 // Factotum.  If an exception occurs while executing the Fcommand, the error
 // message is returned to Factotum.
-// Variables prefixed with '_' are intended for internal use only.
 //
-// _request => {
-//      // the URL to use as the import document for the Fcommand
-//      document: String,
+// request => {
+//      // the HTML string to use as the import document for the Fcommand
+//      documentString: String,
+//
+//      // or, the URL to use as the import document
+//      documentURL: URL,
+//
+//      // the guid of the fcommand
+//      fcommandId: String,
 //
 //      // minimist opts parsed object containing parameters for the Fcommand
 //      opts: Object,
@@ -33,11 +22,11 @@ getStringBlobUrl = function (id, content, mimeType)
 //
 // XXX: using some tricks to remove them from the user code's scope would be
 // fancier and better.
-function factotumListener(_request, _sender, _responseFunc)
+function factotumListener(request, sender, responseFunc)
 {
-    var _response = {
+    var response = {
         // Save a copy of the request data
-        request: JSON.parse(JSON.stringify(_request)),
+        request: JSON.parse(JSON.stringify(request)),
     };
 
     try {
@@ -45,32 +34,61 @@ function factotumListener(_request, _sender, _responseFunc)
         // XXX: while the import mechanism won't include the same resource
         // multiple times, there is no reason to add the import more than
         // once (an Fcommand may be used many times on a single page).
-        if (_request.document)
-        {
-            var url = getStringBlobUrl("XXXID", _request.document, "text/html");
-            var link = document.createElement("link");
-            link.rel = "import";
-            link.href = url;
-            //link.onload = function(e) {...};
-            //link.onerror = function(e) {...};
-            document.head.appendChild(link);
-        }
+        if (!("fcommandId" in request))
+            throw Error("'fcommandId' is required");
+
+        var opts = {};
+        if ("documentString" in request)
+            opts = { documentString: request.documentString };
+        else if ("documentURL" in request)
+            opts = { documentURL: request.documentURL };
+        else
+            throw Error("'documentString' or 'documentURL' is required");
+
+        var link = Util.createImportLink(document,
+            Util.getFcommandImportId(request.fcommandId),
+            opts);
+
+        link.onload = function (evt) {
+            // XXX: the Fcommand is executed in here
+            console.log("import onload:", evt);
+            responseFunc(response);
+            // XXX: this isn't calling the callback and I don't know why
+        };
+
+        link.onerror = function (evt) {
+            console.log("import onerror:", evt);
+            response.exception = "XXX: error loading import document";
+            responseFunc(response);
+            // XXX: this isn't calling the callback and I don't know why
+        };
+
+        document.head.appendChild(link);
     }
 
     catch (e)
     {
-        // The exception from the page can't be passed back to the extension, so
-        // copy the data out of it.
+        // The exception from the page can't be passed back to the extension
+        // (it shows up as an empty object), so copy the data out of it.
         // XXX:  this poorly handles non-object exceptions (e.g. throw 42)
-        //_response.errorData = {
+        //response.errorData = {
             //message: e.message,
             //stack: e.stack,
         //};
-        _response.exception = e;
+        response.exception = e.stack;
+        responseFunc(response);
     }   // catch
 
-    _responseFunc(_response);
+    // DO NOT call responseFunc() here (it was called if there was a problem
+    // setting up the import, or after the import loaded, or if the import
+    // failed).  Calling it here would send back an immediate response to
+    // the background page, which is undesirable.
+
+    // Indicate that we may be calling responseFunc() asynchronously (from
+    // when the import succeeds/fails).  Otherwise, responseFunc is torn
+    // down as soon as this listener returns.
+    return true;
 }   // factotumListener
 
 
-chrome.extension.onRequest.addListener(factotumListener);
+chrome.runtime.onMessage.addListener(factotumListener);

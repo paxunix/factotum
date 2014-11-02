@@ -75,20 +75,30 @@ Factotum.dispatch = function(cmdline)
     // Ensure everything from this point happens for the current tab.
     chrome.tabs.getSelected(null, function (tab) {
         console.log("XXX Tab:", tab);
-        chrome.tabs.sendRequest(tab.id, {argv: argv}, Factotum.responseHandler);
+        chrome.tabs.sendMessage(tab.id, {argv: argv}, Factotum.responseHandler);
     });
 }   // Factotum.dispatch
 
 
-// Called when each Fcommand has finished executing.
+// Called when each Fcommand has finished/failed executing.
 Factotum.responseHandler = function (response)
 {
     if (chrome.runtime.lastError)
     {
-        // XXX: typically this represents a failure in the extension and it
-        // should be surfaced to the user somehow
-        console.log("error:", chrome.runtime.lastError);
+        // XXX: this represents a failure in the extension and it
+        // should be surfaced to the user somehow (response will be
+        // undefined)
+        console.log("reponse handler error:", chrome.runtime.lastError);
+        return;
     }
+
+    if ('exception' in response)
+    {
+        console.log("error from content script:", response.exception);
+    }
+
+    if (!('codeString' in response))
+        return;
 
     // XXX: only show notifications based on some error state in the
     // response, since the returned code can pop its own notification if
