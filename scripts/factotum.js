@@ -85,10 +85,15 @@ Factotum.responseHandler = function (response)
 {
     if (chrome.runtime.lastError)
     {
-        // XXX: typically this represents a failure in the extension
+        // XXX: typically this represents a failure in the extension and it
+        // should be surfaced to the user somehow
         console.log("error:", chrome.runtime.lastError);
     }
 
+    // XXX: only show notifications based on some error state in the
+    // response, since the returned code can pop its own notification if
+    // desired.  So in case of error, only pop the notification--don't
+    // evaluate any response code.
     var notification = chrome.notifications.create(
         "XXXnotifyID",
         {

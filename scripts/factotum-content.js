@@ -1,5 +1,9 @@
 // XXX: refactor this into a script that is loaded as another content script
 // and also by the background page, since it will be used for both.
+// XXX: if an Fcommand is updated, how to clear this cache?  The only reason
+// to have this cache is to prevent adding another <link> tag to the
+// document (since the browser will already avoid importing from the same
+// URL).
 var id2BlobUrlCache = {};
 getStringBlobUrl = function (id, content, mimeType)
 {
