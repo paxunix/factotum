@@ -82,8 +82,9 @@
 
     "background": {
         "scripts": [
-            "scripts/Util.js",
             "scripts/ShellParse.js",
+            "scripts/Util.js",
+            "scripts/BlobUrlCache.js",
             "scripts/factotum.js",
             "scripts/background.js",
             "scripts/Help.js"

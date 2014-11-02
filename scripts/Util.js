@@ -157,32 +157,3 @@ Util.getStorableFcommand = function (document, lang)
 {
     // XXX
 }   // Util.getStorableFcommand
-
-
-var id2BlobUrlCache = {};
-
-/*
- * Return the Blob url for the given content.
- * @param {String} id - Unique identifier associated with this content
- * @param {String} content - Content to put in the blob
- * @param {String} mimeType - mime type of the content
- * @return {String} URL to Blob.
- *
- * Blob URLs persist until the extension is unloaded (or they are revoked).
- * Blobs for the same ID are reused.
- * No blob URLs are revoked because we can't be sure when we no longer need
- * them.
- * XXX:  this means that even if you want to store different content for an
- * ID, you need to first remove the cache'd URL for that Id.  XXX: Provide
- * an API for that.
- */
-Util.getStringBlobUrl = function (id, content, mimeType)
-{
-    if (!(id in id2BlobUrlCache))
-    {
-        var blob = new Blob([content], { type: mimeType });
-        id2BlobUrlCache[id] = URL.createObjectURL(blob);
-    }
-
-    return id2BlobUrlCache[id];
-}   // Util.getStringBlobUrl
