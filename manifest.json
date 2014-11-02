@@ -23,7 +23,11 @@
         // XXX: not sure if this is needed.  If it is, how do you know which
         // content script will get the request from the bg page?
         // "all_frames": true,
-        "js": [ "scripts/factotum-content.js" ]
+        "js": [
+            "scripts/BlobUrlCache.js",
+            "scripts/Util.js",
+            "scripts/content.js"
+        ]
     }],
 
     "permissions": [
