@@ -64,7 +64,7 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 // Given a command line, figure out the Fcommand and run its function.  Once the
 // function has executed, run the response callback, passing the response from
 // the function.
-Factotum.dispatch = function(cmdline)
+Factotum.dispatch = function (cmdline)
 {
     var argv = ShellParse.split(cmdline);
     var opts = minimist_parseopts(argv.slice(1), {XXX: "XXX: use optspec for fcommand"});

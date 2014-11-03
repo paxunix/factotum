@@ -18,10 +18,6 @@ var blobUrlCache = new BlobUrlCache();
 //      // minimist opts parsed object containing parameters for the Fcommand
 //      opts: Object,
 // }
-//
-//
-// XXX: using some tricks to remove them from the user code's scope would be
-// fancier and better.
 function factotumListener(request, sender, responseFunc)
 {
     var response = {
@@ -85,8 +81,7 @@ function factotumListener(request, sender, responseFunc)
     // the background page, which is undesirable.
 
     // Indicate that we may be calling responseFunc() asynchronously (from
-    // when the import succeeds/fails).  Otherwise, responseFunc is torn
-    // down as soon as this listener returns.
+    // when the import succeeds/fails).
     return true;
 }   // factotumListener
 
