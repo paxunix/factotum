@@ -1,26 +1,23 @@
-var Util = {};
-
-
-Util.supportedMetaFields = [
-    "author",
-    "description",
-    "guid",
-    "keywords",
-    "downloadURL",
-    "updateURL",
-    "version",
-    "context"
-];
-
-Util.requiredFields = [
-    "author",
-    "description",
-    "guid",
-    "keywords",
-    "version"
-];
-
-Util.blobUrlCache = new BlobUrlCache();
+var Util = {
+    supportedMetaFields: [
+        "author",
+        "description",
+        "guid",
+        "keywords",
+        "downloadURL",
+        "updateURL",
+        "version",
+        "context",
+    ],
+    requiredFields: [
+        "author",
+        "description",
+        "guid",
+        "keywords",
+        "version",
+    ],
+    blobUrlCache: new BlobUrlCache(),
+};
 
 
 /**
