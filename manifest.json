@@ -87,10 +87,10 @@
 
     "background": {
         "scripts": [
-            "scripts/ShellParse.js",
-            "scripts/Util.js",
-            "scripts/BlobUrlCache.js",
             "deps/minimist/index.js",
+            "scripts/ShellParse.js",
+            "scripts/BlobUrlCache.js",
+            "scripts/Util.js",
             "scripts/factotum.js",
             "scripts/background.js",
             "scripts/Help.js"
