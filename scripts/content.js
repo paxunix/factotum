@@ -1,6 +1,16 @@
 var blobUrlCache = new BlobUrlCache();
 
 
+/**
+ * Helper to append a node to the document's <head>
+ * Exists primarily to simplify testing by giving a known function to mock.
+ */
+function appendNodeToDocumentHead(node)
+{
+    document.head.appendChild(node);
+}   // appendNodeToDocumentHead
+
+
 // Define a connection listener that executes Fcommand code passed from
 // Factotum.  If an exception occurs while executing the Fcommand, the error
 // message is returned to Factotum.
@@ -21,7 +31,11 @@ var blobUrlCache = new BlobUrlCache();
 function factotumListener(request, sender, responseFunc)
 {
     var response = {
-        // Save a copy of the request data
+        // Save a deep copy of the request data
+        // XXX:  this will have issues if some of the values in the object
+        // are Dates, Functions, etc.  Since we have complete control over
+        // this since it's passed from the bg script, this should not be an
+        // issue.
         request: JSON.parse(JSON.stringify(request)),
     };
 
@@ -59,7 +73,7 @@ function factotumListener(request, sender, responseFunc)
             // XXX: this isn't calling the callback and I don't know why
         };
 
-        document.head.appendChild(link);
+        appendNodeToDocumentHead(link);
     }
 
     catch (e)
@@ -84,6 +98,3 @@ function factotumListener(request, sender, responseFunc)
     // when the import succeeds/fails).
     return true;
 }   // factotumListener
-
-
-chrome.runtime.onMessage.addListener(factotumListener);
