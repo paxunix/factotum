@@ -165,7 +165,7 @@ Util.createImportLink = function (parentDocument, id, opts)
 
     if ("documentString" in opts)
         href = Util.blobUrlCache.get(id) ||
-            Util.blobUrlCache.set(id, documentString, "text/html");
+            Util.blobUrlCache.set(id, opts.documentString, "text/html");
     else if ("documentURL" in opts)
         href = opts.documentURL;
     else

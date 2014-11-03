@@ -286,4 +286,32 @@ describe("getFromLangSelector", function() {
 }); // getFromLangSelector
 
 
+describe("createImportLink", function() {
+
+    it("throws if no documentString or documentURL is given", function() {
+        expect(function () {
+            Util.createImportLink(document, "test", {});
+        }).toThrowError(Error, "documentString or documentURL is required")
+    });
+
+    it("creates a link from documentString over documentURL", function() {
+        var cacheGet = spyOn(Util.blobUrlCache, "get");
+        var cacheSet = spyOn(Util.blobUrlCache, "set");
+
+        var link = Util.createImportLink(document, "testid", {
+            documentString: "docstring",
+            documentURL: "http://www.example.com/"
+        });
+
+        expect(cacheGet).toHaveBeenCalledWith("testid");
+        expect(cacheSet.calls.argsFor(0)[0]).toEqual("testid");
+        expect(cacheSet.calls.argsFor(0)[1]).toEqual("docstring");
+        expect(link instanceof HTMLLinkElement).toBe(true);
+        expect(link.id).toEqual("testid");
+        expect(link.rel).toEqual("import");
+    });
+
+}); // createImportLink
+
+
 }); // Util
