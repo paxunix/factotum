@@ -281,4 +281,25 @@
     - note that the URL path within the extension must be in the manifest's
       web_accessible_resources list
 
-- 
+- I'm still not settled on the best way to invoke the actual Fcommand.
+    - the import doc could use top-level JS as the Fcommand and it will run
+      during import.  It would then in turn pull in any dependent JS as
+      needed.  If it needed to access chrome APIs, it would have to send a
+      message to the bg page (with postMessage? or sendMessage?) with the
+      code to execute.
+        - actually, that's not helpful because the code that runs when the
+          doc imports will only ever run once.  Since the Fcommand must be
+          runnable again on that same page without a reload, it can't be run
+          as part of the import--it needs to be executed on demand each time.
+    - so, this implies using the import doc, the getting the Fcommand code
+      to execute either from the import doc each time, or sent from the bg
+      script.  Seems dumb to send it from the bg script when we can already
+      have imported it and then just execute it from content.  Then the bg
+      script only has to signal the content script to run fcommand with a
+      given ID with these args, provided the Fcommand has already been
+      imported.  So there's the catch.  The bg script doesn't know if the
+      fcommand has already been imported into that page--it has to either
+      keep track of that bookkeeping info (XXX: this seems like complexity
+      that's not worthwhile), or it has to always send the fcommand data and
+      the content script decides whether it has to create the one-time
+      import, or it just has to execute the command with the given args.
