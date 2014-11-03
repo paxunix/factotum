@@ -1,6 +1,3 @@
-var blobUrlCache = new BlobUrlCache();
-
-
 /**
  * Helper to append a node to the document's <head>
  * Exists primarily to simplify testing by giving a known function to mock.

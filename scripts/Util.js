@@ -20,6 +20,8 @@ Util.requiredFields = [
     "version"
 ];
 
+Util.blobUrlCache = new BlobUrlCache();
+
 
 /**
  * Returns a string to be used as the id on the link.import element injected
@@ -164,8 +166,8 @@ Util.createImportLink = function (parentDocument, id, opts)
     link.id = id;
 
     if ("documentString" in opts)
-        link.href = blobUrlCache.get(id) ||
-            blobUrlCache.set(id, documentString, "text/html");
+        link.href = Util.blobUrlCache.get(id) ||
+            Util.blobUrlCache.set(id, documentString, "text/html");
     else if ("documentURL" in opts)
         link.href = opts.documentURL;
     else
