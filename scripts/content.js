@@ -63,14 +63,12 @@ function factotumListener(request, sender, responseFunc)
             // XXX: the Fcommand is executed in here
             console.log("import onload:", evt);
             responseFunc(response);
-            // XXX: this isn't calling the callback and I don't know why
         };
 
         link.onerror = function (evt) {
             console.log("import onerror:", evt);
             response.exception = "XXX: error loading import document";
             responseFunc(response);
-            // XXX: this isn't calling the callback and I don't know why
         };
 
         appendNodeToDocumentHead(link);
