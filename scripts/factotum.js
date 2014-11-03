@@ -28,14 +28,14 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 {
     // If the current tab's URL is an internal one, Fcommands won't work.  Show
     // an omnibox suggestion to indicate that.
-    chrome.tabs.getSelected(null, function (tab) {
+    chrome.tabs.query({ active: true }, function (tabs) {
 
 
     // XXX:  it is possible for some Fcommands to run (e.g. those that can run
     // fine in the background page).  For now, disallow them all when run
     // on an internal Chrome page).
     // XXX:  instead, only show Fcommands flagged as running from bg
-    if (tab.url.search(/^(chrome|about)/) !== -1)
+    if (tabs[0].url.search(/^(chrome|about)/) !== -1)
     {
         chrome.omnibox.setDefaultSuggestion({
             description: '<match>Factotum commands cannot be run from Chrome pages.</match>'
@@ -57,7 +57,7 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
     chrome.omnibox.setDefaultSuggestion(suggestion);
     suggestFunc(suggestions);
 
-    });   // chrome.tabs.getSelected
+    });   // chrome.tabs.query
 };  // Factotum.onOmniboxInputChanged
 
 
@@ -78,9 +78,9 @@ Factotum.dispatch = function (cmdline)
     // XXX: if Fcommand is flagged bg-only, execute it right here
 
     // Ensure everything from this point happens for the current tab.
-    chrome.tabs.getSelected(null, function (tab) {
-        console.log("XXX Tab:", tab);
-        chrome.tabs.sendMessage(tab.id, request, Factotum.responseHandler);
+    chrome.tabs.query({ active: true }, function (tabs) {
+        console.log("XXX Tab:", tabs[0]);
+        chrome.tabs.sendMessage(tabs[0].id, request, Factotum.responseHandler);
     });
 }   // Factotum.dispatch
 
