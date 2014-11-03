@@ -53,8 +53,7 @@ function factotumListener(request, sender, responseFunc)
             throw Error("'documentString' or 'documentURL' is required");
 
         var link = Util.createImportLink(document,
-            Util.getFcommandImportId(request.fcommandId),
-            opts);
+            Util.getFcommandImportId(request.fcommandId), opts);
 
         link.onload = function (evt) {
             // XXX: the Fcommand is executed in here
