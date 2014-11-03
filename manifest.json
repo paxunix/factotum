@@ -89,6 +89,7 @@
             "scripts/ShellParse.js",
             "scripts/Util.js",
             "scripts/BlobUrlCache.js",
+            "deps/minimist/index.js",
             "scripts/factotum.js",
             "scripts/background.js",
             "scripts/Help.js"

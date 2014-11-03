@@ -67,15 +67,20 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 Factotum.dispatch = function(cmdline)
 {
     var argv = ShellParse.split(cmdline);
+    var opts = minimist_parseopts(argv.slice(1), {XXX: "XXX: use optspec for fcommand"});
 
-    // At least one word is needed in command line.
-    if (argv.length < 1)
-        return;
+    var request = {
+        documentString: "XXX",  // XXX: get the Fcommand document from storage
+        documentURL: "XXX",  // XXX: if an internal Fcommand, give its url
+        opts: opts,
+    };
+
+    // XXX: if Fcommand is flagged bg-only, execute it right here
 
     // Ensure everything from this point happens for the current tab.
     chrome.tabs.getSelected(null, function (tab) {
         console.log("XXX Tab:", tab);
-        chrome.tabs.sendMessage(tab.id, {argv: argv}, Factotum.responseHandler);
+        chrome.tabs.sendMessage(tab.id, request, Factotum.responseHandler);
     });
 }   // Factotum.dispatch
 
