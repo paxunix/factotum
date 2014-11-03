@@ -193,13 +193,6 @@
 ----------------
 
 
-- allow for any JS (or CSS) to be loaded into the page (via
-  chrome.tabs.executeScript or chrome.tabs.insertCSS).  Each Fcommand gets a
-  new property that is an array of things to be injected into the page
-  immediately before that command executes.
-    - may need to guard against multiple inclusion.
-    - what if we inject a minimal loader in-page and use it for inclusions?
-
 - prior to each Fcommand's execution, load any requested additional
   functionality into the current page.
 
@@ -236,10 +229,6 @@
   Fcommands
 
 - need an option to toggle error notifications on/off?
-
-- since chrome.tabs.executeScript doesn't support remote URLs, we need to do
-  an XHR from the background page to pull the script content, then inject
-  that into the page
 
 - Fcommand 'execute' property can be a function or a string.  The only time
   it will be a function is if it's an internally-implemented Fcommand,
