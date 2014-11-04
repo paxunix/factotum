@@ -31,6 +31,9 @@
         ]
     }],
 
+    // Yes, ask for all permissions possible.  This extension exists to
+    // allow the user to do anything, so it has to have permission to do
+    // anything.
     "permissions": [
         "activeTab",
         "alarms",
