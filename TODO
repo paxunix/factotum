@@ -319,7 +319,8 @@ DONE
       retrieve content from it; it should also receive a callback function
       that does what's needed to pass a result to the bg)
     - (cs-cb) removes the import from the document.  This may be
-      controversial.
+      controversial.  Fcommand code needs to be aware that if it has side
+      effects, those will persist, even if the import is removed.
     - (cs-cb) revokes the blob URL
     - (cs-cb) send code/status/etc. back to the bg
     - (bg) receive response from content script and evaluate the code, pop a
