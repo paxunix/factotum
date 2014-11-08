@@ -26,10 +26,21 @@
         "js": [
             "scripts/BlobUrlCache.js",
             "scripts/Util.js",
-            "scripts/content.js",
-            "scripts/content-final.js"
+            "scripts/ContentScript.js",
+            "scripts/content.js"
         ]
     }],
+
+    "background": {
+        "scripts": [
+            "deps/minimist/index.js",
+            "scripts/ShellParse.js",
+            "scripts/Util.js",
+            "scripts/Help.js",
+            "scripts/factotum.js",
+            "scripts/background.js"
+        ]
+    },
 
     // Yes, ask for all permissions possible.  This extension exists to
     // allow the user to do anything, so it has to have permission to do
@@ -87,18 +98,6 @@
         "webRequest",
         "webRequestBlocking"
     ],
-
-    "background": {
-        "scripts": [
-            "deps/minimist/index.js",
-            "scripts/ShellParse.js",
-            "scripts/BlobUrlCache.js",
-            "scripts/Util.js",
-            "scripts/factotum.js",
-            "scripts/background.js",
-            "scripts/Help.js"
-        ]
-    },
 
     // Allow the background script to evaluate JS
     "content_security_policy":
