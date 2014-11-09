@@ -32,7 +32,7 @@ describe("ContentScript.getLoadImportPromise", function() {
             // actually fail.  So call expect() to get past that
             // requirement, then tell the runner the async part is done,
             // then throw so the test fails.
-            expect(obj).toBe(undefined);
+            expect(obj).toBe({});
             done();
             throw obj;
         });
@@ -60,7 +60,7 @@ describe("ContentScript.getLoadImportPromise", function() {
             // was no failure and their should have been.  The bogus
             // expect() call is to satisfy the runner, since otherwise the
             // test doesn't actually fail.
-            expect(obj).toBe(undefined);
+            expect(obj).toBe({});
             done();
             throw obj;
         }).catch(function (obj) {
@@ -144,7 +144,7 @@ describe("XXX", function() {
         }, "", response);
 
         expect(createImportLink.calls.argsFor(0)[2].documentString).toEqual("docstring");
-        expect(createImportLink.calls.argsFor(0)[2].documentURL).toBe(undefined);
+        expect(createImportLink.calls.argsFor(0)[2].documentURL).toBeUndefined();
         expect(addToHead).toHaveBeenCalled();
         expect(response).not.toHaveBeenCalled();
     });
