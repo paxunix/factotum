@@ -36,7 +36,38 @@ describe("ContentScript.getLoadImportPromise", function() {
         });
     });
 
+    it("rejects with error on failure", function(done) {
+        // Fake failing to import the doc
+        var err = "error loading import";
+        var addToHead = spyOn(ContentScript, "appendNodeToDocumentHead").
+            and.callFake(function (obj) {
+                obj.onerror({ statusText: err });
+            });
+        var url = "http://www.example.com/";
+        var p = ContentScript.getLoadImportPromise({
+            request: {
+                documentURL: url,
+            },
+            document: document,
+        });
 
+        p.then(function (obj) {
+            // this is a little funky; if the promise was resolved, there
+            // was no failure and their should have been.  The bogus
+            // expect() call is to satisfy the runner, since otherwise the
+            // test doesn't actually fail.
+            expect(obj).toBe(undefined);
+            done();
+            throw obj;
+        }).catch(function (obj) {
+            expect(addToHead).toHaveBeenCalled();
+            expect(obj.document instanceof HTMLDocument).toBe(true);
+            expect(obj.request.documentURL).toEqual(url);
+            expect(obj.linkElement instanceof HTMLLinkElement).toBe(true);
+            expect(obj.error instanceof Error);
+            done();
+        });
+    });
 }); // ContentScript.getLoadImportPromise
 
 
