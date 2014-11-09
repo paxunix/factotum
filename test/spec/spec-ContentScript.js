@@ -1,5 +1,6 @@
 'use strict';
 
+
 describe("ContentScript.getLoadImportPromise", function() {
 
     it("appends a link import element to the document's head", function(done) {
@@ -9,15 +10,18 @@ describe("ContentScript.getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onload({});
             });
+        var url = "http://www.example.com/";
         var p = ContentScript.getLoadImportPromise({
             request: {
-                documentURL: "http://www.example.com/",
+                documentURL: url,
             },
             document: document,
         });
 
         p.then(function (obj) {
             expect(addToHead).toHaveBeenCalled();
+            expect(obj.document instanceof HTMLDocument).toBe(true);
+            expect(obj.request.documentURL).toEqual(url);
             expect(obj.linkElement instanceof HTMLLinkElement).toBe(true);
             done();
         }).catch(function (obj) {
