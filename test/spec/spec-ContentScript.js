@@ -18,6 +18,8 @@ describe("ContentScript.getLoadImportPromise", function() {
             document: document,
         });
 
+        expect(p instanceof Promise).toBe(true);
+
         p.then(function (obj) {
             expect(addToHead).toHaveBeenCalled();
             expect(obj.document instanceof HTMLDocument).toBe(true);
@@ -50,6 +52,8 @@ describe("ContentScript.getLoadImportPromise", function() {
             },
             document: document,
         });
+
+        expect(p instanceof Promise).toBe(true);
 
         p.then(function (obj) {
             // this is a little funky; if the promise was resolved, there
