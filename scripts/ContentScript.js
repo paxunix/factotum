@@ -117,7 +117,7 @@ ContentScript.factotumListener = function (request, sender, responseFunc)
     var initialRequest = JSON.parse(JSON.stringify(request));
     var callResponseFunc = function (opts) {
         opts.request = initialRequest;
-        responseFunc();
+        responseFunc(opts);
         return opts;
     };
 
