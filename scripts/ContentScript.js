@@ -104,20 +104,6 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
 }   // ContentScript.getFcommandRunPromise
 
 
-/**
- * Returns a promise that calls the response function to communicate back to
- * the background script.
- */
-ContentScript.getResponsePromise = function (resolvedWith)
-{
-    return new Promise(function (resolve, reject) {
-        var code = new Function(resolvedWith.request.codeString);
-        resolvedWith.bgCodeString = code(opts.linkElement.import);
-        resolve(resolvedWith);
-    });
-}   // ContentScript.getResponsePromise
-
-
 // Define a connection listener that executes Fcommand code passed from
 // Factotum.  If an exception occurs while executing the Fcommand, the error
 // message is returned to Factotum.
