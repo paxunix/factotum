@@ -35,6 +35,7 @@
         "scripts": [
             "deps/minimist/index.js",
             "scripts/ShellParse.js",
+            "scripts/BlobUrlCache.js",
             "scripts/Util.js",
             "scripts/Help.js",
             "scripts/factotum.js",
