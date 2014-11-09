@@ -69,6 +69,7 @@ describe("ContentScript.getLoadImportPromise", function() {
             expect(obj.request.documentURL).toEqual(url);
             expect(obj.linkElement instanceof HTMLLinkElement).toBe(true);
             expect(obj.error instanceof Error);
+            expect(obj.error.message).toMatch(new RegExp(err));
             done();
         });
     });
