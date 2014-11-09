@@ -97,12 +97,12 @@ Factotum.responseHandler = function (response)
         return;
     }
 
-    if ('exception' in response)
+    if ("error" in response)
     {
         console.log("error from content script:", response.exception);
     }
 
-    if (!('codeString' in response))
+    if (!("bgCodeString" in response))
         return;
 
     // XXX: only show notifications based on some error state in the
@@ -127,7 +127,7 @@ Factotum.responseHandler = function (response)
         // chrome.* APIs, though, and some Fcommands will need that.
         // Avoid creating a closure (i.e. don't use eval()), so the code has
         // no access to any local variables currently in scope.
-        (new Function(response.codeString))();
+        (new Function(response.bgCodeString))();
     }
 
     catch (e)
