@@ -282,7 +282,7 @@
       web_accessible_resources list
 
 Sending to content script in current tab:
-    chrome.tabs.query({active: true}, function (tabs) { chrome.tabs.sendMessage(tabs[0][0].id, { documentString: "importbody", codeString: "console.log('args:',arguments); arguments[1](\"console.log('bgcode:', arguments);\")" }, Factotum.responseHandler); })
+    chrome.tabs.query({active: true}, function (tabs) { chrome.tabs.sendMessage(tabs[0].id, { documentString: "importbody", codeString: "console.log('args:',arguments); arguments[1](\"console.log('bgcode:', arguments);\")" }, Factotum.responseHandler); })
 
 About the importing
 
