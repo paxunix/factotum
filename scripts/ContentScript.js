@@ -114,7 +114,12 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
 ContentScript.factotumListener = function (request, sender, responseFunc)
 {
     var callResponseFunc = function (opts) {
-        responseFunc(opts);
+        // Only include what is needed by the background page to ensure we
+        // don't inadvertently create a circular reference.
+        responseFunc({
+                bgCodeString: opts.bgCodeString,
+                error: opts.error,
+            });
         return opts;
     };
 
