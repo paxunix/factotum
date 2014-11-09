@@ -73,17 +73,19 @@ describe("ContentScript.getLoadImportPromise", function() {
             done();
         });
     });
-}); // ContentScript.getLoadImportPromise
+}); // getLoadImportPromise
 
 
-describe("ContentScript.getFcommandRunPromise", function() {
+describe("getFcommandRunPromise", function() {
 
     it("resolves with the cumulative object and runs the given code string", function(done) {
+        var bgCodeString = "return 42;";
+        var codeString = "var a=42; arguments[1]('" + bgCodeString + "');";
         var obj = {
             dummy: 1,
             linkElement: { import: "dummy" },
             request: {
-                codeString: "return 'return 42;';",
+                codeString: codeString,
             }
         };
         var p = ContentScript.getFcommandRunPromise(obj);
@@ -95,9 +97,9 @@ describe("ContentScript.getFcommandRunPromise", function() {
                 dummy: 1,
                 linkElement: { import: "dummy" },
                 request: {
-                    codeString: "return 'return 42;';",
+                    codeString: codeString,
                 },
-                bgCodeString: "return 42;",
+                bgCodeString: bgCodeString,
             });
             done();
         }).catch(function (obj) {

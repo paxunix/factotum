@@ -76,27 +76,30 @@ ContentScript.getLoadImportPromise = function (obj)
 
 
 /**
- * Return a promise to fun Fcommand code.
- * @param {Object} resolvedWith - Object the import promise was fulfilled with.
- * @returns {Promise} - promise to run the Fcommand code
+ * Return a promise to run Fcommand code and resolve with the promise's
+ * resolved-with object containing a code string to be passed to the
+ * background page.
+ * @param {Object} resolvedWith - Object the import promise was fulfilled with.  Expected to contain:
+ *      request:  {Object} - @see ContentScript.getLoadImportPromise
+ *      linkElement:  {HTMLLinkElement} - @see ContentScript.getLoadImportPromise
+ * @returns {Promise} - promise to run the Fcommand code.  The promise will
+ *      be resolved with the resolvedWith object, which will have an
+ *      additional key bgCodeString that contains the code string to be
+ *      passed to the background page for evaluation.
  */
 ContentScript.getFcommandRunPromise = function (resolvedWith)
 {
-    return new Promise(function (resolve, reject) {
-        try {
-            var code = new Function(resolvedWith.request.codeString);
-            resolvedWith.bgCodeString = code(resolvedWith.linkElement.import);
-            // XXX: should support asynchrous code return, which means this
-            // code has to call a function passed in and the return from
-            // that function is used as the bgCodeString.
-            resolve(resolvedWith);
-        }
+    var code = new Function(resolvedWith.request.codeString);
+    var p = new Promise(function (resolve, reject) {
+        code(resolvedWith.linkElement.import, resolve);
+    });
 
-        catch (e)
-        {
-            resolvedWith.error = e;
-            reject(resolvedWith);
-        }
+    return p.then(function (bgCodeString) {
+        resolvedWith.bgCodeString = bgCodeString;
+        return resolvedWith;
+    }).catch(function (error) {
+        resolvedWith.error = error;
+        throw resolvedWith;
     });
 }   // ContentScript.getFcommandRunPromise
 
