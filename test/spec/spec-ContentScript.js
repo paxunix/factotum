@@ -1,7 +1,8 @@
 'use strict';
 
+describe("ContentScript", function() {
 
-describe("ContentScript.getLoadImportPromise", function() {
+describe("getLoadImportPromise", function() {
 
     it("appends a link import element to the document's head", function(done) {
         // Fake the call to add the link element to the document (this is
@@ -146,7 +147,7 @@ describe("getFcommandRunPromise", function() {
             done();
         });
     });
-}); // ContentScript.getFcommandRunPromise
+}); // getFcommandRunPromise
 
 
 describe("XXX", function() {
@@ -241,3 +242,6 @@ describe("XXX", function() {
 
 
 });
+
+
+}); // ContentScript
