@@ -110,13 +110,7 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
 //
 ContentScript.factotumListener = function (request, sender, responseFunc)
 {
-    // Save a deep copy of the request data
-    // XXX:  this will have issues if some of the values in the object are
-    // Dates, Functions, etc.  Since we have complete control over this
-    // since it's passed from the bg script, this should not be an issue.
-    var initialRequest = JSON.parse(JSON.stringify(request));
     var callResponseFunc = function (opts) {
-        opts.request = initialRequest;
         responseFunc(opts);
         return opts;
     };
