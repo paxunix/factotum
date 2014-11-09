@@ -77,14 +77,6 @@ describe("ContentScript.getLoadImportPromise", function() {
 
 describe("XXX", function() {
 
-    xit("responds with error if the request has no fcommandId", function() {
-        var response = jasmine.createSpy("responseFunc");
-        factotumListener({}, "", response);
-
-        expect(response.calls.argsFor(0)[0].exception).toMatch(/Error: 'fcommandId' is required/);
-    });
-
-
     xit("clones the request object in the response", function() {
         var response = jasmine.createSpy("responseFunc");
 
