@@ -15,8 +15,8 @@ ContentScript.appendNodeToDocumentHead = function (node)
 
 ContentScript.doCleanup = function (opts)
 {
-    var link = opts.linkElement.remove();
-    URL.revokeObjectURL(link.href);
+    URL.revokeObjectURL(opts.linkElement.href);
+    opts.linkElement.remove();
 }   // ContentScript.doCleanup
 
 
