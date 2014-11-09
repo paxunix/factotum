@@ -57,7 +57,7 @@ describe("ContentScript.getLoadImportPromise", function() {
 
         p.then(function (obj) {
             // this is a little funky; if the promise was resolved, there
-            // was no failure and their should have been.  The bogus
+            // was no failure and there should have been.  The bogus
             // expect() call is to satisfy the runner, since otherwise the
             // test doesn't actually fail.
             expect(obj).toBe({});
@@ -126,7 +126,7 @@ describe("ContentScript.getFcommandRunPromise", function() {
 
         p.then(function (obj) {
             // this is a little funky; if the promise was resolved, there
-            // was no failure and their should have been.  The bogus
+            // was no failure and there should have been.  The bogus
             // expect() call is to satisfy the runner, since otherwise the
             // test doesn't actually fail.
             expect(obj).toBe({});
