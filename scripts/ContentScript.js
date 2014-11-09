@@ -117,12 +117,8 @@ ContentScript.factotumListener = function (request, sender, responseFunc)
 
     getLoadImportPromise({ request: request, document: document }).
         then(getFcommandPromiseToRun).
-        then(callResponseFunc).
-        catch(function failure(opts) {
-            opts.error = error
-            responseFunc({ error: error });
-        }).
-        then(doCleanup);
+        then(callResponseFunc, callResponseFunc).
+        then(doCleanup, doCleanup);
 
     // Indicate that we will be calling responseFunc() asynchronously.
     return true;
