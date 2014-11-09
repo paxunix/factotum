@@ -85,7 +85,10 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
     return new Promise(function (resolve, reject) {
         try {
             var code = new Function(resolvedWith.request.codeString);
-            resolvedWith.bgCodeString = code(opts.linkElement.import);
+            resolvedWith.bgCodeString = code(resolvedWith.linkElement.import);
+            // XXX: should support asynchrous code return, which means this
+            // code has to call a function passed in and the return from
+            // that function is used as the bgCodeString.
             resolve(resolvedWith);
         }
 

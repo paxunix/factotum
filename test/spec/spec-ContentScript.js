@@ -76,6 +76,45 @@ describe("ContentScript.getLoadImportPromise", function() {
 }); // ContentScript.getLoadImportPromise
 
 
+describe("ContentScript.getFcommandRunPromise", function() {
+
+    it("resolves with the cumulative object and runs the given code string", function(done) {
+        var obj = {
+            dummy: 1,
+            linkElement: { import: "dummy" },
+            request: {
+                codeString: "return 'return 42;';",
+            }
+        };
+        var p = ContentScript.getFcommandRunPromise(obj);
+
+        expect(p instanceof Promise).toBe(true);
+
+        p.then(function (obj) {
+            expect(obj).toEqual({
+                dummy: 1,
+                linkElement: { import: "dummy" },
+                request: {
+                    codeString: "return 'return 42;';",
+                },
+                bgCodeString: "return 42;",
+            });
+            done();
+        }).catch(function (obj) {
+            // this is a little funky; if the promise was rejected, the test
+            // will complain that expect() wasn't called but the test won't
+            // actually fail.  So call expect() to get past that
+            // requirement, then tell the runner the async part is done,
+            // then throw so the test fails.
+            expect(obj).toBe({});
+            done();
+            throw obj;
+        });
+    });
+
+}); // ContentScript.getFcommandRunPromise
+
+
 describe("XXX", function() {
 
     xit("clones the request object in the response", function() {
