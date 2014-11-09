@@ -112,6 +112,38 @@ describe("ContentScript.getFcommandRunPromise", function() {
         });
     });
 
+    it("rejects with error on failure", function(done) {
+        var obj = {
+            dummy: 1,
+            linkElement: { import: "dummy" },
+            request: {
+                codeString: "failToRun",
+            }
+        };
+        var p = ContentScript.getFcommandRunPromise(obj);
+
+        expect(p instanceof Promise).toBe(true);
+
+        p.then(function (obj) {
+            // this is a little funky; if the promise was resolved, there
+            // was no failure and their should have been.  The bogus
+            // expect() call is to satisfy the runner, since otherwise the
+            // test doesn't actually fail.
+            expect(obj).toBe({});
+            done();
+            throw obj;
+        }).catch(function (obj) {
+            expect(obj).toEqual({
+                dummy: 1,
+                linkElement: { import: "dummy" },
+                request: {
+                    codeString: "failToRun",
+                },
+                error: ReferenceError("failToRun is not defined")
+            });
+            done();
+        });
+    });
 }); // ContentScript.getFcommandRunPromise
 
 
