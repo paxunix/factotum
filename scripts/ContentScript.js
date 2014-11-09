@@ -91,6 +91,9 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
 {
     var code = new Function(resolvedWith.request.codeString);
     var p = new Promise(function (resolve, reject) {
+        // XXX: cmdline needs to be passed as well.  Probably wrap the
+        // string in an anon function that gives names to these parameters
+        // so the user doesn't have to call  arguments[2](blahblah);
         code(resolvedWith.linkElement.import, resolve);
     });
 
