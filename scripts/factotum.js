@@ -106,21 +106,6 @@ Factotum.responseHandler = function (response)
     if (!("bgCodeString" in response))
         return;
 
-    // XXX: only show notifications based on some error state in the
-    // response, since the returned code can pop its own notification if
-    // desired.  So in case of error, only pop the notification--don't
-    // evaluate any response code.
-    var notification = chrome.notifications.create(
-        "XXXnotifyID",
-        {
-            type: "basic",
-            iconUrl: chrome.runtime.getURL("icons/error.png"),
-            title: "Response from Fcommand content script",
-            message: JSON.stringify(response),
-        },
-        function () { console.log("XXX notification args:", arguments); }
-    );
-
     try
     {
         // XXX:  this is extremely dangerous, since it means user-space code
