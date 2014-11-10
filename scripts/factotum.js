@@ -99,7 +99,8 @@ Factotum.responseHandler = function (response)
 
     if ("error" in response)
     {
-        console.log("error from content script:", response.exception);
+        console.log("error from content script:", response.error);
+        return;
     }
 
     if (!("bgCodeString" in response))
