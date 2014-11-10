@@ -72,7 +72,7 @@ Factotum.dispatch = function (cmdline)
     var request = {
         documentString: "XXX",  // XXX: get the Fcommand document from storage
         documentURL: "XXX",  // XXX: if an internal Fcommand, give its url
-        opts: opts,
+        cmdline: opts,
     };
 
     // XXX: if Fcommand is flagged bg-only, execute it right here
