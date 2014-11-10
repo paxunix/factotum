@@ -118,6 +118,7 @@ Factotum.responseHandler = function (response)
 
     catch (e)
     {
+        // XXX: this needs to be surfaced to the user somehow
         console.log("Response code failure:", e);
     }
 };  // Factotum.responseHandler
