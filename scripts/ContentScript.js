@@ -57,6 +57,15 @@ ContentScript.doCleanup = function (opts)
  */
 ContentScript.getLoadImportPromise = function (obj)
 {
+    // XXX:  documentString and documentURL (which I'll probably drop)
+    // should be optional, because it may just be the Fcommand needs to run
+    // code and has no need for an import document.
+    // This would be an optimization, since the way the system works is by
+    // importing the Fcommand document.  If, however, the author decides
+    // there is nothing needed from the import and just wants to eval the
+    // Fcommand JS, there should be a setting per fcommand that avoids
+    // importing the doc and just runs the JS.  Similar in spirit to
+    // allowing a bg-only Fcommand.
     return new Promise(function (resolve, reject) {
         obj.linkElement = Util.createImportLink(obj.document,
             "XXXFcommandID", obj.request);
