@@ -81,7 +81,7 @@ describe("getFcommandRunPromise", function() {
 
     it("resolves with the cumulative object and runs the given code string", function(done) {
         var bgCodeString = "return 42;";
-        var codeString = "var a=42; arguments[1]('" + bgCodeString + "');";
+        var codeString = "var a=42; arguments[0].responseCallback('" + bgCodeString + "');";
         var obj = {
             dummy: 1,
             linkElement: { import: "dummy" },
