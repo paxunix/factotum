@@ -83,11 +83,14 @@ describe("getFcommandRunPromise", function() {
         var bgCodeString = "return 42;";
         var codeString = "var a=42; arguments[0].responseCallback('" + bgCodeString + "');";
         var obj = {
-            dummy: 1,
+            // This needs to be kept in sync with what is passed to the
+            // Fcommand code within ContentScript.getFcommandRunPromise
+            dummy: 1,       // as proof unneeded properties are preserved
             linkElement: { import: "dummy" },
             request: {
                 codeString: codeString,
-            }
+            },
+            cmdline: { a: 1 },
         };
         var p = ContentScript.getFcommandRunPromise(obj);
 
@@ -101,6 +104,7 @@ describe("getFcommandRunPromise", function() {
                     codeString: codeString,
                 },
                 bgCodeString: bgCodeString,
+                cmdline: { a: 1},
             });
             done();
         }).catch(function (obj) {
