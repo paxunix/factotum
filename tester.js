@@ -38,5 +38,5 @@ arguments[0].responseCallback("(" + bgCodeWrapper.toString() + ")(" +
 chrome.tabs.query({active: true}, function (tabs) {
     chrome.tabs.sendMessage(tabs[0].id, {
         documentString: "dummy",
-    codeString: "("+fcommand.toString()+").apply(this,arguments);" }, Factotum.responseHandler);
+    codeString: "return ("+fcommand.toString()+").apply(this,arguments);" }, Factotum.responseHandler);
 })
