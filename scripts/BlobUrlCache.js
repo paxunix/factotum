@@ -1,3 +1,6 @@
+"use strict";
+
+
 /**
  * @class
  *
@@ -19,7 +22,7 @@
  * Does not use a singleton cache because we may want more than one
  * instance.
  */
-BlobUrlCache = function ()
+var BlobUrlCache = function ()
 {
     if (!(this instanceof BlobUrlCache))
         return new BlobUrlCache();
