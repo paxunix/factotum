@@ -147,9 +147,6 @@ Factotum.responseHandler = function (response)
         return;
     }
 
-    if (!("bgCodeString" in response))
-        return;
-
     try
     {
         // XXX:  this is extremely dangerous, since it means user-space code
