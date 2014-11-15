@@ -140,14 +140,10 @@ describe("getFcommandRunPromise", function() {
             done();
             throw obj;
         }).catch(function (obj) {
-            expect(obj).toEqual({
-                dummy: 1,
-                linkElement: { import: "dummy" },
-                request: {
-                    codeString: "failToRun",
-                },
-                error: ReferenceError("failToRun is not defined")
-            });
+            expect(obj.dummy).toEqual(1);
+            expect(obj.linkElement).toEqual({import: "dummy"});
+            expect(obj.request).toEqual({ codeString: "failToRun" });
+            expect(obj.error).toMatch(/ReferenceError.*failToRun is not defined/);
             done();
         });
     });

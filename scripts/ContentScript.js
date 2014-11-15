@@ -111,7 +111,14 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
         resolvedWith.bgCodeString = bgCodeString;
         return resolvedWith;
     }).catch(function (error) {
-        resolvedWith.error = error;
+        // If a thrown Error, its details will not be preserved when passed
+        // to the background context, so pull out the message and use it
+        // directly.
+        if (error instanceof Error)
+            resolvedWith.error = error.stack;
+        else
+            resolvedWith.error = error;
+
         throw resolvedWith;
     });
 }   // ContentScript.getFcommandRunPromise
