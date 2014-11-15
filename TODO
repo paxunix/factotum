@@ -1,16 +1,13 @@
-- is it feasible/sensible to use HTML imports to do the actual JS importing?
-  Also for any external resources the injected script requires?  Maybe
-  bundle the whole set up in a document and import the doc?
-    - can import a data URL?  Doesn't seem to be possible (Chrome complained
-      with net::ERR_INVALID_URL
+- how to simplify debugging of Fcommands?
+    - modify Util.getCodeString() to take an options object.  If it has the
+      'debug' property, insert the break-into-debugger statement at the
+      start of the Fcommand function body.
+    - when about to parse opts for an Fcommand, always include a --debug
+      option.  It takes a value (defaults to "").  If no value, enable
+      debugging of the Fcommand itself.  If value is "bg" enable debugging
+      of the code passed from the Fcommand to the background page.
 
 - what if the Fcommands were actually HTML documents?
-    - when installed, they're written to a filesystem object
-    - when run, that file system object is used as an href and imported into
-      the current document
-        - what if you want to import it into the background page?  Or an
-          arbirary background page?  Can you dynamically create a background
-          page?
     - or just save them as a Blob into an indexeddb (supported as of Chrome
       38) and use URL.createObjectURL(blob) to get a URL from it
         - will this work?  if the import is into the background page, it
@@ -53,16 +50,6 @@
           it.  They can even define custom markup that they can then clone
           wholesale into the parent document to use from within their
           Fcommand script.
-    - how to handle Fcommands that need extension-level permissions to do
-      something, but within the context of a page?  They need to tell the
-      background script to do something on their behalf (like execute
-      arbitrary JS), and return the results when ready.  This seems mostly
-      straightforward:
-        - the background script has a listener for requests from the content
-          script
-        - content script sends a request whose payload is arbitrary JS
-        - bg script receives the payload, executes the JS in a sandbox,
-          sends the results back to the content script (or to the page?)
     - XXX:  just always run them in a page.  Then you don't need this.
       should be able to import an Fcommand into the background page also, in
       case it requires nothing but extension APIs.  That has to run in some
@@ -122,25 +109,6 @@
           extract data from it and store it anyway.  But does it matter?
           These won't be huge documents.
 
-- need a way to inject into all frames within a page?  Can already have the
-  content script inserted into all frames (via manifest properties), but
-  there can only be one listener per tab.  How to specify which frame should
-  run the Fcommand?  Should it always be the top frame?  Should an Fcommand
-  be able to decide which frame should run it?
-
-- NOW:  so the content script should be able to pass a function to the bg page,
-  which runs it.  That function returns a result back to the content page
-  via message passing.  The function itself gets run inside a web worker in
-  the bg page (so it has very limited access to the extension, but does have
-  access to chrome APIs -- have to test this).
-    - this is how you get your content script to, say, open a new tab, or
-      make a cross-origin ajax request and get the results
-    - doesn't work because web workers have no access to chrome APIs
-        - so, this implies that having a web worker in the background page
-          to do things is pointless.  Need to establish a cleaner context
-          for evaluating code for bg Fcommands and passed from the content
-          script on behalf of an Fcommand.
-
 - would be cool to flag an fcommand as taking no parameters and being able
   to be run from the context menu.  Then we can populate the context menu
   with those Fcommands and when you click one, it runs it as if you had
@@ -193,9 +161,6 @@
 ----------------
 
 
-- prior to each Fcommand's execution, load any requested additional
-  functionality into the current page.
-
 - provide a management interface on the options page just for F commands
     - shows a list of commands
     - support enabling/disabling F commands
@@ -208,44 +173,17 @@
 
 - internal Fcommand 'help' should pull up the help content for the given
   Fcommand
+    - do this with a default --help option on an Fcommand
 
 - support commands from non-local sources
     - e.g. specifying a URL will pull the Fcommand from the URL and use it.
         - need to specify the data format.
     - can these be edited locally???
 
-- support commands that aren't commands at all but are actually JS libs?
-  Same for CSS?
-    - this provides a mechanism to load common libs locally, rather
-      than from an external source upon use.
-    - these can be requested for load by an Fcommand; give them aliases?  No
-      need: they can just be requested via URL, then cached.
-    - cache them?  Then only refresh them whenever the Factotum extension is
-      activated?  If so, then maybe it's not necessary to have commands that
-      aren't commands--they can be demand-loaded via the above mechanism and
-      since they're cached, subsequent loads will be fast.
-
 - popup page could show the last N Fcommands and/or the most frequently used
   Fcommands
 
 - need an option to toggle error notifications on/off?
-
-- Fcommand 'execute' property can be a function or a string.  The only time
-  it will be a function is if it's an internally-implemented Fcommand,
-  because in all other cases, the code will have come from a string.  Since
-  that's the case, maybe we only need internal functions to run within the
-  background page, rather than the content page.  E.g.  the 'help' Fcommand
-  should popup some window with information about the given command.  There
-  is no need for it to run in the content page since it won't need access to
-  anything there.  Is it true that will be the case for all internal
-  Fcommands?
-    - actually, it makes a lot of sense to run internal Fcommands from the
-      background page:  we want them to be available everywhere, even on
-      internal chrome pages (which they actually can't be anyway).
-    - this means the _converted_-key stuff can probably go away because any
-      internal functions don't need to be persisted (if it's an actual
-      function, it is defined by the extension itself and so doesn't need to
-      be stored).
 
 - useful to make distinction between commands that require the current
   page's context and those that don't?
