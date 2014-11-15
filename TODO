@@ -214,6 +214,11 @@
     - note that the URL path within the extension must be in the manifest's
       web_accessible_resources list
 
+- should supply handy notification icons so bg code can easily pop a
+  notification using standard icons included in the extension (then there's
+  no cross-origin issues).  Makes sense to expose the internal URLs, since
+  the extension will need them anyway.
+
 About the importing
 
 DONE
