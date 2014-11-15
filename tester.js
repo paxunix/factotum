@@ -1,6 +1,10 @@
 // Sample Fcommand code (run in bg console):
 
-function fcommand() {
+function fcommand(data) {
+
+var importdoc = data.importDocument;
+var cmdline = data.cmdline;
+var responseCallback = data.responseCallback;
 
 
 function bgCodeWrapper(title, count)
@@ -18,25 +22,24 @@ function bgPopNotification(title, content)
         },
         function() {}
     );
-}
+}   // bgPopNotification
 
 bgPopNotification(title, "The count is: " + count);
 
-}
+}   // bgCodeWrapper
 
 
 var count = document.querySelectorAll("meta").length;
 console.log("Meta count:", count);
-bgArgs = [ "This is the title", count ];
-arguments[0].responseCallback("(" + bgCodeWrapper.toString() + ")(" +
-    bgArgs.map(function(el) { return JSON.stringify(el); }).join(",") +
-    ");");
+responseCallback([ bgCodeWrapper, "This is the title", count ]);
 
-}
+}   // fcommand
+
 
 // only to be used in the console to fake invocation of an fcommand
 chrome.tabs.query({active: true}, function (tabs) {
     chrome.tabs.sendMessage(tabs[0].id, {
-        documentString: "dummy",
-    codeString: "return ("+fcommand.toString()+").apply(this,arguments);" }, Factotum.responseHandler);
+            documentString: "dummy",
+            codeString: Util.getCodeString([fcommand]),
+        }, Factotum.responseHandler);
 })
