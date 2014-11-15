@@ -257,11 +257,6 @@
   by the Fcommand's code (and the code succeeded) would indicate the
   extension should popup a notification with custom content.
 
-- it may be possible to have the spec runner page load a separate page before
-  executing Fcommands.  Then, force that page's tab to be the current tab
-  when the test runs.  This will hopefully cause the Fcommand to be run in
-  that page, rather than trying (and failing) to run in the spec page.
-
 - explore using a page action instead of a browser action for Factotum,
   since it (currently) requires a page in order to do pretty much anything.
   It would be great if there is a way to trigger the page action popup
