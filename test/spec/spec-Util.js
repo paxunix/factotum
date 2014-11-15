@@ -328,9 +328,19 @@ describe("getCodeString", function() {
     });
 
 
-    it("correctly passes no arguments", function() {
+    it("with no given additional arguments allows any arguments", function() {
         var f = function () { };
-        expect(Util.getCodeString([f])).toBe("return (function () { })();");
+        expect(Util.getCodeString([f])).toBe("return (function () { }).apply(this, arguments);");
+    });
+
+
+    it("with no arguments returns null", function() {
+        expect(Util.getCodeString()).toBe(null);
+    });
+
+
+    it("with a null argument returns null", function() {
+        expect(Util.getCodeString(null)).toBe(null);
     });
 
 

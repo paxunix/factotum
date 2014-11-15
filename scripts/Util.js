@@ -184,16 +184,25 @@ Util.createImportLink = function (parentDocument, id, opts)
  *      arguments can be any value for which JSON.parse(JSON.stringify(arg))
  *      returns the original argument.  functionObject can use named
  *      arguments.
+ *      If args contains only functionObject, the resulting string is
+ *      constructed so that all arguments passed into the evaluated function
+ *      are preserved.
  * @return {String} Evaluatable string invoking func with arguments.
  */
 Util.getCodeString = function (arr)
 {
-    var code = "return (" + arr.shift().toString() + ")(";
+    if (typeof(arr) === "undefined" || arr === null)
+        return null;
+
+    var code = "return (" + arr.shift().toString() + ")";
 
     // append comma-separated list of JSON-ified arguments
-    code += arr.map(function (el) {
-            return JSON.stringify(el);
-        }).join(",") + ");";
+    if (arr.length > 0)
+        code += "(" + arr.map(function (el) {
+                return JSON.stringify(el);
+            }).join(",") + ");";
+    else
+        code += ".apply(this, arguments);"
 
     return code;
 }   // Util.getCodeString

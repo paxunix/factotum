@@ -25,9 +25,10 @@ ContentScript.doCleanup = function (opts)
 //      request: the request object as passed from the background page
 //      linkElement:  the HTMLLinkElement that specifies the import doc
 //      error:  Error object (only present if a promise has been rejected)
-//      bgCodeString: code string to be sent back to the background page for
-//                    evaluation.  It is expected to be returned by the
-//                    Fcommand.
+//      bgCodeArray: function object and arguments to be stringified and
+//          sent back to the background page for evaluation.  It is expected
+//          to be passed to the response callback that was given to the
+//          Fcommand.
 
 
 /**
@@ -93,8 +94,7 @@ ContentScript.getLoadImportPromise = function (obj)
  *      linkElement:  {HTMLLinkElement} - @see ContentScript.getLoadImportPromise
  * @returns {Promise} - promise to run the Fcommand code.  The promise will
  *      be resolved with the resolvedWith object, which will have an
- *      additional key bgCodeString that contains the code string to be
- *      passed to the background page for evaluation.
+ *      additional key bgCodeArray (see above).
  */
 ContentScript.getFcommandRunPromise = function (resolvedWith)
 {
@@ -107,8 +107,8 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
         });
     });
 
-    return p.then(function (bgCodeString) {
-        resolvedWith.bgCodeString = bgCodeString;
+    return p.then(function (bgCodeArray) {
+        resolvedWith.bgCodeArray = bgCodeArray;
         return resolvedWith;
     }).catch(function (error) {
         // If a thrown Error, its details will not be preserved when passed
@@ -130,14 +130,14 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
 //
 ContentScript.factotumListener = function (request, sender, responseFunc)
 {
-    var callResponseFunc = function (opts) {
+    var callResponseFunc = function (resolvedWith) {
         // Only include what is needed by the background page to ensure we
         // don't inadvertently create a circular reference.
         responseFunc({
-                bgCodeString: opts.bgCodeString,
-                error: opts.error,
+                bgCodeString: Util.getCodeString(resolvedWith.bgCodeArray),
+                error: resolvedWith.error,
             });
-        return opts;
+        return resolvedWith;
     };
 
     ContentScript.getLoadImportPromise({ request: request, document: document }).

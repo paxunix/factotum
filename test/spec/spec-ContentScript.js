@@ -80,8 +80,7 @@ describe("getLoadImportPromise", function() {
 describe("getFcommandRunPromise", function() {
 
     it("resolves with the cumulative object and runs the given code string", function(done) {
-        var bgCodeString = "return 42;";
-        var codeString = "var a=42; arguments[0].responseCallback('" + bgCodeString + "');";
+        var codeString = "var a=42; arguments[0].responseCallback();";
         var obj = {
             // This needs to be kept in sync with what is passed to the
             // Fcommand code within ContentScript.getFcommandRunPromise
@@ -103,7 +102,7 @@ describe("getFcommandRunPromise", function() {
                 request: {
                     codeString: codeString,
                 },
-                bgCodeString: bgCodeString,
+                bgCodeArray: undefined,
                 cmdline: { a: 1},
             });
             done();
@@ -118,6 +117,43 @@ describe("getFcommandRunPromise", function() {
             throw obj;
         });
     });
+
+
+    it("handles the background code array passed to the response callback", function(done) {
+        var codeString = "function func(a) { return a; }; var a=42; arguments[0].responseCallback([func], 42);";
+        var obj = {
+            // This needs to be kept in sync with what is passed to the
+            // Fcommand code within ContentScript.getFcommandRunPromise
+            dummy: 1,       // as proof unneeded properties are preserved
+            linkElement: { import: "dummy" },
+            request: {
+                codeString: codeString,
+            },
+            cmdline: { a: 1 },
+        };
+        var p = ContentScript.getFcommandRunPromise(obj);
+
+        expect(p instanceof Promise).toBe(true);
+
+        p.then(function (obj) {
+            expect(obj.dummy).toEqual(1);
+            expect(obj.linkElement).toEqual({ import: "dummy" });
+            expect(obj.request).toEqual({ codeString: codeString });
+            expect(obj.bgCodeArray[0] instanceof Function).toBe(true);
+            expect(obj.cmdline).toEqual({a: 1});
+            done();
+        }).catch(function (obj) {
+            // this is a little funky; if the promise was rejected, the test
+            // will complain that expect() wasn't called but the test won't
+            // actually fail.  So call expect() to get past that
+            // requirement, then tell the runner the async part is done,
+            // then throw so the test fails.
+            expect(obj).toBe({});
+            done();
+            throw obj;
+        });
+    });
+
 
     it("rejects with error on failure", function(done) {
         var obj = {
