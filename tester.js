@@ -35,11 +35,12 @@ responseCallback([ bgCodeWrapper, "This is the title", count ]);
 
 }   // fcommand
 
+var debug = 1;
 
 // only to be used in the console to fake invocation of an fcommand
 chrome.tabs.query({active: true}, function (tabs) {
     chrome.tabs.sendMessage(tabs[0].id, {
             documentString: "dummy",
-            codeString: Util.getCodeString([fcommand]),
+            codeString: Util.getCodeString([fcommand], { debug: debug} ),
         }, Factotum.responseHandler);
 })
