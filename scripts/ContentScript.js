@@ -102,7 +102,7 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
     var p = new Promise(function (resolve, reject) {
         code({
             importDocument: resolvedWith.linkElement.import,
-            cmdline: resolvedWith.cmdline,
+            cmdline: resolvedWith.request.cmdline,
             responseCallback: resolve,
         });
     });
