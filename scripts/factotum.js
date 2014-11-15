@@ -67,12 +67,56 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 Factotum.dispatch = function (cmdline)
 {
     var argv = ShellParse.split(cmdline);
-    var opts = minimist_parseopts(argv.slice(1), {XXX: "XXX: use optspec for fcommand"});
+    var minimistOpts = {
+        XXX: "XXX: use optspec for fcommand",
+    };
+
+    // If the 'boolean' property exists it can be a boolean, string, or
+    // array of strings.  If a boolean, all "--" arguments without "=value"
+    // are considered boolean options.  If a string, --string is considered
+    // a boolean option.  If an array of strings, each string is considered
+    // a boolean option.  Handle each case by appending option handling for
+    // a set of internal options present on all Fcommands.
+    // XXX: put me in a function with tests
+    if ("boolean" in minimistOpts)
+    {
+        if (typeof(minimistOpts.boolean) === "string")
+        {
+            minimistOpts.boolean = [ minimistOpts.boolean ];
+        }
+
+        if (minimistOpts.boolean instanceof Array)
+        {
+            minimistOpts.boolean.push("debug");
+            minimistOpts.boolean.push("bgdebug");
+            minimistOpts.boolean.push("help");
+        }
+    }
+    else
+    {
+        minimistOpts.boolean = [];
+        minimistOpts.boolean.push("debug");
+        minimistOpts.boolean.push("bgdebug");
+        minimistOpts.boolean.push("help");
+    }
+
+    var opts = minimist_parseopts(argv.slice(1), minimistOpts);
+    // XXX: get the Fcommand codestring from storage
+    var XXX_defaultFcommand = function (data)
+    {
+        console.log("Default Fcommand. cmdline: ", data.cmdline); 
+        data.responseCallback();
+        // XXX: should be able to handle the case where the callback isn't
+        // called and then call it implicitly after the Fcommand has
+        // executed, just in case the user forgets to do so.
+    };
 
     var request = {
         documentString: "XXX",  // XXX: get the Fcommand document from storage
         documentURL: "XXX",  // XXX: if an internal Fcommand, give its url
         cmdline: opts,
+        codeString : Util.getCodeString([XXX_defaultFcommand],
+            { debug: opts.debug, bgdebug: opts.bgdebug }),
     };
 
     // XXX: if Fcommand is flagged bg-only, execute it right here
