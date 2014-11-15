@@ -134,7 +134,7 @@ ContentScript.factotumListener = function (request, sender, responseFunc)
         // Only include what is needed by the background page to ensure we
         // don't inadvertently create a circular reference.
         responseFunc({
-                bgCodeString: Util.getCodeString(resolvedWith.bgCodeArray),
+            bgCodeString: Util.getCodeString(resolvedWith.bgCodeArray, { debug: request.cmdline.bgdebug }),
                 error: resolvedWith.error,
             });
         return resolvedWith;
