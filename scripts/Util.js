@@ -177,6 +177,28 @@ Util.createImportLink = function (parentDocument, id, opts)
 }   // Util.createImportLink
 
 
+/**
+ * Convert an array of function object and list of arguments into a string
+ * that invokes the function with those arguments.
+ * @param {Array} args - [ functionObject, arg1, arg2, ... ].  Note that the
+ *      arguments can be any value for which JSON.parse(JSON.stringify(arg))
+ *      returns the original argument.  functionObject can use named
+ *      arguments.
+ * @return {String} Evaluatable string invoking func with arguments.
+ */
+Util.getCodeString = function (arr)
+{
+    var code = "return (" + arr.shift().toString() + ")(";
+
+    // append comma-separated list of JSON-ified arguments
+    code += arr.map(function (el) {
+            return JSON.stringify(el);
+        }).join(",") + ");";
+
+    return code;
+}   // Util.getCodeString
+
+
 /*
  * Creates an object containing data from the Fcommand document suitable
  * for storage.

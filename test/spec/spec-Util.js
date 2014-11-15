@@ -314,4 +314,27 @@ describe("createImportLink", function() {
 }); // createImportLink
 
 
+describe("getCodeString", function() {
+
+    it("returns an evaluateable code string that calls a function with its arguments", function() {
+        var f = function (a, b) { return a+b; };
+        expect(Util.getCodeString([f, 1, 2])).toBe("return (function (a, b) { return a+b; })(1,2);");
+    });
+
+
+    it("stringifies the arguments", function() {
+        var f = function () { };
+        expect(Util.getCodeString([f, { a: [ 1, 2 ] }])).toBe('return (function () { })({"a":[1,2]});');
+    });
+
+
+    it("correctly passes no arguments", function() {
+        var f = function () { };
+        expect(Util.getCodeString([f])).toBe("return (function () { })();");
+    });
+
+
+}); // getCodeString
+
+
 }); // Util
