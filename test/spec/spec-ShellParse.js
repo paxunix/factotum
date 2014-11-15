@@ -1,4 +1,6 @@
-describe("ShellParse.split", function() {
+describe("ShellParse", function() {
+
+describe("split", function() {
 
 
     it("returns no words for an empty string", function() {
@@ -182,4 +184,6 @@ describe("ShellParse.split", function() {
     });
 
 
-}); // ShellParse.split spec
+}); // split
+
+}); // ShellParse
