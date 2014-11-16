@@ -353,4 +353,81 @@ describe("getCodeString", function() {
 }); // getCodeString
 
 
+describe("addInternalOptions", function() {
+
+    it("throws if opts.boolean is boolean", function() {
+        var opts = { boolean: false };
+        expect(function() {
+            Util.addInternalOptions(opts);
+        }).toThrowError(Error, "opts.boolean cannot be a boolean");
+    });
+
+    it("handles nonexistent opts.boolean", function() {
+        var opts = { };
+        Util.addInternalOptions(opts);
+        expect(opts.boolean instanceof Array).toBe(true);
+    });
+
+    it("changes opts.boolean string to array", function() {
+        var opts = { boolean: "x" };
+        Util.addInternalOptions(opts);
+        expect(opts.boolean[0]).toEqual("x");
+    });
+
+    it("changes opts.boolean String object to array", function() {
+        var opts = { boolean: new String("x") };
+        Util.addInternalOptions(opts);
+        expect(opts.boolean[0]).toEqual("x");
+    });
+
+    it("handles opts.boolean array", function() {
+        var opts = { boolean: [ "x" ] };
+        Util.addInternalOptions(opts);
+        expect(opts.boolean[0]).toEqual("x");
+    });
+
+    it("adds debug and help options to opts.boolean", function() {
+        var opts = { boolean: [ "x" ] };
+        Util.addInternalOptions(opts);
+        expect(opts.boolean).toEqual(["x", "debug", "help"]);
+    });
+
+    it("handles nonexistent opts.string", function() {
+        var opts = { };
+        Util.addInternalOptions(opts);
+        expect(opts.string instanceof Array).toBe(true);
+    });
+
+    it("changes opts.string string to array", function() {
+        var opts = { string: "x" };
+        Util.addInternalOptions(opts);
+        expect(opts.string[0]).toEqual("x");
+    });
+
+    it("changes opts.string String object to array", function() {
+        var opts = { string: String("x") };
+        Util.addInternalOptions(opts);
+        expect(opts.string[0]).toEqual("x");
+    });
+
+    it("handles opts.string array", function() {
+        var opts = { string: [ "x" ] };
+        Util.addInternalOptions(opts);
+        expect(opts.string[0]).toEqual("x");
+    });
+
+    it("adds debug and help options to opts.string", function() {
+        var opts = { string: [ "x" ] };
+        Util.addInternalOptions(opts);
+        expect(opts.string).toEqual(["x", "debug"]);
+    });
+
+    it("non-destructively handles both opts.string and opts.boolean", function() {
+        var opts = { other: "1", string: "x", boolean: "y" };
+        Util.addInternalOptions(opts);
+        expect(opts).toEqual({ other: "1", string: [ "x", "debug" ], boolean: [ "y", "debug", "help" ]});
+    });
+}); // addInternalOptions
+
+
 }); // Util
