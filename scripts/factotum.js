@@ -71,34 +71,8 @@ Factotum.dispatch = function (cmdline)
         XXX: "XXX: use optspec for fcommand",
     };
 
-    // If the 'boolean' property exists it can be a boolean, string, or
-    // array of strings.  If a boolean, all "--" arguments without "=value"
-    // are considered boolean options.  If a string, --string is considered
-    // a boolean option.  If an array of strings, each string is considered
-    // a boolean option.  Handle each case by appending option handling for
-    // a set of internal options present on all Fcommands.
-    // XXX: put me in a function with tests
-    if ("boolean" in minimistOpts)
-    {
-        if (typeof(minimistOpts.boolean) === "string")
-        {
-            minimistOpts.boolean = [ minimistOpts.boolean ];
-        }
-
-        if (minimistOpts.boolean instanceof Array)
-        {
-            minimistOpts.boolean.push("debug");
-            minimistOpts.boolean.push("bgdebug");
-            minimistOpts.boolean.push("help");
-        }
-    }
-    else
-    {
-        minimistOpts.boolean = [];
-        minimistOpts.boolean.push("debug");
-        minimistOpts.boolean.push("bgdebug");
-        minimistOpts.boolean.push("help");
-    }
+    // Augment any given optspec with options common to all Fcommands
+    Util.addInternalOptions(minimistOpts);
 
     var opts = minimist_parseopts(argv.slice(1), minimistOpts);
     // XXX: get the Fcommand codestring from storage
@@ -116,7 +90,7 @@ Factotum.dispatch = function (cmdline)
         documentURL: "XXX",  // XXX: if an internal Fcommand, give its url
         cmdline: opts,
         codeString : Util.getCodeString([XXX_defaultFcommand],
-            { debug: opts.debug, bgdebug: opts.bgdebug }),
+            { debug: (opts.debug == ""), bgdebug: opts.debug == "bg" }),
     };
 
     // XXX: if Fcommand is flagged bg-only, execute it right here
