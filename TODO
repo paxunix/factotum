@@ -83,15 +83,6 @@
             duplicating it.  Same for the minimist-opts block.
                 fcommandbody = impdoc.find("script#fcommand").remove().text();
 
-    - figure out what happens if the content script injects the <link>
-      import and it runs a script.  Does the script get run in the
-      content-script's context or in the page's context?  This would matter
-      if they didn't put <template> in (for which there is a valid reason:
-      you're loading a script via import, but you want something done as
-      soon as it finishes)
-        - this seems obvious:  it has to run in page context since that's
-          the document into which it was injected
-
     - note that the HTML document that contains an Fcommand is just a
       delivery document.  Data is extracted from it and put into a DB and
       then various parts of it are rearranged and injected into other
