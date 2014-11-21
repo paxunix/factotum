@@ -1,12 +1,3 @@
-- how to simplify debugging of Fcommands?
-    - modify Util.getCodeString() to take an options object.  If it has the
-      'debug' property, insert the break-into-debugger statement at the
-      start of the Fcommand function body.
-    - when about to parse opts for an Fcommand, always include a --debug
-      option.  It takes a value (defaults to "").  If no value, enable
-      debugging of the Fcommand itself.  If value is "bg" enable debugging
-      of the code passed from the Fcommand to the background page.
-
 - what if the Fcommands were actually HTML documents?
     - or just save them as a Blob into an indexeddb (supported as of Chrome
       38) and use URL.createObjectURL(blob) to get a URL from it

@@ -90,7 +90,7 @@ Factotum.dispatch = function (cmdline)
         documentURL: "XXX",  // XXX: if an internal Fcommand, give its url
         cmdline: opts,
         codeString : Util.getCodeString([XXX_defaultFcommand],
-            { debug: (opts.debug == ""), bgdebug: opts.debug == "bg" }),
+            { debug: opts.debug === true }),
     };
 
     // XXX: if Fcommand is flagged bg-only, execute it right here
