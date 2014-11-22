@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="80" height="80">
+  <path d="M 0,32 H 48 V 80 H 0 z" style="fill:none" />
+  <path d="M 6.667,68.788 H 73.334 L 40.0005,11.211879 6.667,68.788 z m 36.363818,-9.090966 h -6.060636 v -6.060645 h 6.060636 v 6.060645 z m 0,-12.121288 h -6.060636 v -12.12129 h 6.060636 v 12.12129 z" style="fill:#ffc107;fill-opacity:1" />
+</svg>
