@@ -1,3 +1,7 @@
+- arg type checking needed at user-code interface points
+    - response function must be called with an array whose first element
+      must be a function
+
 - what if the Fcommands were actually HTML documents?
     - or just save them as a Blob into an indexeddb (supported as of Chrome
       38) and use URL.createObjectURL(blob) to get a URL from it
