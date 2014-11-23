@@ -81,7 +81,7 @@ describe("getFcommandRunPromise", function() {
 
     it("resolves with the cumulative object and runs the given code string", function(done) {
         var codeString = "var a=42; arguments[0].responseCallback();";
-        var obj = {
+        var initobj = {
             // This needs to be kept in sync with what is passed to the
             // Fcommand code within ContentScript.getFcommandRunPromise
             dummy: 1,       // as proof unneeded properties are preserved
@@ -91,7 +91,7 @@ describe("getFcommandRunPromise", function() {
                 cmdline: { a: 1 },
             },
         };
-        var p = ContentScript.getFcommandRunPromise(obj);
+        var p = ContentScript.getFcommandRunPromise(initobj);
 
         expect(p instanceof Promise).toBe(true);
 
@@ -121,7 +121,7 @@ describe("getFcommandRunPromise", function() {
 
     it("handles the background code array passed to the response callback", function(done) {
         var codeString = "function func(a) { return a; }; var a=42; arguments[0].responseCallback([func], 42);";
-        var obj = {
+        var initobj = {
             // This needs to be kept in sync with what is passed to the
             // Fcommand code within ContentScript.getFcommandRunPromise
             dummy: 1,       // as proof unneeded properties are preserved
@@ -131,7 +131,7 @@ describe("getFcommandRunPromise", function() {
                 cmdline: { a: 1 },
             },
         };
-        var p = ContentScript.getFcommandRunPromise(obj);
+        var p = ContentScript.getFcommandRunPromise(initobj);
 
         expect(p instanceof Promise).toBe(true);
 
@@ -156,7 +156,7 @@ describe("getFcommandRunPromise", function() {
 
     it("handles an undefined value passed to the response callback", function(done) {
         var codeString = "function func(a) { return a; }; var a=42; arguments[0].responseCallback();";
-        var obj = {
+        var initobj = {
             // This needs to be kept in sync with what is passed to the
             // Fcommand code within ContentScript.getFcommandRunPromise
             linkElement: { import: "dummy" },
@@ -165,7 +165,7 @@ describe("getFcommandRunPromise", function() {
                 cmdline: { a: 1 },
             },
         };
-        var p = ContentScript.getFcommandRunPromise(obj);
+        var p = ContentScript.getFcommandRunPromise(initobj);
 
         expect(p instanceof Promise).toBe(true);
 
@@ -187,7 +187,7 @@ describe("getFcommandRunPromise", function() {
 
     it("rejects if a defined, non-array value is passed to the response callback", function(done) {
         var codeString = "function func(a) { return a; }; var a=42; arguments[0].responseCallback(42);";
-        var obj = {
+        var initobj = {
             // This needs to be kept in sync with what is passed to the
             // Fcommand code within ContentScript.getFcommandRunPromise
             linkElement: { import: "dummy" },
@@ -196,7 +196,7 @@ describe("getFcommandRunPromise", function() {
                 cmdline: { a: 1 },
             },
         };
-        var p = ContentScript.getFcommandRunPromise(obj);
+        var p = ContentScript.getFcommandRunPromise(initobj);
 
         expect(p instanceof Promise).toBe(true);
 
@@ -217,14 +217,14 @@ describe("getFcommandRunPromise", function() {
 
 
     it("rejects with error on failure", function(done) {
-        var obj = {
+        var initobj = {
             dummy: 1,
             linkElement: { import: "dummy" },
             request: {
                 codeString: "failToRun",
             }
         };
-        var p = ContentScript.getFcommandRunPromise(obj);
+        var p = ContentScript.getFcommandRunPromise(initobj);
 
         expect(p instanceof Promise).toBe(true);
 
@@ -247,13 +247,13 @@ describe("getFcommandRunPromise", function() {
 
 
     it("rejects with a string error if rejected with an Error object on failure", function(done) {
-        var obj = {
+        var initobj = {
             linkElement: { import: "dummy" },
             request: {
                 codeString: "failToRun",
             }
         };
-        var p = ContentScript.getFcommandRunPromise(obj);
+        var p = ContentScript.getFcommandRunPromise(initobj);
 
         expect(p instanceof Promise).toBe(true);
 
@@ -281,7 +281,7 @@ describe("getFcommandRunPromise", function() {
                 cmdobj.responseCallback instanceof Function,
             ]);
         };
-        var obj = {
+        var initobj = {
             // This needs to be kept in sync with what is passed to the
             // Fcommand code within ContentScript.getFcommandRunPromise
             linkElement: { import: "dummy" },
@@ -290,7 +290,7 @@ describe("getFcommandRunPromise", function() {
                 cmdline: opts,
             },
         };
-        var p = ContentScript.getFcommandRunPromise(obj);
+        var p = ContentScript.getFcommandRunPromise(initobj);
 
         expect(p instanceof Promise).toBe(true);
 
