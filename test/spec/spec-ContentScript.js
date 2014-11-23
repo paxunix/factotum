@@ -88,8 +88,8 @@ describe("getFcommandRunPromise", function() {
             linkElement: { import: "dummy" },
             request: {
                 codeString: codeString,
+                cmdline: { a: 1 },
             },
-            cmdline: { a: 1 },
         };
         var p = ContentScript.getFcommandRunPromise(obj);
 
@@ -101,9 +101,9 @@ describe("getFcommandRunPromise", function() {
                 linkElement: { import: "dummy" },
                 request: {
                     codeString: codeString,
+                    cmdline: { a: 1},
                 },
                 bgCodeArray: undefined,
-                cmdline: { a: 1},
             });
             done();
         }).catch(function (obj) {
@@ -128,8 +128,8 @@ describe("getFcommandRunPromise", function() {
             linkElement: { import: "dummy" },
             request: {
                 codeString: codeString,
+                cmdline: { a: 1 },
             },
-            cmdline: { a: 1 },
         };
         var p = ContentScript.getFcommandRunPromise(obj);
 
@@ -138,9 +138,8 @@ describe("getFcommandRunPromise", function() {
         p.then(function (obj) {
             expect(obj.dummy).toEqual(1);
             expect(obj.linkElement).toEqual({ import: "dummy" });
-            expect(obj.request).toEqual({ codeString: codeString });
+            expect(obj.request).toEqual({ codeString: codeString, cmdline: {a: 1} });
             expect(obj.bgCodeArray[0] instanceof Function).toBe(true);
-            expect(obj.cmdline).toEqual({a: 1});
             done();
         }).catch(function (obj) {
             // this is a little funky; if the promise was rejected, the test
@@ -163,8 +162,8 @@ describe("getFcommandRunPromise", function() {
             linkElement: { import: "dummy" },
             request: {
                 codeString: codeString,
+                cmdline: { a: 1 },
             },
-            cmdline: { a: 1 },
         };
         var p = ContentScript.getFcommandRunPromise(obj);
 
@@ -194,8 +193,8 @@ describe("getFcommandRunPromise", function() {
             linkElement: { import: "dummy" },
             request: {
                 codeString: codeString,
+                cmdline: { a: 1 },
             },
-            cmdline: { a: 1 },
         };
         var p = ContentScript.getFcommandRunPromise(obj);
 
