@@ -112,8 +112,8 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
         return resolvedWith;
     }).catch(function (error) {
         // If a thrown Error, its details will not be preserved when passed
-        // to the background context, so pull out the message and use it
-        // directly.
+        // to the background context, so pull out the stack and use it
+        // as the error string.
         if (error instanceof Error)
             resolvedWith.error = error.stack;
         else
