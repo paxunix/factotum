@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Contains code that should only run via load by the extension.
  */

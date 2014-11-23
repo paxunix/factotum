@@ -1,3 +1,5 @@
+"use strict";
+
 var Factotum = {};
 
 // XXX: variables in this global scope are visible to the response code
