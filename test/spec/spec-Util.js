@@ -270,7 +270,7 @@ describe("getFromLangSelector", function() {
                      '<div id="bad2" lang="fr-qc"></div>' +
                      '<div id="bad3" lang="fr-fr"></div>';
         var doc = (new DOMParser).parseFromString(docstr, "text/html");
-        expect(Util.getFromLangSelector(doc, "div", "en-us")).toBe(null);
+        expect(Util.getFromLangSelector(doc, "div", "en-us")).toBeNull();
     });
 
 
@@ -279,7 +279,7 @@ describe("getFromLangSelector", function() {
                      '<div id="bad2" lang="fr-qc"></div>' +
                      '<div id="bad3" lang="fr-fr"></div>';
         var doc = (new DOMParser).parseFromString(docstr, "text/html");
-        expect(Util.getFromLangSelector(doc, "span", "fr")).toBe(null);
+        expect(Util.getFromLangSelector(doc, "span", "fr")).toBeNull();
     });
 
 
@@ -335,12 +335,12 @@ describe("getCodeString", function() {
 
 
     it("with no arguments returns null", function() {
-        expect(Util.getCodeString()).toBe(null);
+        expect(Util.getCodeString()).toBeNull();
     });
 
 
     it("with a null argument returns null", function() {
-        expect(Util.getCodeString(null)).toBe(null);
+        expect(Util.getCodeString(null)).toBeNull();
     });
 
 

@@ -170,7 +170,7 @@ describe("getFcommandRunPromise", function() {
         expect(p instanceof Promise).toBe(true);
 
         p.then(function (obj) {
-            expect(obj.bgCodeArray).toBe(undefined);
+            expect(obj.bgCodeArray).toBeUndefined();
             done();
         }).catch(function (obj) {
             // this is a little funky; if the promise was rejected, the test
