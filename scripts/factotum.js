@@ -94,6 +94,8 @@ Factotum.dispatch = function (cmdline)
 
     // XXX: if Fcommand is flagged bg-only, execute it right here
 
+    // XXX: handle Fcommand's help here; it doesn't have to run in-page
+
     // Ensure everything from this point happens for the current tab.
     chrome.tabs.query({ active: true }, function (tabs) {
         console.log("XXX Tab:", tabs[0]);
