@@ -82,9 +82,6 @@ Factotum.dispatch = function (cmdline)
     {
         console.log("Default Fcommand. cmdline: ", data.cmdline); 
         data.responseCallback();
-        // XXX: should be able to handle the case where the callback isn't
-        // called and then call it implicitly after the Fcommand has
-        // executed, just in case the user forgets to do so.
     };
 
     var request = {

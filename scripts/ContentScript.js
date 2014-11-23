@@ -134,9 +134,6 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
 //
 ContentScript.factotumListener = function (request, sender, responseFunc)
 {
-    // XXX XXX: should be able to handle the case where the callback isn't
-    // called and then call it implicitly after the Fcommand has
-    // executed, just in case the user forgets to do so.
     var callResponseFunc = function (resolvedWith) {
         // Only include what is needed by the background page to ensure we
         // don't inadvertently create a circular reference.
