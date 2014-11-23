@@ -312,4 +312,62 @@ describe("getFcommandRunPromise", function() {
 
 }); // getFcommandRunPromise
 
+
+describe("getResponseFuncCaller", function() {
+
+    it("returns a function that calls the bg page's responseFunc and returns the input data object", function() {
+        var req = {
+            cmdline: { a: 1 },
+        };
+        var bgCodeArray = [ function(arg) { return arg; }, 42 ];
+        var spy = jasmine.createSpy("responseFunc");
+        var func = ContentScript.getResponseFuncCaller(req, spy);
+        var resolvedWith = {
+            bgCodeArray: bgCodeArray,
+            dummy: 1,
+        };
+
+        expect(func(resolvedWith)).toBe(resolvedWith);
+        expect(spy.calls.argsFor(0)[0].bgCodeString).toMatch(/return arg[^]*42/);
+        expect(spy.calls.argsFor(0)[0].error).toBeUndefined();
+    });
+
+
+    it("returns a code string with debugging enabled if debug flag is \"bg\"", function() {
+        var req = {
+            cmdline: { debug: "bg" },
+        };
+        var bgCodeArray = [ function(arg) { return arg; }, 42 ];
+        var spy = jasmine.createSpy("responseFunc");
+        var func = ContentScript.getResponseFuncCaller(req, spy);
+        var resolvedWith = {
+            bgCodeArray: bgCodeArray,
+            dummy: 1,
+        };
+
+        expect(func(resolvedWith)).toBe(resolvedWith);
+        expect(spy.calls.argsFor(0)[0].bgCodeString).toMatch(/debugger;[^]*function[^]*return arg[^]*42/);
+        expect(spy.calls.argsFor(0)[0].error).toBeUndefined();
+    });
+
+
+    it("returns a code string with no debugging enabled if debug flag is true", function() {
+        var req = {
+            cmdline: { debug: true },
+        };
+        var bgCodeArray = [ function(arg) { return arg; }, 42 ];
+        var spy = jasmine.createSpy("responseFunc");
+        var func = ContentScript.getResponseFuncCaller(req, spy);
+        var resolvedWith = {
+            bgCodeArray: bgCodeArray,
+            dummy: 1,
+        };
+
+        expect(func(resolvedWith)).toBe(resolvedWith);
+        expect(spy.calls.argsFor(0)[0].bgCodeString).not.toMatch(/debugger/);
+        expect(spy.calls.argsFor(0)[0].error).toBeUndefined();
+    });
+}); // callResponseFunc
+
+
 }); // ContentScript

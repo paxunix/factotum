@@ -128,13 +128,18 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
 }   // ContentScript.getFcommandRunPromise
 
 
-// Define a connection listener that executes Fcommand code passed from
-// Factotum.  If an exception occurs while executing the Fcommand, the error
-// message is returned to Factotum.
-//
-ContentScript.factotumListener = function (request, sender, responseFunc)
+/** Return a function that calls the response function with the data in the
+ * promise chain so far and propagates the resolved object.  It should be
+ * called for both success and failure.
+ * @param {Object} request - @see ContentScript.getLoadImportPromise.  Must
+ *      contain at least the 'cmdline' property.
+ * @param {Object} responseFunc - To be called to signify the Fcommand has completed.
+ * @return {Function} Resolve/reject function suitable for use in the
+ * promise chain.
+ */
+ContentScript.getResponseFuncCaller = function (request, responseFunc)
 {
-    var callResponseFunc = function (resolvedWith) {
+    return function (resolvedWith) {
         // Only include what is needed by the background page to ensure we
         // don't inadvertently create a circular reference.
         responseFunc({
@@ -142,8 +147,19 @@ ContentScript.factotumListener = function (request, sender, responseFunc)
                                   { debug: request.cmdline.debug === "bg" }),
                 error: resolvedWith.error,
             });
+
         return resolvedWith;
     };
+}   // getResponseFuncCaller
+
+
+// Define a connection listener that executes Fcommand code passed from
+// Factotum.  If an exception occurs while executing the Fcommand, the error
+// message is returned to Factotum.
+ContentScript.factotumListener = function (request, sender, responseFunc)
+{
+    var callResponseFunc =
+        ContentScript.getResponseFuncCaller(request, responseFunc);
 
     ContentScript.getLoadImportPromise({ request: request, document: document }).
         then(ContentScript.getFcommandRunPromise).
