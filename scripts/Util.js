@@ -265,6 +265,16 @@ Util.addInternalOptions = function (opts)
 }   // Util.addInternalOptions
 
 
+/** Test if thing is an array.
+ * @param {anything} arr - Thing to test for array-ness.
+ * @return {Boolean} True if arr is an array, otherwise false.
+ */
+Util.isArray = function (arr)
+{
+    return Object.prototype.toString.call(arr) === "[object Array]";
+}   // Util.isArray
+
+
 /*
  * Creates an object containing data from the Fcommand document suitable
  * for storage.

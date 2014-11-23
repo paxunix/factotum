@@ -186,6 +186,37 @@ describe("getFcommandRunPromise", function() {
     });
 
 
+    it("rejects if a defined, non-array value is passed to the response callback", function(done) {
+        var codeString = "function func(a) { return a; }; var a=42; arguments[0].responseCallback(42);";
+        var obj = {
+            // This needs to be kept in sync with what is passed to the
+            // Fcommand code within ContentScript.getFcommandRunPromise
+            linkElement: { import: "dummy" },
+            request: {
+                codeString: codeString,
+            },
+            cmdline: { a: 1 },
+        };
+        var p = ContentScript.getFcommandRunPromise(obj);
+
+        expect(p instanceof Promise).toBe(true);
+
+        p.then(function (obj) {
+            // this is a little funky; if the promise was rejected, the test
+            // will complain that expect() wasn't called but the test won't
+            // actually fail.  So call expect() to get past that
+            // requirement, then tell the runner the async part is done,
+            // then throw so the test fails.
+            expect(obj).toBe({});
+            done();
+            throw obj;
+        }).catch(function (obj) {
+            expect(obj.error).toMatch(/Error.*responseCallback's first argument must be undefined or an array/);
+            done();
+        });
+    });
+
+
     it("rejects with error on failure", function(done) {
         var obj = {
             dummy: 1,

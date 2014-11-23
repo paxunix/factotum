@@ -108,6 +108,10 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
     });
 
     return p.then(function (bgCodeArray) {
+        if (typeof(bgCodeArray) !== "undefined")
+            if (!Util.isArray(bgCodeArray))
+                throw Error("responseCallback's first argument must be undefined or an array");
+
         resolvedWith.bgCodeArray = bgCodeArray;
         return resolvedWith;
     }).catch(function (error) {
