@@ -271,6 +271,45 @@ describe("getFcommandRunPromise", function() {
         });
     });
 
+
+    it("passes invocation data to the Fcommand code", function(done) {
+        var opts = { a: 1 };
+        var code = function (cmdobj) {
+            cmdobj.responseCallback([
+                typeof(cmdobj.importDocument),
+                cmdobj.cmdline,
+                cmdobj.responseCallback instanceof Function,
+            ]);
+        };
+        var obj = {
+            // This needs to be kept in sync with what is passed to the
+            // Fcommand code within ContentScript.getFcommandRunPromise
+            linkElement: { import: "dummy" },
+            request: {
+                codeString: Util.getCodeString([code]),
+                cmdline: opts,
+            },
+        };
+        var p = ContentScript.getFcommandRunPromise(obj);
+
+        expect(p instanceof Promise).toBe(true);
+
+        p.then(function (resolvedWith) {
+            expect(resolvedWith.bgCodeArray).toEqual(["string", opts, true]);
+            done();
+        }).catch(function (obj) {
+            // this is a little funky; if the promise was rejected, the test
+            // will complain that expect() wasn't called but the test won't
+            // actually fail.  So call expect() to get past that
+            // requirement, then tell the runner the async part is done,
+            // then throw so the test fails.
+            expect(obj).toBe({});
+            done();
+            throw obj;
+        });
+    });
+
+
 }); // getFcommandRunPromise
 
 }); // ContentScript
