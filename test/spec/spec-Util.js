@@ -196,11 +196,11 @@ describe("validateMetadata", function() {
 describe("fetchDocument", function() {
 
 
-    it("throws when retrieving an Fcommand document via invalid URL", function(done) {
+    it("rejects when retrieving an Fcommand document via invalid URL", function(done) {
         var p = Util.fetchDocument("this is not a URL");
         expect(p instanceof Promise).toBe(true);
         p.catch(function (err) {
-            expect(err.statusText).toEqual("error");
+            expect(err.type).toEqual("error");
             done();
         });
     });
@@ -210,7 +210,7 @@ describe("fetchDocument", function() {
         var p = Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html"));
         expect(p instanceof Promise).toBe(true);
         p.then(function (response) {
-            expect(response).not.toEqual("");
+            expect(response.target.response.constructor.name).toEqual("HTMLDocument");
             done();
         });
     });

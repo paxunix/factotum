@@ -117,7 +117,25 @@ Util.validateMetadata = function (metadata)
  */
 Util.fetchDocument = function (url)
 {
-    return Promise.resolve(jQuery.get(url));
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.responseType = "document";
+        xhr.onload = function (evt) {
+            if (this.status == 200)
+                resolve(evt);
+            else
+                reject(evt);
+        };
+        xhr.onerror = function (evt) {
+            reject(evt);
+        };
+        xhr.onabort = function (evt) {
+            reject(evt);
+        };
+
+        xhr.send();
+    });
 }   // Util.fetchDocument
 
 
