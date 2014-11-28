@@ -18,7 +18,7 @@ function bgPopNotification(title, content)
         "bogusId",
         {
             type: "basic",
-            iconUrl: chrome.runtime.getURL("icons/md/error.svg"),
+            iconUrl: chrome.runtime.getURL("icons/md/error.png"),
             title: title,
             message: content
         },
