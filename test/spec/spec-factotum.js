@@ -1,3 +1,5 @@
+"use strict";
+
 describe("Factotum", function () {
 
 
@@ -50,6 +52,7 @@ describe("checkInternalOptions", function() {
         expect(Factotum.checkInternalOptions(["test", "--help", "a"]).help).toBe(true);
 
         expect(Factotum.checkInternalOptions(["test", "a", "--help"]).help).toBe(true);
+    });
 }); // Factotum.normalizeInternalOptions
 
 
