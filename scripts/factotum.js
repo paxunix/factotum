@@ -12,10 +12,9 @@ Factotum.onOmniboxInputEntered = function(text)
 };  // Factotum.onOmniboxInputEntered
 
 
-// Return an omnibox suggestion object with content string matching argv and
-// a description incorporating the command name and the description
-// associated with the command.
-Factotum.getSuggestion = function(fcommand, argv)
+// Return a omnibox suggestion object suitable for the default suggestion,
+// i.e. has no content because that's determined on entry.
+Factotum.getOmniboxDescription = function(opts)
 {
     // XXX: detect internal options here too and modify the suggestion based
     // on them.  Or maybe we should always add e other suggestions:  one for
@@ -28,12 +27,25 @@ Factotum.getSuggestion = function(fcommand, argv)
     // XXX: detect multiple fcommands and show them
     // only show internal option suggestions once an unambiguous Fcommand is
     // known
-    return {
-        content: argv.join(" "),
-        description: '<match>' +
-            fcommand + "</match><dim>" + argv.join(" ") + "</dim>"
-    };
-}   // Factotum.getSuggestion
+
+    // Show an indicator for which internal option was entered.
+    var leader = "";
+    if (opts.debug === "bg")
+        leader = "[Debug-bg]";
+    else if (opts.debug)
+        leader = "[Debug]";
+    else if (opts.help)
+        leader = "[Help]";
+
+    // Command isn't known yet, so show nothing
+    if (opts._.length === 0)
+        opts._ = [ "" ];
+
+    var description = leader + " <match>" + opts._[0] + "</match>" +
+        "<dim>" + opts._.slice(1).join(" ") + "</dim>";
+
+    return description;
+}   // Factotum.getOmniboxDescription
 
 
 // Listener for Omnibox changes
@@ -57,18 +69,22 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
         return;
     }
 
-    // At least one word is needed in command line.
-    var argv = ShellParse.split(text);
-    if (argv.length < 1)
+    if (text === "")
         return;
 
-    var cmdName = argv.shift();
-    var suggestions = [ Factotum.getSuggestion(cmdName, argv) ];
-    var suggestion = suggestions.shift();
+    var argv = ShellParse.split(text);
 
-    delete suggestion.content;
-    chrome.omnibox.setDefaultSuggestion(suggestion);
-    suggestFunc(suggestions);
+    // Set the default omnibox suggestion based on what's entered so far.
+    // To support internal options as the first word, consider the entire
+    // command line.
+    var internalOptions = Factotum.checkInternalOptions(argv);
+    var defaultDesc = Factotum.getOmniboxDescription(internalOptions);
+    chrome.omnibox.setDefaultSuggestion({ description: defaultDesc });
+
+    // XXX: append alternate Fcommand suggestions based on first word
+    //var suggestions = [{
+    //}];
+    //suggestFunc(suggestions);
 
     });   // chrome.tabs.query
 };  // Factotum.onOmniboxInputChanged
