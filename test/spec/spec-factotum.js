@@ -1,3 +1,24 @@
+describe("Factotum.normalizeInternalOptions", function() {
+    it("only permits valid debug options", function () {
+        expect(Factotum.normalizeInternalOptions({
+            debug: false
+        }).debug).toBe(false);
+
+        expect(Factotum.normalizeInternalOptions({
+            debug: true
+        }).debug).toBe(true);
+
+        expect(Factotum.normalizeInternalOptions({
+            debug: "bg"
+        }).debug).toBe("bg");
+
+        expect(Factotum.normalizeInternalOptions({
+            debug: "invalid"
+        }).debug).toBeUndefined()
+    });
+}); // Factotum.normalizeInternalOptions
+
+
 xdescribe("Factotum.getSuggestion", function() {
 
     it("returns a Chrome omnibox suggestion object", function() {

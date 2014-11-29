@@ -74,6 +74,17 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 };  // Factotum.onOmniboxInputChanged
 
 
+Factotum.normalizeInternalOptions = function (opts)
+{
+    // If --debug was given, it can only be "bg" or true/false.
+    if ("debug" in opts &&
+        typeof(opts.debug) === "string" && opts.debug !== "bg")
+            delete opts.debug;
+
+    return opts;
+}   // Factotum.normalizeInternalOptions
+
+
 // Return a minimist-opts object that has checked for --help or --debug
 // options in argv.
 Factotum.checkInternalOptions = function (argv)
@@ -86,11 +97,7 @@ Factotum.checkInternalOptions = function (argv)
         boolean: [ "debug", "help" ],
     });
 
-    // If --debug was given, it can only be "bg" or true.
-    if ("debug" in opts && opts.debug !== "bg")
-        opts.debug = true;
-
-    return opts;
+    return Factotum.normalizeInternalOptions(opts);
 }   // Factotum.checkInternalOptions
 
 
