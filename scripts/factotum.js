@@ -74,12 +74,15 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 };  // Factotum.onOmniboxInputChanged
 
 
+// If --debug was given, it can only be "bg" or true/false.
 Factotum.normalizeInternalOptions = function (opts)
 {
-    // If --debug was given, it can only be "bg" or true/false.
-    if ("debug" in opts &&
-        typeof(opts.debug) === "string" && opts.debug !== "bg")
-            delete opts.debug;
+    if ("debug" in opts)
+        if (typeof(opts.debug) === "string")
+            if (opts.debug === "")
+                opts.debug = true;
+            else if (opts.debug !== "bg")
+                delete opts.debug;
 
     return opts;
 }   // Factotum.normalizeInternalOptions

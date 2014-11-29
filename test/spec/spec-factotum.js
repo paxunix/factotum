@@ -17,8 +17,39 @@ describe("normalizeInternalOptions", function() {
 
         expect(Factotum.normalizeInternalOptions({
             debug: "invalid"
-        }).debug).toBeUndefined()
+        }).debug).toBeUndefined();
+
+        // special case: since --debug can be both a string or a boolean, if
+        // no value was given, consider it to be true (because --debug was
+        // given with no value)
+        expect(Factotum.normalizeInternalOptions({
+            debug: ""
+        }).debug).toBe(true);
     });
+}); // Factotum.normalizeInternalOptions
+
+
+describe("checkInternalOptions", function() {
+    it("accepts --debug option anywhere in command line", function () {
+        expect(Factotum.checkInternalOptions(["--debug", "test", "a"]).debug).toBe(true);
+
+        expect(Factotum.checkInternalOptions(["test", "--debug", "a"]).debug).toBe(true);
+
+        expect(Factotum.checkInternalOptions(["test", "a", "--debug"]).debug).toBe(true);
+
+        expect(Factotum.checkInternalOptions(["--debug=bg", "test", "a"]).debug).toBe("bg");
+
+        expect(Factotum.checkInternalOptions(["test", "--debug=bg", "a"]).debug).toBe("bg");
+
+        expect(Factotum.checkInternalOptions(["test", "a", "--debug=bg"]).debug).toBe("bg");
+    });
+
+    it("accepts --help option anywhere in command line", function () {
+        expect(Factotum.checkInternalOptions(["--help", "test", "a"]).help).toBe(true);
+
+        expect(Factotum.checkInternalOptions(["test", "--help", "a"]).help).toBe(true);
+
+        expect(Factotum.checkInternalOptions(["test", "a", "--help"]).help).toBe(true);
 }); // Factotum.normalizeInternalOptions
 
 
