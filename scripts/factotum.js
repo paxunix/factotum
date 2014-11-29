@@ -72,16 +72,15 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
     if (text === "")
         return;
 
-    var argv = ShellParse.split(text);
-
     // Set the default omnibox suggestion based on what's entered so far.
     // To support internal options as the first word, consider the entire
     // command line.
-    var internalOptions = Factotum.checkInternalOptions(argv);
+    var internalOptions = Factotum.parseCommandLine(text);
     var defaultDesc = Factotum.getOmniboxDescription(internalOptions);
     chrome.omnibox.setDefaultSuggestion({ description: defaultDesc });
 
-    // XXX: append alternate Fcommand suggestions based on first word
+    // XXX: append alternate Fcommand suggestions based on first word in
+    // internalOptions._ (since that's argv without the internal options)
     //var suggestions = [{
     //}];
     //suggestFunc(suggestions);
@@ -120,12 +119,23 @@ Factotum.checkInternalOptions = function (argv)
 }   // Factotum.checkInternalOptions
 
 
+// Given a command line, check it for internal options and return the parsed
+// data.
+Factotum.parseCommandLine = function (text)
+{
+    var argv = ShellParse.split(text);
+
+    // To support internal options as the first word, consider the entire
+    // command line.
+    return Factotum.checkInternalOptions(argv);
+}   // Factotum.parseCommandLine
+
+
 // Given a command line, figure out the Fcommand and run its function.  Once the
 // function has executed, run the response callback, passing the response from
 // the function.
 Factotum.dispatch = function (cmdline)
 {
-    var argv = ShellParse.split(cmdline);
     var minimistOpts = {
         XXX: "XXX: use optspec for fcommand",
     };
@@ -133,7 +143,7 @@ Factotum.dispatch = function (cmdline)
     // Internal option parsing examines the entire command line, not just
     // everything after the first word.  Then parse the args resulting from
     // that as the actualy command line.
-    var internalOptions = Factotum.checkInternalOptions(argv);
+    var internalOptions = Factotum.parseCommandLine(cmdline);
     var opts = minimist_parseopts(internalOptions._, minimistOpts);
 
     // XXX: get the Fcommand codestring from storage
