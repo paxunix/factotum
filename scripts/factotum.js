@@ -17,6 +17,17 @@ Factotum.onOmniboxInputEntered = function(text)
 // associated with the command.
 Factotum.getSuggestion = function(fcommand, argv)
 {
+    // XXX: detect internal options here too and modify the suggestion based
+    // on them.  Or maybe we should always add e other suggestions:  one for
+    // bg debug, fcommand debug, and help.  That will use up all the space
+    // in the omnibox dropdown, though.  And you'll still want to support
+    // --debug and --help anyway.
+    // You can do the split and parse for internal options here, then
+    // generate better suggestions.  And pass the parsed data instead of
+    // rejoining everything.
+    // XXX: detect multiple fcommands and show them
+    // only show internal option suggestions once an unambiguous Fcommand is
+    // known
     return {
         content: argv.join(" "),
         description: '<match>' +
@@ -63,6 +74,26 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 };  // Factotum.onOmniboxInputChanged
 
 
+// Return a minimist-opts object that has checked for --help or --debug
+// options in argv.
+Factotum.checkInternalOptions = function (argv)
+{
+    // "debug" can be either a boolean (Fcommand debug) or a string
+    // (bg-script debug).  Skip the first word, since that's the command
+    // name.
+    var opts = minimist_parseopts(argv, {
+        string: "debug",
+        boolean: [ "debug", "help" ],
+    });
+
+    // If --debug was given, it can only be "bg" or true.
+    if ("debug" in opts && opts.debug !== "bg")
+        opts.debug = true;
+
+    return opts;
+}   // Factotum.checkInternalOptions
+
+
 // Given a command line, figure out the Fcommand and run its function.  Once the
 // function has executed, run the response callback, passing the response from
 // the function.
@@ -73,10 +104,12 @@ Factotum.dispatch = function (cmdline)
         XXX: "XXX: use optspec for fcommand",
     };
 
-    // Augment any given optspec with options common to all Fcommands
-    Util.addInternalOptions(minimistOpts);
+    // Internal option parsing examines the entire command line, not just
+    // everything after the first word.  Then parse the args resulting from
+    // that as the actualy command line.
+    var internalOptions = Factotum.checkInternalOptions(argv);
+    var opts = minimist_parseopts(internalOptions._, minimistOpts);
 
-    var opts = minimist_parseopts(argv.slice(1), minimistOpts);
     // XXX: get the Fcommand codestring from storage
     var XXX_defaultFcommand = function (data)
     {
@@ -88,8 +121,9 @@ Factotum.dispatch = function (cmdline)
         documentString: "XXX",  // XXX: get the Fcommand document from storage
         documentURL: "XXX",  // XXX: if an internal Fcommand, give its url
         cmdline: opts,
+        internalOptions: internalOptions,
         codeString : Util.getCodeString([XXX_defaultFcommand],
-            { debug: opts.debug === true }),
+            { debug: internalOptions.debug === true }),
     };
 
     // XXX: if Fcommand is flagged bg-only, execute it right here

@@ -241,48 +241,6 @@ Util.getCodeString = function (arr, opts)
 }   // Util.getCodeString
 
 
-/**
- * Adds internal options to the minimist option parser spec.
- * @params {Object} opts - Minimist option parser spec object.  It is
- *      modified to include options common to all Fcommands.  Note that the
- *      {opts.boolean: true} case cannot be supported (because we're adding
- *      additional strings).
- *      Current internal options:
- *          --debug         enable Fcommand debugging
- *          --debug=bg      enable Fcommand bg-code debugging
- *          --help          show Fcommand's help
- */
-Util.addInternalOptions = function (opts)
-{
-    // Throw because the caller needs to know that this case isn't
-    // supported.
-    if (typeof(opts.boolean) === "boolean")
-        throw Error("opts.boolean cannot be a boolean");
-
-    if (typeof(opts.boolean) !== "undefined")
-    {
-        if (typeof(opts.boolean) === "string" || opts.boolean instanceof String)
-            opts.boolean = [ opts.boolean ];
-    }
-    else
-        opts.boolean = [];
-
-    if (typeof(opts.string) !== "undefined")
-    {
-        if (typeof(opts.string) === "string" || opts.boolean instanceof String)
-            opts.string = [ opts.string ];
-    }
-    else
-        opts.string = [];
-
-    // At this point, if opts was a valid minimist opts object, we're
-    // only dealing with arrays, so append the internal options.
-
-    opts.string.push("debug");   // "debug" can be a boolean or string
-    opts.boolean.push("debug", "help");
-}   // Util.addInternalOptions
-
-
 /** Test if thing is an array.
  * @param {anything} arr - Thing to test for array-ness.
  * @return {Boolean} True if arr is an array, otherwise false.

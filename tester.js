@@ -42,10 +42,10 @@ chrome.tabs.query({active: true}, function (tabs) {
     chrome.tabs.sendMessage(tabs[0].id, {
             documentString: "dummy",
             cmdline: {
-                debug: debug,
                 help: false,
                 _: [ 1, 2, 3 ],
             },
             codeString: Util.getCodeString([fcommand], { debug: debug===true } ),
+            internalOptions: { debug: debug },
         }, Factotum.responseHandler);
 })

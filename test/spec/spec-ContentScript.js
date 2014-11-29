@@ -318,6 +318,7 @@ describe("getResponseFuncCaller", function() {
     it("returns a function that calls the bg page's responseFunc and returns the input data object", function() {
         var req = {
             cmdline: { a: 1 },
+            internalOptions: { },
         };
         var bgCodeArray = [ function(arg) { return arg; }, 42 ];
         var spy = jasmine.createSpy("responseFunc");
@@ -335,7 +336,7 @@ describe("getResponseFuncCaller", function() {
 
     it("returns a code string with debugging enabled if debug flag is \"bg\"", function() {
         var req = {
-            cmdline: { debug: "bg" },
+            internalOptions: { debug: "bg" },
         };
         var bgCodeArray = [ function(arg) { return arg; }, 42 ];
         var spy = jasmine.createSpy("responseFunc");
@@ -353,7 +354,7 @@ describe("getResponseFuncCaller", function() {
 
     it("returns a code string with no debugging enabled if debug flag is true", function() {
         var req = {
-            cmdline: { debug: true },
+            internalOptions: { debug: true },
         };
         var bgCodeArray = [ function(arg) { return arg; }, 42 ];
         var spy = jasmine.createSpy("responseFunc");

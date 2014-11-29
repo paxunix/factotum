@@ -51,6 +51,9 @@ ContentScript.doCleanup = function (opts)
  *
  *          // Fcommand code string
  *          codeString: String,
+ *
+ *          // internal options (like --debug, --help, etc.)
+ *          internalOptions: Object,
  *      },
  *      // document to receive the import
  *      document:  HTMLDocument,
@@ -144,7 +147,7 @@ ContentScript.getResponseFuncCaller = function (request, responseFunc)
         // don't inadvertently create a circular reference.
         responseFunc({
                 bgCodeString: Util.getCodeString(resolvedWith.bgCodeArray,
-                                  { debug: request.cmdline.debug === "bg" }),
+                                  { debug: request.internalOptions.debug === "bg" }),
                 error: resolvedWith.error,
             });
 
