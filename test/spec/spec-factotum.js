@@ -1,4 +1,4 @@
-describe("Factotum.getSuggestion", function() {
+xdescribe("Factotum.getSuggestion", function() {
 
     it("returns a Chrome omnibox suggestion object", function() {
         var name = "test";
@@ -59,7 +59,7 @@ describe("Factotum.getSuggestion", function() {
 }); // Factotum.getSuggestion
 
 
-describe("Factotum.responseHandler", function() {
+xdescribe("Factotum.responseHandler", function() {
 
     // None of these tests will work because of
     // http://code.google.com/p/chromium/issues/detail?id=30756
@@ -99,7 +99,7 @@ describe("Factotum.responseHandler", function() {
 }); // Factotum.responseHandler
 
 
-describe("Factotum.dispatch", function() {
+xdescribe("Factotum.dispatch", function() {
 
     it("does nothing if dispatching to an empty Fcommand name",
         function() {
@@ -197,7 +197,7 @@ describe("Factotum.dispatch", function() {
 }); // Factotum.dispatch
 
 
-describe("Factotum.sendScriptRequest", function() {
+xdescribe("Factotum.sendScriptRequest", function() {
 
     xit("Fcommand executes whether 'execute' property can be a function or a string.");
 
