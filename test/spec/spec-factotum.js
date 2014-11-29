@@ -1,4 +1,7 @@
-describe("Factotum.normalizeInternalOptions", function() {
+describe("Factotum", function () {
+
+
+describe("normalizeInternalOptions", function() {
     it("only permits valid debug options", function () {
         expect(Factotum.normalizeInternalOptions({
             debug: false
@@ -19,7 +22,7 @@ describe("Factotum.normalizeInternalOptions", function() {
 }); // Factotum.normalizeInternalOptions
 
 
-xdescribe("Factotum.getSuggestion", function() {
+xdescribe("getSuggestion", function() {
 
     it("returns a Chrome omnibox suggestion object", function() {
         var name = "test";
@@ -80,7 +83,7 @@ xdescribe("Factotum.getSuggestion", function() {
 }); // Factotum.getSuggestion
 
 
-xdescribe("Factotum.responseHandler", function() {
+xdescribe("responseHandler", function() {
 
     // None of these tests will work because of
     // http://code.google.com/p/chromium/issues/detail?id=30756
@@ -120,7 +123,7 @@ xdescribe("Factotum.responseHandler", function() {
 }); // Factotum.responseHandler
 
 
-xdescribe("Factotum.dispatch", function() {
+xdescribe("dispatch", function() {
 
     it("does nothing if dispatching to an empty Fcommand name",
         function() {
@@ -218,7 +221,7 @@ xdescribe("Factotum.dispatch", function() {
 }); // Factotum.dispatch
 
 
-xdescribe("Factotum.sendScriptRequest", function() {
+xdescribe("sendScriptRequest", function() {
 
     xit("Fcommand executes whether 'execute' property can be a function or a string.");
 
@@ -278,3 +281,6 @@ xdescribe("Factotum.sendScriptRequest", function() {
 
 
 }); // Factotum.sendScriptRequest
+
+
+}); // Factotum
