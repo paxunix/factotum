@@ -210,7 +210,7 @@ describe("fetchDocument", function() {
         var p = Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html"));
         expect(p instanceof Promise).toBe(true);
         p.then(function (response) {
-            expect(response.target.response.constructor.name).toEqual("HTMLDocument");
+            expect(typeof(response.target.responseText)).toBe("string");
             done();
         });
     });

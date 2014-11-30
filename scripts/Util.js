@@ -112,7 +112,7 @@ Util.validateMetadata = function (metadata)
 
 
 /**
- * Retrieve a document from a URL.
+ * Retrieve a text string from a URL.
  * @return {Promise} The results of the retrieval.
  */
 Util.fetchDocument = function (url)
@@ -120,7 +120,7 @@ Util.fetchDocument = function (url)
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
-        xhr.responseType = "document";
+        xhr.responseType = "text";
         xhr.onload = function (evt) {
             if (this.status == 200)
                 resolve(evt);
