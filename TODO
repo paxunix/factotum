@@ -68,7 +68,53 @@
                       have a delayed response due to some async processing.
                       In that case, it has to call postMessage with the bg
                       code and then we need the whole token thing.
+                    - couldn't you still do it at import?
+                        - if the injected wrapper code was embedded within
+                          the document such that it invoked the Fcommand
+                          during the import.
+                        - it still has to call postmessage back to the bg
+                          page, though.
 
+        - NEW:  seperate the concerns of bg and fcommand code
+            - Have two separate blocks in the Fcommand import document
+            - first, the regular fcommand code and it actually DOES run on
+              import, so it shouldn't live in a template
+            - second, the bg code
+                - in a template so it does NOT run on import
+                - it will be stored separately on the backend so that the bg
+                  page only needs to look it up by guid (as passed from the
+                  Fcommand)
+            - now, since we are injecting all Fcommands into the page (not
+              evaluating Fcommand code in the content script), there can be
+              a fixed import that injects the Factotum code into the page.
+              This will be deduped via the usual import mechanisms and
+              doesn't need a blob or anything since it can directly
+              reference the web-accessible extension injected JS file.
+                - this gets added as an import to the document before the
+                  Fcommand is run.  It establishes any Factotum APIs that
+                  the Fcommand code can use.
+            - then, import the doc.  The Fcommand runs inline during import.
+                - can pass JSON stringified param data on the import doc's
+                  URL and then extract it:
+                      var thisDoc = document.currentScript.ownerDocument;
+                      var query = thisDoc.documentURI.split(/\?.*?=/)[1]; // skip ?a=
+                      var params = JSON.parse(decodeURIComponent(query === "" ? "{}" : query));
+                      console.log("import params:", params);
+                - how does the Fcommand retrieve this without having to
+                  write that code?
+                    - we can supply an API by embedding it in the import
+                      doc.  However, since we already have to supply an API,
+                      we might as well create two imports: one, the API that
+                      runs when the content script loads and creates the
+                      namespaced object.  Two, the Fcommand import doc,
+                      which can then do:
+                        Fcommand.cmdline.debug === true ? debug things : ...
+
+            - then the Fcommand runs, does its thing
+            - it then posts a message to the content script containing the
+              parameter array to be passed to the bg script.  No token
+              needed, no security risk beyond what's already inherent.  No
+              need for a response function that must be called.
 
 - could listen for omnibox event onInputStarted and show the info that
   commands can't be run on internal pages
