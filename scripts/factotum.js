@@ -81,9 +81,11 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
 
     // XXX: append alternate Fcommand suggestions based on first word in
     // internalOptions._ (since that's argv without the internal options)
-    //var suggestions = [{
-    //}];
-    //suggestFunc(suggestions);
+    var suggestions = [{
+        content: "loadjquery",
+        description: "Load jQuery",
+    }];
+    suggestFunc(suggestions);
 
     });   // chrome.tabs.query
 };  // Factotum.onOmniboxInputChanged
@@ -136,41 +138,74 @@ Factotum.parseCommandLine = function (text)
 // the function.
 Factotum.dispatch = function (cmdline)
 {
-    var minimistOpts = {
-        XXX: "XXX: use optspec for fcommand",
-    };
-
     // Internal option parsing examines the entire command line, not just
     // everything after the first word.  Then parse the args resulting from
     // that as the actualy command line.
     var internalOptions = Factotum.parseCommandLine(cmdline);
-    var opts = minimist_parseopts(internalOptions._, minimistOpts);
 
-    // XXX: get the Fcommand codestring from storage
-    var XXX_defaultFcommand = function (data)
+    // XXX: test code only
+    if (internalOptions._[0] === "loadjquery")
     {
-        console.log("Default Fcommand. cmdline: ", data.cmdline); 
-        data.responseCallback();
-    };
+        var resolvedWith = function (xhrLoadEvent)
+        {
+            var fcommandString = xhrLoadEvent.target.responseText;
+            var fcommandDoc = (new DOMParser).parseFromString(fcommandString, "text/html");
+            var minimistOpts = fcommandDoc.querySelector("template#minimist-opt");
+            if (minimistOpts !== null && minimistOpts.content)
+                minimistOpts = JSON.parse(minimistOpts.content.textContent);
+            else
+                minimistOpts = { };
 
-    var request = {
-        documentString: "XXX",  // XXX: get the Fcommand document from storage
-        documentURL: "XXX",  // XXX: if an internal Fcommand, give its url
-        cmdline: opts,
-        internalOptions: internalOptions,
-        codeString : Util.getCodeString([XXX_defaultFcommand],
-            { debug: internalOptions.debug === true }),
-    };
+            var opts = minimist_parseopts(internalOptions._, minimistOpts);
+
+            var fcommandCode = fcommandDoc.querySelector("template#fcommand");
+            if (fcommandCode !== null && fcommandCode.content)
+                fcommandCode = new Function(fcommandCode.content.textContent);
+            else
+                throw new Error("XXX: no fcommand in doc");
+
+            var request = {
+                documentString: fcommandString,
+                cmdline: opts,
+                internalOptions: internalOptions,
+                codeString : Util.getCodeString([fcommandCode],
+                    { debug: internalOptions.debug === true }),
+            };
+
+            // Ensure everything from this point happens for the current tab.
+            chrome.tabs.query({ active: true }, function (tabs) {
+                console.log("XXX Tab:", tabs[0]);
+                chrome.tabs.sendMessage(tabs[0].id, request, Factotum.responseHandler);
+            });
+        }   // resolvedWith
+
+        var rejectedWith = function (data)
+        {
+            console.log("Fcommand load failure:", data);
+            chrome.notifications.create(
+                "",
+                {
+                    type: "basic",
+                    iconUrl: chrome.runtime.getURL("icons/md/error.png"),
+                    title: "Error loading Fcommand",
+                    message: data.message,
+                    // XXX: showing the stack is useless inside a tiny
+                    // notification.  Show the message and maybe a button
+                    // for more details, that pops a window that shows the
+                    // stack.
+                },
+                function() {}
+            );
+        }   // rejectedWith
+
+        Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html")).
+            then(resolvedWith).
+            catch(rejectedWith);
+    }
 
     // XXX: if Fcommand is flagged bg-only, execute it right here
 
     // XXX: handle Fcommand's help here; it doesn't have to run in-page
-
-    // Ensure everything from this point happens for the current tab.
-    chrome.tabs.query({ active: true }, function (tabs) {
-        console.log("XXX Tab:", tabs[0]);
-        chrome.tabs.sendMessage(tabs[0].id, request, Factotum.responseHandler);
-    });
 }   // Factotum.dispatch
 
 

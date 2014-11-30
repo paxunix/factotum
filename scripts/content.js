@@ -5,3 +5,4 @@
  */
 
 chrome.runtime.onMessage.addListener(ContentScript.factotumListener);
+//XXX: window.addEventListener("message", ContentScript.messageListener, false);

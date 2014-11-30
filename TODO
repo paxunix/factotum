@@ -1,3 +1,75 @@
+- only have 2 contexts:  bg and non-bg (which means in-page, not in content
+  script).  Executing the command in content (as is currently done) doesn't
+  permit access to the page's JS, which many commands will want.  Rather
+  than making it more confusing, just have them all execute in the page,
+  rather than in the content script.
+    - this means the content script just does setup and teardown.  It
+      complicates things, though, because now the code has to be executed in
+      the page context, then communicate back to the content script, which
+      then communicates back to the bg page.  This means the promise chain
+      will no longer work as it is.
+    - this also means that we can re-examine how we run the Fcommand code.
+      In all cases, in order for it to communicate back to the bg, it needs
+      to post a message to the content script with the code it wants
+      executed.  HOWEVER, this is even more of a security hole, because the
+      code's origin will be that of an arbitrary page, and the content
+      script needs a way to identify that the message is coming from an
+      Fcommand that _it_ put in place, not a message from an arbitrary
+      webpage.
+        - this probably means the content script has to keep track of
+          outstanding Fcommands (i.e. that haven't posted a message yet) and
+          probably needs a unique token passed from the bg script (since we
+          should only ever execute Fcommand code that was passed from the
+          bg--pulling it out of the imported document after import is asking
+          for a MITM timing attack).
+        - I'd like to be able to just have the fcommand ran at import time,
+          since then there's less hassle.  However, how do you then pass the
+          command line to it?
+            - you could force the function to be named something specific,
+              since that's the only way it could be referenced by name from
+              JS.  This sucks because fixed names are unpleasant to work with.
+            - you could bake the parameters as a JSON blob into the DOM of
+              the import document, then the Fcommand has to use a particular
+              name in order to reference them.  This sucks because fixed
+              names are unpleasant to work with.
+            - since you can mark an extension's resource as web-accessible,
+              you could actually import from the extension the code that
+              actually invokes the Fcommand...
+            - YOU JUST CAN'T DO THAT BECAUSE ANY IN-PAGE JS COULD MODIFY
+              THE IMPORT DOCUMENT BEFORE YOU HAVE TIME TO RUN IT.  THen it
+              injects its own bg code for the Fcommand and pwns your
+              browser.
+                - so the only way has to be as we do it now:  the extension
+                  sends the import document (which is now just a way to pull
+                  in dependent CSS, JS, DOM on a page) and the code.
+                - the content script creates the import like it does now
+                - content listens for messages from the page
+                - once the import doc is loaded, the Fcommand code has to be
+                  injected into the page
+                - when the Fcommand wants to run bg code, it has to post a
+                  message that is intercepted by the content script, which
+                  then passes it to bg to run
+                    - UHOH: anyone's dog can post a message; how to tell if
+                      it's one from the Fcommand or not?
+                        - bg needs to generate a token and pass it directly
+                          to the content script and directly to the
+                          Fcommand, which then includes it in the
+                          postMessage.  The token can never be put into the
+                          DOM, or you can be MITMd.
+                            - this means you cannot execute Fcommand code
+                              from the DOM--it has to be passed via message.
+                    - or, since the executeScript callback function receives
+                      the result of the script's execution, the Fcommand
+                      could simply return the codestring it wants executed.
+                        - this implies that the Fcommand has access to
+                          Utils.getCodeString() (XXX: since I doubt a code
+                          object could be returned out of context)
+                    - however, this makes it impossible for an Fcommand to
+                      have a delayed response due to some async processing.
+                      In that case, it has to call postMessage with the bg
+                      code and then we need the whole token thing.
+
+
 - could listen for omnibox event onInputStarted and show the info that
   commands can't be run on internal pages
     - however, this only matters if they're running a non-bg fcommand, so
