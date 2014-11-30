@@ -172,7 +172,7 @@ Util.getFromLangSelector = function (document, selector, lang)
  * Create a <link> import element to be inserted in the parentDocument.
  * @param {HTMLDocument} parentDocument - The document the <link> element will be appended to
  * @param {String} id - ID unique within the document
- * @param {Object} opts - Specifies the import document as a string, or URL to retrieve for the import document.  options.documentString (preferred) or options.documentURL.
+ * @param {Object} opts - Specifies the import document as a string (options.documentString).
  * @return {HTMLLinkElement} - A <link> element.
  *
  * Reuses a prior import document if it was already specified for the given ID.
@@ -184,10 +184,8 @@ Util.createImportLink = function (parentDocument, id, opts)
     if ("documentString" in opts)
         href = Util.blobUrlCache.get(id) ||
             Util.blobUrlCache.set(id, opts.documentString, "text/html");
-    else if ("documentURL" in opts)
-        href = opts.documentURL;
     else
-        throw Error("documentString or documentURL is required");
+        throw Error("documentString is required");
 
     var link = parentDocument.createElement("link");
     link.rel = "import";

@@ -11,10 +11,9 @@ describe("getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onload({});
             });
-        var url = "http://www.example.com/";
         var p = ContentScript.getLoadImportPromise({
             request: {
-                documentURL: url,
+                documentString: "test",
             },
             document: document,
         });
@@ -24,7 +23,7 @@ describe("getLoadImportPromise", function() {
         p.then(function (obj) {
             expect(addToHead).toHaveBeenCalled();
             expect(obj.document instanceof HTMLDocument).toBe(true);
-            expect(obj.request.documentURL).toEqual(url);
+            expect(obj.request.documentString).toEqual("test");
             expect(obj.linkElement instanceof HTMLLinkElement).toBe(true);
             done();
         }).catch(function (obj) {
@@ -46,10 +45,9 @@ describe("getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onerror({ statusText: err });
             });
-        var url = "http://www.example.com/";
         var p = ContentScript.getLoadImportPromise({
             request: {
-                documentURL: url,
+                documentString: "test",
             },
             document: document,
         });
@@ -67,7 +65,7 @@ describe("getLoadImportPromise", function() {
         }).catch(function (obj) {
             expect(addToHead).toHaveBeenCalled();
             expect(obj.document instanceof HTMLDocument).toBe(true);
-            expect(obj.request.documentURL).toEqual(url);
+            expect(obj.request.documentString).toEqual("test");
             expect(obj.linkElement instanceof HTMLLinkElement).toBe(true);
             expect(obj.error instanceof Error);
             expect(obj.error.message).toMatch(new RegExp(err));

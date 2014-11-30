@@ -288,19 +288,18 @@ describe("getFromLangSelector", function() {
 
 describe("createImportLink", function() {
 
-    it("throws if no documentString or documentURL is given", function() {
+    it("throws if no documentString is given", function() {
         expect(function () {
             Util.createImportLink(document, "test", {});
-        }).toThrowError(Error, "documentString or documentURL is required")
+        }).toThrowError(Error, "documentString is required")
     });
 
-    it("creates a link from documentString over documentURL", function() {
+    it("creates a link from documentString", function() {
         var cacheGet = spyOn(Util.blobUrlCache, "get");
         var cacheSet = spyOn(Util.blobUrlCache, "set");
 
         var link = Util.createImportLink(document, "testid", {
             documentString: "docstring",
-            documentURL: "http://www.example.com/"
         });
 
         expect(cacheGet).toHaveBeenCalledWith("testid");

@@ -43,9 +43,6 @@ ContentScript.doCleanup = function (opts)
  *          // the HTML string to use as the import document for the Fcommand
  *          documentString: String,
  *
- *          // or, the URL to use as the import document
- *          documentURL: URL,
- *
  *          // minimist parsed object containing Fcommand cmdline data
  *          cmdline: Object,
  *
@@ -61,7 +58,7 @@ ContentScript.doCleanup = function (opts)
  */
 ContentScript.getLoadImportPromise = function (obj)
 {
-    // XXX:  documentString and documentURL (which I'll probably drop)
+    // XXX:  documentString
     // should be optional, because it may just be the Fcommand needs to run
     // code and has no need for an import document.
     // This would be an optimization, since the way the system works is by
