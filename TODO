@@ -1,3 +1,11 @@
+- could listen for omnibox event onInputStarted and show the info that
+  commands can't be run on internal pages
+    - however, this only matters if they're running a non-bg fcommand, so
+      you can't know this when input has started, only once the set of
+      possible fcommands is known
+    - onInputEntered's callback specifies if the tab is current, new fg or
+      new bg;  that info should be available to the Fcommand/bg script
+
 - what if the Fcommands were actually HTML documents?
     - or just save them as a Blob into an indexeddb (supported as of Chrome
       38) and use URL.createObjectURL(blob) to get a URL from it
@@ -188,13 +196,6 @@
   reprioritized.  There aren't many of them (maybe even only "help").  They are
   detected when the command line is parsed and before it is dispatched.
   This simplifies the Fcommand.execute property logic.
-
-- loading a predefined Fcommand from the extension itself (run this in the
-  background page after you know the tab ID of the page that should get the
-  import doc):
-  chrome.tabs.sendMessage(760, { fcommandId: "123", documentURL: chrome.runtime.getURL("example/load-jquery.xxxhtml")}, Factotum.responseHandler)
-    - note that the URL path within the extension must be in the manifest's
-      web_accessible_resources list
 
 - should supply handy notification icons so bg code can easily pop a
   notification using standard icons included in the extension (then there's
