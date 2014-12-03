@@ -288,26 +288,15 @@ describe("getFromLangSelector", function() {
 
 describe("createImportLink", function() {
 
-    it("throws if no documentString is given", function() {
-        expect(function () {
-            Util.createImportLink(document, "test", {});
-        }).toThrowError(Error, "documentString is required")
-    });
-
     it("creates a link from documentString", function() {
-        var cacheGet = spyOn(Util.blobUrlCache, "get");
-        var cacheSet = spyOn(Util.blobUrlCache, "set");
-
         var link = Util.createImportLink(document, "testid", {
             documentString: "docstring",
         });
 
-        expect(cacheGet).toHaveBeenCalledWith("testid");
-        expect(cacheSet.calls.argsFor(0)[0]).toEqual("testid");
-        expect(cacheSet.calls.argsFor(0)[1]).toEqual("docstring");
         expect(link instanceof HTMLLinkElement).toBe(true);
         expect(link.id).toEqual("testid");
         expect(link.rel).toEqual("import");
+        URL.revokeObjectURL(link.href);
     });
 
 }); // createImportLink

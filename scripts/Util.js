@@ -179,18 +179,11 @@ Util.getFromLangSelector = function (document, selector, lang)
  */
 Util.createImportLink = function (parentDocument, id, opts)
 {
-    var href;
-
-    if ("documentString" in opts)
-        href = Util.blobUrlCache.get(id) ||
-            Util.blobUrlCache.set(id, opts.documentString, "text/html");
-    else
-        throw Error("documentString is required");
-
+    var blob = new Blob([opts.documentString], { type: "text/html" });
     var link = parentDocument.createElement("link");
     link.rel = "import";
     link.id = id;
-    link.href = href;
+    link.href = URL.createObjectURL(blob);
 
     return link;
 }   // Util.createImportLink
