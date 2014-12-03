@@ -19,7 +19,6 @@ var Util = {
         "keywords",
         "version",
     ],
-    blobUrlCache: new BlobUrlCache(),
 };
 
 
