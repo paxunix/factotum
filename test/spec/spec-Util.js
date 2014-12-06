@@ -70,7 +70,7 @@ describe("extractMetadata", function() {
             author: "test author",
             description: "test description",
             guid: "test guid",
-            keywords: [ "testkeywords" ],
+            keywords: [ "test", "keywords" ],
             downloadURL: "test downloadURL",
             updateURL: "test updateURL",
             version: "test version",

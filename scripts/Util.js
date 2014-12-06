@@ -72,15 +72,14 @@ Util.extractMetadata = function (document, lang)
     else
         data.icon = undefined;
 
-    // Keywords is a comma-delimited list of words with no whitespace.
+    // Keywords is a comma- or space-delimited list of words
     if (typeof(data.keywords) !== "undefined")
     {
         data.keywords = data.keywords.
-            replace(/\s+/g, "").
-            replace(/,+/g, ",").
-            replace(/^,+/, "").
-            replace(/,+$/, "").
-            split(/,/);
+            split(/[,\s]+/).
+            filter(function(el) {
+                return (el !== "" && el !== " " && el !== ",")
+            })
     }
 
     return data;
@@ -105,7 +104,7 @@ Util.validateMetadata = function (metadata)
     if (semver.valid(metadata.version) === null)
         throw Error("Version '" + metadata.version + "' is not semver-valid");
 
-    if (metadata.keywords[0] === "")
+    if (metadata.keywords.length === 0)
         throw Error("Keyword field must have at least one keyword");
 }   // Util.validateMetadata
 
