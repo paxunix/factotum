@@ -39,14 +39,16 @@ to the user.  -->
      semantic versionning:  http://semver.org/ -->
 <meta name="version" content="1.2.3">
 
-<!-- Context in which the Fcommand's javascript is run.  Optional.
-     If "bg", the code is evaluated within the background page and thus has
-     no access to the page's DOM or javascript.  XXX: If "page", the code is
-     evaluated within the page and has access to page's JS.  Otherwise,
-     the code is evaluated within the context of the content script and
-     only has access to the page's DOM and not its JS.
+<!-- Context in which the Fcommand's javascript is run.  If "bg", the code
+is evaluated within the background page and thus has no access to the page's
+DOM or javascript.  This is intended for Fcommands that only need to access
+to chrome.* APIs and nothing else.  All other values equate to evaluating
+the code within the page and has access to page's JS and DOM.  It can
+postMessage() to the content script, which will pass the posted data to the
+Fcommand's "bg-code" template script which will be run in the background
+page.
 -->
-<meta name="context" content="content">
+<meta name="context" content="page">
 
 <!-- Specify the favicon for this Fcommand.  Optional.  -->
 <link rel="icon" type="image/png" href="http://example.com/favicon.png">
