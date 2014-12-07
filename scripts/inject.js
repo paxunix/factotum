@@ -62,7 +62,8 @@ window.Factotum.runCommand = function (fcommandFunc)
     p.then(function (bgData) {
         var data = {
             fcommandId: fcommandId,
-            data: bgData
+            data: bgData,
+            internalOptions: internalOptions
         };
         window.postMessage(data, "*");
     }).catch(function (error) {
