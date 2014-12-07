@@ -175,8 +175,6 @@ Util.getFromLangSelector = function (document, selector, lang)
  * @property {Object} opts.internalOptions - internal-only command line options
  * @property {Object} opts.guid - the GUID for the Fcommand being imported
  * @return {HTMLLinkElement} - A <link> element.
- *
- * Reuses a prior import document if it was already specified for the given ID.
  */
 Util.createImportLink = function (parentDocument, opts)
 {
