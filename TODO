@@ -5,6 +5,7 @@
       names are unpleasant to work with.
     - you can't pass the parameters stringified as query string arguments on
       the blob: import URL because blob urls can't have a query string
+    - what about as a data attribute on the import tag?
 
 - when the Fcommand wants to run bg code, it has to post a
   message that is intercepted by the content script, which
