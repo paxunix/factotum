@@ -9,6 +9,10 @@
 - when the Fcommand wants to run bg code, it has to post a
   message that is intercepted by the content script, which
   then passes it to bg to run
+    - consider a custom event, rather than postMessage, since any message
+      handlers will get posted message by default.  This doesn't prevent
+      anyone else from also listening to the custom event, but it reduces
+      onmessage spam.
     - it includes the Fcommand's guid so the bg page can load that
       Fcommand's bg code and run it, passing it the data it received
       from the posted message
