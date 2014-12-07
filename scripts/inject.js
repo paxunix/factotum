@@ -24,11 +24,12 @@ Factotum._getDataAttribute = function (document, guid, attributeName)
 /**
  * Return the ID of the currently running Fcommand (when called from
  * within the Fcommand's scripts running during import).
+ * @param {HTMLDocument} document - Document object to search
+ * @return {String} String GUID of the Fcommand represented by document.
  */
-Factotum.getFcommandId = function ()
+Factotum.getFcommandId = function (document)
 {
-    var fcommandDoc = document.currentScript.ownerDocument;
-    return fcommandDoc.querySelector("head meta[name=guid]").content;
+    return document.querySelector("head meta[name=guid]").content;
 }   // Factotum.getFcommandId
 
 
@@ -44,8 +45,8 @@ Factotum.getFcommandId = function ()
  */
 Factotum.runCommand = function (fcommandFunc)
 {
-    var guid = Factotum.getFcommandId();
     var importDoc = document.currentScript.ownerDocument;
+    var guid = Factotum.getFcommandId(importDoc);
     var parameters = Factotum._getDataAttribute(document, guid, "fcommandArgs");
     var internalOptions = Factotum._getDataAttribute(document, guid, "fcommandInternalOptions");
 
