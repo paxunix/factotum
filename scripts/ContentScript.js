@@ -82,19 +82,16 @@ ContentScript.getResponseFuncCaller = function (request, responseFunc)
 // Define a connection listener that loads an Fcommand import document
 // passed from Factotum.  If an exception occurs while executing the
 // Fcommand, the error message is returned to Factotum.
-ContentScript.factotumListener = function (request, sender, responseFunc)
+ContentScript.factotumListener = function (request)
 {
-    var callResponseFunc =
-        ContentScript.getResponseFuncCaller(request, responseFunc);
-
     ContentScript.getLoadImportPromise({ request: request, document: document }).
-        then(callResponseFunc, callResponseFunc).
-        then(ContentScript.doCleanup, ContentScript.doCleanup);
+        catch(function (rejectWith) {
+            rejectWith.guid = request.guid;
+            chrome.runtime.sendMessage(rejectWith);
+    }).then(ContentScript.doCleanup, ContentScript.doCleanup);
 
-    // XXX: not sure that it needs to call response func at all anymore,
-    // since the communication happens from the Fcommand -> content post
-    // message -> send message to bg
-    return true;
+    // No response
+    return false;
 }   // ContentScript.factotumListener
 
 
@@ -111,7 +108,7 @@ ContentScript.messageListener = function (evt)
         !("guid" in evt.data))
             return;
 
-    console.log("Received message: ", arguments);
+    chrome.runtime.sendMessage(evt.data);
 }   // ContentScript.messageListener
 
 

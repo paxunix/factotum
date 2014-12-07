@@ -174,7 +174,7 @@ FactotumBg.dispatch = function (cmdline)
             // Ensure everything from this point happens for the current tab.
             chrome.tabs.query({ active: true }, function (tabs) {
                 console.log("XXX Tab:", tabs[0]);
-                chrome.tabs.sendMessage(tabs[0].id, request, FactotumBg.responseHandler);
+                chrome.tabs.sendMessage(tabs[0].id, request);
             });
         }   // resolvedWith
 
