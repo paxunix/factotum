@@ -46,10 +46,10 @@ Factotum.getFcommandId = function ()
  */
 Factotum.runCommand = function (fcommandFunc)
 {
-    var fcommandId = Factotum.getFcommandId();
+    var guid = Factotum.getFcommandId();
     var importDoc = document.currentScript.ownerDocument;
-    var parameters = Factotum.getParameters(fcommandId);
-    var internalOptions = Factotum.getInternalOptions(fcommandId);
+    var parameters = Factotum.getParameters(guid);
+    var internalOptions = Factotum.getInternalOptions(guid);
 
     var p = new Promise(function (resolve, reject) {
         if (internalOptions.debug)
@@ -61,7 +61,7 @@ Factotum.runCommand = function (fcommandFunc)
 
     p.then(function (bgData) {
         var data = {
-            fcommandId: fcommandId,
+            guid: guid,
             data: bgData,
             internalOptions: internalOptions
         };
@@ -71,7 +71,7 @@ Factotum.runCommand = function (fcommandFunc)
         // to the background context, so pull out the stack and use it
         // as the error string.
         var response = {
-            fcommandId: fcommandId,
+            guid: guid,
             error: (error instanceof Error) ?  error.stack : error,
         };
 

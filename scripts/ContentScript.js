@@ -112,8 +112,11 @@ ContentScript.factotumListener = function (request, sender, responseFunc)
 // Define a listener for messages posted from the content's window.
 // Fcommands whose code runs in the "page" context use this to communicate
 // back to the extension.
-ContentScript.messageListener = function ()
+ContentScript.messageListener = function (evt)
 {
+    if (!("guid" in evt.data))
+        return;
+
     console.log("Received message: ", arguments);
 }   // ContentScript.messageListener
 
