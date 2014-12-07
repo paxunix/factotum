@@ -1,7 +1,8 @@
 "use strict";
 
+var semver = require("semver");
 
-var Util = {
+window.Util = {
     supportedMetaFields: [
         "author",
         "description",

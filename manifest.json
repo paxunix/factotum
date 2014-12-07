@@ -27,7 +27,7 @@
         // content script will get the request from the bg page?
         // "all_frames": true,
         "js": [
-            "scripts/Util.js",
+            "scripts/Util.js.bundle",
             "scripts/ContentScript.js",
             "scripts/content.js"
         ]
@@ -35,12 +35,10 @@
 
     "background": {
         "scripts": [
-            "deps/minimist/index.js",
-            "deps/node-semver/semver.js",
             "scripts/ShellParse.js",
-            "scripts/Util.js",
+            "scripts/Util.js.bundle",
             "scripts/Help.js",
-            "scripts/factotum.js",
+            "scripts/factotum.js.bundle",
             "scripts/background.js"
         ]
     },

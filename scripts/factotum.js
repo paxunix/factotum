@@ -1,6 +1,8 @@
 "use strict";
 
-var Factotum = {};
+var minimist_parseopts = require("minimist");
+
+window.Factotum = {};
 
 // XXX: variables in this global scope are visible to the response code
 // string.
