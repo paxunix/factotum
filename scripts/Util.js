@@ -169,18 +169,16 @@ Util.getFromLangSelector = function (document, selector, lang)
 /**
  * Create a <link> import element to be inserted in the parentDocument.
  * @param {HTMLDocument} parentDocument - The document the <link> element will be appended to
- * @param {String} id - ID unique within the document
  * @param {Object} opts - Specifies the import document as a string (options.documentString).
  * @return {HTMLLinkElement} - A <link> element.
  *
  * Reuses a prior import document if it was already specified for the given ID.
  */
-Util.createImportLink = function (parentDocument, id, opts)
+Util.createImportLink = function (parentDocument, opts)
 {
     var blob = new Blob([opts.documentString], { type: "text/html" });
     var link = parentDocument.createElement("link");
     link.rel = "import";
-    link.id = id;
     link.href = URL.createObjectURL(blob);
 
     return link;

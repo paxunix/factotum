@@ -289,12 +289,11 @@ describe("getFromLangSelector", function() {
 describe("createImportLink", function() {
 
     it("creates a link from documentString", function() {
-        var link = Util.createImportLink(document, "testid", {
+        var link = Util.createImportLink(document, {
             documentString: "docstring",
         });
 
         expect(link instanceof HTMLLinkElement).toBe(true);
-        expect(link.id).toEqual("testid");
         expect(link.rel).toEqual("import");
         URL.revokeObjectURL(link.href);
     });

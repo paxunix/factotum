@@ -62,8 +62,8 @@ This block is the opts={} declaration for the minimist options parser.  It
 must be a <template> with id=minimist-opt.
 
 This is extracted by id in the bg script and passed to the minimist options
-parser; then the hash returned by minimist is sent to the fcommand function
-below.
+parser; then the hash returned by minimist is made available via
+Factotum.getParameters().
 -->
 
 <template id="minimist-opt">
@@ -106,41 +106,45 @@ Defaults to loading the latest version.
 <p>
 </template>
 
-<template id="fcommand">
-<!-- Wrapping it in a script tag is optional; doing so only matters to your
-editor's syntax highlighting. -->
-<!-- This block contains the code that is executed within the context
-specified in the metadata.  If you wrap it in a function{} block, you have to invoke the function and pass whatever is in arguments to it.
-arguments contains a single object:
-  {
-    cmdline: minimist-opts parsed commandline for the command
-    importDocument: the import document element
-    responseCallback: function to call when your Fcommand has finished.  DO NOT FORGET THIS.  If you wish followup code to be executed in the background page context (e.g. you need to call a chrome.* API, say, to open a new tab, you can pass an array of the function object and any arguments it needs).
-  }
--->
 <script>
-function bgcode (version)
-{
-    chrome.notifications.create(
-        "",
-        {
-            type: "basic",
-            iconUrl: chrome.runtime.getURL("icons/md/info.png"),
-            title: "Loaded jQuery",
-            message: "Version " + version,
-        },
-        function() {}
-    );
-}
+/*
+   Inline script blocks are run on import of this document into the page.
+   Invoke your Fcommand code here.  Call onSuccess() once your Fcommand
+   code has completed successfully.  Any object you pass to it will be
+   passed to the bg code (if any) for this Fcommand when it is run in
+   the background page.  Call onFailure() if you want to surface (and
+   record) the error via the Factotum extension.  The object you pass
+   it can be any Error object, or a string.
+*/
+Factotum.runCommand(function (args, importDoc, onSuccess, onFailure) {
+  onSuccess({ jqueryVersion: jQuery.fn.jquery });
+});
 
+</script>
+
+<!--
+This element contains Javascript that will be run in the background
+page.  It is wrapped in a Function that takes a single object parameter that is passed to the onSuccess() function called from the Fcommand.
+
+It must have an ID of "bgCode".
+-->
+<template id="bgCode">
+  <!-- You can wrap it in a <script> tag to make your editor's highlighter
+    happy, but the textContent will be parsed as Javascript. -->
+<script>
 console.log("Fcommand running with args: ", arguments);
-arguments[0].responseCallback([bgcode, 12]);
+chrome.notifications.create(
+    "",
+    {
+        type: "basic",
+        iconUrl: chrome.runtime.getURL("icons/md/info.png"),
+        title: "Loaded jQuery",
+        message: "Version " + arguments[0].jqueryVersion,
+    },
+    function() {}
+);
 </script>
 </template>
-
-<script>
-console.log("This ran on import", window);
-</script>
 
 </body>
 </html>

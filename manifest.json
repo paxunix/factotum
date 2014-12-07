@@ -18,6 +18,9 @@
     "default_locale": "en",
 
     "content_scripts": [{
+        // XXX: consider loading these at the beginning, otherwise inject.js
+        // won't be loaded until the document is done, which means an
+        // Fcommand can't be run until the document is loaded.
         "matches": [ "<all_urls>" ],
         "match_about_blank": true,
         // XXX: not sure if this is needed.  If it is, how do you know which
@@ -114,6 +117,7 @@
 
     "web_accessible_resources": [
         "scripts/help-doc.js",
+        "scripts/inject.js",
         "example/load-jquery.html"     // XXX: testing only
     ]
 }

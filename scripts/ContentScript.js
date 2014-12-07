@@ -15,7 +15,6 @@ ContentScript.appendNodeToDocumentHead = function (node)
 
 ContentScript.doCleanup = function (opts)
 {
-    URL.revokeObjectURL(opts.linkElement.href);
     opts.linkElement.remove();
 }   // ContentScript.doCleanup
 
@@ -25,10 +24,6 @@ ContentScript.doCleanup = function (opts)
 //      request: the request object as passed from the background page
 //      linkElement:  the HTMLLinkElement that specifies the import doc
 //      error:  Error object (only present if a promise has been rejected)
-//      bgCodeArray: function object and arguments to be stringified and
-//          sent back to the background page for evaluation.  It is expected
-//          to be passed to the response callback that was given to the
-//          Fcommand.
 
 
 /**
@@ -46,9 +41,6 @@ ContentScript.doCleanup = function (opts)
  *          // minimist parsed object containing Fcommand cmdline data
  *          cmdline: Object,
  *
- *          // Fcommand code string
- *          codeString: String,
- *
  *          // internal options (like --debug, --help, etc.)
  *          internalOptions: Object,
  *      },
@@ -58,74 +50,23 @@ ContentScript.doCleanup = function (opts)
  */
 ContentScript.getLoadImportPromise = function (obj)
 {
-    // XXX:  documentString
-    // should be optional, because it may just be the Fcommand needs to run
-    // code and has no need for an import document.
-    // This would be an optimization, since the way the system works is by
-    // importing the Fcommand document.  If, however, the author decides
-    // there is nothing needed from the import and just wants to eval the
-    // Fcommand JS, there should be a setting per fcommand that avoids
-    // importing the doc and just runs the JS.  Similar in spirit to
-    // allowing a bg-only Fcommand.
     return new Promise(function (resolve, reject) {
-        obj.linkElement = Util.createImportLink(obj.document,
-            "XXXFcommandID", obj.request);
+        obj.linkElement = Util.createImportLink(obj.document, obj.request);
 
         obj.linkElement.onload = function onload() {
             resolve(obj);
+            URL.revokeObjectURL(obj.linkElement.href);
         };
 
         obj.linkElement.onerror = function onerror(evt) {
             obj.error = Error(evt.statusText);
             reject(obj);
+            URL.revokeObjectURL(obj.linkElement.href);
         };
 
         ContentScript.appendNodeToDocumentHead(obj.linkElement);
     });     // new Promise
 }   // ContentScript.getLoadImportPromise
-
-
-/**
- * Return a promise to run Fcommand code and resolve with the promise's
- * resolved-with object containing a code string to be passed to the
- * background page.
- * @param {Object} resolvedWith - Object the import promise was fulfilled with.  Expected to contain:
- *      request:  {Object} - @see ContentScript.getLoadImportPromise
- *      linkElement:  {HTMLLinkElement} - @see ContentScript.getLoadImportPromise
- * @returns {Promise} - promise to run the Fcommand code.  The promise will
- *      be resolved with the resolvedWith object, which will have an
- *      additional key bgCodeArray (see above).
- */
-ContentScript.getFcommandRunPromise = function (resolvedWith)
-{
-    var code = new Function(resolvedWith.request.codeString);
-    var p = new Promise(function (resolve, reject) {
-        code({
-            importDocument: resolvedWith.linkElement.import,
-            cmdline: resolvedWith.request.cmdline,
-            responseCallback: resolve,
-        });
-    });
-
-    return p.then(function (bgCodeArray) {
-        if (typeof(bgCodeArray) !== "undefined")
-            if (!Util.isArray(bgCodeArray))
-                throw Error("responseCallback's first argument must be undefined or an array");
-
-        resolvedWith.bgCodeArray = bgCodeArray;
-        return resolvedWith;
-    }).catch(function (error) {
-        // If a thrown Error, its details will not be preserved when passed
-        // to the background context, so pull out the stack and use it
-        // as the error string.
-        if (error instanceof Error)
-            resolvedWith.error = error.stack;
-        else
-            resolvedWith.error = error;
-
-        throw resolvedWith;
-    });
-}   // ContentScript.getFcommandRunPromise
 
 
 /** Return a function that calls the response function with the data in the
@@ -140,11 +81,7 @@ ContentScript.getFcommandRunPromise = function (resolvedWith)
 ContentScript.getResponseFuncCaller = function (request, responseFunc)
 {
     return function (resolvedWith) {
-        // Only include what is needed by the background page to ensure we
-        // don't inadvertently create a circular reference.
         responseFunc({
-                bgCodeString: Util.getCodeString(resolvedWith.bgCodeArray,
-                                  { debug: request.internalOptions.debug === "bg" }),
                 error: resolvedWith.error,
             });
 
@@ -162,12 +99,10 @@ ContentScript.factotumListener = function (request, sender, responseFunc)
         ContentScript.getResponseFuncCaller(request, responseFunc);
 
     ContentScript.getLoadImportPromise({ request: request, document: document }).
-        then(ContentScript.getFcommandRunPromise).
         then(callResponseFunc, callResponseFunc).
         then(ContentScript.doCleanup, ContentScript.doCleanup);
 
-    // Indicate that we will be calling responseFunc() asynchronously.
-    return true;
+    return false;
 }   // ContentScript.factotumListener
 
 
@@ -178,3 +113,17 @@ ContentScript.messageListener = function ()
 {
     console.log("Received message: ", arguments);
 }   // ContentScript.messageListener
+
+
+// Insert the Factotum API into the page, so in-page JS has access to it.
+ContentScript.injectFactotumApi = function (document)
+{
+    var s = document.createElement("script");
+    s.src = chrome.runtime.getURL("scripts/inject.js");
+    s.onload = function () {
+        // No need to keep the script around once it has run
+        s.parentNode.removeChild(s);
+    };
+
+    (document.head || document.documentElement).appendChild(s);
+}   // ContentScript.injectFactotumApi

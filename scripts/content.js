@@ -4,5 +4,7 @@
  * Contains code that should only run via load by the extension.
  */
 
+ContentScript.injectFactotumApi(document);
+
 chrome.runtime.onMessage.addListener(ContentScript.factotumListener);
-//XXX: window.addEventListener("message", ContentScript.messageListener, false);
+window.addEventListener("message", ContentScript.messageListener, false);

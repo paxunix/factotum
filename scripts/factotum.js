@@ -158,18 +158,10 @@ Factotum.dispatch = function (cmdline)
 
             var opts = minimist_parseopts(internalOptions._, minimistOpts);
 
-            var fcommandCode = fcommandDoc.querySelector("template#fcommand");
-            if (fcommandCode !== null && fcommandCode.content)
-                fcommandCode = new Function(fcommandCode.content.textContent);
-            else
-                throw new Error("XXX: no fcommand in doc");
-
             var request = {
                 documentString: fcommandString,
                 cmdline: opts,
                 internalOptions: internalOptions,
-                codeString : Util.getCodeString([fcommandCode],
-                    { debug: internalOptions.debug === true }),
             };
 
             // Ensure everything from this point happens for the current tab.
@@ -193,6 +185,8 @@ Factotum.dispatch = function (cmdline)
                     // notification.  Show the message and maybe a button
                     // for more details, that pops a window that shows the
                     // stack.
+                    // Should record all failures so you can view errors from
+                    // the extension menu?  Kind of like a JS console.
                 },
                 function() {}
             );
@@ -225,21 +219,5 @@ Factotum.responseHandler = function (response)
     {
         console.log("error from content script:", response.error);
         return;
-    }
-
-    try
-    {
-        // XXX:  this is extremely dangerous, since it means user-space code
-        // can execute in the background page.  This is the only way to call
-        // chrome.* APIs, though, and some Fcommands will need that.
-        // Avoid creating a closure (i.e. don't use eval()), so the code has
-        // no access to any local variables currently in scope.
-        (new Function(response.bgCodeString))();
-    }
-
-    catch (e)
-    {
-        // XXX: this needs to be surfaced to the user somehow
-        console.log("Response code failure:", e);
     }
 };  // Factotum.responseHandler
