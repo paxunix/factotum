@@ -12,7 +12,7 @@ window.Factotum = { };
  * @param {String} attributeName - Attribute name that contains the JSON-stringified form of.
  * @return {Object} Object containing the attribute's data.
  */
-Factotum._getDataAttribute = function (guid, attributeName)
+Factotum._getDataAttribute = function (document, guid, attributeName)
 {
     var linkEl = document.querySelector("head link#fcommand-" +
             guid + "[rel=import]")
@@ -46,8 +46,8 @@ Factotum.runCommand = function (fcommandFunc)
 {
     var guid = Factotum.getFcommandId();
     var importDoc = document.currentScript.ownerDocument;
-    var parameters = Factotum._getDataAttribute(guid, "fcommandArgs");
-    var internalOptions = Factotum._getDataAttribute(guid, "fcommandInternalOptions");
+    var parameters = Factotum._getDataAttribute(document, guid, "fcommandArgs");
+    var internalOptions = Factotum._getDataAttribute(document, guid, "fcommandInternalOptions");
 
     var p = new Promise(function (resolve, reject) {
         if (internalOptions.debug)
