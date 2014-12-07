@@ -7,25 +7,18 @@
 window.Factotum = { };
 
 /**
- * Available to be called from with page-context Fcommand code.  It returns
- * the minimist options hash of the parsed Fcommand command line.
+ * Retrieves the object encoded in the given data attribute for an Fcommand.
+ * @param {String} guid - Fcommand's guid.
+ * @param {String} attributeName - Attribute name that contains the JSON-stringified form of.
+ * @return {Object} Object containing the attribute's data.
  */
-Factotum.getParameters = function (guid)
+Factotum._getDataAttribute = function (guid, attributeName)
 {
     var linkEl = document.querySelector("head link#fcommand-" +
             guid + "[rel=import]")
 
-    return JSON.parse(linkEl.dataset.fcommandArgs);
-}   // Factotum.getParameters
-
-
-Factotum.getInternalOptions = function (guid)
-{
-    var linkEl = document.querySelector("head link#fcommand-" +
-            guid + "[rel=import]")
-
-    return JSON.parse(linkEl.dataset.fcommandInternalOptions);
-}   // Factotum.getInternalOptions
+    return JSON.parse(linkEl.dataset[attributeName]);
+}   // Factotum._getDataAttribute
 
 
 /**
@@ -48,8 +41,8 @@ Factotum.runCommand = function (fcommandFunc)
 {
     var guid = Factotum.getFcommandId();
     var importDoc = document.currentScript.ownerDocument;
-    var parameters = Factotum.getParameters(guid);
-    var internalOptions = Factotum.getInternalOptions(guid);
+    var parameters = Factotum._getDataAttribute(guid, "fcommandArgs");
+    var internalOptions = Factotum._getDataAttribute(guid, "fcommandInternalOptions");
 
     var p = new Promise(function (resolve, reject) {
         if (internalOptions.debug)
