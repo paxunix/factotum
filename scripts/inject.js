@@ -35,7 +35,12 @@ Factotum.getFcommandId = function ()
 /**
  * Run the given Fcommand function.  You call this to invoke your Fcommand
  * code.
- * XXX: document fcommandFunc params
+ * @param {Function} fcommandFunc - function that is the Fcommand.  Takes
+ * these parameters:
+ * @property {Object} parameters - minimist command line parameters passed to the Fcommand
+ * @property {HTMLDocument} importDoc - the import document containing the Fcommand
+ * @property {Function} onSuccess - called by the Fcommand code to indicate succesful completion.  Expects on Object (containing the data to be passed to the Fcommands bg code (if any)).
+ * @property {Function} onFailure - called by the Fcommand code to indicate failure.  Expects one Object (either an Error object or a string).
  */
 Factotum.runCommand = function (fcommandFunc)
 {
