@@ -36,6 +36,7 @@
     "background": {
         "scripts": [
             "deps/minimist/index.js",
+            "deps/node-semver/semver.js",
             "scripts/ShellParse.js",
             "scripts/Util.js",
             "scripts/Help.js",
