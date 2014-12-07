@@ -10,23 +10,22 @@ window.Factotum = { };
  * Available to be called from with page-context Fcommand code.  It returns
  * the minimist options hash of the parsed Fcommand command line.
  */
-window.Factotum.getParameters = function ()
+window.Factotum.getParameters = function (guid)
 {
-    // XXX: how do we know which Fcommand to look for?  Since there can only
-    // be one per page at a time (that's not strictly true, because async
-    // processing may mean delayed removal of the import doc).  That reminds
-    // me that Fcommand code has to call an API function in order to remove
-    // the import doc.
-    // Actually, we can use a Promise, although it means you have to call a
-    // particular resolver function to indicate you're done.  This also
-    // can provide a means of reporting errors in Fcommands (they can call
-    // reject).  Does this matter?  Since Fcommands in page context now just
-    // run, they're just like loading a regular import, so is extra handling
-    // really necessary?  It is if you want to surface Fcommand errors via
-    // the extension rather than just in the JS console.  However, all of
-    // this means a Factotum API must be called to invoke the Fcommand
-    // function.  Maybe that's not a bad idea.
+    var linkEl = document.querySelector("head link#fcommand-" +
+            guid + "[rel=import]")
+
+    return JSON.parse(linkEl.dataset.fcommandArgs);
 }   // Factotum.getParameters
+
+
+window.Factotum.getInternalOptions = function (guid)
+{
+    var linkEl = document.querySelector("head link#fcommand-" +
+            guid + "[rel=import]")
+
+    return JSON.parse(linkEl.dataset.fcommandInternalOptions);
+}   // Factotum.getInternalOptions
 
 
 /**
@@ -49,10 +48,11 @@ window.Factotum.runCommand = function (fcommandFunc)
 {
     var fcommandId = window.Factotum.getFcommandId();
     var importDoc = document.currentScript.ownerDocument;
-    var parameters = window.Factotum.getParameters();
+    var parameters = window.Factotum.getParameters(fcommandId);
+    var internalOptions = window.Factotum.getInternalOptions(fcommandId);
 
     var p = new Promise(function (resolve, reject) {
-        if (parameters.internalOptions.debug)
+        if (internalOptions.debug)
             debugger;
 
         // Call the Fcommand

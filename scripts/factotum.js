@@ -150,6 +150,7 @@ Factotum.dispatch = function (cmdline)
         {
             var fcommandString = xhrLoadEvent.target.responseText;
             var fcommandDoc = (new DOMParser).parseFromString(fcommandString, "text/html");
+            var guid = fcommandDoc.querySelector("head meta[name=guid]").content;
             var minimistOpts = fcommandDoc.querySelector("template#minimist-opt");
             if (minimistOpts !== null && minimistOpts.content)
                 minimistOpts = JSON.parse(minimistOpts.content.textContent);
@@ -160,6 +161,7 @@ Factotum.dispatch = function (cmdline)
 
             var request = {
                 documentString: fcommandString,
+                guid: guid,
                 cmdline: opts,
                 internalOptions: internalOptions,
             };

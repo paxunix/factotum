@@ -169,7 +169,11 @@ Util.getFromLangSelector = function (document, selector, lang)
 /**
  * Create a <link> import element to be inserted in the parentDocument.
  * @param {HTMLDocument} parentDocument - The document the <link> element will be appended to
- * @param {Object} opts - Specifies the import document as a string (options.documentString).
+ * @param {Object} opts - Specifies data used for the import
+ * @property {String} opts.documentString - the text/html string data to import
+ * @property {Object} opts.cmdline - the command line options to be made available for this Fcommand invocation
+ * @property {Object} opts.internalOptions - internal-only command line options
+ * @property {Object} opts.guid - the GUID for the Fcommand being imported
  * @return {HTMLLinkElement} - A <link> element.
  *
  * Reuses a prior import document if it was already specified for the given ID.
@@ -179,6 +183,9 @@ Util.createImportLink = function (parentDocument, opts)
     var blob = new Blob([opts.documentString], { type: "text/html" });
     var link = parentDocument.createElement("link");
     link.rel = "import";
+    link.id = Util.getFcommandImportId(opts.guid);
+    link.dataset.fcommandArgs = JSON.stringify(opts.cmdline);
+    link.dataset.fcommandInternalOptions = JSON.stringify(opts.internalOptions);
     link.href = URL.createObjectURL(blob);
 
     return link;

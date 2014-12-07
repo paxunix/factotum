@@ -289,12 +289,21 @@ describe("getFromLangSelector", function() {
 describe("createImportLink", function() {
 
     it("creates a link from documentString", function() {
+        var cmdline = { a: 1, b: [ 2, 3 ], c: { d: "four" } };
+        var internalOpts = { a: 1, b: [ 2, { c: "3" } ] };
+        var guid = "1234";
         var link = Util.createImportLink(document, {
             documentString: "docstring",
+            guid: guid,
+            internalOptions: internalOpts,
+            cmdline: cmdline,
         });
 
         expect(link instanceof HTMLLinkElement).toBe(true);
         expect(link.rel).toEqual("import");
+        expect(link.id).toEqual(Util.getFcommandImportId(guid));
+        expect(link.dataset.fcommandArgs).toEqual(JSON.stringify(cmdline));
+        expect(link.dataset.fcommandInternalOptions).toEqual(JSON.stringify(internalOpts));
         URL.revokeObjectURL(link.href);
     });
 

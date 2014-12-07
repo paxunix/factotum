@@ -41,6 +41,9 @@ ContentScript.doCleanup = function (opts)
  *          // minimist parsed object containing Fcommand cmdline data
  *          cmdline: Object,
  *
+ *          // Fcommand GUID
+ *          guid: String,
+ *
  *          // internal options (like --debug, --help, etc.)
  *          internalOptions: Object,
  *      },
