@@ -4,6 +4,10 @@
     - in the meantime, invoking the Fcommand again may cause strange things
       to happen
 
+- record all errors passed back to bg from Fcommands and present them from a
+  menu option
+    - use a ring buffer?
+
 - when the Fcommand wants to run bg code, it has to post a
   message that is intercepted by the content script, which
   then passes it to bg to run
