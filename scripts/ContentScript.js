@@ -79,9 +79,9 @@ ContentScript.getResponseFuncCaller = function (request, responseFunc)
 }   // getResponseFuncCaller
 
 
-// Define a connection listener that executes Fcommand code passed from
-// Factotum.  If an exception occurs while executing the Fcommand, the error
-// message is returned to Factotum.
+// Define a connection listener that loads an Fcommand import document
+// passed from Factotum.  If an exception occurs while executing the
+// Fcommand, the error message is returned to Factotum.
 ContentScript.factotumListener = function (request, sender, responseFunc)
 {
     var callResponseFunc =
@@ -91,7 +91,10 @@ ContentScript.factotumListener = function (request, sender, responseFunc)
         then(callResponseFunc, callResponseFunc).
         then(ContentScript.doCleanup, ContentScript.doCleanup);
 
-    return false;
+    // XXX: not sure that it needs to call response func at all anymore,
+    // since the communication happens from the Fcommand -> content post
+    // message -> send message to bg
+    return true;
 }   // ContentScript.factotumListener
 
 
