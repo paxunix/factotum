@@ -1,59 +1,59 @@
 "use strict";
 
-describe("Factotum", function () {
+describe("FactotumBg", function () {
 
 
 describe("normalizeInternalOptions", function() {
     it("only permits valid debug options", function () {
-        expect(Factotum.normalizeInternalOptions({
+        expect(FactotumBg.normalizeInternalOptions({
             debug: false
         }).debug).toBe(false);
 
-        expect(Factotum.normalizeInternalOptions({
+        expect(FactotumBg.normalizeInternalOptions({
             debug: true
         }).debug).toBe(true);
 
-        expect(Factotum.normalizeInternalOptions({
+        expect(FactotumBg.normalizeInternalOptions({
             debug: "bg"
         }).debug).toBe("bg");
 
-        expect(Factotum.normalizeInternalOptions({
+        expect(FactotumBg.normalizeInternalOptions({
             debug: "invalid"
         }).debug).toBeUndefined();
 
         // special case: since --debug can be both a string or a boolean, if
         // no value was given, consider it to be true (because --debug was
         // given with no value)
-        expect(Factotum.normalizeInternalOptions({
+        expect(FactotumBg.normalizeInternalOptions({
             debug: ""
         }).debug).toBe(true);
     });
-}); // Factotum.normalizeInternalOptions
+}); // FactotumBg.normalizeInternalOptions
 
 
 describe("checkInternalOptions", function() {
     it("accepts --debug option anywhere in command line", function () {
-        expect(Factotum.checkInternalOptions(["--debug", "test", "a"]).debug).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["--debug", "test", "a"]).debug).toBe(true);
 
-        expect(Factotum.checkInternalOptions(["test", "--debug", "a"]).debug).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "--debug", "a"]).debug).toBe(true);
 
-        expect(Factotum.checkInternalOptions(["test", "a", "--debug"]).debug).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug"]).debug).toBe(true);
 
-        expect(Factotum.checkInternalOptions(["--debug=bg", "test", "a"]).debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["--debug=bg", "test", "a"]).debug).toBe("bg");
 
-        expect(Factotum.checkInternalOptions(["test", "--debug=bg", "a"]).debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["test", "--debug=bg", "a"]).debug).toBe("bg");
 
-        expect(Factotum.checkInternalOptions(["test", "a", "--debug=bg"]).debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=bg"]).debug).toBe("bg");
     });
 
     it("accepts --help option anywhere in command line", function () {
-        expect(Factotum.checkInternalOptions(["--help", "test", "a"]).help).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["--help", "test", "a"]).help).toBe(true);
 
-        expect(Factotum.checkInternalOptions(["test", "--help", "a"]).help).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "--help", "a"]).help).toBe(true);
 
-        expect(Factotum.checkInternalOptions(["test", "a", "--help"]).help).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--help"]).help).toBe(true);
     });
-}); // Factotum.normalizeInternalOptions
+}); // FactotumBg.normalizeInternalOptions
 
 
 xdescribe("getSuggestion", function() {
@@ -69,7 +69,7 @@ xdescribe("getSuggestion", function() {
 
         var cmd = Fcommands.getCommandsByPrefix(name)[0];
 
-        expect(Factotum.getSuggestion(cmd, [])).toEqual({
+        expect(FactotumBg.getSuggestion(cmd, [])).toEqual({
             content: jasmine.any(String),
             description: jasmine.any(String)
         });
@@ -88,7 +88,7 @@ xdescribe("getSuggestion", function() {
         });
 
         var cmd = Fcommands.getCommandsByPrefix(name)[0];
-        var suggestion = Factotum.getSuggestion(cmd, []);
+        var suggestion = FactotumBg.getSuggestion(cmd, []);
 
         expect(suggestion.description).toMatch(desc);
     });
@@ -105,7 +105,7 @@ xdescribe("getSuggestion", function() {
         });
 
         var cmd = Fcommands.getCommandsByPrefix(name)[0];
-        var suggestion = Factotum.getSuggestion(cmd, argv);
+        var suggestion = FactotumBg.getSuggestion(cmd, argv);
 
         expect(suggestion.content).toEqual(name + " " + argv.join(" "));
     });
@@ -114,7 +114,7 @@ xdescribe("getSuggestion", function() {
     xit("messages the user that running an Fcommand on an internal Chrome page is not possible");
 
 
-}); // Factotum.getSuggestion
+}); // FactotumBg.getSuggestion
 
 
 xdescribe("responseHandler", function() {
@@ -130,11 +130,11 @@ xdescribe("responseHandler", function() {
             execute: "return 42;",
         });
 
-        spyOn(Factotum, "responseHandler").andCallThrough();
+        spyOn(FactotumBg, "responseHandler").andCallThrough();
 
-        Factotum.dispatch("test 1 2 3");
+        FactotumBg.dispatch("test 1 2 3");
 
-        expect(Factotum.responseHandler).toHaveBeenCalledWith({
+        expect(FactotumBg.responseHandler).toHaveBeenCalledWith({
             cmdlineObj: {
                 opts: { },
                 argv: ["1", "2", "3"]
@@ -154,7 +154,7 @@ xdescribe("responseHandler", function() {
 
     xit("receives a response even if the Fcommand explicitly returns");
 
-}); // Factotum.responseHandler
+}); // FactotumBg.responseHandler
 
 
 xdescribe("dispatch", function() {
@@ -164,7 +164,7 @@ xdescribe("dispatch", function() {
             spyOn(Fcommands, "getCommandsByPrefix");
 
             expect(function() {
-                Factotum.dispatch("");
+                FactotumBg.dispatch("");
             }).not.toThrow();
 
             expect(Fcommands.getCommandsByPrefix).not.toHaveBeenCalled();
@@ -175,7 +175,7 @@ xdescribe("dispatch", function() {
             spyOn(Fcommands, "getCommandsByPrefix").andCallThrough();
 
             expect(function() {
-                Factotum.dispatch("bogus");
+                FactotumBg.dispatch("bogus");
             }).not.toThrow();
 
             expect(Fcommands.getCommandsByPrefix).toHaveBeenCalled();
@@ -195,7 +195,7 @@ xdescribe("dispatch", function() {
             });
 
             expect(function() {
-                Factotum.dispatch("test 1 2 3");
+                FactotumBg.dispatch("test 1 2 3");
             }).not.toThrow();
 
             expect(action).toHaveBeenCalledWith({
@@ -218,7 +218,7 @@ xdescribe("dispatch", function() {
 
             var rval = 1;
             expect(function() {
-                rval = Factotum.dispatch("test 1 2 3");
+                rval = FactotumBg.dispatch("test 1 2 3");
             }).not.toThrow(42);
 
             expect(rval).toEqual(undefined);
@@ -243,7 +243,7 @@ xdescribe("dispatch", function() {
             });
 
             expect(function() {
-                Factotum.dispatch("test -opt -- 1 2 3");
+                FactotumBg.dispatch("test -opt -- 1 2 3");
             }).not.toThrow();
 
             expect(action).toHaveBeenCalledWith({
@@ -252,7 +252,7 @@ xdescribe("dispatch", function() {
             });
         });
 
-}); // Factotum.dispatch
+}); // FactotumBg.dispatch
 
 
 xdescribe("sendScriptRequest", function() {
@@ -270,8 +270,8 @@ xdescribe("sendScriptRequest", function() {
 
         var done = false;
 
-        _spyOn(Factotum, "responseHandler").andCallThrough();
-        _spyOn(Factotum, "dispatch").andCallThrough();
+        _spyOn(FactotumBg, "responseHandler").andCallThrough();
+        _spyOn(FactotumBg, "dispatch").andCallThrough();
 
         chrome.tabs.create({
             url: "http://www.google.com"    // XXX: any non-Chrome URL will do
@@ -286,7 +286,7 @@ xdescribe("sendScriptRequest", function() {
             _waits(500);
 
             _runs(function() {
-                Factotum.dispatch("test 1 2 3");
+                FactotumBg.dispatch("test 1 2 3");
             });
 
             _waits(500);
@@ -300,8 +300,8 @@ xdescribe("sendScriptRequest", function() {
             return done;
         }, "failed", 5000);
 
-        _expect(Factotum.responseHandler).toHaveBeenCalled();
-        _expect(Factotum.dispatch).toHaveBeenCalled();
+        _expect(FactotumBg.responseHandler).toHaveBeenCalled();
+        _expect(FactotumBg.dispatch).toHaveBeenCalled();
 
     });
 
@@ -314,7 +314,7 @@ xdescribe("sendScriptRequest", function() {
     xit("Fcommand code's cmdlineObj.commandName.invoked is command's invoked name.");
 
 
-}); // Factotum.sendScriptRequest
+}); // FactotumBg.sendScriptRequest
 
 
-}); // Factotum
+}); // FactotumBg

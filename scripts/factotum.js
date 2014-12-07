@@ -2,21 +2,21 @@
 
 var minimist_parseopts = require("minimist");
 
-window.Factotum = {};
+window.FactotumBg = {};
 
 // XXX: variables in this global scope are visible to the response code
 // string.
 
 // Listener for Omnibox input.
-Factotum.onOmniboxInputEntered = function(text)
+FactotumBg.onOmniboxInputEntered = function(text)
 {
-    Factotum.dispatch(text);
-};  // Factotum.onOmniboxInputEntered
+    FactotumBg.dispatch(text);
+};  // FactotumBg.onOmniboxInputEntered
 
 
 // Return a omnibox suggestion object suitable for the default suggestion,
 // i.e. has no content because that's determined on entry.
-Factotum.getOmniboxDescription = function(opts)
+FactotumBg.getOmniboxDescription = function(opts)
 {
     // XXX: detect internal options here too and modify the suggestion based
     // on them.  Or maybe we should always add e other suggestions:  one for
@@ -47,11 +47,11 @@ Factotum.getOmniboxDescription = function(opts)
         "<dim>" + opts._.slice(1).join(" ") + "</dim>";
 
     return description;
-}   // Factotum.getOmniboxDescription
+}   // FactotumBg.getOmniboxDescription
 
 
 // Listener for Omnibox changes
-Factotum.onOmniboxInputChanged = function(text, suggestFunc)
+FactotumBg.onOmniboxInputChanged = function(text, suggestFunc)
 {
     // If the current tab's URL is an internal one, Fcommands won't work.  Show
     // an omnibox suggestion to indicate that.
@@ -65,7 +65,7 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
     if (tabs[0].url.search(/^(chrome|about)/) !== -1)
     {
         chrome.omnibox.setDefaultSuggestion({
-            description: "<match>Factotum commands cannot be run from Chrome pages.</match>"
+            description: "<match>FactotumBg commands cannot be run from Chrome pages.</match>"
         });
 
         return;
@@ -77,8 +77,8 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
     // Set the default omnibox suggestion based on what's entered so far.
     // To support internal options as the first word, consider the entire
     // command line.
-    var internalOptions = Factotum.parseCommandLine(text);
-    var defaultDesc = Factotum.getOmniboxDescription(internalOptions);
+    var internalOptions = FactotumBg.parseCommandLine(text);
+    var defaultDesc = FactotumBg.getOmniboxDescription(internalOptions);
     chrome.omnibox.setDefaultSuggestion({ description: defaultDesc });
 
     // XXX: append alternate Fcommand suggestions based on first word in
@@ -90,11 +90,11 @@ Factotum.onOmniboxInputChanged = function(text, suggestFunc)
     suggestFunc(suggestions);
 
     });   // chrome.tabs.query
-};  // Factotum.onOmniboxInputChanged
+};  // FactotumBg.onOmniboxInputChanged
 
 
 // If --debug was given, it can only be "bg" or true/false.
-Factotum.normalizeInternalOptions = function (opts)
+FactotumBg.normalizeInternalOptions = function (opts)
 {
     if ("debug" in opts)
         if (typeof(opts.debug) === "string")
@@ -104,12 +104,12 @@ Factotum.normalizeInternalOptions = function (opts)
                 delete opts.debug;
 
     return opts;
-}   // Factotum.normalizeInternalOptions
+}   // FactotumBg.normalizeInternalOptions
 
 
 // Return a minimist-opts object that has checked for --help or --debug
 // options in argv.
-Factotum.checkInternalOptions = function (argv)
+FactotumBg.checkInternalOptions = function (argv)
 {
     // "debug" can be either a boolean (Fcommand debug) or a string
     // (bg-script debug).  Skip the first word, since that's the command
@@ -119,31 +119,31 @@ Factotum.checkInternalOptions = function (argv)
         boolean: [ "debug", "help" ],
     });
 
-    return Factotum.normalizeInternalOptions(opts);
-}   // Factotum.checkInternalOptions
+    return FactotumBg.normalizeInternalOptions(opts);
+}   // FactotumBg.checkInternalOptions
 
 
 // Given a command line, check it for internal options and return the parsed
 // data.
-Factotum.parseCommandLine = function (text)
+FactotumBg.parseCommandLine = function (text)
 {
     var argv = ShellParse.split(text);
 
     // To support internal options as the first word, consider the entire
     // command line.
-    return Factotum.checkInternalOptions(argv);
-}   // Factotum.parseCommandLine
+    return FactotumBg.checkInternalOptions(argv);
+}   // FactotumBg.parseCommandLine
 
 
 // Given a command line, figure out the Fcommand and run its function.  Once the
 // function has executed, run the response callback, passing the response from
 // the function.
-Factotum.dispatch = function (cmdline)
+FactotumBg.dispatch = function (cmdline)
 {
     // Internal option parsing examines the entire command line, not just
     // everything after the first word.  Then parse the args resulting from
     // that as the actualy command line.
-    var internalOptions = Factotum.parseCommandLine(cmdline);
+    var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
     // XXX: test code only
     if (internalOptions._[0] === "loadjquery")
@@ -174,7 +174,7 @@ Factotum.dispatch = function (cmdline)
             // Ensure everything from this point happens for the current tab.
             chrome.tabs.query({ active: true }, function (tabs) {
                 console.log("XXX Tab:", tabs[0]);
-                chrome.tabs.sendMessage(tabs[0].id, request, Factotum.responseHandler);
+                chrome.tabs.sendMessage(tabs[0].id, request, FactotumBg.responseHandler);
             });
         }   // resolvedWith
 
@@ -207,11 +207,11 @@ Factotum.dispatch = function (cmdline)
     // XXX: if Fcommand is flagged bg-only, execute it right here
 
     // XXX: handle Fcommand's help here; it doesn't have to run in-page
-}   // Factotum.dispatch
+}   // FactotumBg.dispatch
 
 
 // Called when each Fcommand has finished/failed executing.
-Factotum.responseHandler = function (response)
+FactotumBg.responseHandler = function (response)
 {
     if (chrome.runtime.lastError)
     {
@@ -227,4 +227,4 @@ Factotum.responseHandler = function (response)
         console.log("error from content script:", response.error);
         return;
     }
-};  // Factotum.responseHandler
+};  // FactotumBg.responseHandler
