@@ -1,3 +1,9 @@
+- should prevent multiple simultaneous invocations of the same Fcommand.
+    - this is possible because the Fcommand could start an async action and
+      then call the onSuccess function some time in the future
+    - in the meantime, invoking the Fcommand again may cause strange things
+      to happen
+
 - However, how do you then pass the command line to it?
     - you could bake the parameters as a JSON blob into the DOM of
       the import document, then the Fcommand has to use a particular
