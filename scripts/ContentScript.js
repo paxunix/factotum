@@ -29,27 +29,13 @@ ContentScript.doCleanup = function (opts)
 /**
  * Return a Promise to load the import document specified in request.
  * @param {Object} obj - Input/output data.
- * @param {Document} document - Document to be the parent of the import doc.
+ * @property {Object} obj.request - Fcommand data send from the background page
+ * @property {String} obj.request.documentString - the HTML string to use as the import document for the Fcommand
+ * @property {String} obj.request.cmdline - minimist parsed object containing Fcommand cmdline data
+ * @property {String} obj.request.guid - Fcommand GUID
+ * @property {Object} obj.request.internalOptions - internal options (like --debug, --help, etc.)
+ * @property {Object} obj.document - Document to be the parent of the import doc.
  * @returns {Promise} - promise to load the import document
- *
- * obj => {
- *      // data from the background page
- *      request => {
- *          // the HTML string to use as the import document for the Fcommand
- *          documentString: String,
- *
- *          // minimist parsed object containing Fcommand cmdline data
- *          cmdline: Object,
- *
- *          // Fcommand GUID
- *          guid: String,
- *
- *          // internal options (like --debug, --help, etc.)
- *          internalOptions: Object,
- *      },
- *      // document to receive the import
- *      document:  HTMLDocument,
- * }
  */
 ContentScript.getLoadImportPromise = function (obj)
 {
