@@ -100,8 +100,13 @@ ContentScript.factotumListener = function (request, sender, responseFunc)
 // back to the extension.
 ContentScript.messageListener = function (evt)
 {
-    if (!("guid" in evt.data))
-        return;
+    // Only accept messages from same frame and that conform to our
+    // expectations.
+    if (evt.source !== window ||
+        typeof(evt.data) !== "object" ||
+        evt.data === null ||
+        !("guid" in evt.data))
+            return;
 
     console.log("Received message: ", arguments);
 }   // ContentScript.messageListener
