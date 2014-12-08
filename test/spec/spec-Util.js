@@ -39,6 +39,15 @@ describe("extractOptSpec", function() {
     });
 
 
+    it("can handle an opt-spec block with HTML comments and being wrapped in <script>", function() {
+        var doc = (new DOMParser).
+            parseFromString('<template id="minimist-opt"><!-- a comment --><script>{"string": [ "version" ]}</script></template>', "text/html");
+        ;
+        expect(Util.extractOptSpec(doc, lang)).toEqual({ string: [ "version" ] });
+    });
+
+
+
 }); // extractOptSpec
 
 
