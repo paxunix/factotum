@@ -223,4 +223,6 @@ FactotumBg.responseHandler = function (response)
         console.log("error from content script:", response.error);
         return;
     }
+
+    console.log("Fcommand responded:", response);
 };  // FactotumBg.responseHandler
