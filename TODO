@@ -14,28 +14,10 @@
   menu option
     - use a ring buffer?
 
-- when the Fcommand wants to run bg code, it has to post a
-  message that is intercepted by the content script, which
-  then passes it to bg to run
-    - consider a custom event, rather than postMessage, since any message
-      handlers will get posted message by default.  This doesn't prevent
-      anyone else from also listening to the custom event, but it reduces
-      onmessage spam.
-    - it includes the Fcommand's guid so the bg page can load that
-      Fcommand's bg code and run it, passing it the data it received
-      from the posted message
-    - it posts a message to the content script containing the
-      parameter array to be passed to the bg script.  No token
-      needed, no security risk beyond what's already inherent.  No
-      need for a response function that must be called.
-    - while it would be nice to call
-      chrome.runtime.sendMessage() and listen for external
-      messages within the content script (because postMessage
-      goes to all listeneres, while sendMessage() goes only to
-      the extension), sendMessage() requires a non-wildcard,
-      second-level domain to be whitelisted in the manifest.
-      This is obviously not possible for Fcommands (which can run
-      anywhere).
+- instead of postMessage to the content script, consider a custom event,
+  since all message handlers (in the page and by other content scripts) will
+  get posted message by default.  This doesn't prevent anyone else from also
+  listening to the custom event, but it reduces onmessage spam.
 
 - could listen for omnibox event onInputStarted and show the info that
   commands can't be run on internal pages
