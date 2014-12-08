@@ -14,11 +14,6 @@
   menu option
     - use a ring buffer?
 
-- instead of postMessage to the content script, consider a custom event,
-  since all message handlers (in the page and by other content scripts) will
-  get posted message by default.  This doesn't prevent anyone else from also
-  listening to the custom event, but it reduces onmessage spam.
-
 - could listen for omnibox event onInputStarted and show the info that
   commands can't be run on internal pages
     - however, this only matters if they're running a non-bg fcommand, so
