@@ -1,3 +1,9 @@
+- now that the Fcommand runs on import, how can you support bg-only
+  Fcommands?
+    - you _probably_ don't want to import the document into the bg page.
+    - it could just run the bg template code, since that's already an
+      established mechanism
+
 - should prevent multiple simultaneous invocations of the same Fcommand.
     - this is possible because the Fcommand could start an async action and
       then call the onSuccess function some time in the future
