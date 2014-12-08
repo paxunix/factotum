@@ -156,11 +156,7 @@ FactotumBg.dispatch = function (cmdline)
             var metadata = Util.extractMetadata(fcommandDoc, navigator.language);
             Util.validateMetadata(metadata);
 
-            var minimistOpts = fcommandDoc.querySelector("template#minimist-opt");
-            if (minimistOpts !== null && minimistOpts.content)
-                minimistOpts = JSON.parse(minimistOpts.content.textContent);
-            else
-                minimistOpts = { };
+            var minimistOpts = Util.extractOptSpec(fcommandDoc, navigator.language) || {};
 
             var opts = minimist_parseopts(internalOptions._, minimistOpts);
 
