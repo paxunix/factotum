@@ -214,7 +214,7 @@ FactotumBg.responseHandler = function (response)
         // XXX: this represents a failure in the extension and it
         // should be surfaced to the user somehow (response will be
         // undefined)
-        console.log("reponse handler error:", chrome.runtime.lastError);
+        console.log("response handler error:", chrome.runtime.lastError);
         return;
     }
 
