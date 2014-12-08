@@ -109,10 +109,16 @@ Defaults to loading the latest version.
 <script>
 /*
    Inline script blocks are run on import of this document into the page.
-   Invoke your Fcommand code here.  Call onSuccess() once your Fcommand
-   code has completed successfully.  Any object you pass to it will be
-   passed to the bg code (if any) for this Fcommand when it is run in
-   the background page.  Call onFailure() if you want to surface (and
+   Invoke your Fcommand code here by passing it to Factotum.runCommand().
+   You _can_ run any code you want in a <script> block, but for it to
+   be treated like an Fcommand, it needs to be called via runCommand().
+
+   Call onSuccess() once your Fcommand code has completed successfully.
+   Any object you pass to it will be passed to the bg code (if any) for
+   this Fcommand when it is run in the background page after onSuccess()
+   is called.
+
+   Call onFailure() or throw an exception if you want to surface (and
    record) the error via the Factotum extension.  The object you pass
    it can be any Error object, or a string.
 */
