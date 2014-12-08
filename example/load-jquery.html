@@ -133,16 +133,19 @@ Factotum.runCommand(function (args, importDoc, onSuccess, onFailure) {
 </script>
 
 <!--
-This element contains Javascript that will be run in the background
-page.  It is wrapped in a Function that takes a single object parameter that is passed to the onSuccess() function called from the Fcommand.
+This element contains Javascript that will be run in the background page
+if your Fcommand passed a non-null object to onSuccess().
 
-It must have an ID of "bgCode".
+It is wrapped in a Function that takes a single object parameter (the
+one that your Fcommand passed to onSuccess()).
+
+It must be a <template> with an ID of "bgCode".
 -->
 <template id="bgCode">
   <!-- You can wrap it in a <script> tag to make your editor's highlighter
     happy, but the textContent will be parsed as Javascript. -->
 <script>
-console.log("Fcommand running with args: ", arguments);
+console.log("Running in bg with:", arguments);
 chrome.notifications.create(
     "",
     {
