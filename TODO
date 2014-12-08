@@ -56,13 +56,13 @@
         - returns list of Fcommand objects given a name.
 
 - Fcommand datastore
-    - names[] : indexed
+    - keywords[] : indexed
     - guid : indexed, unique key
     - original document string
     - description
     - optSpec
-    - help document string?
-    - cooked document string?
+    - help document string
+    - bgcode string
     - all of the metadata fields (if showing them separately, might as well
       make them separate fields, although it seems silly to store the
       original document then duplicate all its data in separate fields)
