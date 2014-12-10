@@ -1,3 +1,6 @@
+- fix internal options handling.  Minimist parses anything that looks like
+  an option when parsing for internal opts.
+
 - I think runCommand needs to remove the import doc, not the contentscript
     - e.g. if the fcommand delays calling onSuccess(), the import will
       finish, then the content script will remove it from the document.
