@@ -50,27 +50,6 @@ ContentScript.getLoadImportPromise = function (obj)
 }   // ContentScript.getLoadImportPromise
 
 
-/** Return a function that calls the response function with the data in the
- * promise chain so far and propagates the resolved object.  It should be
- * called for both success and failure.
- * @param {Object} request - @see ContentScript.getLoadImportPromise.  Must
- *      contain at least the 'cmdline' property.
- * @param {Object} responseFunc - To be called to signify the Fcommand has completed.
- * @return {Function} Resolve/reject function suitable for use in the
- * promise chain.
- */
-ContentScript.getResponseFuncCaller = function (request, responseFunc)
-{
-    return function (resolvedWith) {
-        responseFunc({
-                error: resolvedWith.error,
-            });
-
-        return resolvedWith;
-    };
-}   // getResponseFuncCaller
-
-
 // Define a connection listener that loads an Fcommand import document
 // passed from Factotum.  If an exception occurs while executing the
 // Fcommand, the error message is returned to Factotum.
