@@ -21,7 +21,7 @@ node-update:
 	npm update $(NODE_MODULES)
 
 # Pattern rules
-scripts/%.js.bundle: scripts/%.js npm_install
+scripts/%.js.bundle: scripts/%.js
 	browserify $(_DEBUG) $< > $@
 
 node_modules/%:
