@@ -53,6 +53,8 @@ ContentScript.getLoadImportPromise = function (obj)
 // Define a connection listener that loads an Fcommand import document
 // passed from Factotum.  If an exception occurs while executing the
 // Fcommand, the error message is returned to Factotum.
+// The rejection object is expected to contain an error property whose value
+// is either a string or an Error object.
 ContentScript.factotumListener = function (request)
 {
     ContentScript.getLoadImportPromise({ request: request, document: document }).
