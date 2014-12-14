@@ -33,7 +33,7 @@ ContentScript.doCleanup = function (opts)
  * @property {String} obj.request.documentString - the HTML string to use as the import document for the Fcommand
  * @property {String} obj.request.cmdline - minimist parsed object containing Fcommand cmdline data
  * @property {String} obj.request.guid - Fcommand GUID
- * @property {Object} obj.request.internalOptions - internal options (like --debug, --help, etc.)
+ * @property {Object} obj.request.internalOptions - internal options (like debug, help, etc.)
  * @property {Object} obj.document - Document to be the parent of the import doc.
  * @returns {Promise} - promise to load the import document
  */

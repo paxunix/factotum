@@ -4,18 +4,18 @@ describe("FactotumBg", function () {
 
 
 describe("checkInternalOptions", function() {
-    it("accepts --debug option anywhere in command line", function () {
-        expect(FactotumBg.checkInternalOptions(["--debug", "fg", "a"]).debug).toBe("fg");
+    it("accepts --bg- debug and --fg-debug option anywhere in command line", function () {
+        expect(FactotumBg.checkInternalOptions(["--bg-debug", "a"]).bgdebug).toBe(true);
 
-        expect(FactotumBg.checkInternalOptions(["test", "--debug=fg", "a"]).debug).toBe("fg");
+        expect(FactotumBg.checkInternalOptions(["test", "--bg-debug", "a"]).bgdebug).toBe(true);
 
-        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=fg"]).debug).toBe("fg");
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--bg-debug"]).bgdebug).toBe(true);
 
-        expect(FactotumBg.checkInternalOptions(["--debug=bg", "test", "a"]).debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["--fg-debug", "test", "a"]).fgdebug).toBe(true);
 
-        expect(FactotumBg.checkInternalOptions(["test", "--debug=bg", "a"]).debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["test", "--fg-debug", "a"]).fgdebug).toBe(true);
 
-        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=bg"]).debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--fg-debug"]).fgdebug).toBe(true);
     });
 
     it("accepts --help option anywhere in command line", function () {

@@ -51,7 +51,7 @@ Factotum.runCommand = function (fcommandFunc)
     var internalOptions = Factotum._getDataAttribute(document, guid, "fcommandInternalOptions");
 
     var p = new Promise(function (resolve, reject) {
-        if (internalOptions.debug)
+        if (internalOptions.fgdebug)
             debugger;
 
         // Call the Fcommand

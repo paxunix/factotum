@@ -30,9 +30,9 @@ FactotumBg.getOmniboxDescription = function(opts)
 
     // Show an indicator for which internal option was entered.
     var leader = "";
-    if (opts.debug === "bg")
+    if (opts.bgdebug)
         leader = "[Debug-bg]";
-    else if (opts.debug === "fg")
+    else if (opts.fgdebug)
         leader = "[Debug]";
     else if (opts.help)
         leader = "[Help]";
@@ -91,11 +91,12 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc)
 };  // FactotumBg.onOmniboxInputChanged
 
 
-// Return an object that has checked for --help or --debug options in argv.
+// Return an object that has checked for help or debug options in argv.
 FactotumBg.checkInternalOptions = function (argv)
 {
     var opts = GetOpt.getOptions({
-        "debug": { type: "value" },
+        "fgdebug": { type: "boolean", aliases: [ "fg-debug" ] },
+        "bgdebug": { type: "boolean", aliases: [ "bg-debug" ] },
         "help": { type: "boolean" },
     }, argv);
 
