@@ -53,10 +53,6 @@ page.
 <!-- Specify the favicon for this Fcommand.  Optional.  -->
 <link rel="icon" type="image/png" href="http://example.com/favicon.png">
 
-<!-- Any scripts to be imported into the page on which the command is
-invoked. -->
-<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-
 </head>
 
 <body>
@@ -106,7 +102,7 @@ Factotum.runCommand().
 {
   "version": {
     "type": "value",
-    "default": "latest"
+    "default": "2.1.1"
   },
   "min": {
     "type": "boolean",
@@ -132,8 +128,25 @@ Factotum.runCommand().
    record) the error via the Factotum extension.  The object you pass
    it can be any Error object, or a string.
 */
-Factotum.runCommand(function (args, importDoc, onSuccess, onFailure) {
-  onSuccess({ jqueryVersion: jQuery.fn.jquery });
+Factotum.runCommand(function (opts, importDoc, onSuccess, onFailure) {
+  var url = "https://code.jquery.com/jquery-" +
+      opts.version +
+      (opts.min ? ".min" : "") + ".js";
+
+  var s = document.createElement("script");
+  s.src = url;
+  s.onload = function () {
+      // No need to keep the script around once it has run
+      s.parentNode.removeChild(s);
+      onSuccess({ jqueryVersion: jQuery.fn.jquery });
+  };
+  s.onerror = function (e) {
+      // No need to keep the script around once it has run
+      s.parentNode.removeChild(s);
+      onFailure("Failed to load jquery");
+  };
+
+  (document.head || document.documentElement).appendChild(s);
 });
 
 </script>
