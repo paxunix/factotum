@@ -21,13 +21,18 @@ describe("extractOptSpec", function() {
     });
 
 
-    it("throws template#getopt's text is not parseable JSON", function() {
-        expect(function () {
-            var doc = (new DOMParser).
-                parseFromString('<template id="getopt">X</template>', "text/html");
+    it("throws if template#getopt's text is not parseable JSON", function() {
+        var doc = (new DOMParser).
+            parseFromString('<template id="getopt">X</template>', "text/html");
+
+        try {
             Util.extractOptSpec(doc, lang);
-        }).toThrowError(SyntaxError,
-            "Unexpected token X");
+        }
+
+        catch (e)
+        {
+            expect(e.message).toMatch(/^Failed parsing template#getopt: SyntaxError: Unexpected token X/);
+        }
     });
 
 
@@ -45,7 +50,6 @@ describe("extractOptSpec", function() {
         ;
         expect(Util.extractOptSpec(doc, lang)).toEqual({ opt: { type: "value" }});
     });
-
 
 
 }); // extractOptSpec

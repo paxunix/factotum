@@ -48,7 +48,14 @@ Util.extractOptSpec = function (document, lang)
     if (!template)
         return null;
 
-    return JSON.parse(template.content.textContent);
+    try {
+        return JSON.parse(template.content.textContent);
+    }
+
+    catch (e)
+    {
+        throw Error("Failed parsing " + sel + ": " + e.stack);
+    }
 }   // Util.extractOptSpec
 
 
