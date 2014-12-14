@@ -1,3 +1,8 @@
+- add charset to mimetype when parsing DOM
+
+- add jasmine to node_modules and see if it can be used without
+  browserffication that way
+
 - fix internal options handling.  Minimist parses anything that looks like
   an option when parsing for internal opts.
 
