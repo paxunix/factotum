@@ -1,6 +1,3 @@
-- add jasmine to node_modules and see if it can be used without
-  browserffication that way
-
 - I think runCommand needs to remove the import doc, not the contentscript
     - e.g. if the fcommand delays calling onSuccess(), the import will
       finish, then the content script will remove it from the document.

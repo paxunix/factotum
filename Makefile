@@ -1,7 +1,7 @@
 MAKEFLAGS := -j
 SHELL := /bin/zsh
 
-NODE_MODULES := dexie semver
+NODE_MODULES := dexie semver jasmine-core
 
 _DEBUG := $(if $(DEBUG),-d,)
 DIR := scripts
