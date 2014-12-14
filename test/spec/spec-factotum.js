@@ -5,25 +5,25 @@ describe("FactotumBg", function () {
 
 describe("checkInternalOptions", function() {
     it("accepts --debug option anywhere in command line", function () {
-        expect(FactotumBg.checkInternalOptions(["--debug", "fg", "a"]).opts.debug).toBe("fg");
+        expect(FactotumBg.checkInternalOptions(["--debug", "fg", "a"]).debug).toBe("fg");
 
-        expect(FactotumBg.checkInternalOptions(["test", "--debug=fg", "a"]).opts.debug).toBe("fg");
+        expect(FactotumBg.checkInternalOptions(["test", "--debug=fg", "a"]).debug).toBe("fg");
 
-        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=fg"]).opts.debug).toBe("fg");
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=fg"]).debug).toBe("fg");
 
-        expect(FactotumBg.checkInternalOptions(["--debug=bg", "test", "a"]).opts.debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["--debug=bg", "test", "a"]).debug).toBe("bg");
 
-        expect(FactotumBg.checkInternalOptions(["test", "--debug=bg", "a"]).opts.debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["test", "--debug=bg", "a"]).debug).toBe("bg");
 
-        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=bg"]).opts.debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=bg"]).debug).toBe("bg");
     });
 
     it("accepts --help option anywhere in command line", function () {
-        expect(FactotumBg.checkInternalOptions(["--help", "test", "a"]).opts.help).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["--help", "test", "a"]).help).toBe(true);
 
-        expect(FactotumBg.checkInternalOptions(["test", "--help", "a"]).opts.help).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "--help", "a"]).help).toBe(true);
 
-        expect(FactotumBg.checkInternalOptions(["test", "a", "--help"]).opts.help).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--help"]).help).toBe(true);
     });
 }); // FactotumBg.normalizeInternalOptions
 
@@ -108,8 +108,7 @@ xdescribe("responseHandler", function() {
 
         expect(FactotumBg.responseHandler).toHaveBeenCalledWith({
             cmdlineObj: {
-                opts: { },
-                argv: ["1", "2", "3"]
+                _: ["1", "2", "3"]
             }
         });
     });
@@ -171,8 +170,7 @@ xdescribe("dispatch", function() {
             }).not.toThrow();
 
             expect(action).toHaveBeenCalledWith({
-                opts: {},
-                argv: ["1", "2", "3"]
+                _: ["1", "2", "3"]
             });
         });
 
@@ -219,8 +217,8 @@ xdescribe("dispatch", function() {
             }).not.toThrow();
 
             expect(action).toHaveBeenCalledWith({
-                opts: { opt: true },
-                argv: ["1", "2", "3"]
+                opt: true,
+                _: ["1", "2", "3"]
             });
         });
 

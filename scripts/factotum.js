@@ -38,11 +38,11 @@ FactotumBg.getOmniboxDescription = function(opts)
         leader = "[Help]";
 
     // Command isn't known yet, so show nothing
-    if (opts.argv.length === 0)
-        opts.argv = [ "" ];
+    if (opts._.length === 0)
+        opts._ = [ "" ];
 
-    var description = leader + " <match>" + opts.argv[0] + "</match>" +
-        "<dim>" + opts.argv.slice(1).join(" ") + "</dim>";
+    var description = leader + " <match>" + opts._[0] + "</match>" +
+        "<dim>" + opts._.slice(1).join(" ") + "</dim>";
 
     return description;
 }   // FactotumBg.getOmniboxDescription
@@ -80,7 +80,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc)
     chrome.omnibox.setDefaultSuggestion({ description: defaultDesc });
 
     // XXX: append alternate Fcommand suggestions based on first word in
-    // internalOptions.argv (since that's argv without the internal options)
+    // internalOptions._ (since that's argv without the internal options)
     var suggestions = [{
         content: "loadjquery",
         description: "Load jQuery",
@@ -126,7 +126,7 @@ FactotumBg.dispatch = function (cmdline)
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
     // XXX: test code only
-    if (internalOptions.argv[0] === "loadjquery")
+    if (internalOptions._[0] === "loadjquery")
     {
         var resolvedWith = function (xhrLoadEvent)
         {
@@ -137,7 +137,7 @@ FactotumBg.dispatch = function (cmdline)
             Util.validateMetadata(metadata);
 
             var optspec = Util.extractOptSpec(fcommandDoc, navigator.language) || {};
-            var opts = GetOpt.getOptions(optspec, internalOptions.argv);
+            var opts = GetOpt.getOptions(optspec, internalOptions._);
 
             var request = {
                 documentString: fcommandString,

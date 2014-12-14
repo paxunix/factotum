@@ -8,9 +8,7 @@ describe("getOptions", function() {
             }, [
             ])
         ).toEqual({
-            opts: {
-            },
-            argv: [
+            _: [
             ]
         });
     });
@@ -24,9 +22,7 @@ describe("getOptions", function() {
                 "-c"
             ])
         ).toEqual({
-            opts: {
-            },
-            argv: [
+            _: [
                 "-a",
                 "-b",
                 "-c"
@@ -42,10 +38,8 @@ describe("getOptions", function() {
                 "-a"
             ])
         ).toEqual({
-            opts: {
-                "a": true
-            },
-            argv: [
+            "a": true,
+            _: [
             ]
         });
     });
@@ -64,12 +58,10 @@ describe("getOptions", function() {
                 "---three"
             ])
         ).toEqual({
-            opts: {
-                "help": true,
-                "h": true,
-                "three": true
-            },
-            argv: [
+            "help": true,
+            "h": true,
+            "three": true,
+            _: [
             ]
         });
     });
@@ -86,11 +78,9 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "a": true,
-                "b": false
-            },
-            argv: [
+            "a": true,
+            "b": false,
+            _: [
                 "arg"
             ]
         });
@@ -109,11 +99,9 @@ describe("getOptions", function() {
                 "-two"
             ])
         ).toEqual({
-            opts: {
-                "a": true,
-                "b": true
-            },
-            argv: [
+            "a": true,
+            "b": true,
+            _: [
                 "one",
                 "-two"
             ]
@@ -129,9 +117,7 @@ describe("getOptions", function() {
                 "two"
             ])
         ).toEqual({
-            opts: {
-            },
-            argv: [
+            _: [
                 "one",
                 "two"
             ]
@@ -146,9 +132,7 @@ describe("getOptions", function() {
                 "--"
             ])
         ).toEqual({
-            opts: {
-            },
-            argv: [
+            _: [
                 "--"
             ]
         });
@@ -168,11 +152,9 @@ describe("getOptions", function() {
                 "three"
             ])
         ).toEqual({
-            opts: {
-                "a": true,
-                "b": true
-            },
-            argv: [
+            "a": true,
+            "b": true,
+            _: [
                 "one",
                 "two",
                 "three"
@@ -192,9 +174,7 @@ describe("getOptions", function() {
                 "three"
             ])
         ).toEqual({
-            opts: {
-            },
-            argv: [
+            _: [
                 "-a",
                 "--b",
                 "---c",
@@ -227,10 +207,8 @@ describe("getOptions", function() {
                 "-a"
             ])
         ).toEqual({
-            opts: {
-                "a": 3
-            },
-            argv: [
+            "a": 3,
+            _: [
             ]
         });
     });
@@ -243,10 +221,8 @@ describe("getOptions", function() {
                 "--opt", "val"
             ])
         ).toEqual({
-            opts: {
-                "opt": "val"
-            },
-            argv: [
+            "opt": "val",
+            _: [
             ]
         });
     });
@@ -261,11 +237,9 @@ describe("getOptions", function() {
                 "--opt"
             ])
         ).toEqual({
-            opts: {
-                "opt": null,
-                "b": true,
-            },
-            argv: [
+            "opt": null,
+            "b": true,
+            _: [
             ]
         });
     });
@@ -282,10 +256,8 @@ describe("getOptions", function() {
                 "--opt", "final"
             ])
         ).toEqual({
-            opts: {
-                "opt": "final"
-            },
-            argv: [
+            "opt": "final",
+            _: [
                 "--a",
                 "arg"
             ]
@@ -302,10 +274,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "opt": null
-            },
-            argv: [
+            "opt": null,
+            _: [
                 "arg"
             ]
         });
@@ -322,10 +292,8 @@ describe("getOptions", function() {
                 "blah",
             ])
         ).toEqual({
-            opts: {
-                "opt": null
-            },
-            argv: [
+            "opt": null,
+            _: [
                 "blah"
             ]
         });
@@ -342,11 +310,9 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "opt": null,
-                "b": true
-            },
-            argv: [
+            "opt": null,
+            "b": true,
+            _: [
                 "arg"
             ]
         });
@@ -362,10 +328,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "opt": "--unknown-option"
-            },
-            argv: [
+            "opt": "--unknown-option",
+            _: [
                 "arg"
             ]
         });
@@ -383,11 +347,9 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "opt": "testing 1 2 3",
-                "b": "blah"
-            },
-            argv: [
+            "opt": "testing 1 2 3",
+            "b": "blah",
+            _: [
                 "arg"
             ]
         });
@@ -402,10 +364,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "opt": "-"
-            },
-            argv: [
+            "opt": "-",
+            _: [
                 "arg"
             ]
         });
@@ -420,10 +380,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "opt": "---"
-            },
-            argv: [
+            "opt": "---",
+            _: [
                 "arg"
             ]
         });
@@ -441,14 +399,12 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "opt": [
-                    "blah",
-                    "test",
-                    "1 2 3"
-                ]
-            },
-            argv: [
+            "opt": [
+                "blah",
+                "test",
+                "1 2 3"
+            ],
+            _: [
                 "arg"
             ]
         });
@@ -466,14 +422,12 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "opt": [
-                    "blah",
-                    null,
-                    "1 2 3"
-                ]
-            },
-            argv: [
+            "opt": [
+                "blah",
+                null,
+                "1 2 3"
+            ],
+            _: [
                 "arg"
             ]
         });
@@ -490,10 +444,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "opt": true
-            },
-            argv: [
+            "opt": true,
+            _: [
                 "arg"
             ]
         });
@@ -509,10 +461,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "o": false
-            },
-            argv: [
+            "o": false,
+            _: [
                 "arg"
             ]
         });
@@ -528,10 +478,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "noopt": 2
-            },
-            argv: [
+            "noopt": 2,
+            _: [
                 "arg"
             ]
         });
@@ -546,10 +494,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "noopt": true
-            },
-            argv: [
+            "noopt": true,
+            _: [
                 "arg"
             ]
         });
@@ -564,10 +510,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "no-opt": true
-            },
-            argv: [
+            "no-opt": true,
+            _: [
                 "arg"
             ]
         });
@@ -582,10 +526,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "noopt": false
-            },
-            argv: [
+            "noopt": false,
+            _: [
                 "arg"
             ]
         });
@@ -600,10 +542,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "no-opt": false
-            },
-            argv: [
+            "no-opt": false,
+            _: [
                 "arg"
             ]
         });
@@ -618,10 +558,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "a": "the value"
-            },
-            argv: [
+            "a": "the value",
+            _: [
                 "arg"
             ]
         });
@@ -636,10 +574,8 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                "a": ""
-            },
-            argv: [
+            "a": "",
+            _: [
                 "arg"
             ]
         });
@@ -654,9 +590,7 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-            },
-            argv: [
+            _: [
                 "--a=the value",
                 "arg"
             ]
@@ -674,13 +608,11 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                a: "test",
-                b: true,
-                b2: false,
-                c: 42
-            },
-            argv: [
+            a: "test",
+            b: true,
+            b2: false,
+            c: 42,
+            _: [
                 "arg"
             ]
         });
@@ -701,13 +633,11 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                a: "good",
-                b: false,
-                b2: true,
-                c: 43
-            },
-            argv: [
+            a: "good",
+            b: false,
+            b2: true,
+            c: 43,
+            _: [
                 "arg"
             ]
         });
@@ -723,12 +653,10 @@ describe("getOptions", function() {
                 "arg"
             ])
         ).toEqual({
-            opts: {
-                a: [ "test" ],
-                b: true,
-                c: 42,
-            },
-            argv: [
+            a: [ "test" ],
+            b: true,
+            c: 42,
+            _: [
                 "arg"
             ]
         });
@@ -744,10 +672,8 @@ describe("getOptions", function() {
                 "arg",
             ])
         ).toEqual({
-            opts: {
-                c: 1,
-            },
-            argv: [
+            c: 1,
+            _: [
                 "-no-c",
                 "arg"
             ]

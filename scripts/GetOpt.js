@@ -27,14 +27,16 @@ var GetOpt = {};
  * @param argv - array of command line words (as returned from Shell.split).
  * @return {Object} Of the form:
  *      {
- *          opts: { optA: value, optB: [ value1, value2, ....], ... },
- *          argv: [ arg1, arg2, ... ]
+ *          optA: value,
+ *          optB: [ value1, value2, ....], ...
+ *          _: [ arg1, arg2, ... ]
  *      }
+ *  The _ array will always be present (it will be empty if there were no
+ *  arguments).
  */
 GetOpt.getOptions = function (spec, argv)
 {
-    var opts = {};
-    var retArgv = [];
+    var opts = { _: [ ] };
     var nameOfValueOpt = null;
 
 
@@ -114,7 +116,7 @@ GetOpt.getOptions = function (spec, argv)
         // Everything else is an argument.
         if (word === "--")
         {
-            retArgv = retArgv.concat(argv);
+            opts._ = opts._.concat(argv);
 
             // If a value option is active but we've consumed all options
             // and their values, then the option gets a value of null.
@@ -136,7 +138,7 @@ GetOpt.getOptions = function (spec, argv)
                     argv.unshift(thing.value);
                 else
                 {
-                    retArgv.push(word);
+                    opts._.push(word);
                     continue;
                 }
 
@@ -176,7 +178,7 @@ GetOpt.getOptions = function (spec, argv)
         }
 
         // Must be an argument.
-        retArgv.push(thing.word);
+        opts._.push(thing.word);
     }   // while
 
     // We ended with a value option but there's nothing left to assign to it
@@ -184,5 +186,5 @@ GetOpt.getOptions = function (spec, argv)
     if (nameOfValueOpt !== null)
         saveValue(nameOfValueOpt, null);
 
-    return { opts: opts, argv: retArgv };
+    return opts;
 }   // GetOpt.getOptions
