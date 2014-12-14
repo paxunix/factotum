@@ -156,7 +156,7 @@ describe("validateMetadata", function() {
 
             expect(function () {
                 Util.validateMetadata(meta);
-            }).toThrowError("Missing " + f);
+            }).toThrowError("Metadata is missing required field " + f);
 
             docstr += '<meta name="' + f + '" content="test '+ f + '">';
         }
@@ -177,7 +177,7 @@ describe("validateMetadata", function() {
 
         expect(function () {
             Util.validateMetadata(meta);
-        }).toThrowError("Version 'test version' is not semver-valid");
+        }).toThrowError("Metadata version 'test version' is not semver-compliant");
     });
 
 
@@ -201,7 +201,7 @@ describe("validateMetadata", function() {
 
         expect(function () {
             Util.validateMetadata(meta);
-        }).toThrowError("Keyword field must have at least one keyword");
+        }).toThrowError("Metadata keyword field must have at least one keyword");
     });
 }); // validateMetadata
 
