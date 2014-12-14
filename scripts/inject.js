@@ -15,10 +15,24 @@ window.Factotum = { };
 Factotum._getDataAttribute = function (document, guid, attributeName)
 {
     var linkEl = document.querySelector("head link#fcommand-" +
-            guid + "[rel=import]")
+            guid + "[rel=import]");
 
     return JSON.parse(linkEl.dataset[attributeName]);
 }   // Factotum._getDataAttribute
+
+
+// Remove the import document <link> element.
+Factotum._cleanup = function (document, guid)
+{
+    var linkEl = document.querySelector("head link#fcommand-" +
+            guid + "[rel=import]");
+
+    if (linkEl)
+    {
+        URL.revokeObjectURL(linkEl.href);
+        linkEl.remove();
+    }
+}   // ContentScript.doCleanup
 
 
 /**
@@ -59,6 +73,8 @@ Factotum.runCommand = function (fcommandFunc)
     });
 
     p.then(function (bgData) {
+        Factotum._cleanup(document, guid);
+
         var data = {
             guid: guid,
             data: bgData,
@@ -66,6 +82,8 @@ Factotum.runCommand = function (fcommandFunc)
         };
         postMessage(data, "*");
     }).catch(function (error) {
+        Factotum._cleanup(document, guid);
+
         // If a thrown Error, its details will not be preserved when passed
         // to the background context, so pull out the stack and use it
         // as the error string.

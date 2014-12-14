@@ -13,12 +13,6 @@ ContentScript.appendNodeToDocumentHead = function (node)
 }   // ContentScript.appendNodeToDocumentHead
 
 
-ContentScript.doCleanup = function (opts)
-{
-    opts.linkElement.remove();
-}   // ContentScript.doCleanup
-
-
 // Each promise ultimately fulfills to an object so that necessary state can
 // be passed to other promises.  The object can contain:
 //      request: the request object as passed from the background page
@@ -44,13 +38,11 @@ ContentScript.getLoadImportPromise = function (obj)
 
         obj.linkElement.onload = function onload() {
             resolve(obj);
-            URL.revokeObjectURL(obj.linkElement.href);
         };
 
         obj.linkElement.onerror = function onerror(evt) {
             obj.error = Error(evt.statusText);
             reject(obj);
-            URL.revokeObjectURL(obj.linkElement.href);
         };
 
         ContentScript.appendNodeToDocumentHead(obj.linkElement);
@@ -88,7 +80,7 @@ ContentScript.factotumListener = function (request)
         catch(function (rejectWith) {
             rejectWith.guid = request.guid;
             chrome.runtime.sendMessage(rejectWith);
-    }).then(ContentScript.doCleanup, ContentScript.doCleanup);
+    });
 
     // No response
     return false;
