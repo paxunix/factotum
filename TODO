@@ -3,12 +3,23 @@
     - you _probably_ don't want to import the document into the bg page.
     - it could just run the bg template code, since that's already an
       established mechanism
+    - bgcode must be in a template to shield it from execution during import
+        - it may be wrapped in a <script> tag--we're only taking the content
+          of it
+        - pull the document based on guid
+        - parse it into DOM
+        - extract the bgcode template's textcontent
+        - turn it into code and run it, passing it the data passed from the
+          Fcommand's success
 
 - should prevent multiple simultaneous invocations of the same Fcommand.
     - this is possible because the Fcommand could start an async action and
       then call the onSuccess function some time in the future
     - in the meantime, invoking the Fcommand again may cause strange things
       to happen
+    - since the import document is only removed when the Fcommand execution
+      promise has settled, it should be minimally sufficient to check for
+      the presence of the import element.
 
 - record all errors passed back to bg from Fcommands and present them from a
   menu option
