@@ -1,8 +1,6 @@
 "use strict";
 
-var minimist_parseopts = require("minimist");
-
-window.FactotumBg = {};
+var FactotumBg = {};
 
 // XXX: variables in this global scope are visible to the response code
 // string.
@@ -34,17 +32,17 @@ FactotumBg.getOmniboxDescription = function(opts)
     var leader = "";
     if (opts.debug === "bg")
         leader = "[Debug-bg]";
-    else if (opts.debug)
+    else if (opts.debug === "fg")
         leader = "[Debug]";
     else if (opts.help)
         leader = "[Help]";
 
     // Command isn't known yet, so show nothing
-    if (opts._.length === 0)
-        opts._ = [ "" ];
+    if (opts.argv.length === 0)
+        opts.argv = [ "" ];
 
-    var description = leader + " <match>" + opts._[0] + "</match>" +
-        "<dim>" + opts._.slice(1).join(" ") + "</dim>";
+    var description = leader + " <match>" + opts.argv[0] + "</match>" +
+        "<dim>" + opts.argv.slice(1).join(" ") + "</dim>";
 
     return description;
 }   // FactotumBg.getOmniboxDescription
@@ -82,7 +80,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc)
     chrome.omnibox.setDefaultSuggestion({ description: defaultDesc });
 
     // XXX: append alternate Fcommand suggestions based on first word in
-    // internalOptions._ (since that's argv without the internal options)
+    // internalOptions.argv (since that's argv without the internal options)
     var suggestions = [{
         content: "loadjquery",
         description: "Load jQuery",
@@ -93,33 +91,15 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc)
 };  // FactotumBg.onOmniboxInputChanged
 
 
-// If --debug was given, it can only be "bg" or true/false.
-FactotumBg.normalizeInternalOptions = function (opts)
-{
-    if ("debug" in opts)
-        if (typeof(opts.debug) === "string")
-            if (opts.debug === "")
-                opts.debug = true;
-            else if (opts.debug !== "bg")
-                delete opts.debug;
-
-    return opts;
-}   // FactotumBg.normalizeInternalOptions
-
-
-// Return a minimist-opts object that has checked for --help or --debug
-// options in argv.
+// Return an object that has checked for --help or --debug options in argv.
 FactotumBg.checkInternalOptions = function (argv)
 {
-    // "debug" can be either a boolean (Fcommand debug) or a string
-    // (bg-script debug).  Skip the first word, since that's the command
-    // name.
-    var opts = minimist_parseopts(argv, {
-        string: "debug",
-        boolean: [ "debug", "help" ],
-    });
+    var opts = GetOpt.getOptions({
+        "debug": { type: "value" },
+        "help": { type: "boolean" },
+    }, argv);
 
-    return FactotumBg.normalizeInternalOptions(opts);
+    return opts;
 }   // FactotumBg.checkInternalOptions
 
 
@@ -146,7 +126,7 @@ FactotumBg.dispatch = function (cmdline)
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
     // XXX: test code only
-    if (internalOptions._[0] === "loadjquery")
+    if (internalOptions.argv[0] === "loadjquery")
     {
         var resolvedWith = function (xhrLoadEvent)
         {
@@ -156,9 +136,8 @@ FactotumBg.dispatch = function (cmdline)
             var metadata = Util.extractMetadata(fcommandDoc, navigator.language);
             Util.validateMetadata(metadata);
 
-            var minimistOpts = Util.extractOptSpec(fcommandDoc, navigator.language) || {};
-
-            var opts = minimist_parseopts(internalOptions._, minimistOpts);
+            var optspec = Util.extractOptSpec(fcommandDoc, navigator.language) || {};
+            var opts = GetOpt.getOptions(optspec, internalOptions.argv);
 
             var request = {
                 documentString: fcommandString,

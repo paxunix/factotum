@@ -85,28 +85,34 @@ Defaults to loading the latest version.
 </template>
 
 <!--
-This block is the opts={} declaration for the minimist options parser.
-It must be a <template> with id=minimist-opt.
+This block is the opts={} declaration for the options parser.  It must
+be a <template> with id=getopt.
 
-This is extracted by id in the bg script and passed to the minimist
-options parser; then the hash returned by minimist is made available
-within Factotum.runCommand().
+This is extracted by id in the bg script and used to parse the Fcommand
+command line.  The object returned by getopt is made available within
+Factotum.runCommand().
 -->
 
-<template id="minimist-opt">
+<template id="getopt">
 <!--
   You can have regular HTML comments in here.
   Everything else is presumed to be a single JSON object blob.
-  See https://github.com/substack/minimist for the spec.
+  See GetOpt.js for the spec.
 
   You can even wrap it in a <script> so that your editor's syntax
   highlighting will highlight the JSON.
 -->
 <script>
 {
-  "default": { "version": "latest" },
-  "boolean": [ "min" ],
-  "string": [ "version" ]
+  "version": {
+    "type": "value",
+    "default": "latest"
+  },
+  "min": {
+    "type": "boolean",
+    "default": false,
+    "aliases": [ "minify", "minified" ]
+  }
 }
 </script>
 </template>

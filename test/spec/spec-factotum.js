@@ -3,55 +3,27 @@
 describe("FactotumBg", function () {
 
 
-describe("normalizeInternalOptions", function() {
-    it("only permits valid debug options", function () {
-        expect(FactotumBg.normalizeInternalOptions({
-            debug: false
-        }).debug).toBe(false);
-
-        expect(FactotumBg.normalizeInternalOptions({
-            debug: true
-        }).debug).toBe(true);
-
-        expect(FactotumBg.normalizeInternalOptions({
-            debug: "bg"
-        }).debug).toBe("bg");
-
-        expect(FactotumBg.normalizeInternalOptions({
-            debug: "invalid"
-        }).debug).toBeUndefined();
-
-        // special case: since --debug can be both a string or a boolean, if
-        // no value was given, consider it to be true (because --debug was
-        // given with no value)
-        expect(FactotumBg.normalizeInternalOptions({
-            debug: ""
-        }).debug).toBe(true);
-    });
-}); // FactotumBg.normalizeInternalOptions
-
-
 describe("checkInternalOptions", function() {
     it("accepts --debug option anywhere in command line", function () {
-        expect(FactotumBg.checkInternalOptions(["--debug", "test", "a"]).debug).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["--debug", "fg", "a"]).opts.debug).toBe("fg");
 
-        expect(FactotumBg.checkInternalOptions(["test", "--debug", "a"]).debug).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "--debug=fg", "a"]).opts.debug).toBe("fg");
 
-        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug"]).debug).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=fg"]).opts.debug).toBe("fg");
 
-        expect(FactotumBg.checkInternalOptions(["--debug=bg", "test", "a"]).debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["--debug=bg", "test", "a"]).opts.debug).toBe("bg");
 
-        expect(FactotumBg.checkInternalOptions(["test", "--debug=bg", "a"]).debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["test", "--debug=bg", "a"]).opts.debug).toBe("bg");
 
-        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=bg"]).debug).toBe("bg");
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--debug=bg"]).opts.debug).toBe("bg");
     });
 
     it("accepts --help option anywhere in command line", function () {
-        expect(FactotumBg.checkInternalOptions(["--help", "test", "a"]).help).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["--help", "test", "a"]).opts.help).toBe(true);
 
-        expect(FactotumBg.checkInternalOptions(["test", "--help", "a"]).help).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "--help", "a"]).opts.help).toBe(true);
 
-        expect(FactotumBg.checkInternalOptions(["test", "a", "--help"]).help).toBe(true);
+        expect(FactotumBg.checkInternalOptions(["test", "a", "--help"]).opts.help).toBe(true);
     });
 }); // FactotumBg.normalizeInternalOptions
 

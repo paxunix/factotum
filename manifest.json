@@ -36,9 +36,10 @@
     "background": {
         "scripts": [
             "scripts/ShellParse.js",
+            "scripts/GetOpt.js",
             "scripts/Util.js.bundle",
             "scripts/Help.js",
-            "scripts/factotum.js.bundle",
+            "scripts/factotum.js",
             "scripts/background.js"
         ]
     },

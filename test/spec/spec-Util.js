@@ -15,16 +15,16 @@ describe("extractOptSpec", function() {
     });
 
 
-    it("returns null if document has no template#minimist-opt", function() {
+    it("returns null if document has no template#getopt", function() {
         var doc = (new DOMParser).parseFromString("<div></div>", "text/html");
         expect(Util.extractOptSpec(doc, lang)).toEqual(null);
     });
 
 
-    it("throws template#minimist-opt's text is not parseable JSON", function() {
+    it("throws template#getopt's text is not parseable JSON", function() {
         expect(function () {
             var doc = (new DOMParser).
-                parseFromString('<template id="minimist-opt">X</template>', "text/html");
+                parseFromString('<template id="getopt">X</template>', "text/html");
             Util.extractOptSpec(doc, lang);
         }).toThrowError(SyntaxError,
             "Unexpected token X");
@@ -33,17 +33,17 @@ describe("extractOptSpec", function() {
 
     it("returns JSON opt-spec", function() {
         var doc = (new DOMParser).
-            parseFromString('<template id="minimist-opt">{"string": [ "version" ]}</template>', "text/html");
+            parseFromString('<template id="getopt">{"opt": { "type": "value" }}</template>', "text/html");
         ;
-        expect(Util.extractOptSpec(doc, lang)).toEqual({ string: [ "version" ] });
+        expect(Util.extractOptSpec(doc, lang)).toEqual({ opt: { type: "value" }});
     });
 
 
     it("can handle an opt-spec block with HTML comments and being wrapped in <script>", function() {
         var doc = (new DOMParser).
-            parseFromString('<template id="minimist-opt"><!-- a comment --><script>{"string": [ "version" ]}</script></template>', "text/html");
+            parseFromString('<template id="getopt"><!-- a comment --><script>{"opt": { "type": "value" }}</script></template>', "text/html");
         ;
-        expect(Util.extractOptSpec(doc, lang)).toEqual({ string: [ "version" ] });
+        expect(Util.extractOptSpec(doc, lang)).toEqual({ opt: { type: "value" }});
     });
 
 

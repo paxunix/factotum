@@ -35,14 +35,15 @@ Util.getFcommandImportId = function (guid)
 
 
 /**
- * Returns an object that can be passed to minimist for options parsing.
+ * Returns an object that can be passed to GetOpt.getOptions for options
+ * parsing.
  * @param {Object} document - HTML document object specifying the Fcommand
  * @param {String} lang - extracts metadata for this BCP47 language string
  * @returns {Object} Option parsing data
  */
 Util.extractOptSpec = function (document, lang)
 {
-    var sel = "template#minimist-opt";
+    var sel = "template#getopt";
     var template = Util.getFromLangSelector(document, sel, lang);
     if (!template)
         return null;

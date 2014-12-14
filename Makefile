@@ -1,7 +1,7 @@
 MAKEFLAGS := -j
 SHELL := /bin/zsh
 
-NODE_MODULES := dexie minimist semver
+NODE_MODULES := dexie semver
 
 _DEBUG := $(if $(DEBUG),-d,)
 DIR := scripts
