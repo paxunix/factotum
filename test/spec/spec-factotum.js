@@ -28,9 +28,9 @@ describe("checkInternalOptions", function() {
 }); // FactotumBg.normalizeInternalOptions
 
 
-xdescribe("getSuggestion", function() {
+describe("getSuggestion", function() {
 
-    it("returns a Chrome omnibox suggestion object", function() {
+    xit("returns a Chrome omnibox suggestion object", function() {
         var name = "test";
 
         Fcommands.set({
@@ -48,7 +48,7 @@ xdescribe("getSuggestion", function() {
     });
 
 
-    it("uses the value of the command's description property for the description", function() {
+    xit("uses the value of the command's description property for the description", function() {
         var name = "test";
         var desc = "desc123";
 
@@ -66,7 +66,7 @@ xdescribe("getSuggestion", function() {
     });
 
 
-    it("sets the suggestion's content to be the command's first name and whitespace-separated omnibox words", function() {
+    xit("sets the suggestion's content to be the command's first name and whitespace-separated omnibox words", function() {
         var name = "test";
         var argv = [ "a", "b", "c" ];
 
@@ -89,7 +89,7 @@ xdescribe("getSuggestion", function() {
 }); // FactotumBg.getSuggestion
 
 
-xdescribe("responseHandler", function() {
+describe("responseHandler", function() {
 
     // None of these tests will work because of
     // http://code.google.com/p/chromium/issues/detail?id=30756
@@ -128,9 +128,9 @@ xdescribe("responseHandler", function() {
 }); // FactotumBg.responseHandler
 
 
-xdescribe("dispatch", function() {
+describe("dispatch", function() {
 
-    it("does nothing if dispatching to an empty Fcommand name",
+    xit("does nothing if dispatching to an empty Fcommand name",
         function() {
             spyOn(Fcommands, "getCommandsByPrefix");
 
@@ -141,7 +141,7 @@ xdescribe("dispatch", function() {
             expect(Fcommands.getCommandsByPrefix).not.toHaveBeenCalled();
         });
 
-    it("does nothing if dispatching to an unknown Fcommand name",
+    xit("does nothing if dispatching to an unknown Fcommand name",
         function() {
             spyOn(Fcommands, "getCommandsByPrefix").andCallThrough();
 
@@ -225,7 +225,7 @@ xdescribe("dispatch", function() {
 }); // FactotumBg.dispatch
 
 
-xdescribe("sendScriptRequest", function() {
+describe("sendScriptRequest", function() {
 
     xit("Fcommand executes whether 'execute' property can be a function or a string.");
 
