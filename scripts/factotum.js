@@ -63,7 +63,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc)
     if (tabs[0].url.search(/^(chrome|about)/) !== -1)
     {
         chrome.omnibox.setDefaultSuggestion({
-            description: "<match>FactotumBg commands cannot be run from Chrome pages.</match>"
+            description: "<match>Factotum commands cannot be run from Chrome pages.</match>"
         });
 
         return;
