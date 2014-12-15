@@ -4,12 +4,13 @@ var ContentScript = {};
 
 
 /**
- * Helper to append a node to the document's <head>
+ * Helper to append a node to the document's <head> or document if head
+ * isn't present.
  * Exists primarily to simplify testing by giving a known function to mock.
  */
 ContentScript.appendNodeToDocumentHead = function (node)
 {
-    document.head.appendChild(node);
+    (document.head || document.documentElement).appendChild(node);
 }   // ContentScript.appendNodeToDocumentHead
 
 
