@@ -32,7 +32,7 @@ FactotumBg.getOmniboxDescription = function(opts)
     var leader = "";
     if (opts.bgdebug)
         leader = "[Debug-bg]";
-    else if (opts.fgdebug)
+    else if (opts.debug)
         leader = "[Debug]";
     else if (opts.help)
         leader = "[Help]";
@@ -95,7 +95,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc)
 FactotumBg.checkInternalOptions = function (argv)
 {
     var opts = GetOpt.getOptions({
-        "fgdebug": { type: "boolean", aliases: [ "fg-debug" ] },
+        "debug": { type: "boolean", aliases: [ "fg-debug" ] },
         "bgdebug": { type: "boolean", aliases: [ "bg-debug" ] },
         "help": { type: "boolean" },
     }, argv);
