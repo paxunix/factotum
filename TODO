@@ -12,15 +12,6 @@
         - turn it into code and run it, passing it the data passed from the
           Fcommand's success
 
-- should prevent multiple simultaneous invocations of the same Fcommand.
-    - this is possible because the Fcommand could start an async action and
-      then call the onSuccess function some time in the future
-    - in the meantime, invoking the Fcommand again may cause strange things
-      to happen
-    - since the import document is only removed when the Fcommand execution
-      promise has settled, it should be minimally sufficient to check for
-      the presence of the import element.
-
 - record all errors passed back to bg from Fcommands and present them from a
   menu option
     - use a ring buffer?
