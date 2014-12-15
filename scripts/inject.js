@@ -7,6 +7,18 @@
 window.Factotum = { };
 
 /**
+ * Return the import element for the given guid.
+ * @param {HTMLDocument} document - the document to search
+ * @param {String} guid - Fcommand guid to look for
+ * @return {HTMLLinkElement} the import element.
+ */
+Factotum._getImportElement = function (document, guid)
+{
+    return document.querySelector("head link#fcommand-" + guid + "[rel=import]");
+}   // Factotum._getImportElement
+
+
+/**
  * Retrieves the object encoded in the given data attribute for an Fcommand.
  * @param {String} guid - Fcommand's guid.
  * @param {String} attributeName - Attribute name that contains the JSON-stringified form of.
@@ -14,9 +26,7 @@ window.Factotum = { };
  */
 Factotum._getDataAttribute = function (document, guid, attributeName)
 {
-    var linkEl = document.querySelector("head link#fcommand-" +
-            guid + "[rel=import]");
-
+    var linkEl = Factotum._getImportElement(document, guid);
     return JSON.parse(linkEl.dataset[attributeName]);
 }   // Factotum._getDataAttribute
 
@@ -24,9 +34,7 @@ Factotum._getDataAttribute = function (document, guid, attributeName)
 // Remove the import document <link> element.
 Factotum._cleanup = function (document, guid)
 {
-    var linkEl = document.querySelector("head link#fcommand-" +
-            guid + "[rel=import]");
-
+    var linkEl = Factotum._getImportElement(document, guid);
     if (linkEl)
     {
         URL.revokeObjectURL(linkEl.href);

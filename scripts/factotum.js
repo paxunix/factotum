@@ -142,6 +142,7 @@ FactotumBg.dispatch = function (cmdline)
 
             var request = {
                 documentString: fcommandString,
+                description: metadata.description,
                 guid: metadata.guid,
                 cmdline: opts,
                 internalOptions: internalOptions,

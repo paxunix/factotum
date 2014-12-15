@@ -4,6 +4,13 @@ describe("ContentScript", function() {
 
 describe("getLoadImportPromise", function() {
 
+    beforeEach(function () {
+        // reset the "fcommand is running" cache
+        // XXX:  this cache handling needs to be in an object or function
+        ContentScript.fcommandRunningCache = { };
+    });
+
+
     it("appends a link import element to the document's head", function(done) {
         // Fake the call to add the link element to the document (this is
         // needed so that the import promise is resolved)

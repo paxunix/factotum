@@ -20,6 +20,10 @@ ContentScript.appendNodeToDocumentHead = function (node)
 //      error:  Error object (only present if a promise has been rejected)
 
 
+// Keep track of Fcommands currently executing in this tab, since we need to
+// prevent the same Fcommand from running multiple overlapping times.
+ContentScript.fcommandRunningCache = { };
+
 /**
  * Return a Promise to load the import document specified in request.
  * @param {Object} obj - Input/output data.
@@ -28,13 +32,23 @@ ContentScript.appendNodeToDocumentHead = function (node)
  * @property {String} obj.request.cmdline - minimist parsed object containing Fcommand cmdline data
  * @property {String} obj.request.guid - Fcommand GUID
  * @property {Object} obj.request.internalOptions - internal options (like debug, help, etc.)
- * @property {Object} obj.document - Document to be the parent of the import doc.
  * @returns {Promise} - promise to load the import document
  */
 ContentScript.getLoadImportPromise = function (obj)
 {
     return new Promise(function (resolve, reject) {
-        obj.linkElement = Util.createImportLink(obj.document, obj.request);
+        if (ContentScript.fcommandRunningCache[obj.request.guid])
+        {
+            obj.error = "Fcommand '" + obj.request.description +
+                "' (" + obj.request.guid + ") is still running in this tab.";
+            reject(obj);
+
+            return;
+        }
+        else
+            ContentScript.fcommandRunningCache[obj.request.guid] = true;
+
+        obj.linkElement = Util.createImportLink(document, obj.request);
 
         obj.linkElement.onload = function onload() {
             resolve(obj);
@@ -57,11 +71,14 @@ ContentScript.getLoadImportPromise = function (obj)
 // is either a string or an Error object.
 ContentScript.factotumListener = function (request)
 {
-    ContentScript.getLoadImportPromise({ request: request, document: document }).
+    ContentScript.getLoadImportPromise({ request: request }).
         catch(function (rejectWith) {
+            // This Fcommand is no longer running in this tab.
+            delete ContentScript.fcommandRunningCache[request.guid];
+
             rejectWith.guid = request.guid;
             chrome.runtime.sendMessage(rejectWith);
-    });
+        });
 
     // No response
     return false;
@@ -80,6 +97,9 @@ ContentScript.messageListener = function (evt)
         evt.data === null ||
         !("guid" in evt.data))
             return;
+
+    // This Fcommand is no longer running in this tab.
+    delete ContentScript.fcommandRunningCache[evt.data.guid];
 
     chrome.runtime.sendMessage(evt.data);
 }   // ContentScript.messageListener

@@ -138,7 +138,15 @@ Factotum.runCommand(function (opts, importDoc, onSuccess, onFailure) {
   s.onload = function () {
       // No need to keep the script around once it has run
       s.parentNode.removeChild(s);
-      onSuccess({ jqueryVersion: jQuery.fn.jquery });
+
+      // Demonstrate that you can call onSuccess() in the future.
+      // This will prevent this Fcommand from running within its parent
+      // document until then.
+      window.setTimeout(function () {
+          console.log("calling onSuccess");
+
+          onSuccess({ jqueryVersion: jQuery.fn.jquery });
+        }, 30000);
   };
   s.onerror = function (e) {
       // No need to keep the script around once it has run
