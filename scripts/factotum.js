@@ -212,5 +212,12 @@ FactotumBg.responseHandler = function (response)
         // XXX: using the guid in the response, load the bg code for the
         // Fcommand and run it.
         console.log("Fcommand responded:", response);
+        FactotumBg.runBgCode(response);
     }
 };  // FactotumBg.responseHandler
+
+
+// Retrieve the bg code for the Fcommand and run it with the given data.
+FactotumBg.runBgCode = function (response)
+{
+};  // FactotumBg.runBgCode
