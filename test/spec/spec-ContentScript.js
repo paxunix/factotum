@@ -6,8 +6,7 @@ describe("getLoadImportPromise", function() {
 
     beforeEach(function () {
         // reset the "fcommand is running" cache
-        // XXX:  this cache handling needs to be in an object or function
-        ContentScript.fcommandRunningCache = { };
+        ContentScript.Cache.clear();
     });
 
 

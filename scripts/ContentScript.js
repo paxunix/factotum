@@ -23,7 +23,26 @@ ContentScript.appendNodeToDocumentHead = function (node)
 
 // Keep track of Fcommands currently executing in this tab, since we need to
 // prevent the same Fcommand from running multiple overlapping times.
-ContentScript.fcommandRunningCache = { };
+ContentScript.Cache = {
+    _cache: { },
+
+    get: function (key) {
+        return this._cache[key];
+    },
+
+    set: function (key, value) {
+        this._cache[key] = value;
+    },
+
+    delete: function (key) {
+        delete this._cache[key];
+    },
+
+    clear: function () {
+        this._cache = { };
+    },
+};
+
 
 /**
  * Return a Promise to load the import document specified in request.
@@ -38,7 +57,7 @@ ContentScript.fcommandRunningCache = { };
 ContentScript.getLoadImportPromise = function (obj)
 {
     return new Promise(function (resolve, reject) {
-        if (ContentScript.fcommandRunningCache[obj.request.guid])
+        if (ContentScript.Cache.get(obj.request.guid))
         {
             obj.error = "Fcommand '" + obj.request.description +
                 "' (" + obj.request.guid + ") is still running in this tab.";
@@ -47,7 +66,7 @@ ContentScript.getLoadImportPromise = function (obj)
             return;
         }
         else
-            ContentScript.fcommandRunningCache[obj.request.guid] = true;
+            ContentScript.Cache.set(obj.request.guid, true);
 
         obj.linkElement = Util.createImportLink(document, obj.request);
 
@@ -75,7 +94,7 @@ ContentScript.factotumListener = function (request)
     ContentScript.getLoadImportPromise({ request: request }).
         catch(function (rejectWith) {
             // This Fcommand is no longer running in this tab.
-            delete ContentScript.fcommandRunningCache[request.guid];
+            ContentScript.Cache.delete(request.guid);
 
             rejectWith.guid = request.guid;
             chrome.runtime.sendMessage(rejectWith);
@@ -100,7 +119,7 @@ ContentScript.messageListener = function (evt)
             return;
 
     // This Fcommand is no longer running in this tab.
-    delete ContentScript.fcommandRunningCache[evt.data.guid];
+    ContentScript.Cache.delete(evt.data.guid);
 
     chrome.runtime.sendMessage(evt.data);
 }   // ContentScript.messageListener
