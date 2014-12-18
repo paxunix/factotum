@@ -127,53 +127,31 @@ FactotumBg.dispatch = function (cmdline)
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
     // XXX: test code only
-    if (internalOptions._[0] === "loadjquery")
+    for (var guid in FactotumBg.XXXcommandCache)
     {
-        var resolvedWith = function (xhrLoadEvent)
-        {
-            var fcommand = new Fcommand(xhrLoadEvent.target.responseText, navigator.language);
-            var opts = GetOpt.getOptions(fcommand.optspec, internalOptions._);
+        var fcommand = FactotumBg.XXXcommandCache[guid];
+        if (fcommand.metadata.keywords.indexOf(internalOptions._[0]) === -1)
+            continue;
 
-            var request = {
-                documentString: fcommand.documentString,
-                description: fcommand.metadata.description,
-                guid: fcommand.metadata.guid,
-                cmdline: opts,
-                internalOptions: internalOptions,
-            };
+        var opts = GetOpt.getOptions(fcommand.optspec, internalOptions._);
+        var request = {
+            documentString: fcommand.documentString,
+            description: fcommand.metadata.description,
+            guid: fcommand.metadata.guid,
+            cmdline: opts,
+            internalOptions: internalOptions,
+        };
 
-            // Ensure everything from this point happens for the current tab.
-            chrome.tabs.query({ active: true }, function (tabs) {
-                console.log("XXX Tab:", tabs[0]);
-                chrome.tabs.sendMessage(tabs[0].id, request);
-            });
-        }   // resolvedWith
+        // Ensure everything from this point happens for the current tab.
+        chrome.tabs.query({ active: true }, function (tabs) {
+            console.log("XXX Tab:", tabs[0]);
+            chrome.tabs.sendMessage(tabs[0].id, request);
+        });
 
-        var rejectedWith = function (data)
-        {
-            console.log("Fcommand load failure:", data);
-            chrome.notifications.create(
-                "",
-                {
-                    type: "basic",
-                    iconUrl: chrome.runtime.getURL("icons/md/error.png"),
-                    title: "Error loading Fcommand",
-                    message: data.message,
-                    // XXX: showing the stack is useless inside a tiny
-                    // notification.  Show the message and maybe a button
-                    // for more details, that pops a window that shows the
-                    // stack.
-                    // Should record all failures so you can view errors from
-                    // the extension menu?  Kind of like a JS console.
-                },
-                function() {}
-            );
-        }   // rejectedWith
-
-        Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html")).
-            then(resolvedWith).
-            catch(rejectedWith);
+        // XXX: should catch and surface errors
     }
+
+    // XXX: some feedback if no matching Fcommand found for entered cmdline?
 
     // XXX: if Fcommand is flagged bg-only, execute it right here
 
@@ -215,3 +193,33 @@ FactotumBg.responseHandler = function (response)
 FactotumBg.runBgCode = function (response)
 {
 };  // FactotumBg.runBgCode
+
+
+// XXX:  this is for testing only.  Preload an Fcommand so we can invoke it.
+FactotumBg.XXXcommandCache = {
+};       // for testing only
+
+Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html")).
+    then(function resolvedWith(xhrLoadEvent) {
+        var fcommand = new Fcommand(xhrLoadEvent.target.responseText, navigator.language);
+        FactotumBg.XXXcommandCache[fcommand.metadata.guid] = fcommand;
+    }).
+    catch(function rejectedWith(data) {
+        console.log("Fcommand load failure:", data);
+        chrome.notifications.create(
+            "",
+            {
+                type: "basic",
+                iconUrl: chrome.runtime.getURL("icons/md/error.png"),
+                title: "Error loading Fcommand",
+                message: data.message,
+                // XXX: showing the stack is useless inside a tiny
+                // notification.  Show the message and maybe a button
+                // for more details, that pops a window that shows the
+                // stack.
+                // Should record all failures so you can view errors from
+                // the extension menu?  Kind of like a JS console.
+            },
+            function() {}
+        );
+    });
