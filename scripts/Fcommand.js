@@ -19,6 +19,7 @@ window.Fcommand = function (documentString, language)
     Fcommand._validateMetadata(this.metadata);
 
     this.optspec = Fcommand._extractOptSpec(fcommandDoc, language) || {};
+    this.bgCodeString = Fcommand._extractBgCodeString(fcommandDoc, language);
 
     return this;
 }   // Fcommand constructor
@@ -141,3 +142,21 @@ Fcommand._extractOptSpec = function (document, lang)
         throw Error("Failed parsing " + sel + ": " + e.stack);
     }
 }   // Fcommand._extractOptSpec
+
+
+/**
+ * Returns the Fcommand's background code as a string.
+ * @param {HTMLDocument} document - contains the Fcommand
+ * @param {String} language - extracts metadata for this BCP47 language string
+ * @returns {String} Fcommand background-code string.
+ */
+Fcommand._extractBgCodeString = function (document, language)
+{
+    var sel = "template#bgCode";
+    var template = Util.getFromLangSelector(document, sel, language);
+    if (!template)
+        return null;
+
+    return template.content.textContent;
+    // XXX: test me
+}   // Fcommand._extractBgCodeString

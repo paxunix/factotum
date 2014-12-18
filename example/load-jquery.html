@@ -170,7 +170,9 @@ It must be a <template> with an ID of "bgCode".
 -->
 <template id="bgCode">
   <!-- You can wrap it in a <script> tag to make your editor's highlighter
-    happy, but the textContent will be parsed as Javascript. -->
+    happy.  The textContent of this node will be parsed as Javascript and
+    comprise the body of the function executed in the background page when
+    the Fcommand calls onSuccess(). -->
 <script>
 console.log("Running in bg with:", arguments);
 chrome.notifications.create(

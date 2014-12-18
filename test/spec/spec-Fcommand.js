@@ -201,7 +201,45 @@ describe("_extractOptSpec", function() {
     });
 
 
-}); // extractOptSpec
+}); // _extractOptSpec
+
+
+describe("_extractBgCodeString", function() {
+
+
+    it("throws if input document is invalid", function() {
+        expect(function () {
+            Fcommand._extractBgCodeString(null, lang);
+        }).toThrowError(TypeError,
+            "Cannot read property 'querySelectorAll' of null");
+    });
+
+
+    it("returns null if document has no template#bgCode", function() {
+        var doc = (new DOMParser).parseFromString("<div></div>", "text/html");
+        expect(Fcommand._extractBgCodeString(doc, lang)).toEqual(null);
+    });
+
+
+    it("returns string bg code", function() {
+        var s = "function () { return 10; }";
+        var doc = (new DOMParser).
+            parseFromString('<template id="bgCode">' + s + '</template>', "text/html");
+        ;
+        expect(Fcommand._extractBgCodeString(doc, lang)).toEqual(s);
+    });
+
+
+    it("can handle a bg code block with HTML comments and being wrapped in <script>", function() {
+        var s = "function () { return 10; }";
+        var doc = (new DOMParser).
+            parseFromString('<template id="bgCode"><!-- a comment --><script>' + s + '</script></template>', "text/html");
+        ;
+        expect(Fcommand._extractBgCodeString(doc, lang).indexOf(s)).not.toEqual(-1);
+    });
+
+
+}); // _extractBgCodeString
 
 
 // XXX:  constructor needs tests
