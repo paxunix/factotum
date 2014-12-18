@@ -8,16 +8,17 @@ var semver = require("semver");
  *
  * @constructor
  * @param {String} documentString - HTML document defining an Fcommand.
+ * @param {String} language - extracts metadata for this BCP47 language string
 */
-window.Fcommand = function (documentString)
+window.Fcommand = function (documentString, language)
 {
     this.documentString = documentString;
 
     var fcommandDoc = Fcommand._parseDomFromString(this.documentString);
-    var metadata = Fcommand._extractMetadata(fcommandDoc, navigator.language);
+    var metadata = Fcommand._extractMetadata(fcommandDoc, language);
     Fcommand._.validateMetadata(metadata);
 
-    var optspec = Fcommand._extractOptSpec(fcommandDoc, navigator.language) || {};
+    var optspec = Fcommand._extractOptSpec(fcommandDoc, language) || {};
     // XXX:  save to internal fields
 }   // Fcommand constructor
 
