@@ -1,10 +1,9 @@
 - now that the Fcommand runs on import, how can you support bg-only
   Fcommands?
-    - you _probably_ don't want to import the document into the bg page.
     - it could just run the bg template code, since that's already an
       established mechanism
     - bgcode must be in a template to shield it from execution during import
-        - it may be wrapped in a <script> tag--we're only taking the content
+        - it may be wrapped in a <script> tag--we're only taking the textcontent
           of it
         - pull the document based on guid
         - parse it into DOM
@@ -75,6 +74,8 @@
       others with overlapping keywords.  Lower number == highest priority.
       Priority is used only to determine the order of the Fcommand names in
       the omnibox dropdown.
+        - what if you have more of the same Fcommand names than will fit in
+          the omnibox dropdown?
 
 
 ----------------
@@ -98,6 +99,8 @@
     - e.g. specifying a URL will pull the Fcommand from the URL and use it.
         - need to specify the data format.
     - can these be edited locally???
+        - do we store a diff so you could apply a patch if the Fcommand were
+          updated and you wanted to keep your changes?
 
 - popup page could show the last N Fcommands and/or the most frequently used
   Fcommands
@@ -120,20 +123,7 @@
   (since it's not possible to trigger it for the browser action).  Then it
   could be used for notifications, return statuses, etc.
 
-- thinking internal Fcommands should be handled entirely differently.  They
-  don't exist as Fcommands.  They're hardcoded and cannot be overridden or
-  reprioritized.  There aren't many of them (maybe even only "help").  They are
-  detected when the command line is parsed and before it is dispatched.
-  This simplifies the Fcommand.execute property logic.
-
 - should supply handy notification icons so bg code can easily pop a
   notification using standard icons included in the extension (then there's
   no cross-origin issues).  Makes sense to expose the internal URLs, since
   the extension will need them anyway.
-
-About the importing
-
-DONE
-- while there is no reason to import the exact document as given, it is
-  easiest to import the entire thing.  A future optimization could
-  extract and remove some data, yielding a smaller document for import.
