@@ -146,7 +146,7 @@ Factotum.runCommand(function (opts, importDoc, onSuccess, onFailure) {
           console.log("calling onSuccess");
 
           onSuccess({ jqueryVersion: jQuery.fn.jquery });
-        }, 30000);
+        }, 5000);
   };
   s.onerror = function (e) {
       // No need to keep the script around once it has run
