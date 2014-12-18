@@ -131,19 +131,13 @@ FactotumBg.dispatch = function (cmdline)
     {
         var resolvedWith = function (xhrLoadEvent)
         {
-            var fcommandString = xhrLoadEvent.target.responseText;
-            var fcommandDoc = (new DOMParser).parseFromString(fcommandString, "text/html");
-
-            var metadata = Util.extractMetadata(fcommandDoc, navigator.language);
-            Util.validateMetadata(metadata);
-
-            var optspec = Util.extractOptSpec(fcommandDoc, navigator.language) || {};
-            var opts = GetOpt.getOptions(optspec, internalOptions._);
+            var fcommand = new Fcommand(xhrLoadEvent.target.responseText, navigator.language);
+            var opts = GetOpt.getOptions(fcommand.optspec, internalOptions._);
 
             var request = {
-                documentString: fcommandString,
-                description: metadata.description,
-                guid: metadata.guid,
+                documentString: fcommand.documentString,
+                description: fcommand.metadata.description,
+                guid: fcommand.metadata.guid,
                 cmdline: opts,
                 internalOptions: internalOptions,
             };

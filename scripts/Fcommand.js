@@ -15,11 +15,12 @@ window.Fcommand = function (documentString, language)
     this.documentString = documentString;
 
     var fcommandDoc = Fcommand._parseDomFromString(this.documentString);
-    var metadata = Fcommand._extractMetadata(fcommandDoc, language);
-    Fcommand._.validateMetadata(metadata);
+    this.metadata = Fcommand._extractMetadata(fcommandDoc, language);
+    Fcommand._validateMetadata(this.metadata);
 
-    var optspec = Fcommand._extractOptSpec(fcommandDoc, language) || {};
-    // XXX:  save to internal fields
+    this.optspec = Fcommand._extractOptSpec(fcommandDoc, language) || {};
+
+    return this;
 }   // Fcommand constructor
 
 
