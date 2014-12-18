@@ -192,6 +192,14 @@ FactotumBg.responseHandler = function (response)
 // Retrieve the bg code for the Fcommand and run it with the given data.
 FactotumBg.runBgCode = function (response)
 {
+    if (!(response.guid in FactotumBg.XXXcommandCache))
+        return;
+
+    // XXX: support bg debugging
+    var bgFunction = new Function(FactotumBg.XXXcommandCache[response.guid].bgCodeString);
+    bgFunction(response.data);
+
+    // XXX:  handle exceptions
 };  // FactotumBg.runBgCode
 
 
