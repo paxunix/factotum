@@ -140,8 +140,8 @@ Factotum.runCommand(function (opts, importDoc, onSuccess, onFailure) {
       s.parentNode.removeChild(s);
 
       // Demonstrate that you can call onSuccess() in the future.
-      // This will prevent this Fcommand from running within its parent
-      // document until then.
+      // This Fcommand will not be allowed to re-run within its parent
+      // document until onSuccess() has been called.
       window.setTimeout(function () {
           console.log("calling onSuccess");
 
