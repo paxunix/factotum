@@ -1,25 +1,6 @@
 "use strict";
 
-var semver = require("semver");
-
-window.Util = {
-    supportedMetaFields: [
-        "author",
-        "description",
-        "guid",
-        "keywords",
-        "downloadURL",
-        "updateURL",
-        "version",
-        "context",
-    ],
-    requiredFields: [
-        "author",
-        "description",
-        "guid",
-        "keywords",
-        "version",
-    ],
+var Util = {
 };
 
 
@@ -32,90 +13,6 @@ Util.getFcommandImportId = function (guid)
 {
     return "fcommand-" + guid;
 }   // Util.getFcommandImportId
-
-
-/**
- * Returns an object that can be passed to GetOpt.getOptions for options
- * parsing.
- * @param {Object} document - HTML document object specifying the Fcommand
- * @param {String} lang - extracts metadata for this BCP47 language string
- * @returns {Object} Option parsing data
- */
-Util.extractOptSpec = function (document, lang)
-{
-    var sel = "template#getopt";
-    var template = Util.getFromLangSelector(document, sel, lang);
-    if (!template)
-        return null;
-
-    try {
-        return JSON.parse(template.content.textContent);
-    }
-
-    catch (e)
-    {
-        throw Error("Failed parsing " + sel + ": " + e.stack);
-    }
-}   // Util.extractOptSpec
-
-
-/**
- * Retrieve the Fcommand metadata.
- * @param {Object} document - HTML document object specifying the Fcommand
- * @param {String} lang - extracts metadata for this BCP47 language string
- * @returns {Object} Metadata for the Fcommand.  Fields that don't exist in
- * the document get a value of undefined.
- */
-Util.extractMetadata = function (document, lang)
-{
-    var data = {};
-
-    for (var el of Util.supportedMetaFields)
-    {
-        data[el] = (Util.getFromLangSelector(document, "head meta[name=" + el + "]", lang) || {}).content
-    };
-
-    var el = Util.getFromLangSelector(document, "head link[rel=icon]", lang);
-    if (el !== null)
-        data.icon = el.getAttribute("href");
-    else
-        data.icon = undefined;
-
-    // Keywords is a comma- or space-delimited list of words
-    if (typeof(data.keywords) !== "undefined")
-    {
-        data.keywords = data.keywords.
-            split(/[,\s]+/).
-            filter(function(el) {
-                return (el !== "" && el !== " " && el !== ",")
-            })
-    }
-
-    return data;
-}   // Util.extractMetadata
-
-
-/**
- * Validate the Fcommand metadata.
- * @param {Object} metadata - Object with metadata fields as from extractMetadata().
- * @throws {Error} On validation failure.
- */
-Util.validateMetadata = function (metadata)
-{
-    // Required fields must be defined
-    for (var f of Util.requiredFields)
-    {
-        if (typeof(metadata[f]) === "undefined")
-            throw Error("Metadata is missing required field " + f);
-    }
-
-    // Verify the version is valid
-    if (semver.valid(metadata.version) === null)
-        throw Error("Metadata version '" + metadata.version + "' is not semver-compliant");
-
-    if (metadata.keywords.length === 0)
-        throw Error("Metadata keyword field must have at least one keyword");
-}   // Util.validateMetadata
 
 
 /**

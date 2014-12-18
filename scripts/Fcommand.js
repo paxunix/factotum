@@ -1,22 +1,145 @@
+"use strict";
+
+var semver = require("semver");
+
+
 /**
- * @class Represents a single Fcommand.
+ * @class Fcommand Represents a single Fcommand.
  *
  * @constructor
- * @param {Object} commandData Data for an Fcommand.
- * @param {String} commandData.guid Used to uniquely identify this Fcommand.
- * @param {String[]} commandData.names The names that can be used to execute this Fcommand.
- * @param {Object} [commandData.optSpec] a {@link GetOpt} specification defining how this Fcommand's command line should be parsed.
- * @param {String} commandData.description Describes what this command does.  It is used to generate the text that appears in the omnibox when this command is entered.
- * @param {Function|String} commandData.execute The code to run for this Fcommand.  If a Function, this Fcommand is internal and cannot be saved or loaded.
- * @param {String} [commandData.iconUrl] URL for a favicon-type icon for this Fcommand.
- * @param {String} [commandData.helpHtml] HTML markup help text for this Fcommand.  It will be displayed when the general "help" Fcommand is run with any name for this Fcommand as its argument.
+ * @param {String} documentString - HTML document defining an Fcommand.
 */
-function Fcommand(commandData)
+window.Fcommand = function (documentString)
 {
-    Fcommand.validate(commandData);
+    this.documentString = documentString;
 
-    this.data = commandData;
+    var fcommandDoc = Fcommand._parseDomFromString(this.documentString);
+    var metadata = Fcommand._extractMetadata(fcommandDoc, navigator.language);
+    Fcommand._.validateMetadata(metadata);
+
+    var optspec = Fcommand._extractOptSpec(fcommandDoc, navigator.language) || {};
+    // XXX:  save to internal fields
 }   // Fcommand constructor
+
+
+Fcommand._supportedStringMetaFields = [
+    "author",
+    "description",
+    "guid",
+    "keywords",
+    "downloadURL",
+    "updateURL",
+    "version",
+    "context",
+];
+
+
+Fcommand._requiredFields = [
+    "author",
+    "description",
+    "guid",
+    "keywords",
+    "version",
+];
+
+
+/**
+ * Return an HTMLDocument object representing the given document string.
+ * @private
+ * @param {String} documentString - Input document to be parsed as HTML
+ * markup.
+ * @return {HTMLDocument} The HTMLDocument object resultfrin from
+ * documentString.
+ */
+Fcommand._parseDomFromString = function (documentString)
+{
+    return (new DOMParser).parseFromString(documentString, "text/html");
+}   // Fcommand._parseDomFromString
+
+
+/**
+ * Retrieve the Fcommand metadata.
+ * @param {Object} document - HTML document object specifying the Fcommand
+ * @param {String} lang - extracts metadata for this BCP47 language string
+ * @returns {Object} Metadata for the Fcommand.  Fields that don't exist in
+ * the document get a value of undefined.
+ */
+Fcommand._extractMetadata = function (document, lang)
+{
+    var data = {};
+
+    for (var el of Fcommand._supportedStringMetaFields)
+    {
+        data[el] = (Util.getFromLangSelector(document, "head meta[name=" + el + "]", lang) || {}).content
+    };
+
+    var el = Util.getFromLangSelector(document, "head link[rel=icon]", lang);
+    if (el !== null)
+        data.icon = el.getAttribute("href");
+    else
+        data.icon = undefined;
+
+    // Keywords is a comma- or space-delimited list of words
+    if (typeof(data.keywords) !== "undefined")
+    {
+        data.keywords = data.keywords.
+            split(/[,\s]+/).
+            filter(function(el) {
+                return (el !== "" && el !== " " && el !== ",")
+            })
+    }
+
+    return data;
+}   // Fcommand._extractMetadata
+
+
+/**
+ * Validate the Fcommand metadata.
+ * @param {Object} metadata - Object with metadata fields as from extractMetadata().
+ * @throws {Error} On validation failure.
+ */
+Fcommand._validateMetadata = function (metadata)
+{
+    // Required fields must be defined
+    for (var f of Fcommand._requiredFields)
+    {
+        if (typeof(metadata[f]) === "undefined")
+            throw Error("Metadata is missing required field " + f);
+    }
+
+    // Verify the version is valid
+    if (semver.valid(metadata.version) === null)
+        throw Error("Metadata version '" + metadata.version + "' is not semver-compliant");
+
+    if (metadata.keywords.length === 0)
+        throw Error("Metadata keyword field must have at least one keyword");
+}   // Fcommand._validateMetadata
+
+
+/**
+ * Returns an object that can be passed to GetOpt.getOptions for options
+ * parsing.
+ * @param {Object} document - HTML document object specifying the Fcommand
+ * @param {String} lang - extracts metadata for this BCP47 language string
+ * @returns {Object} Option parsing data
+ */
+Fcommand._extractOptSpec = function (document, lang)
+{
+    var sel = "template#getopt";
+    var template = Util.getFromLangSelector(document, sel, lang);
+    if (!template)
+        return null;
+
+    try {
+        return JSON.parse(template.content.textContent);
+    }
+
+    catch (e)
+    {
+        throw Error("Failed parsing " + sel + ": " + e.stack);
+    }
+}   // Fcommand._extractOptSpec
+
 
 
 Fcommand.prototype = {
