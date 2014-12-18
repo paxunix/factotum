@@ -1,11 +1,85 @@
-- allow for any JS (or CSS) to be loaded into the page (via
-  chrome.tabs.executeScript or chrome.tabs.insertCSS).  Each Fcommand gets a
-  new property that is an array of things to be injected into the page
-  immediately before that command executes.
-    - may need to guard against multiple inclusion.
+- now that the Fcommand runs on import, how can you support bg-only
+  Fcommands?
+    - it could just run the bg template code, since that's already an
+      established mechanism
+    - bgcode must be in a template to shield it from execution during import
+        - it may be wrapped in a <script> tag--we're only taking the textcontent
+          of it
+        - pull the document based on guid
+        - parse it into DOM
+        - extract the bgcode template's textcontent
+        - turn it into code and run it, passing it the data passed from the
+          Fcommand's success
 
-- prior to each Fcommand's execution, load any requested additional
-  functionality into the current page.
+- record all errors passed back to bg from Fcommands and present them from a
+  menu option
+    - use a ring buffer?
+
+- could listen for omnibox event onInputStarted and show the info that
+  commands can't be run on internal pages
+    - however, this only matters if they're running a non-bg fcommand, so
+      you can't know this when input has started, only once the set of
+      possible fcommands is known
+    - onInputEntered's callback specifies if the tab is current, new fg or
+      new bg;  that info should be available to the Fcommand/bg script
+
+- would be cool to flag an fcommand as taking no parameters and being able
+  to be run from the context menu.  Then we can populate the context menu
+  with those Fcommands and when you click one, it runs it as if you had
+  typed its name in the omnibox
+
+- could just use the chrome filesystem sync api to store the factotum
+  commands on the user's google drive and then make them available in all
+  clients
+    - should be able to toggle which ones you want sync'd and which you
+      don't (so you can have a set of scripts just for work that aren't
+      sync'd to your home account)?  Or just handle this via chrome profiles?
+
+- should the DB have a separate table of guid->code, rather than storing the
+  code in the same table as the metadata?
+    - if separate, you only ever read in the code for the function about to
+      be executed, saving memory.  Whereas if the code is in the same table,
+      then when getting commands by prefix (or even when listing all
+      commands), you have to pull all the code as well, even if it's not
+      going to be used, which is wasteful.
+
+- create class that manages Fcommands  FcommandManager
+    - Fcommands are stored in an IndexedDB
+      - indexed on unique guid
+      - indexed on name
+    - constructor
+        - sets up objectstore and indexes
+    - addCommand
+        - saves the given Fcommand
+    - deleteCommand
+        - removes the given Fcommand
+    - getCommandsByName
+        - returns list of Fcommand objects given a name.
+
+- Fcommand datastore
+    - keywords[] : indexed
+    - guid : indexed, unique key
+    - original document string
+    - description
+    - optSpec
+    - help document string
+    - bgcode string
+    - all of the metadata fields (if showing them separately, might as well
+      make them separate fields, although it seems silly to store the
+      original document then duplicate all its data in separate fields; it's
+      not silly if you wish to allow a user to override things in the
+      Fcommand document).
+    - enabled
+    - priority: integer specifying the relative order of this Fcommand to
+      others with overlapping keywords.  Lower number == highest priority.
+      Priority is used only to determine the order of the Fcommand names in
+      the omnibox dropdown.
+        - what if you have more of the same Fcommand names than will fit in
+          the omnibox dropdown?
+
+
+----------------
+
 
 - provide a management interface on the options page just for F commands
     - shows a list of commands
@@ -19,54 +93,19 @@
 
 - internal Fcommand 'help' should pull up the help content for the given
   Fcommand
+    - do this with a default --help option on an Fcommand
 
 - support commands from non-local sources
     - e.g. specifying a URL will pull the Fcommand from the URL and use it.
         - need to specify the data format.
     - can these be edited locally???
-
-- support commands that aren't commands at all but are actually JS libs?
-  Same for CSS?
-    - this provides a mechanism to load common libs locally, rather
-      than from an external source upon use.
-    - these can be requested for load by an Fcommand; give them aliases?  No
-      need: they can just be requested via URL, then cached.
-    - cache them?  Then only refresh them whenever the Factotum extension is
-      activated?  If so, then maybe it's not necessary to have commands that
-      aren't commands--they can be demand-loaded via the above mechanism and
-      since they're cached, subsequent loads will be fast.
+        - do we store a diff so you could apply a patch if the Fcommand were
+          updated and you wanted to keep your changes?
 
 - popup page could show the last N Fcommands and/or the most frequently used
   Fcommands
 
 - need an option to toggle error notifications on/off?
-
-- since chrome.tabs.executeScript doesn't support remote URLs, we need to do
-  an XHR from the background page to pull the script content, then inject
-  that into the page
-
-- Fcommand 'execute' property can be a function or a string.  The only time
-  it will be a function is if it's an internally-implemented Fcommand,
-  because in all other cases, the code will have come from a string.  Since
-  that's the case, maybe we only need internal functions to run within the
-  background page, rather than the content page.  E.g.  the 'help' Fcommand
-  should popup some window with information about the given command.  There
-  is no need for it to run in the content page since it won't need access to
-  anything there.  Is it true that will be the case for all internal
-  Fcommands?
-    - actually, it makes a lot of sense to run internal Fcommands from the
-      background page:  we want them to be available everywhere, even on
-      internal chrome pages (which they actually can't be anyway).
-    - this means the _converted_-key stuff can probably go away because any
-      internal functions don't need to be persisted (if it's an actual
-      function, it is defined by the extension itself and so doesn't need to
-      be stored).
-
-- should move away from using localStorage for Fcommands since we're stuck
-  at 2.5MB:
-  http://code.google.com/p/chromium/issues/detail?id=58985 Looks like
-  IndexedDB or FileSystem is the best candidate.  Given that we probably
-  don't need anything approaching a DB, FileSystem might be tidiest.
 
 - useful to make distinction between commands that require the current
   page's context and those that don't?
@@ -74,21 +113,17 @@
       to run within the current page--it can run fine in the background page
     - too difficult to explain to users?
 
-- don't call deleteAll in test specs--that will blow away any saved
-  Fcommands.  Modify all test to use conspicuous Fcommand names (like
-  _FACTOTUM_TEST_blahblah) and only remove those before each test.
-
 - fcommand's response object could have an extra field that if somehow set
   by the Fcommand's code (and the code succeeded) would indicate the
   extension should popup a notification with custom content.
-
-- it may be possible to have the spec runner page load a separate page before
-  executing Fcommands.  Then, force that page's tab to be the current tab
-  when the test runs.  This will hopefully cause the Fcommand to be run in
-  that page, rather than trying (and failing) to run in the spec page.
 
 - explore using a page action instead of a browser action for Factotum,
   since it (currently) requires a page in order to do pretty much anything.
   It would be great if there is a way to trigger the page action popup
   (since it's not possible to trigger it for the browser action).  Then it
   could be used for notifications, return statuses, etc.
+
+- should supply handy notification icons so bg code can easily pop a
+  notification using standard icons included in the extension (then there's
+  no cross-origin issues).  Makes sense to expose the internal URLs, since
+  the extension will need them anyway.

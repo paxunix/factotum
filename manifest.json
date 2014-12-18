@@ -3,9 +3,9 @@
 
     // XXX: "homepage_url": "",
 
-    "minimum_chrome_version": "13", // XXX:  I think
-
     "version": "0.0.1",
+
+    "manifest_version": 2,
 
     "description": "User-defined functions for Chrome",
 
@@ -18,26 +18,107 @@
     "default_locale": "en",
 
     "content_scripts": [{
+        // XXX: consider loading these at the beginning, otherwise inject.js
+        // won't be loaded until the document is done, which means an
+        // Fcommand can't be run until the document is loaded.
         "matches": [ "<all_urls>" ],
-        "js": [ "scripts/factotum-content.js" ]
+        "match_about_blank": true,
+        // XXX: not sure if this is needed.  If it is, how do you know which
+        // content script will get the request from the bg page?
+        // "all_frames": true,
+        "js": [
+            "scripts/Util.js",
+            "scripts/ContentScript.js",
+            "scripts/content.js"
+        ]
     }],
 
+    "background": {
+        "scripts": [
+            "scripts/ShellParse.js",
+            "scripts/GetOpt.js",
+            "scripts/Util.js",
+            "scripts/Fcommand.js.bundle",
+            "scripts/Help.js",
+            "scripts/factotum.js",
+            "scripts/background.js"
+        ]
+    },
+
+    // Yes, ask for all permissions possible.  This extension exists to
+    // allow the user to do anything, so it has to have permission to do
+    // anything.
     "permissions": [
-        "<all_urls>",
-        "chrome://favicon/",
-        "experimental",
+        "activeTab",
+        "alarms",
+        "bookmarks",
+        "browsingData",
+        "clipboardRead",
+        "clipboardWrite",
+        "contentSettings",
+        "contextMenus",
+        "cookies",
+        //"copresence",
+        "debugger",
+        "declarativeContent",
+        "declarativeWebRequest",
+        "desktopCapture",
+        //"dns",
+        "downloads",
+        //"enterprise.platformKeys",
+        "fontSettings",
+        "gcm",
+        "geolocation",
+        "history",
+        "identity",
+        "idle",
+        //"idltest",
+        //"infobars",
+        //"location",
+        "management",
+        "nativeMessaging",
+        //"notificationProvider",
         "notifications",
+        "pageCapture",
+        "power",
+        "privacy",
+        //"processes",
+        "proxy",
+        "pushMessaging",
+        "sessions",
+        //"signedInDevices",
+        "storage",
+        "system.cpu",
+        "system.display",
+        "system.memory",
+        "system.storage",
+        "tabCapture",
         "tabs",
-        "unlimitedStorage"
+        "topSites",
+        "tts",
+        "ttsEngine",
+        "webNavigation",
+        "webRequest",
+        "webRequestBlocking"
     ],
 
-    "background_page": "background.html",
+    // Allow the background script to evaluate JS
+    "content_security_policy":
+        "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
     "browser_action": {
         "default_icon": "icons/factotum-128.png",
         "default_title": "Factotum",
-        "popup": "popup.html"
+        "default_popup": "popup.html"
     },
 
-    "incognito": "split"
+    // "minimum_chrome_version": XXX,
+
+    "offline_enabled": false,
+
+    "web_accessible_resources": [
+        "scripts/help-doc.js",
+        "scripts/inject.js",
+        "example/load-jquery.html"     // XXX: testing only
+    ]
 }

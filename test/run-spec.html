@@ -1,30 +1,30 @@
 <html>
 <head>
   <title>Factotum Tests</title>
-  <link rel="stylesheet" type="text/css" href="jasmine/lib/jasmine-1.0.1/jasmine.css">
-  <script type="text/javascript" src="jasmine/lib/jasmine-1.0.1/jasmine.js"></script>
-  <script type="text/javascript" src="jasmine/lib/jasmine-1.0.1/jasmine-html.js"></script>
+
+  <link rel="shortcut icon" type="image/png" href="../node_modules/jasmine-core/images/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="../node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
+
+  <script type="text/javascript" src="../node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+  <script type="text/javascript" src="../node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+  <script type="text/javascript" src="../node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
 
   <!-- include source files here... -->
-  <script type="text/javascript" src="../jquery/jquery-1.4.4.min.js"></script>
-  <script type="text/javascript" src="../scripts/getopt.js"></script>
-  <script type="text/javascript" src="../scripts/filesystem.js"></script>
-  <script type="text/javascript" src="../scripts/fcommands.js"></script>
+  <script type="text/javascript" src="../scripts/ShellParse.js"></script>
+  <script type="text/javascript" src="../scripts/GetOpt.js"></script>
+  <script type="text/javascript" src="../scripts/Util.js"></script>
+  <script type="text/javascript" src="../scripts/ContentScript.js"></script>
   <script type="text/javascript" src="../scripts/factotum.js"></script>
-  <script type="text/javascript" src="../scripts/filesystem.js"></script>
+  <script type="text/javascript" src="../scripts/inject.js"></script>
+  <script type="text/javascript" src="../scripts/Fcommand.js.bundle"></script>
 
   <!-- include spec files here... -->
-  <script type="text/javascript" src="spec/spec-getopt.js"></script>
-  <script type="text/javascript" src="spec/spec-fcommands.js"></script>
+  <script type="text/javascript" src="spec/spec-ShellParse.js"></script>
+  <script type="text/javascript" src="spec/spec-GetOpt.js"></script>
+  <script type="text/javascript" src="spec/spec-Util.js"></script>
+  <script type="text/javascript" src="spec/spec-ContentScript.js"></script>
   <script type="text/javascript" src="spec/spec-factotum.js"></script>
-  <script type="text/javascript" src="spec/spec-filesystem.js"></script>
-
+  <script type="text/javascript" src="spec/spec-inject.js"></script>
+  <script type="text/javascript" src="spec/spec-Fcommand.js"></script>
 </head>
-<body>
-<script type="text/javascript">
-  jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
-  jasmine.getEnv().execute();
-</script>
-
-</body>
 </html>

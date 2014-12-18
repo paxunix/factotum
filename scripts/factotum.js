@@ -1,203 +1,233 @@
-var Factotum = {};
+"use strict";
 
+var FactotumBg = {};
 
-Factotum.registerInternalCommands = function()
-{
-    Fcommands.set({
-        names: [ "help" ],
-        guid: "c274b610-4215-11e0-9207-0800200c9a66",
-        description: "Factotum Help",
-        execute: function () { // XXX:  temp impl
-            console.log("Factotum help. document:", document, "Args:", cmdlineObj);
-        }
-    });
-};  // Factotum.registerInternalCommands
-
+// XXX: variables in this global scope are visible to the response code
+// string.
 
 // Listener for Omnibox input.
-Factotum.onOmniboxInputEntered = function(text)
+FactotumBg.onOmniboxInputEntered = function(text)
 {
-    Factotum.dispatch(text);
-};  // Factotum.onOmniboxInputEntered
+    FactotumBg.dispatch(text);
+};  // FactotumBg.onOmniboxInputEntered
 
 
-// Return an omnibox suggestion object with content string matching argv and
-// a description incorporating the command name and the description
-// associated with the command.
-Factotum.getSuggestion = function(fcommand, argv)
+// Return a omnibox suggestion object suitable for the default suggestion,
+// i.e. has no content because that's determined on entry.
+FactotumBg.getOmniboxDescription = function(opts)
 {
-    return {
-        content: fcommand.names[0] + " " + argv.join(" "),
-        description: '<dim>Factotum:</dim> <match>' +
-            fcommand.names[0] + "</match><dim> (" +
-            fcommand.description + ")</dim>"
-    };
-}   // Factotum.getSuggestion
+    // XXX: detect internal options here too and modify the suggestion based
+    // on them.  Or maybe we should always add e other suggestions:  one for
+    // bg debug, fcommand debug, and help.  That will use up all the space
+    // in the omnibox dropdown, though.  And you'll still want to support
+    // --debug and --help anyway.
+    // You can do the split and parse for internal options here, then
+    // generate better suggestions.  And pass the parsed data instead of
+    // rejoining everything.
+    // XXX: detect multiple fcommands and show them
+    // only show internal option suggestions once an unambiguous Fcommand is
+    // known
+
+    // Show an indicator for which internal option was entered.
+    var leader = "";
+    if (opts.bgdebug)
+        leader = "[Debug-bg]";
+    else if (opts.debug)
+        leader = "[Debug]";
+    else if (opts.help)
+        leader = "[Help]";
+
+    // Command isn't known yet, so show nothing
+    if (opts._.length === 0)
+        opts._ = [ "" ];
+
+    var description = leader + " <match>" + opts._[0] + "</match>" +
+        "<dim>" + opts._.slice(1).join(" ") + "</dim>";
+
+    return description;
+}   // FactotumBg.getOmniboxDescription
 
 
 // Listener for Omnibox changes
-Factotum.onOmniboxInputChanged = function(text, suggestFunc)
+FactotumBg.onOmniboxInputChanged = function(text, suggestFunc)
 {
     // If the current tab's URL is an internal one, Fcommands won't work.  Show
     // an omnibox suggestion to indicate that.
-    chrome.tabs.getSelected(null, function (tab) {
+    chrome.tabs.query({ active: true }, function (tabs) {
 
 
     // XXX:  it is possible for some Fcommands to run (e.g. those that can run
     // fine in the background page).  For now, disallow them all when run
     // on an internal Chrome page).
-    if (tab.url.search(/^(chrome|about)/) !== -1)
+    // XXX:  instead, only show Fcommands flagged as running from bg
+    if (tabs[0].url.search(/^(chrome|about)/) !== -1)
     {
         chrome.omnibox.setDefaultSuggestion({
-            description: '<match>Factotum commands cannot be run from Chrome pages.</match>'
+            description: "<match>Factotum commands cannot be run from Chrome pages.</match>"
         });
 
         return;
     }
 
-    // At least one word is needed in command line.
-    var argv = GetOpt.shellWordSplit(text);
-    if (argv.length < 1)
+    if (text === "")
         return;
 
-    var cmdName = argv.shift();
-    var commandList = Fcommands.getCommandsByPrefix(cmdName);
-    var suggestions = [];
+    // Set the default omnibox suggestion based on what's entered so far.
+    // To support internal options as the first word, consider the entire
+    // command line.
+    var internalOptions = FactotumBg.parseCommandLine(text);
+    var defaultDesc = FactotumBg.getOmniboxDescription(internalOptions);
+    chrome.omnibox.setDefaultSuggestion({ description: defaultDesc });
 
-    jQuery.each(commandList, function (i, el) {
-        suggestions.push(Factotum.getSuggestion(el, argv));
-    });
+    // XXX: append alternate Fcommand suggestions based on first word in
+    // internalOptions._ (since that's argv without the internal options)
+    var suggestions = [{
+        content: "loadjquery",
+        description: "Load jQuery",
+    }];
+    suggestFunc(suggestions);
 
-    // If there is at least one suggestion, make the first one the default
-    // and set the rest of them as possibilities.
-    if (suggestions.length > 0)
-    {
-        var suggestion = suggestions.shift();
-
-        delete suggestion.content;
-        chrome.omnibox.setDefaultSuggestion(suggestion);
-
-        suggestFunc(suggestions);
-    }
-    else
-    {
-        // If there are no suggestions, then the given prefix is an unknown
-        // command.  Set the default suggestion to indicate that.
-        chrome.omnibox.setDefaultSuggestion({
-            description: "<dim>Factotum:</dim> '<match>" + cmdName +
-                "</match>' is an unknown command."
-        });
-    }
+    });   // chrome.tabs.query
+};  // FactotumBg.onOmniboxInputChanged
 
 
-    });   // chrome.tabs.getSelected
-};  // Factotum.onOmniboxInputChanged
+// Return an object that has checked for help or debug options in argv.
+FactotumBg.checkInternalOptions = function (argv)
+{
+    var opts = GetOpt.getOptions({
+        "debug": { type: "boolean", aliases: [ "fg-debug" ] },
+        "bgdebug": { type: "boolean", aliases: [ "bg-debug" ] },
+        "help": { type: "boolean" },
+    }, argv);
+
+    return opts;
+}   // FactotumBg.checkInternalOptions
+
+
+// Given a command line, check it for internal options and return the parsed
+// data.
+FactotumBg.parseCommandLine = function (text)
+{
+    var argv = ShellParse.split(text);
+
+    // To support internal options as the first word, consider the entire
+    // command line.
+    return FactotumBg.checkInternalOptions(argv);
+}   // FactotumBg.parseCommandLine
 
 
 // Given a command line, figure out the Fcommand and run its function.  Once the
 // function has executed, run the response callback, passing the response from
 // the function.
-Factotum.dispatch = function(cmdline)
+FactotumBg.dispatch = function (cmdline)
 {
-    // At least one word is needed in command line.
-    var argv = GetOpt.shellWordSplit(cmdline);
-    if (argv.length < 1)
+    // Internal option parsing examines the entire command line, not just
+    // everything after the first word.  Then parse the args resulting from
+    // that as the actualy command line.
+    var internalOptions = FactotumBg.parseCommandLine(cmdline);
+
+    // XXX: test code only
+    for (var guid in FactotumBg.XXXcommandCache)
+    {
+        var fcommand = FactotumBg.XXXcommandCache[guid];
+        if (fcommand.metadata.keywords.indexOf(internalOptions._[0]) === -1)
+            continue;
+
+        var opts = GetOpt.getOptions(fcommand.optspec, internalOptions._);
+        var request = {
+            documentString: fcommand.documentString,
+            description: fcommand.metadata.description,
+            guid: fcommand.metadata.guid,
+            cmdline: opts,
+            internalOptions: internalOptions,
+        };
+
+        // Ensure everything from this point happens for the current tab.
+        chrome.tabs.query({ active: true }, function (tabs) {
+            console.log("XXX Tab:", tabs[0]);
+            chrome.tabs.sendMessage(tabs[0].id, request);
+        });
+
+        // XXX: should catch and surface errors
+    }
+
+    // XXX: some feedback if no matching Fcommand found for entered cmdline?
+
+    // XXX: if Fcommand is flagged bg-only, execute it right here
+
+    // XXX: handle Fcommand's help here; it doesn't have to run in-page
+}   // FactotumBg.dispatch
+
+
+// Called when each Fcommand has finished/failed executing.
+FactotumBg.responseHandler = function (response)
+{
+    if (chrome.runtime.lastError)
+    {
+        // XXX: this represents a failure in the extension and it
+        // should be surfaced to the user somehow (response will be
+        // undefined)
+        console.log("response handler error:", chrome.runtime.lastError);
+        return;
+    }
+
+    if ("error" in response)
+    {
+        // XXX: should show guid and Fcommand description or something
+        // (maybe the cmdline)
+        console.log("error from content script:", response.error);
+        return;
+    }
+
+    if (response.guid && "data" in response)
+    {
+        // XXX: using the guid in the response, load the bg code for the
+        // Fcommand and run it.
+        console.log("Fcommand responded:", response);
+        FactotumBg.runBgCode(response);
+    }
+};  // FactotumBg.responseHandler
+
+
+// Retrieve the bg code for the Fcommand and run it with the given data.
+FactotumBg.runBgCode = function (response)
+{
+    if (!(response.guid in FactotumBg.XXXcommandCache))
         return;
 
-    var invokedCmdName = argv.shift();
-    var commandList = Fcommands.getCommandsByPrefix(invokedCmdName);
+    // XXX: support bg debugging
+    var bgFunction = new Function(FactotumBg.XXXcommandCache[response.guid].bgCodeString);
+    bgFunction(response.data);
 
-    if (commandList.length === 0)
-    {
-        // XXX:  should user be notified?
-        return;
-    }
-
-    // XXX: for now we just take the first one.  We will have to check for
-    // and use the active one.
-    var fcommandObj = commandList[0];
-
-    // Parse the remaining words of the command line, using the Fcommand's
-    // option spec if there is one.  Also include the real and invoked names of
-    // the Fcommand being executed.
-    var cmdlineObj = GetOpt.getOptions(fcommandObj.optSpec || {}, argv);
-    cmdlineObj.commandName = {
-        real: fcommandObj.names[0],
-        invoked: invokedCmdName
-    };
-
-    // Ensure everything from this point happens for the current tab.
-    chrome.tabs.getSelected(null, function (tab) {
-        Factotum.sendScriptRequest(tab.id, fcommandObj, cmdlineObj);
-    });
-}   // Factotum.dispatch
+    // XXX:  handle exceptions
+};  // FactotumBg.runBgCode
 
 
-// Send a request to the wrapper content script to evaluate the Fcommand code
-// contained in the given request.
-Factotum.sendScriptRequest = function(tabId, fcommandObj, cmdlineObj)
-{
-    // Build the code string to be loaded into the current page.
-    // XXX: document somewhere about 'cmdlineObj' being available to the
-    // function.
-    var codeStr;
+// XXX:  this is for testing only.  Preload an Fcommand so we can invoke it.
+FactotumBg.XXXcommandCache = {
+};       // for testing only
 
-    // If the Fcommand's 'execute' property is a function, it'll
-    // need to be invoked within the context.
-    if (jQuery.isFunction(fcommandObj.execute))
-    {
-        codeStr = "(" + fcommandObj.execute.toString() + ")();";
-    }
-    else
-    {
-        codeStr = fcommandObj.execute;
-    }
-
-    var requestObj = {
-        codeString: codeStr,
-        cmdlineObj: cmdlineObj
-    };
-
-    chrome.tabs.sendRequest(tabId, requestObj, Factotum.responseHandler);
-};  // Factotum.sendScriptRequest
-
-
-// Called when each Fcommand has finished executing.
-//   response       - the object returned from the content script.
-//      .errorData  - an object containing exception data if the Fcommand failed
-//                    by throwing an exception.  If no throw occurred, this
-//                    property will not exist.
-//          .message   - the message text of the exception.
-//          .stack     - stack dump of the exception (if the exception was a
-//                       builtin exception; e.g. SyntaxError, ReferenceError,
-//                       etc.)  XXX:  where should we show the stack if there is
-//                       one?
-Factotum.responseHandler = function (response)
-{
-    if (response.errorData)
-    {
-        // XXX: Should all errors be logged?  Should store a rotated log of
-        // these to help users troubleshoot problems with Fcommands?
-
-        // XXX: consider an option to choose desktop notifications or infobars.
-        // Infobars would neatly associate the error notification with the tab
-        // in which the code was executed.
-        var title = "Error in '" + response.cmdlineObj.commandName.real +
-            "' command";
-        var notification = webkitNotifications.createNotification(
-            "icons/error.png",
-            title,
-            response.errorData.message
+Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html")).
+    then(function resolvedWith(xhrLoadEvent) {
+        var fcommand = new Fcommand(xhrLoadEvent.target.responseText, navigator.language);
+        FactotumBg.XXXcommandCache[fcommand.metadata.guid] = fcommand;
+    }).
+    catch(function rejectedWith(data) {
+        console.log("Fcommand load failure:", data);
+        chrome.notifications.create(
+            "",
+            {
+                type: "basic",
+                iconUrl: chrome.runtime.getURL("icons/md/error.png"),
+                title: "Error loading Fcommand",
+                message: data.message,
+                // XXX: showing the stack is useless inside a tiny
+                // notification.  Show the message and maybe a button
+                // for more details, that pops a window that shows the
+                // stack.
+                // Should record all failures so you can view errors from
+                // the extension menu?  Kind of like a JS console.
+            },
+            function() {}
         );
-
-        console.log(title + ": ", response.errorData);
-
-        notification.show();
-
-        // Remove the notification after 10 seconds.
-        // XXX:  Should that period be configurable?
-        setTimeout(function () {
-                notification.cancel();
-            }, 10000);
-    }
-};  // Factotum.responseHandler
+    });

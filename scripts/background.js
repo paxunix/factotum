@@ -1,5 +1,8 @@
-// Register Omnibox listeners.
-chrome.omnibox.onInputEntered.addListener(Factotum.onOmniboxInputEntered);
-chrome.omnibox.onInputChanged.addListener(Factotum.onOmniboxInputChanged);
+"use strict";
 
-Factotum.registerInternalCommands();
+// Register Omnibox listeners.
+chrome.omnibox.onInputEntered.addListener(FactotumBg.onOmniboxInputEntered);
+chrome.omnibox.onInputChanged.addListener(FactotumBg.onOmniboxInputChanged);
+
+// Listen for messages from content script
+chrome.runtime.onMessage.addListener(FactotumBg.responseHandler);

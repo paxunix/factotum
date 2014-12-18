@@ -1,0 +1,192 @@
+<!DOCTYPE html>   <!-- We're HTML5 -->
+
+<html>
+
+<head>
+
+<title>Load jQuery</title>
+
+<meta charset="UTF-8">  <!-- no lang by default -->
+
+<!-- Here we (ab)use meta tags to supply metadata for this Fcommand. -->
+
+<!-- Author's name and or email.  Required. -->
+<meta name="author" content="paxunix@gmail.com">
+
+<!-- Description of what this Fcommand does.  Required. -->
+<meta name="description" content="Loads jQuery into the current page">
+
+<!-- The string from navigator.language is used to find the most
+appropriate tags when looking up localizable string content to be presented
+to the user.  -->
+<meta name="description" lang="fr" content="Faire la chose en français">
+
+<!-- Unique identifier for this Fcommand.  Looks like a guid, and is treated
+     as though it is unique across all Fcommands.  Required. -->
+<meta name="guid" content="21eddb42-7c5b-4437-8b7a-f08df5ef3479">
+
+<!-- Command names used to invoke this Fcommand.  Required. -->
+<meta name="keywords" content="jq,loadjq">
+
+<!-- URL from which to download this Fcommand.  Optional. -->
+<meta name="downloadURL" content="http://example.com/load-jquery.html">
+
+<!-- URL to check for a new version of this Fcommand.  Can return a document
+     with only the <head><meta name="version"></head> markup.  Optional. -->
+<meta name="updateURL" content="http://example.com/load-jquery.html">
+
+<!-- Version of this Fcommand.  Required; validated against
+     semantic versionning:  http://semver.org/ -->
+<meta name="version" content="1.2.3">
+
+<!-- Context in which the Fcommand's javascript is run.  If "bg", the code
+is evaluated within the background page and thus has no access to the page's
+DOM or javascript.  This is intended for Fcommands that only need to access
+to chrome.* APIs and nothing else.  All other values equate to evaluating
+the code within the page and has access to page's JS and DOM.  It can
+postMessage() to the content script, which will pass the posted data to the
+Fcommand's "bg-code" template script which will be run in the background
+page.
+-->
+<meta name="context" content="page">
+
+<!-- Specify the favicon for this Fcommand.  Optional.  -->
+<link rel="icon" type="image/png" href="http://example.com/favicon.png">
+
+</head>
+
+<body>
+
+<!-- The help for this Fcommand is inside a <template>.  A popup window will
+     be shown by the background script when the Fcommand is invoked with
+     -help.
+
+     There can be any content in here that you wish.  Factotum loads its own
+     styling for the help document and also adds a centered OK button at the
+     bottom, as well as capturing the Esc keypress to close the window.
+     -->
+<template id="help" lang="en">
+This is the content shown when help is requested for this Fcommand.  It must
+be in a &lt;template&gt; tag, have an id of "help" and can be anywhere in
+the document.
+<p>
+I'm going to write all mine like man pages because that's how I roll.  Maybe
+I'll default the styling to make man pages look awesome. (man7.org)
+<pre>
+loadjq [--min] [--version version]
+</pre>
+<p>
+Defaults to loading the latest version.
+<p>
+</template>
+
+<!--
+This block is the opts={} declaration for the options parser.  It must
+be a <template> with id=getopt.
+
+This is extracted by id in the bg script and used to parse the Fcommand
+command line.  The object returned by getopt is made available within
+Factotum.runCommand().
+-->
+
+<template id="getopt">
+<!--
+  You can have regular HTML comments in here.
+  Everything else is presumed to be a single JSON object blob.
+  See GetOpt.js for the spec.
+
+  You can even wrap it in a <script> so that your editor's syntax
+  highlighting will highlight the JSON.
+-->
+<script>
+{
+  "version": {
+    "type": "value",
+    "default": "2.1.1"
+  },
+  "min": {
+    "type": "boolean",
+    "default": false,
+    "aliases": [ "minify", "minified" ]
+  }
+}
+</script>
+</template>
+<script>
+/*
+   Inline script blocks are run on import of this document into the page.
+   Invoke your Fcommand code here by passing it to Factotum.runCommand().
+   You _can_ run any code you want in a <script> block, but for it to
+   be treated like an Fcommand, it needs to be called via runCommand().
+
+   Call onSuccess() once your Fcommand code has completed successfully.
+   Any object you pass to it will be passed to the bg code (if any) for
+   this Fcommand when it is run in the background page after onSuccess()
+   is called.
+
+   Call onFailure() or throw an exception if you want to surface (and
+   record) the error via the Factotum extension.  The object you pass
+   it can be any Error object, or a string.
+*/
+Factotum.runCommand(function (opts, importDoc, onSuccess, onFailure) {
+  var url = "https://code.jquery.com/jquery-" +
+      opts.version +
+      (opts.min ? ".min" : "") + ".js";
+
+  var s = document.createElement("script");
+  s.src = url;
+  s.onload = function () {
+      // No need to keep the script around once it has run
+      s.parentNode.removeChild(s);
+
+      // Demonstrate that you can call onSuccess() in the future.
+      // This Fcommand will not be allowed to re-run within its parent
+      // document until onSuccess() has been called.
+      window.setTimeout(function () {
+          console.log("calling onSuccess");
+
+          onSuccess({ jqueryVersion: jQuery.fn.jquery });
+        }, 5000);
+  };
+  s.onerror = function (e) {
+      // No need to keep the script around once it has run
+      s.parentNode.removeChild(s);
+      onFailure("Failed to load jquery");
+  };
+
+  (document.head || document.documentElement).appendChild(s);
+});
+
+</script>
+
+<!--
+This element contains Javascript that will be run in the background page
+if your Fcommand passed a non-null object to onSuccess().
+
+It is wrapped in a Function that takes a single object parameter (the
+one that your Fcommand passed to onSuccess()).
+
+It must be a <template> with an ID of "bgCode".
+-->
+<template id="bgCode">
+  <!-- You can wrap it in a <script> tag to make your editor's highlighter
+    happy.  The textContent of this node will be parsed as Javascript and
+    comprise the body of the function executed in the background page when
+    the Fcommand calls onSuccess(). -->
+<script>
+console.log("Running in bg with:", arguments);
+chrome.notifications.create(
+    "",
+    {
+        type: "basic",
+        iconUrl: chrome.runtime.getURL("icons/md/info.png"),
+        title: "Loaded jQuery",
+        message: "Version " + arguments[0].jqueryVersion,
+    },
+    function() {}
+);
+</script>
+</template>
+
+</body>
+</html>

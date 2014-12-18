@@ -1,2 +1,6 @@
 .gitignore
 .*.swp
+/test/jasmine
+/deps
+/node_modules
+*.js.bundle

@@ -3,16 +3,7 @@
 
 var Fcommands = {
     guid2Command: { },
-    onFsError: function (e) {
-        // XXX:  how to best report file system error to user?
-        var msg = "FileSystem error:";
-        console.error(msg, e);
-        throw msg + " " + e;
-    },
 };
-
-// XXX: 50 MB storage for Fcommands is sufficient?
-Fcommands.fileSystem = new FileSystem(50 * 1024 * 1024, Fcommands.onFsError);
 
 
 // Install the given Fcommand.
