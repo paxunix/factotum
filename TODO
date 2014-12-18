@@ -67,10 +67,14 @@
     - bgcode string
     - all of the metadata fields (if showing them separately, might as well
       make them separate fields, although it seems silly to store the
-      original document then duplicate all its data in separate fields)
+      original document then duplicate all its data in separate fields; it's
+      not silly if you wish to allow a user to override things in the
+      Fcommand document).
     - enabled
-    - priority[]: integer associated with name[].  Lower number == highest
-      priority.  Priorities are per name, not per Fcommand (i.e. you may have 2 Fcommands with the name "foo", and you want one to have higher priority than the other.  Priority is used only to determine the order of the Fcommand names in the omnibox dropdown)
+    - priority: integer specifying the relative order of this Fcommand to
+      others with overlapping keywords.  Lower number == highest priority.
+      Priority is used only to determine the order of the Fcommand names in
+      the omnibox dropdown.
 
 
 ----------------
