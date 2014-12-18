@@ -204,5 +204,7 @@ describe("_extractOptSpec", function() {
 }); // extractOptSpec
 
 
+// XXX:  constructor needs tests
+
 
 }); // Fcommand

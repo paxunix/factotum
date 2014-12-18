@@ -46,5 +46,6 @@ describe("getFcommandId", function() {
 
 }); // getFcommandId
 
+// XXX:  more things in inject.js need tests
 
 }); // inject
