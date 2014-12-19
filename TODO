@@ -1,16 +1,3 @@
-- now that the Fcommand runs on import, how can you support bg-only
-  Fcommands?
-    - it could just run the bg template code, since that's already an
-      established mechanism
-    - bgcode must be in a template to shield it from execution during import
-        - it may be wrapped in a <script> tag--we're only taking the textcontent
-          of it
-        - pull the document based on guid
-        - parse it into DOM
-        - extract the bgcode template's textcontent
-        - turn it into code and run it, passing it the data passed from the
-          Fcommand's success
-
 - record all errors passed back to bg from Fcommands and present them from a
   menu option
     - use a ring buffer?
