@@ -22,14 +22,6 @@
       don't (so you can have a set of scripts just for work that aren't
       sync'd to your home account)?  Or just handle this via chrome profiles?
 
-- should the DB have a separate table of guid->code, rather than storing the
-  code in the same table as the metadata?
-    - if separate, you only ever read in the code for the function about to
-      be executed, saving memory.  Whereas if the code is in the same table,
-      then when getting commands by prefix (or even when listing all
-      commands), you have to pull all the code as well, even if it's not
-      going to be used, which is wasteful.
-
 - create class that manages Fcommands  FcommandManager
     - Fcommands are stored in an IndexedDB
       - indexed on unique guid
