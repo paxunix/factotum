@@ -195,8 +195,14 @@ FactotumBg.runBgCode = function (response)
     if (!(response.guid in FactotumBg.XXXcommandCache))
         return;
 
-    // XXX: support bg debugging
     var bgFunction = new Function(FactotumBg.XXXcommandCache[response.guid].bgCodeString);
+
+    // Drop into the debugger if debugging the background code.  The user
+    // has to have Developer Tools open for Factotum's background page.
+    if (response.internalOptions.bgdebug)
+        debugger;
+
+    // Run the Fcommand's bgCode
     bgFunction(response.data);
 
     // XXX:  handle exceptions
