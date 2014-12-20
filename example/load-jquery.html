@@ -18,14 +18,15 @@
 
 <!-- The string from navigator.language is used to find the most
 appropriate tags when looking up localizable string content to be presented
-to the user.  -->
+to the user.  Required. -->
 <meta name="description" lang="fr" content="Faire la chose en français">
 
 <!-- Unique identifier for this Fcommand.  Looks like a guid, and is treated
      as though it is unique across all Fcommands.  Required. -->
 <meta name="guid" content="21eddb42-7c5b-4437-8b7a-f08df5ef3479">
 
-<!-- Command names used to invoke this Fcommand.  Required. -->
+<!-- Command names used to invoke this Fcommand.  Delimited by spaces or
+commas.  Required. -->
 <meta name="keywords" content="jq,loadjq">
 
 <!-- URL from which to download this Fcommand.  Optional. -->
@@ -35,7 +36,7 @@ to the user.  -->
      with only the <head><meta name="version"></head> markup.  Optional. -->
 <meta name="updateURL" content="http://example.com/load-jquery.html">
 
-<!-- Version of this Fcommand.  Required; validated against
+<!-- Version of this Fcommand.  Required.  Validated against
      semantic versionning:  http://semver.org/ -->
 <meta name="version" content="1.2.3">
 
@@ -43,10 +44,10 @@ to the user.  -->
 is evaluated within the background page and thus has no access to the page's
 DOM or javascript.  This is intended for Fcommands that only need to access
 to chrome.* APIs and nothing else.  All other values equate to evaluating
-the code within the page and has access to page's JS and DOM.  It can
+the code within the page and have access to page's JS and DOM.  It can
 postMessage() to the content script, which will pass the posted data to the
-Fcommand's "bg-code" template script which will be run in the background
-page.
+Fcommand's "bgCode" template script which will be run in the background
+page.  Optional.
 -->
 <meta name="context" content="page">
 
