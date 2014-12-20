@@ -152,7 +152,7 @@ Factotum.runCommand(function (opts, importDoc, onSuccess, onFailure) {
   s.onerror = function (e) {
       // No need to keep the script around once it has run
       s.parentNode.removeChild(s);
-      onFailure("Failed to load jquery");
+      throw Error("Failed to load jquery");
   };
 
   (document.head || document.documentElement).appendChild(s);
