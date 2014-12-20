@@ -158,5 +158,4 @@ Fcommand._extractBgCodeString = function (document, language)
         return null;
 
     return template.content.textContent;
-    // XXX: test me
 }   // Fcommand._extractBgCodeString
