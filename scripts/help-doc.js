@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Loaded in the popup window that displays an Fcommand's help.
  */
