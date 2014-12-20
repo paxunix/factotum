@@ -197,15 +197,22 @@ FactotumBg.runBgCode = function (response)
 
     var bgFunction = new Function(FactotumBg.XXXcommandCache[response.guid].bgCodeString);
 
-    // Drop into the debugger if debugging the background code.  The user
-    // has to have Developer Tools open for Factotum's background page.
-    if (response.internalOptions.bgdebug)
-        debugger;
+    try {
+        // Drop into the debugger if debugging the background code.  The user
+        // has to have Developer Tools open for Factotum's background page.
+        if (response.internalOptions.bgdebug)
+            debugger;
 
-    // Run the Fcommand's bgCode
-    bgFunction(response.data);
+        // Run the Fcommand's bgCode
+        bgFunction(response.data);
+    }
 
-    // XXX:  handle exceptions
+    catch (e) {
+        // XXX:  surface error to user
+        console.log("Fcommand '" + response.guid + "' error: ", e);
+    }
+
+    // XXX: test me
 };  // FactotumBg.runBgCode
 
 
