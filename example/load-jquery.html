@@ -173,7 +173,12 @@ It must be a <template> with an ID of "bgCode".
   <!-- You can wrap it in a <script> tag to make your editor's highlighter
     happy.  The textContent of this node will be parsed as Javascript and
     comprise the body of the function executed in the background page when
-    the Fcommand calls onSuccess(). -->
+    the Fcommand calls onSuccess().
+
+    Since the code becomes the body of a function, you can use arguments[0]
+    to get at the argument that was passed in the call to onSuccess() from
+    with the earlier Fcommand code.
+  -->
 <script>
 console.log("Running in bg with:", arguments);
 chrome.notifications.create(
