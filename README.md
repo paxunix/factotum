@@ -43,14 +43,14 @@ who gave you a free gun full of free bullets.**
    it.
 1. Run `make setup`.
 1. Then run `make`.
-1. Enable developer mode in <chrome://extensions/>.
+1. Enable developer mode in `chrome://extensions/`.
 1. Click on the *Load unpacked extension...* button and select the directory
    containing `manifest.json`.
-1. As of 2014-12-20, there is a built-in Factotum command (an Fcommand) that
-   loads jQuery into the current page.  Enter `f loadjq` into Chrome's
-   omnibox and if you're not on a `chrome://` or `about://` page, jQuery
-   will be loaded and you should get a notification after a few seconds that
-   says which jQuery version it is.
+1. As of 2014-12-20, there is a built-in Fcommand that loads jQuery into the
+   current page.  Enter `f loadjq` into Chrome's omnibox and (if you're not
+   on a `chrome://` or `about://` page), jQuery will be loaded and you
+   should get a notification after a few seconds that says which jQuery
+   version it is.
 
 ## Modifying stuff
 
@@ -65,3 +65,10 @@ who gave you a free gun full of free bullets.**
 
 * Take a look at `example/load-jquery.html` to see what goes into writing an
   Fcommand.
+
+* Take a look at `TODO` to see what my thinking is on things that are Work
+  In Progress.
+
+* Expect nothing to work much of the time and that it will be difficult to
+  the point of impossibility to use.  It's not holding at version 0.0.1 for
+  no reason.
