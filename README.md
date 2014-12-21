@@ -32,7 +32,6 @@ who gave you a free gun full of free bullets.**
 ## Setting up a local package
 
 1. Install [Node.js](http://nodejs.org/download/) if you don't already have it.
-
 1. Run `make setup`.
 1. Then run `make`.
 1. Enable developer mode in <chrome://extensions/>.
