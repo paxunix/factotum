@@ -40,8 +40,8 @@ who gave you a free gun full of free bullets.**
 1. As of 2014-12-20, there is a built-in Factotum command (an Fcommand) that
    loads jQuery into the current page.  Enter `f loadjq` into Chrome's
    omnibox and if you're not on a `chrome://` or `about://` page, jQuery
-   will be loaded and you should get a notification that says which jQuery
-   version it is.
+   will be loaded and you should get a notification after a few seconds that
+   says which jQuery version it is.
 
 ## Modifying stuff
 
@@ -53,3 +53,6 @@ who gave you a free gun full of free bullets.**
   run `make watchify` (remember to `make kill` if you wish to kill off the
   watchers).  Then all you have to do is make changes, wait a couple
   seconds, then reload the extensions page, etc.
+
+* Take a look at `example/load-jquery.html` to see what goes into writing an
+  Fcommand.
