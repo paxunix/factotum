@@ -2,17 +2,27 @@
 
 User-defined commands for Chrome.
 
-Remember Ubiquity for Firefox?  It was a CLI-addict's dream.  When I left
-Firefox behind in favour of Chrome, I really, really missed Ubiquity.
+Remember [Ubiquity](https://wiki.mozilla.org/Labs/Ubiquity) for Firefox?  It
+was a CLI-addict's dream.  When I left Firefox behind in favour of Chrome, I
+really, really missed Ubiquity.
 
-This is my attempt at making something similar, though probably without
-goals quite so lofty, and without a custom API (at least at this time).
+This is my attempt at making something similar and hopefully better, though
+definitely without goals quite so lofty:  there's no attempt at
+natural-language parsing (nor do I ever want there to be), and it has no
+custom API to make the writing of a Factotum Command (i.e. Fcommand) easier
+or prettier.  If anything, it generally adheres to the early Soviet space
+program's design sensibilities:  utterly spare interface, myriad sharp
+edges, and no concessions to beauty (it would be made of concrete and steel
+if those things were available via Chrome API).  This extension is for
+people who type in a command and want the same thing to happen every time.
 
-It is a work in progress and has extremely sharp edges.
+Most importantly, it is a work in progress, as it is also a test-bed for me
+to muck around with fancy new HTML5 features that Chrome has been
+accumulating.
 
-**Be aware that you can fuck up your computer and your life quite badly with
-this extension.  It allows Chrome to execute arbitrary code with full
-privileges.  This means a thoughtlessly-executed command line running a
+**Be aware that you can fuck up your computer and possibly your life quite
+badly with this extension.  It allows Chrome to execute arbitrary code with
+full privileges.  This means a thoughtlessly-executed command line running a
 suspiciously-written Fcommand can do things like:**
 
 1. **Send all your porn bookmarks to your employer.**
@@ -29,7 +39,8 @@ who gave you a free gun full of free bullets.**
 
 ## Setting up a local package
 
-1. Install [Node.js](http://nodejs.org/download/) if you don't already have it.
+1. Install [Node.js](http://nodejs.org/download/) if you don't already have
+   it.
 1. Run `make setup`.
 1. Then run `make`.
 1. Enable developer mode in <chrome://extensions/>.
