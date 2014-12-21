@@ -1,3 +1,6 @@
+- investigate how to catch and surface errors when an Fcommand does
+  something forbidden by the active page's CSP.
+
 - record all errors passed back to bg from Fcommands and present them from a
   menu option
     - use a ring buffer?

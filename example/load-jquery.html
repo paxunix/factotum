@@ -158,6 +158,11 @@ Factotum.runCommand(function (opts, importDoc, onSuccess, onFailure) {
       throw Error("Failed to load jquery");
   };
 
+  // NOTE:  this will NOT work if the page on which this Fcommand is running
+  // has a CSP that disallows the load from jquery.com (e.g. github.com).
+  // It might be an interesting exercise to see if that can be detected, and
+  // then the content instead loaded via bgCode and injected straight into
+  // the page.
   (document.head || document.documentElement).appendChild(s);
 });
 
