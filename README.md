@@ -70,5 +70,5 @@ who gave you a free gun full of free bullets.**
   In Progress.
 
 * Expect nothing to work much of the time and that it will be difficult to
-  the point of impossibility to use.  It's not holding at version 0.0.1 for
-  no reason.
+  the point of impossibility to use.  It's holding at version 0.0.1 for
+  a reason.
