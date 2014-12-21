@@ -1,5 +1,6 @@
 describe("FcommandManager", function() {
 
+var FcommandManager = require("../../scripts/FcommandManager.js");
 
     it("constructs an FcommandManager object",
         function() {

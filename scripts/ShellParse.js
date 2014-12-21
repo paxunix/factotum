@@ -1,7 +1,6 @@
 "use strict";
 
-var ShellParse = {};
-
+module.exports = {
 
 // Function: ShellParse.split
 //      Split a string into words according to shell-like rules.
@@ -9,7 +8,7 @@ var ShellParse = {};
 //      arg - string to parse
 // Returns:
 //      array of words
-ShellParse.split = function (arg)
+split: function (arg)
 {
     arg = arg || "";
 
@@ -98,3 +97,5 @@ ShellParse.split = function (arg)
 
     return argv;
 }   // ShellParse.split
+
+}   // module.exports

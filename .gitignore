@@ -1,6 +1,5 @@
 .gitignore
 .*.swp
-/test/jasmine
-/deps
+/bower_components
 /node_modules
-*.js.bundle
+/build/*

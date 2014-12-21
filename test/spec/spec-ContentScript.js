@@ -2,6 +2,8 @@
 
 describe("ContentScript", function() {
 
+var ContentScript = require("../../scripts/ContentScript.js");
+
 describe("getLoadImportPromise", function() {
 
     beforeEach(function () {

@@ -1,6 +1,6 @@
 "use strict";
 
-var GetOpt = {};
+module.exports = {
 
 
 /**
@@ -26,7 +26,7 @@ var GetOpt = {};
  *          each occurrence of the option.
  * @property {Array} option.aliases - (Optional) array that specifies the possible aliases for this option name.  The key in the returned object will be the option name, even if an alias was given.
  * @property {Boolean} option.array - (Optional; only for "value" types) if true, the value of the option will be an array continue the found values of the option).
- * @param argv - array of command line words (as returned from Shell.split).
+ * @param argv - array of command line words (as returned from ShellParse.split).
  * @return {Object} Of the form:
  *      {
  *          optA: value,
@@ -36,8 +36,7 @@ var GetOpt = {};
  *  The _ array will always be present (it will be empty if there were no
  *  arguments).
  */
-GetOpt.getOptions = function (spec, argv)
-{
+getOptions: function (spec, argv) {
     var opts = { _: [ ] };
     var nameOfValueOpt = null;
 
@@ -190,3 +189,5 @@ GetOpt.getOptions = function (spec, argv)
 
     return opts;
 }   // GetOpt.getOptions
+
+};  // module.exports

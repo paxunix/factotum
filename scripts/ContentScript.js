@@ -1,5 +1,10 @@
 'use strict';
 
+module.exports = (function() {
+
+var Util = require("./Util.js");
+
+
 var ContentScript = {};
 
 
@@ -137,3 +142,8 @@ ContentScript.injectFactotumApi = function (document)
 
     (document.head || document.documentElement).appendChild(s);
 }   // ContentScript.injectFactotumApi
+
+
+return ContentScript;
+
+})();   // module.exports

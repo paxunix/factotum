@@ -1,6 +1,7 @@
 describe("Fcommand", function () {
 
 var lang = navigator.language || "en-us";
+var Fcommand = require("../../scripts/Fcommand.js");
 
 
 describe("_extractMetadata", function() {
@@ -16,9 +17,10 @@ describe("_extractMetadata", function() {
 
     it("returns supported data from head's meta tags", function() {
         var docstr = '<head>';
-        for (var f of Fcommand._supportedStringMetaFields)
+        for (var f = 0; f < Fcommand._supportedStringMetaFields.length; ++f)
         {
-            docstr += '<meta name="' + f + '" content="test '+ f + '">';
+            var el = Fcommand._supportedStringMetaFields[f];
+            docstr += '<meta name="' + el + '" content="test '+ el + '">';
         }
 
         docstr += '<link rel="icon" href="test icon url">' +
@@ -60,14 +62,15 @@ describe("_extractMetadata", function() {
 
     it("parses keywords delimited by ',' and disregarding whitespace", function() {
         var docstr = '<head>';
-        for (var f of Fcommand._requiredFields)
+        for (var f = 0; f < Fcommand._requiredFields.length; ++f)
         {
-            if (f === "keywords")
-                docstr += '<meta name="' + f + '" content=" , , k1 , ,, k2 , , ">';
-            else if (f === "version")
-                docstr += '<meta name="' + f + '" content="1.2.3">';
+            var el = Fcommand._requiredFields[f];
+            if (el === "keywords")
+                docstr += '<meta name="' + el + '" content=" , , k1 , ,, k2 , , ">';
+            else if (el === "version")
+                docstr += '<meta name="' + el + '" content="1.2.3">';
             else
-                docstr += '<meta name="' + f + '" content="test '+ f + '">';
+                docstr += '<meta name="' + el + '" content="test '+ el + '">';
         }
 
         docstr += "</head>";
@@ -96,25 +99,27 @@ describe("_validateMetadata", function() {
 
     it("verifies required fields have a defined value", function() {
         var docstr = '<head>';
-        for (var f of Fcommand._requiredFields)
+        for (var f = 0; f < Fcommand._requiredFields.length; ++f)
         {
+            var el = Fcommand._requiredFields[f];
             var doc = (new DOMParser).parseFromString(docstr + "</head>", "text/html");
             var meta = Fcommand._extractMetadata(doc, lang);
 
             expect(function () {
                 Fcommand._validateMetadata(meta);
-            }).toThrowError("Metadata is missing required field " + f);
+            }).toThrowError("Metadata is missing required field " + el);
 
-            docstr += '<meta name="' + f + '" content="test '+ f + '">';
+            docstr += '<meta name="' + el + '" content="test '+ el + '">';
         }
     });
 
 
     it("throws if version is not semver-format", function() {
         var docstr = '<head>';
-        for (var f of Fcommand._requiredFields)
+        for (var f = 0; f< Fcommand._requiredFields.length; ++f)
         {
-            docstr += '<meta name="' + f + '" content="test '+ f + '">';
+            var el = Fcommand._requiredFields[f];
+            docstr += '<meta name="' + el + '" content="test '+ el + '">';
         }
 
         docstr += "</head>";
@@ -130,14 +135,15 @@ describe("_validateMetadata", function() {
 
     it("throws if a keyword string is empty", function() {
         var docstr = '<head>';
-        for (var f of Fcommand._requiredFields)
+        for (var f = 0; f < Fcommand._requiredFields.length; ++f)
         {
-            if (f === "keywords")
-                docstr += '<meta name="' + f + '" content="">';
-            else if (f === "version")
-                docstr += '<meta name="' + f + '" content="1.2.3">';
+            var el = Fcommand._requiredFields[f];
+            if (el === "keywords")
+                docstr += '<meta name="' + el + '" content="">';
+            else if (el === "version")
+                docstr += '<meta name="' + el + '" content="1.2.3">';
             else
-                docstr += '<meta name="' + f + '" content="test '+ f + '">';
+                docstr += '<meta name="' + el + '" content="test '+ el + '">';
         }
 
         docstr += "</head>";

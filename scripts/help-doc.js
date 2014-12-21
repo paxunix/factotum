@@ -4,6 +4,8 @@
  * Loaded in the popup window that displays an Fcommand's help.
  */
 
+// XXX: document the expected input conditions (e.g. needs an #ok-button,
+// etc.)
 var lang = navigator.language || "en-us";
 var okButton = Util.getFromLangSelector(document, "#ok-button", lang);
 var helpWrapper = Util.getFromLangSelector(document, "#wrap-help", lang);

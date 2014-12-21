@@ -1,4 +1,8 @@
+"use strict";
+
 describe("ShellParse", function() {
+
+var ShellParse = require("../../scripts/ShellParse.js");
 
 describe("split", function() {
 

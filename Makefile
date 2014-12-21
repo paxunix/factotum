@@ -1,28 +1,30 @@
 MAKEFLAGS := -j
 SHELL := /bin/zsh
-
-NODE_MODULES := dexie semver jasmine-core
+OUTDIR := build
 
 _DEBUG := $(if $(DEBUG),-d,)
-DIR := scripts
-INPUT_FILES := $(shell fgrep -l ' = require' $(DIR)/*.js)
-OUTPUT_FILES := $(addsuffix .bundle,$(INPUT_FILES))
 
-all: browserify
+TOOL := watchify -v
+#TOOL := browserify
 
-browserify: npm_install $(OUTPUT_FILES)
 
-npm_install: $(addprefix node_modules/,$(NODE_MODULES))
+all: watchify
 
-clean:
-	rm -f $(OUTPUT_FILES)
+watchify: kill
+	mkdir -p $(OUTDIR)
+	-$(TOOL) $(_DEBUG) -t debowerify scripts/background.js -o $(OUTDIR)/background.js &!
+	-$(TOOL) $(_DEBUG) --no-builtins -t debowerify scripts/content.js -o $(OUTDIR)/content.js &!
+	-$(TOOL) $(_DEBUG) -t debowerify test/spec/*.js -o $(OUTDIR)/test.js &!
 
-node-update:
-	npm update $(NODE_MODULES)
+kill:
+	-pkill -f watchify
 
-# Pattern rules
-scripts/%.js.bundle: scripts/%.js
-	browserify $(_DEBUG) $< > $@
+clean: kill
+	rm -fr $(OUTDIR)
 
-node_modules/%:
-	npm install $(notdir $@)
+update:
+	bower update
+
+setup:
+	npm install debowerify watchify
+	bower update

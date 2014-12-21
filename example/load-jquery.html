@@ -67,18 +67,21 @@ page.  Optional.
      bottom, as well as capturing the Esc keypress to close the window.
      -->
 <template id="help" lang="en">
-This is the content shown when help is requested for this Fcommand.  It must
-be in a &lt;template&gt; tag, have an id of "help" and can be anywhere in
-the document.
-<p>
-I'm going to write all mine like man pages because that's how I roll.  Maybe
-I'll default the styling to make man pages look awesome. (man7.org)
-<pre>
-loadjq [--min] [--version version]
-</pre>
-<p>
-Defaults to loading the latest version.
-<p>
+  <h2>NAME</h2>
+  <div class="indented pretty">
+    jq, loadjq - load jQuery into the page's main frame
+  </div>
+  <h2>SYNOPSIS</h2>
+  <div class="indented pretty">
+    jq [<span class="opt">--min</span>] [<span class="opt">--version</span> <span class="optarg">v</span>]
+  </div>
+  <h2>DESCRIPTION</h2>
+  <div class="indented pretty">
+    Loads jQuery into the page's main frame.  If <span class="opt">--version</span> is not given, loads 2.1.1.
+    <p>
+    With <span class="opt">--min</span>, the minified Javascript for the requested version will be loaded.
+  </div>
+  <h2>DESCRIPTION</h2>
 </template>
 
 <!--

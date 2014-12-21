@@ -1,5 +1,8 @@
 "use strict";
 
+var ContentScript = require("./ContentScript.js");
+
+
 /**
  * Contains code that should only run via load by the extension.
  */

@@ -1,5 +1,7 @@
 describe("GetOpt", function () {
 
+var GetOpt = require("../../scripts/GetOpt.js");
+
 describe("getOptions", function() {
 
     it("returns no options and no args for an empty argv", function() {

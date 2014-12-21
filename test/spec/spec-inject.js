@@ -1,5 +1,7 @@
 describe("inject", function() {
 
+var Util = require("../../scripts/Util.js");
+
 describe("_getDataAttribute", function() {
 
     it("retrieves object from an Fcommand's import link data attribute", function(done) {

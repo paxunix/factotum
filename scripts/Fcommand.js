@@ -1,6 +1,9 @@
 "use strict";
 
-var semver = require("semver");
+var semver = require("node-semver/semver.js");
+var Util = require("./Util.js");
+
+module.exports = (function() {
 
 
 /**
@@ -10,8 +13,7 @@ var semver = require("semver");
  * @param {String} documentString - HTML document defining an Fcommand.
  * @param {String} language - extracts metadata for this BCP47 language string
 */
-window.Fcommand = function (documentString, language)
-{
+function Fcommand(documentString, language) {
     this.documentString = documentString;
 
     var fcommandDoc = Fcommand._parseDomFromString(this.documentString);
@@ -21,7 +23,11 @@ window.Fcommand = function (documentString, language)
     this.optspec = Fcommand._extractOptSpec(fcommandDoc, language) || {};
     this.bgCodeString = Fcommand._extractBgCodeString(fcommandDoc, language);
 
+    this.helpMarkup = Fcommand._extractHelpMarkup(fcommandDoc, language);
+
     return this;
+
+    // XXX: test me
 }   // Fcommand constructor
 
 
@@ -71,10 +77,9 @@ Fcommand._extractMetadata = function (document, lang)
 {
     var data = {};
 
-    for (var el of Fcommand._supportedStringMetaFields)
-    {
+    Fcommand._supportedStringMetaFields.forEach(function (el) {
         data[el] = (Util.getFromLangSelector(document, "head meta[name=" + el + "]", lang) || {}).content
-    };
+    });
 
     var el = Util.getFromLangSelector(document, "head link[rel=icon]", lang);
     if (el !== null)
@@ -104,11 +109,10 @@ Fcommand._extractMetadata = function (document, lang)
 Fcommand._validateMetadata = function (metadata)
 {
     // Required fields must be defined
-    for (var f of Fcommand._requiredFields)
-    {
+    Fcommand._requiredFields.forEach(function (f) {
         if (typeof(metadata[f]) === "undefined")
             throw Error("Metadata is missing required field " + f);
-    }
+    });
 
     // Verify the version is valid
     if (semver.valid(metadata.version) === null)
@@ -145,6 +149,24 @@ Fcommand._extractOptSpec = function (document, lang)
 
 
 /**
+ * Retrieve the Fcommand's help markup.
+ * @param {Object} document - HTML document object specifying the Fcommand
+ * @param {String} lang - extracts help markup for this BCP47 language string
+ * @returns {String} Help command markup.
+ */
+Fcommand._extractHelpMarkup = function (document, lang)
+{
+    var sel = "template#help";
+    var template = Util.getFromLangSelector(document, sel, lang);
+    if (!template)
+        return null;
+
+    return template.innerHTML;
+    // XXX: test me
+}   // Fcommand._extractHelpMarkup
+
+
+/**
  * Returns the Fcommand's background code as a string.
  * @param {HTMLDocument} document - contains the Fcommand
  * @param {String} language - extracts metadata for this BCP47 language string
@@ -159,3 +181,8 @@ Fcommand._extractBgCodeString = function (document, language)
 
     return template.content.textContent;
 }   // Fcommand._extractBgCodeString
+
+
+return Fcommand;
+
+})();   // module.exports

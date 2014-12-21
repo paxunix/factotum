@@ -1,8 +1,8 @@
 "use strict";
 
-var Util = {
-};
+module.exports = (function() {
 
+var Util = {};
 
 /**
  * Returns a string to be used as the id on the link.import element injected
@@ -58,12 +58,12 @@ Util.getFromLangSelector = function (document, selector, lang)
     // from the browser), given language with no subtags, no language
     var langList = [ lang.toLowerCase(), lang.toLowerCase().split("-")[0], "" ];
 
-    for (var l of langList)
+    for (var lidx = 0; lidx < langList.length; ++lidx)
     {
         //for (var el of elements)      XXX: won't work in Chrome yet: https://code.google.com/p/chromium/issues/detail?id=401699
         for (var i = 0; i < elements.length; ++i)
         {
-            if (l === elements[i].lang.toLowerCase())
+            if (langList[lidx] === elements[i].lang.toLowerCase())
                 return elements[i];
         }
     }
@@ -148,3 +148,8 @@ Util.getStorableFcommand = function (document, lang)
 {
     // XXX
 }   // Util.getStorableFcommand
+
+
+return Util;
+
+})();   // module.exports
