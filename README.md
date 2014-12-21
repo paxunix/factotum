@@ -15,11 +15,9 @@ this extension.  It allows Chrome to execute arbitrary code with full
 privileges.  This means a thoughtlessly-executed command line running a
 suspiciously-written Fcommand can do things like:**
 
-**1. Send all your porn bookmarks to your employer.**
-
-**2. Email your bank-account information to North Korean hackers.**
-
-**3. Render your computer completely unusable.**
+1. **Send all your porn bookmarks to your employer.**
+2. **Email your bank-account information to North Korean hackers.**
+3. **Render your computer completely unusable.**
 
 **This extension is intended for developers and people who understand not
 only Javascript, but probably Chrome extensions as well.**
