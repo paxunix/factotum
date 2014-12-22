@@ -110,7 +110,6 @@
 
     "web_accessible_resources": [
         "scripts/help-doc.js",
-        "scripts/inject.js",
-        "example/load-jquery.html"     // XXX: testing only
+        "scripts/inject.js"
     ]
 }
