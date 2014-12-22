@@ -27,7 +27,7 @@ CONTENT_SCRIPTS := scripts/Util.js \
 
 all: build
 
-build: build/background.js build/content.js build/test.js
+build: build/background.js build/content.js build/test.js build/help.html
 
 build/background.js: $(BG_SCRIPTS)
 	mkdir -p $(OUTDIR)
@@ -40,6 +40,10 @@ build/content.js: $(CONTENT_SCRIPTS)
 build/test.js: $(wildcard test/spec/*.js)
 	mkdir -p $(OUTDIR)
 	$(TOOL) $(_DEBUG) -t debowerify $^ -o $@ $(DISOWN)
+
+build/help.html: html/help.html
+	mkdir -p $(OUTDIR)
+	./node_modules/vulcanize/bin/vulcanize --csp $^ -o $@
 
 kill:
 	-pkill -f watchify
@@ -55,5 +59,5 @@ update:
 	bower update
 
 setup:
-	npm install debowerify watchify
+	npm install debowerify watchify vulcanize
 	bower update
