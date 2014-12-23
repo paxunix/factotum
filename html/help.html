@@ -1,19 +1,41 @@
 <head>
+  <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
 
-<style>
-</style>
+  <link rel="import" href="../bower_components/paper-dialog/paper-action-dialog.html">
+  <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
+  <style>
+  </style>
 </head>
 
-<body>
+<body unresolved>
+  <template id="help-dialog" is="auto-binding">
+    <paper-dialog heading="Help XXX: fcommand" transition="core-transition-center" backdrop>
+      <div id="help-content"></div>
+      <paper-button id="dismiss-button" on-click="{{dismissDialog}}" raised autofocus tabindex="0">Dismiss</paper-button>
+    </paper-dialog>
+  </template>
 
-<div id="wrap-help">
-</div>
-<div id="wrap-button">
-  <button id="ok-button" type="button">OK</button>
-</div>
+  <script>
+    var dialog = document.querySelector("#help-dialog");
 
-<script src="../scripts/Util.js"></script>
-<script src="../scripts/help-doc.js"></script>
+    dialog.dismissDialog = function () {
+      window.close();
+    };
 
+    window.addEventListener("polymer-ready", function() {
+      var dialog = document.querySelector("#help-dialog");
+      // XXX: YTF can't I get this button to focus?
+      dialog.$["dismiss-button"].focus();
+    });
+
+    chrome.runtime.getBackgroundPage(function (bgScope) {
+      // Extract Fcommand guid from "?guid=abcd" query string and use it to
+      // get the help markup for the Fcommand.
+      var guid = document.location.search.substr(6);
+      var div = document.querySelector("#help-content");
+
+      div.innerHTML = bgScope.FactotumBg.XXXcommandCache[guid].helpMarkup;
+    });
+  </script>
 </body>

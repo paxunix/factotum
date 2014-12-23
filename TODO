@@ -69,19 +69,8 @@
     - support enable/disable of individual aliases for Fcommands???
         - useful if you have an Fcommand that supplies an alias you don't
           want because it's supplied by a different Fcommand
-    - shows their help content
     - editing commands
     - exporting commands
-
-- internal Fcommand 'help' should pull up the help content for the given
-  Fcommand
-    - do this with a default --help option on an Fcommand
-    - when help is requested, retrieve the Fcommand help markup
-
-    - use Polymer's dialog for a nice look-and-feel
-    - create custom tags for help to make writing the help markup easier.
-      E.g. <help-opt></help-opt> <help-optarg></help-optarg>
-      <help-section></help-section> <help-content></help-content>
 
 - support commands from non-local sources
     - e.g. specifying a URL will pull the Fcommand from the URL and use it.

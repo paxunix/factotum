@@ -10,6 +10,7 @@ TOOL := browserify
 #	browserify -t debowerify scripts/background.js --list | sed -e 's,'$PWD'/,,' -e '/^\//d'
 # We don't do it on each makefile invocation because it's time-consuming.
 BG_SCRIPTS := scripts/ShellParse.js \
+              scripts/Help.js \
               scripts/GetOpt.js \
               scripts/Util.js \
               bower_components/node-semver/semver.js \

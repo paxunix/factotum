@@ -1,5 +1,7 @@
 "use strict";
 
+module.exports = (function () {
+
 var Help = {};
 
 // XXX:
@@ -23,53 +25,19 @@ var Help = {};
 //          for the page to pop the help dialog.
 
 /**
- * For an Fcommand, extract the dialog element XXX for an Fcommandfrom which to clone the help dialog markup.
- * @param {Document} document - Document expected to contain an import document for the Fcommand with the given guid.
- * @returns {Node} Returns the <dialog> node element.
- *
- */
-Help.extractDialog = function (document, guid)
-{
-    var importId = Util.getFcommandImportId(guid);
-    var importDoc =
-        document.querySelector('link[rel="import"][id="' + importId + '"]');
-
-    if (!importDoc)
-        throw RuntimeError("Failed to find link.import for " + importId);
-
-    var dialog = importDoc.import.querySelector('dialog#help');
-
-    if (!dialog)
-        throw RuntimeError("No help dialog present for " + importId);
-
-    return dialog;
-}   // Help.extractDialog
-
-
-/**
- * Center the given dialog in a popup.
- * XXX: why not just load the command's entire document and some
- * fixed script in the extension that pops the dialog already in it?  THen
- * no parsing, no fuckery, it just all works?  Document will get torn down
- * immediately anyway once the help window is closed.
- * That's bad:  because if there are <script> tags not in a template, they
- * will be executed which is probably not what you want if you only need the
- * help dialog.  Can just parse the document and show the help.
- *
- * Why not make this an HTML document that is passed the data it needs and a
- * script can load that data in?
- *
+ * Popup help for the given Fcommand.
  * @param {Dialog} dialog - HTML dialog element that contains the markup to
  * show.
  */
-Help.showDialog = function (fcommandGuid)
+Help.showFcommandHelp = function (fcommandGuid)
 {
     // Arbitrarily make the help dialog's container 50% of the screen's
     // width and 70% of the screen's height.
     // XXX: need min+max range e.g. Math.min(Math.max(300, x), 1000);
     var width = Math.round(window.screen.width * 0.30);
     var height = Math.round(window.screen.height * 0.55);
-    var url = chrome.runtime.getURL("html/help.html") + "?guid=" + fcommandGuid;
+    var url = chrome.runtime.getURL("build/help.html") +
+        "?guid=" + fcommandGuid;
 
     chrome.windows.create({
         url: url,
@@ -80,4 +48,8 @@ Help.showDialog = function (fcommandGuid)
         height: height,
         focused: true,
     });
-}   // Help.showDialog
+}   // showFcommandHelp
+
+return Help;
+
+})();   // module.exports

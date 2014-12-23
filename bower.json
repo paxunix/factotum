@@ -25,7 +25,8 @@
   "dependencies": {
     "polymer": "Polymer/polymer#~0.5.2",
     "dexie": "~1.0.2",
-    "node-semver": "npm/node-semver#~4.1.1"
+    "node-semver": "npm/node-semver#~4.1.1",
+    "paper-elements": "Polymer/paper-elements#~0.5.2"
   },
   "devDependencies": {
     "jasmine": "~2.1.3"

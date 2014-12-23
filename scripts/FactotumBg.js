@@ -4,6 +4,7 @@ module.exports = (function() {
 
 var ShellParse = require("./ShellParse.js");
 var GetOpt = require("./GetOpt.js");
+var Help = require("./Help.js");
 
 var FactotumBg = { };
 
@@ -133,6 +134,13 @@ FactotumBg.dispatch = function (cmdline) {
         if (fcommand.metadata.keywords.indexOf(internalOptions._[0]) === -1)
             continue;
 
+        if (internalOptions.help)
+        {
+            Help.showFcommandHelp(guid);
+            return;
+        }
+
+        // Now dispatch to the Fcommand
         var opts = GetOpt.getOptions(fcommand.optspec, internalOptions._);
         var request = {
             documentString: fcommand.documentString,
@@ -154,8 +162,6 @@ FactotumBg.dispatch = function (cmdline) {
     // XXX: some feedback if no matching Fcommand found for entered cmdline?
 
     // XXX: if Fcommand is flagged bg-only, execute it right here
-
-    // XXX: handle Fcommand's help here; it doesn't have to run in-page
 };  // FactotumBg.dispatch
 
 
@@ -246,7 +252,10 @@ Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html")).
     });
 
 
+// XXX: until FcommandManager(?) exists, want this accessible so other views
+// can access it
+window.FactotumBg = FactotumBg;
+
 return FactotumBg;
 
 })();  // module.exports function
-
