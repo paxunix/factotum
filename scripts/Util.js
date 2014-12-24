@@ -44,35 +44,6 @@ Util.fetchDocument = function (url)
 
 
 /**
- * Return one HTML object for the given selector, preferring elements with
- * the given language attribute and falling back as necessary.
- * @param {HTMLDocument} document - HTML document to search
- * @param {String} selector - document query selector
- * @param {String} lang - BCP47 language string
- */
-Util.getFromLangSelector = function (document, selector, lang)
-{
-    var elements = document.querySelectorAll(selector);
-
-    // List of languages in order of preference:  given language (presumably
-    // from the browser), given language with no subtags, no language
-    var langList = [ lang.toLowerCase(), lang.toLowerCase().split("-")[0], "" ];
-
-    for (var lidx = 0; lidx < langList.length; ++lidx)
-    {
-        //for (var el of elements)      XXX: won't work in Chrome yet: https://code.google.com/p/chromium/issues/detail?id=401699
-        for (var i = 0; i < elements.length; ++i)
-        {
-            if (langList[lidx] === elements[i].lang.toLowerCase())
-                return elements[i];
-        }
-    }
-
-    return null;
-}   // Util.getFromLangSelector
-
-
-/**
  * Create a <link> import element to be inserted in the parentDocument.
  * @param {HTMLDocument} parentDocument - The document the <link> element will be appended to
  * @param {Object} opts - Specifies data used for the import

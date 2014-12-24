@@ -1,7 +1,6 @@
 "use strict";
 
 var semver = require("node-semver/semver.js");
-var Util = require("./Util.js");
 
 module.exports = (function() {
 
@@ -29,6 +28,35 @@ function Fcommand(documentString, language) {
 
     // XXX: test me
 }   // Fcommand constructor
+
+
+/**
+ * Return one HTML object for the given selector, preferring elements with
+ * the given language attribute and falling back as necessary.
+ * @param {HTMLDocument} document - HTML document to search
+ * @param {String} selector - document query selector
+ * @param {String} lang - BCP47 language string
+ */
+Fcommand._getFromLangSelector = function (document, selector, lang)
+{
+    var elements = document.querySelectorAll(selector);
+
+    // List of languages in order of preference:  given language (presumably
+    // from the browser), given language with no subtags, no language
+    var langList = [ lang.toLowerCase(), lang.toLowerCase().split("-")[0], "" ];
+
+    for (var lidx = 0; lidx < langList.length; ++lidx)
+    {
+        //for (var el of elements)      XXX: won't work in Chrome yet: https://code.google.com/p/chromium/issues/detail?id=401699
+        for (var i = 0; i < elements.length; ++i)
+        {
+            if (langList[lidx] === elements[i].lang.toLowerCase())
+                return elements[i];
+        }
+    }
+
+    return null;
+};   // Fcommand._getFromLangSelector
 
 
 Fcommand._supportedStringMetaFields = [
@@ -78,10 +106,10 @@ Fcommand._extractMetadata = function (document, lang)
     var data = {};
 
     Fcommand._supportedStringMetaFields.forEach(function (el) {
-        data[el] = (Util.getFromLangSelector(document, "head meta[name=" + el + "]", lang) || {}).content
+        data[el] = (Fcommand._getFromLangSelector(document, "head meta[name=" + el + "]", lang) || {}).content
     });
 
-    var el = Util.getFromLangSelector(document, "head link[rel=icon]", lang);
+    var el = Fcommand._getFromLangSelector(document, "head link[rel=icon]", lang);
     if (el !== null)
         data.icon = el.getAttribute("href");
     else
@@ -133,7 +161,7 @@ Fcommand._validateMetadata = function (metadata)
 Fcommand._extractOptSpec = function (document, lang)
 {
     var sel = "template#getopt";
-    var template = Util.getFromLangSelector(document, sel, lang);
+    var template = Fcommand._getFromLangSelector(document, sel, lang);
     if (!template)
         return null;
 
@@ -157,7 +185,7 @@ Fcommand._extractOptSpec = function (document, lang)
 Fcommand._extractHelpMarkup = function (document, lang)
 {
     var sel = "template#help";
-    var template = Util.getFromLangSelector(document, sel, lang);
+    var template = Fcommand._getFromLangSelector(document, sel, lang);
     if (!template)
         return null;
 
@@ -175,7 +203,7 @@ Fcommand._extractHelpMarkup = function (document, lang)
 Fcommand._extractBgCodeString = function (document, language)
 {
     var sel = "template#bgCode";
-    var template = Util.getFromLangSelector(document, sel, language);
+    var template = Fcommand._getFromLangSelector(document, sel, language);
     if (!template)
         return null;
 
