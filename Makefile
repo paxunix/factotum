@@ -1,5 +1,6 @@
 MAKEFLAGS := -j
 SHELL := /bin/zsh
+.SHELLFLAGS := -f -c
 OUTDIR := build
 
 _DEBUG := $(if $(DEBUG),-d,)
@@ -47,8 +48,9 @@ build/help.html: html/help.html
 	./node_modules/vulcanize/bin/vulcanize --csp $^ -o $@
 
 kill:
-	-pkill -f watchify
+	pkill -f `which watchify`; true
 
+.PHONY: watchify
 watchify: override TOOL := watchify -v
 watchify: override DISOWN := &!
 watchify: kill build
