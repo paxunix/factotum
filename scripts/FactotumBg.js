@@ -139,7 +139,7 @@ FactotumBg.dispatch = function (cmdline) {
             {
                 if (fcommand.helpMarkup === null)
                     throw Error("No help available for Fcommand '" +
-                        fcommand.metadata.description + "' + (" + guid + ").");
+                        fcommand.metadata.description + "' (" + guid + ").");
 
                 Help.showFcommandHelp(guid);
                 break;
