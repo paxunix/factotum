@@ -249,44 +249,6 @@ FactotumBg.runBgCode = function (response) {
 };  // FactotumBg.runBgCode
 
 
-// XXX:  this is for testing only.  Preload an Fcommand so we can invoke it.
-FactotumBg.XXXcommandCache = { };      // for testing only
-
-var Util = require("./Util.js");
-var Fcommand = require("./Fcommand.js");
-
-var fetchThese = [
-    Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html")),
-    Util.fetchDocument(chrome.runtime.getURL("example/bgtest.html")),
-];
-
-fetchThese.forEach(function (p) {
-    p.then(function resolvedWith(event) {
-        var fcommand = new Fcommand(event.target.responseText, navigator.language);
-        FactotumBg.XXXcommandCache[fcommand.metadata.guid] = fcommand;
-    }).
-    catch(function rejectedWith(data) {
-        console.log("Fcommand load failure:", data);
-        chrome.notifications.create(
-            "",
-            {
-                type: "basic",
-                iconUrl: chrome.runtime.getURL("icons/md/error.png"),
-                title: "Error loading Fcommand",
-                message: data.message,
-                // XXX: showing the stack is useless inside a tiny
-                // notification.  Show the message and maybe a button
-                // for more details, that pops a window that shows the
-                // stack.
-                // Should record all failures so you can view errors from
-                // the extension menu?  Kind of like a JS console.
-            },
-            function() {}
-        );
-    });
-});
-
-
 // XXX: until FcommandManager(?) exists, want this accessible so other views
 // can access it
 window.FactotumBg = FactotumBg;
