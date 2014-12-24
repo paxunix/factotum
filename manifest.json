@@ -109,7 +109,6 @@
     "offline_enabled": false,
 
     "web_accessible_resources": [
-        "scripts/help-doc.js",
         "scripts/inject.js"
     ]
 }
