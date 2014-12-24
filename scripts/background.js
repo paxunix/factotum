@@ -4,7 +4,7 @@ var FactotumBg = require("./FactotumBg.js");
 
 
 if (1) {   // XXX:  this is for testing only.  Preload Fcommands so we can invoke them.
-FactotumBg.XXXcommandCache = { };      // for testing only
+window.XXXcommandCache = { };      // for testing only
 
 var Util = require("./Util.js");
 var Fcommand = require("./Fcommand.js");
@@ -17,7 +17,7 @@ var fetchThese = [
 fetchThese.forEach(function (p) {
     p.then(function resolvedWith(event) {
         var fcommand = new Fcommand(event.target.responseText, navigator.language);
-        FactotumBg.XXXcommandCache[fcommand.metadata.guid] = fcommand;
+        window.XXXcommandCache[fcommand.metadata.guid] = fcommand;
     }).
     catch(function rejectedWith(data) {
         console.log("Fcommand load failure:", data);

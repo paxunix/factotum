@@ -128,10 +128,10 @@ FactotumBg.dispatch = function (cmdline) {
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
     // XXX: test code only
-    for (var guid in FactotumBg.XXXcommandCache)
+    for (var guid in window.XXXcommandCache)
     {
         try {
-            var fcommand = FactotumBg.XXXcommandCache[guid];
+            var fcommand = window.XXXcommandCache[guid];
             if (fcommand.metadata.keywords.indexOf(internalOptions._[0]) === -1)
                 continue;
 
@@ -223,7 +223,7 @@ FactotumBg.responseHandler = function (response) {
 
 // Retrieve the bg code for the Fcommand and run it with the given data.
 FactotumBg.runBgCode = function (response) {
-    if (!(response.guid in FactotumBg.XXXcommandCache))
+    if (!(response.guid in window.XXXcommandCache))
         return;
 
     try {
@@ -234,7 +234,7 @@ FactotumBg.runBgCode = function (response) {
         // work, since that's the context in which the code is being run).
         var bgFunction = new Function("data",
             (response.internalOptions.bgdebug ? "debugger;\n" : "") +
-                FactotumBg.XXXcommandCache[response.guid].bgCodeString);
+                window.XXXcommandCache[response.guid].bgCodeString);
 
         // Run the Fcommand's bgCode
         bgFunction(response.data);
@@ -248,10 +248,6 @@ FactotumBg.runBgCode = function (response) {
     // XXX: test me
 };  // FactotumBg.runBgCode
 
-
-// XXX: until FcommandManager(?) exists, want this accessible so other views
-// can access it
-window.FactotumBg = FactotumBg;
 
 return FactotumBg;
 
