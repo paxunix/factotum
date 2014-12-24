@@ -1,4 +1,8 @@
 - <title> needs to be extracted into metadata
+    - refactor metadata handling in general
+    - no distinction between data from <meta> tags and other data extracted
+      from the Fcommand document
+    - put it all in an extractedData member on the Fcommand
 
 - investigate how to catch and surface errors when an Fcommand does
   something forbidden by the active page's CSP.
