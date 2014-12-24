@@ -26,6 +26,27 @@ CONTENT_SCRIPTS := scripts/Util.js \
                    scripts/ContentScript.js \
                    scripts/content.js
 
+# If adding/removing a test file, update this list:
+#	browserify -t debowerify test/spec/*.js --list | sed -e 's,'$PWD'/,,' -e '/^\//d'
+# We don't do it on each makefile invocation because it's time-consuming.
+TEST_SCRIPTS := test/spec/spec-Util.js \
+				scripts/FcommandManager.js \
+				test/spec/spec-FcommandManager.js \
+				scripts/GetOpt.js \
+				test/spec/spec-GetOpt.js \
+				scripts/Util.js \
+				test/spec/spec-inject.js \
+				scripts/ShellParse.js \
+				test/spec/spec-ShellParse.js \
+				scripts/ContentScript.js \
+				test/spec/spec-ContentScript.js \
+				scripts/Help.js \
+				scripts/FactotumBg.js \
+				test/spec/spec-FactotumBg.js \
+				bower_components/node-semver/semver.js \
+				scripts/Fcommand.js \
+				test/spec/spec-Fcommand.js
+
 
 all: build
 
@@ -39,7 +60,7 @@ build/content.js: $(CONTENT_SCRIPTS)
 	mkdir -p $(OUTDIR)
 	$(TOOL) $(_DEBUG) -t debowerify $(lastword $^) -o $@ $(DISOWN)
 
-build/test.js: $(wildcard test/spec/*.js)
+build/test.js: $(TEST_SCRIPTS)
 	mkdir -p $(OUTDIR)
 	$(TOOL) $(_DEBUG) -t debowerify $^ -o $@ $(DISOWN)
 
