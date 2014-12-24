@@ -182,19 +182,27 @@ It must be a <template> with an ID of "bgCode".
     comprise the body of the function executed in the background page when
     the Fcommand calls onSuccess().
 
-    Since the code becomes the body of a function, you can use arguments[0]
-    to get at the argument that was passed in the call to onSuccess() from
-    with the earlier Fcommand code.
+    The code becomes the body of a function and is passed a single argument
+    'data' of the form:
+      {
+          fcommandDocument: HTMLDocument,
+          cmdline: object,
+      }
+
+    fcommandDocument is the HTML document of the Fcommand itself.
+
+    cmdline is the parsed command line, based on the option specification
+    given in the Fcommand's 'getopt' template.
   -->
 <script>
-console.log("Running in bg with:", arguments);
+console.log("Running in bg with:", data);
 chrome.notifications.create(
     "",
     {
         type: "basic",
         iconUrl: chrome.runtime.getURL("icons/md/info.png"),
         title: "Loaded jQuery",
-        message: "Version " + arguments[0].jqueryVersion,
+        message: "Version " + data.jqueryVersion,
     },
     function() {}
 );
