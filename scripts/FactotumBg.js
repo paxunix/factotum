@@ -5,6 +5,7 @@ module.exports = (function() {
 var ShellParse = require("./ShellParse.js");
 var GetOpt = require("./GetOpt.js");
 var Help = require("./Help.js");
+var Fcommand = require("./Fcommand.js");
 
 var FactotumBg = { };
 
