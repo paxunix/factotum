@@ -1,3 +1,5 @@
+"use strict";
+
 describe("Fcommand", function () {
 
 var lang = navigator.language || "en-us";

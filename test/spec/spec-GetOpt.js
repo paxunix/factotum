@@ -1,3 +1,5 @@
+"use strict";
+
 describe("GetOpt", function () {
 
 var GetOpt = require("../../scripts/GetOpt.js");

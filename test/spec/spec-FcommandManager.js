@@ -1,3 +1,5 @@
+"use strict";
+
 describe("FcommandManager", function() {
 
 var FcommandManager = require("../../scripts/FcommandManager.js");

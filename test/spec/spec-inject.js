@@ -1,3 +1,5 @@
+"use strict";
+
 describe("inject", function() {
 
 var Util = require("../../scripts/Util.js");
