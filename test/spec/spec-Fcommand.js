@@ -6,7 +6,48 @@ var lang = navigator.language || "en-us";
 var Fcommand = require("../../scripts/Fcommand.js");
 
 
-describe("_extractMetadata", function() {
+describe("_getMetadataFieldString", function() {
+
+    function buildDocString(field, value)
+    {
+        return [
+            '<head>',
+            '<meta name="', field, '" content="', value, '">',
+            '</head>'
+        ].join('');
+    }
+
+    it("returns a language-specific meta field's value trimmed of whitespace", function() {
+        var dom = Fcommand._parseDomFromString(buildDocString("test", " \n v a l u e \t "));
+
+        // to presume it is doing lang-specific lookup
+        spyOn(Fcommand, "_getFromLangSelector").and.callThrough();
+
+        expect(Fcommand._getMetadataFieldString("test", dom, lang)).toEqual("v a l u e");
+        expect(Fcommand._getFromLangSelector).toHaveBeenCalled();
+    });
+
+    it("returns null if the meta field isn't found", function() {
+        var dom = Fcommand._parseDomFromString("no meta document");
+
+        expect(Fcommand._getMetadataFieldString("test", dom, lang)).toBe(null);
+    });
+
+    it("returns empty string if the meta field is only whitespace", function() {
+        var dom = Fcommand._parseDomFromString(buildDocString("test", " \n \t "));
+
+        expect(Fcommand._getMetadataFieldString("test", dom, lang)).toEqual("");
+    });
+
+    it("returns empty string if the meta field is empty", function() {
+        var dom = Fcommand._parseDomFromString(buildDocString("test", ""));
+
+        expect(Fcommand._getMetadataFieldString("test", dom, lang)).toEqual("");
+    });
+});
+
+
+describe("_extractData", function() {
 
 
     it("throws if input document is invalid", function() {

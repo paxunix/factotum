@@ -31,6 +31,29 @@ function Fcommand(documentString, language) {
 
 
 /**
+ * Returns the language-specific string value for a given field in head.meta
+ * within the Fcommand document.
+ * @param {String} field - Field to retrieve
+ * @param {HTMLDocument} document - The Fcommand document.
+ * @param {String} lang - BCP47 language string
+ * @return String The value for field, or null if it doesn't exist.  Any
+ * value has leading and trailing whitespace removed.
+ */
+Fcommand._getMetadataFieldString = function (field, document, lang)
+{
+    var value = (Fcommand._getFromLangSelector(document,
+        "head meta[name='" + field + "']", lang) || {}).content;
+
+    if (typeof(value) !== "undefined")
+        value = value.replace(/^\s+/, "").replace(/\s+$/, "");
+    else
+        value = null;
+
+    return value;
+}   // Fcommand._getMetadataFieldString
+
+
+/**
  * Return one HTML object for the given selector, preferring elements with
  * the given language attribute and falling back as necessary.
  * @param {HTMLDocument} document - HTML document to search
