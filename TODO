@@ -1,5 +1,8 @@
+- <title> needs to be extracted into metadata
+
 - investigate how to catch and surface errors when an Fcommand does
   something forbidden by the active page's CSP.
+    - should provide mechanism to override CSP by intercepting requests?
 
 - record all errors passed back to bg from Fcommands and present them from a
   menu option
