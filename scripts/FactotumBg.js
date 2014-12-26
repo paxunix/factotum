@@ -225,8 +225,8 @@ FactotumBg.responseHandler = function (response) {
 
 
 // Retrieve the bg code for the Fcommand and run it with the given data.
-FactotumBg.runBgCode = function (response) {
-    if (!(response.guid in window.XXXcommandCache))
+FactotumBg.runBgCode = function (data) {
+    if (!(data.guid in window.XXXcommandCache))
         return;
 
     try {
@@ -236,16 +236,16 @@ FactotumBg.runBgCode = function (response) {
         // Tools must be open for Factotum's background page for this to
         // work, since that's the context in which the code is being run).
         var bgFunction = new Function("data",
-            (response.internalOptions.bgdebug ? "debugger;\n" : "") +
-                window.XXXcommandCache[response.guid].extractedData.bgCodeString);
+            (data.internalOptions.bgdebug ? "debugger;\n" : "") +
+                window.XXXcommandCache[data.guid].extractedData.bgCodeString);
 
         // Run the Fcommand's bgCode
-        bgFunction(response.data);
+        bgFunction(data.data);
     }
 
     catch (e) {
         // XXX:  surface error to user
-        console.log("Fcommand '" + response.guid + "' error: ", e);
+        console.log("Fcommand '" + data.guid + "' error: ", e);
     }
 
     // XXX: test me
