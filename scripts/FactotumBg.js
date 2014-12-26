@@ -56,26 +56,12 @@ FactotumBg.getOmniboxDescription = function(opts) {
 
 // Listener for Omnibox changes
 FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
+    if (text === "")
+        return;
+
     // If the current tab's URL is an internal one, Fcommands won't work.  Show
     // an omnibox suggestion to indicate that.
     chrome.tabs.query({ active: true }, function (tabs) {
-
-
-    // XXX:  it is possible for some Fcommands to run (e.g. those that can run
-    // fine in the background page).  For now, disallow them all when run
-    // on an internal Chrome page).
-    // XXX:  instead, only show Fcommands flagged as running from bg
-    if (tabs[0].url.search(/^(chrome|about)/) !== -1)
-    {
-        chrome.omnibox.setDefaultSuggestion({
-            description: "<match>Factotum commands cannot be run from Chrome pages.</match>"
-        });
-
-        return;
-    }
-
-    if (text === "")
-        return;
 
     // Set the default omnibox suggestion based on what's entered so far.
     // To support internal options as the first word, consider the entire
@@ -179,7 +165,15 @@ FactotumBg.dispatch = function (cmdline) {
 
             // Ensure everything from this point happens for the current tab.
             chrome.tabs.query({ active: true }, function (tabs) {
-                console.log("XXX Tab:", tabs[0]);
+                // If the current page is internal, it can't run a "page"
+                // context Fcommand.
+                if (fcommand.extractedData.context !== "bg" &&
+                    tabs[0].url.search(/^(chrome|about)/) !== -1)
+                {
+                    console.log("Fcommand '" + fcommand.extractedData.title + "' cannot run on a browser page.");
+                    return;
+                }
+
                 chrome.tabs.sendMessage(tabs[0].id, request);
             });
         }
@@ -188,6 +182,9 @@ FactotumBg.dispatch = function (cmdline) {
             // XXX: surface error to user
             console.log("Fcommand error: ", e);
         }
+
+        // Only execute on Fcommand for what was typed.
+        break;
     }
 
     // XXX: some feedback if no matching Fcommand found for entered cmdline?
