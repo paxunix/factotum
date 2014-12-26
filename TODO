@@ -6,14 +6,6 @@
   menu option
     - use a ring buffer?
 
-- could listen for omnibox event onInputStarted and show the info that
-  commands can't be run on internal pages
-    - however, this only matters if they're running a non-bg fcommand, so
-      you can't know this when input has started, only once the set of
-      possible fcommands is known
-    - onInputEntered's callback specifies if the tab is current, new fg or
-      new bg;  that info should be available to the Fcommand/bg script
-
 - would be cool to flag an fcommand as taking no parameters and being able
   to be run from the context menu.  Then we can populate the context menu
   with those Fcommands and when you click one, it runs it as if you had
