@@ -140,7 +140,7 @@ FactotumBg.dispatch = function (cmdline) {
             {
                 if (fcommand.extractedData.helpMarkup === null)
                     throw Error("No help available for Fcommand '" +
-                        fcommand.extractedData.description + "' (" + guid + ").");
+                        fcommand.extractedData.title + "' (" + guid + ").");
 
                 Help.showFcommandHelp(guid);
                 break;
@@ -167,10 +167,11 @@ FactotumBg.dispatch = function (cmdline) {
                 break;
             }
 
+            // XXX: build this in a function so we can test it to be sure
+            // the content script receives what we expect
             var request = {
                 documentString: fcommand.documentString,
-                                //XXX: needs title, not description
-                description: fcommand.extractedData.description,
+                title: fcommand.extractedData.title,
                 guid: fcommand.extractedData.guid,
                 cmdline: opts,
                 internalOptions: internalOptions,

@@ -64,7 +64,7 @@ ContentScript.getLoadImportPromise = function (obj)
     return new Promise(function (resolve, reject) {
         if (ContentScript.Cache.get(obj.request.guid))
         {
-            obj.error = "Fcommand '" + obj.request.description +
+            obj.error = "Fcommand '" + obj.request.title +
                 "' (" + obj.request.guid + ") is still running in this tab.";
             reject(obj);
 
