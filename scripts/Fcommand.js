@@ -15,14 +15,8 @@ module.exports = (function() {
 function Fcommand(documentString, language) {
     this.documentString = documentString;
 
-    var fcommandDoc = Fcommand._parseDomFromString(this.documentString);
-    this.metadata = Fcommand._extractMetadata(fcommandDoc, language);
-    Fcommand._validateMetadata(this.metadata);
-
-    this.optspec = Fcommand._extractOptSpec(fcommandDoc, language) || {};
-    this.bgCodeString = Fcommand._extractBgCodeString(fcommandDoc, language);
-
-    this.helpMarkup = Fcommand._extractHelpMarkup(fcommandDoc, language);
+    this.extractedData = Fcommand._extractData(this.documentString, language);
+    Fcommand._validateData(this.extractedData);
 
     return this;
 
@@ -41,16 +35,152 @@ function Fcommand(documentString, language) {
  */
 Fcommand._getMetadataFieldString = function (field, document, lang)
 {
-    var value = (Fcommand._getFromLangSelector(document,
-        "head meta[name='" + field + "']", lang) || {}).content;
+    var value = Fcommand._getSelectorContent("head meta[name='" + field + "']", document, lang);
 
-    if (typeof(value) !== "undefined")
+    if (value !== null)
         value = value.replace(/^\s+/, "").replace(/\s+$/, "");
-    else
-        value = null;
 
     return value;
 }   // Fcommand._getMetadataFieldString
+
+
+/**
+ * Returns the content for a given field based on the document selector.
+ * @param {String} selector - Selector (suitable for document.querySelector)
+ * @param {HTMLDocument} document - The Fcommand document.
+ * @param {String} lang - BCP47 language string
+ * @return String The value for field, or null if it doesn't exist.
+ */
+Fcommand._getSelectorContent = function (selector, document, lang)
+{
+    var value = (Fcommand._getFromLangSelector(document, selector, lang) || {}).content;
+
+    return (typeof(value) !== "undefined" ? value : null);
+}   // Fcommand._getSelectorContent
+
+
+/**
+ * Build a data extractor object.  Each key knows how to retrieve the value
+ * of the key field name from the Fcommand document.
+ * @param {HTMLDocument} document - The Fcommand document.
+ * @param {String} lang - BCP47 language string
+ * @returns Object Maps Fcommand field names to objects with functions that
+ * retrieve data for that field.  Each extract function takes an
+ * HTMLDocument and a language string.
+ */
+Fcommand._getDataExtractor = function(document, lang)
+{
+    function getMetaFieldExtractor(field)
+    {
+        return function (document, lang) {
+            return Fcommand._getMetadataFieldString(field, document, lang);
+        };
+    }
+
+    return {
+        author: getMetaFieldExtractor("author"),
+        bgCodeString: Fcommand._extractBgCodeString,
+        context: getMetaFieldExtractor("context"),
+        description: getMetaFieldExtractor("description"),
+        downloadUrl: getMetaFieldExtractor("downloadUrl"),
+        guid: getMetaFieldExtractor("guid"),
+        helpMarkup: Fcommand._extractHelpMarkup,
+        icon: function (document, lang) {
+            var icon = Fcommand._getFromLangSelector(document, "head link[rel=icon]", lang);
+            if (icon !== null)
+                icon = icon.getAttribute("href");
+
+            return icon;
+        },
+        keywords: function (document, lang) {
+            var keywords = Fcommand._getMetadataFieldString("keywords", document, lang);
+
+            // Keywords is a comma- or space-delimited list of words
+            if (keywords !== null)
+            {
+                keywords = keywords.
+                    split(/[,\s]+/).
+                    filter(function(el) {
+                        return (el !== "" && el !== " " && el !== ",")
+                    })
+            }
+            else
+                keywords = [];
+
+            return keywords;
+        },
+        optspec: Fcommand._extractOptSpec,
+        title: function (document, lang) {
+            var title = Fcommand._getFromLangSelector(document, "head title", lang);
+            if (title !== null)
+                title = title.textContent;
+
+            return title;
+        },
+        updateUrl: getMetaFieldExtractor("updateUrl"),
+        version: getMetaFieldExtractor("version"),
+    };
+}   // Fcommand._getDataExtractor
+
+
+/**
+ * Build a data validator object.  Each key knows how to validate the value
+ * of the key field name from the Fcommand document.
+ * @param {HTMLDocument} document - The Fcommand document.
+ * @param {String} lang - BCP47 language string
+ * @returns Object Maps Fcommand field names to objects with functions that
+ * validate the data for that field.  Validate functions take the value to
+ * validate.  Data being validated is expected to have been extracted by the
+ * extraction functions.  Fields with no validation function don't get
+ * validated (duh).
+ */
+Fcommand._getDataValidator = function()
+{
+    function getNullChecker(field)
+    {
+        return function throwIfNull(value) {
+            if (value === null)
+                throw Error("Fcommand field '" + field + "' is required.");
+        };
+    }
+
+    return {
+        author: getNullChecker("author"),
+        description: getNullChecker("description"),
+        guid: getNullChecker("guid"),
+        keywords: function (value) {
+            if (value.length === 0)
+                throw Error("Fcommand field 'keywords' must have at least one keyword");
+        },
+        title: getNullChecker("title"),
+        version: function (value) {
+            if (semver.valid(value) === null)
+                throw Error("Fcommand field 'version'='" + value + "' is not semver-compliant");
+        },
+    };
+}   // Fcommand._getDataValidator
+
+
+/**
+ * Retrieve Fcommand data from the import document.
+ * @param {String} documentString - Fcommand document in string form
+ * @param {String} lang - BCP47 language string
+ * @returns {Object} Retrieved values for every key (field) specified in
+ * _getDataExtractor.
+ */
+Fcommand._extractData = function (documentString, lang)
+{
+    var dom = Fcommand._parseDomFromString(documentString);
+    var extractor = Fcommand._getDataExtractor(dom, lang);
+    var extractData = {};
+
+    for (var field in extractor)
+    {
+        extractData[field] = extractor[field](dom, lang);
+    }
+
+    return extractData;
+}   // Fcommand._extractData
 
 
 /**
@@ -71,6 +201,7 @@ Fcommand._getFromLangSelector = function (document, selector, lang)
     for (var lidx = 0; lidx < langList.length; ++lidx)
     {
         //for (var el of elements)      XXX: won't work in Chrome yet: https://code.google.com/p/chromium/issues/detail?id=401699
+        // XXX: also doesn't work with browserify
         for (var i = 0; i < elements.length; ++i)
         {
             if (langList[lidx] === elements[i].lang.toLowerCase())
@@ -80,27 +211,6 @@ Fcommand._getFromLangSelector = function (document, selector, lang)
 
     return null;
 };   // Fcommand._getFromLangSelector
-
-
-Fcommand._supportedStringMetaFields = [
-    "author",
-    "description",
-    "guid",
-    "keywords",
-    "downloadURL",
-    "updateURL",
-    "version",
-    "context",
-];
-
-
-Fcommand._requiredFields = [
-    "author",
-    "description",
-    "guid",
-    "keywords",
-    "version",
-];
 
 
 /**
@@ -118,60 +228,32 @@ Fcommand._parseDomFromString = function (documentString)
 
 
 /**
- * Retrieve the Fcommand metadata.
- * @param {Object} document - HTML document object specifying the Fcommand
- * @param {String} lang - extracts metadata for this BCP47 language string
- * @returns {Object} Metadata for the Fcommand.  Fields that don't exist in
- * the document get a value of undefined.
- */
-Fcommand._extractMetadata = function (document, lang)
-{
-    var data = {};
-
-    Fcommand._supportedStringMetaFields.forEach(function (el) {
-        data[el] = (Fcommand._getFromLangSelector(document, "head meta[name=" + el + "]", lang) || {}).content
-    });
-
-    var el = Fcommand._getFromLangSelector(document, "head link[rel=icon]", lang);
-    if (el !== null)
-        data.icon = el.getAttribute("href");
-    else
-        data.icon = undefined;
-
-    // Keywords is a comma- or space-delimited list of words
-    if (typeof(data.keywords) !== "undefined")
-    {
-        data.keywords = data.keywords.
-            split(/[,\s]+/).
-            filter(function(el) {
-                return (el !== "" && el !== " " && el !== ",")
-            })
-    }
-
-    return data;
-}   // Fcommand._extractMetadata
-
-
-/**
- * Validate the Fcommand metadata.
- * @param {Object} metadata - Object with metadata fields as from extractMetadata().
+ * Validate the Fcommand data.  Accumulate any errors so they can all be
+ * shown at once, rather than one at a time.
+ * @param {Object} data - Object with fields as from _extractData().
  * @throws {Error} On validation failure.
  */
-Fcommand._validateMetadata = function (metadata)
+Fcommand._validateData = function (data)
 {
-    // Required fields must be defined
-    Fcommand._requiredFields.forEach(function (f) {
-        if (typeof(metadata[f]) === "undefined")
-            throw Error("Metadata is missing required field " + f);
-    });
+    var validator = Fcommand._getDataValidator();
+    var error = "";
 
-    // Verify the version is valid
-    if (semver.valid(metadata.version) === null)
-        throw Error("Metadata version '" + metadata.version + "' is not semver-compliant");
+    for (var field in validator)
+    {
+        try {
+            validator[field](data[field]);
+        }
+        catch (e) {
+            if (error.length)
+                error += "\n";
 
-    if (metadata.keywords.length === 0)
-        throw Error("Metadata keyword field must have at least one keyword");
-}   // Fcommand._validateMetadata
+            error += e;
+        }
+    }
+
+    if (error.length)
+        throw Error(error);
+}   // Fcommand._validateData
 
 
 /**
@@ -186,7 +268,7 @@ Fcommand._extractOptSpec = function (document, lang)
     var sel = "template#getopt";
     var template = Fcommand._getFromLangSelector(document, sel, lang);
     if (!template)
-        return null;
+        return {};
 
     try {
         return JSON.parse(template.content.textContent);

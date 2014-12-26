@@ -17,7 +17,7 @@ var fetchThese = [
 fetchThese.forEach(function (p) {
     p.then(function resolvedWith(event) {
         var fcommand = new Fcommand(event.target.responseText, navigator.language);
-        window.XXXcommandCache[fcommand.metadata.guid] = fcommand;
+        window.XXXcommandCache[fcommand.extractedData.guid] = fcommand;
     }).
     catch(function rejectedWith(data) {
         console.log("Fcommand load failure:", data);

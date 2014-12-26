@@ -5,20 +5,29 @@ describe("Fcommand", function () {
 var lang = navigator.language || "en-us";
 var Fcommand = require("../../scripts/Fcommand.js");
 
+function buildMetaTag(field, value, lang)
+{
+    return [
+        '<meta name="', field, '" content="', value, '" ',
+            (typeof(lang) !== "undefined" ? 'lang="' + lang + '" ' : ""),
+        '>'
+    ].join('');
+}
+
+function buildOneFieldDocString(field, value)
+{
+    return [
+        '<head>',
+        '<meta name="', field, '" content="', value, '">',
+        '</head>'
+    ].join('');
+}
+
 
 describe("_getMetadataFieldString", function() {
 
-    function buildDocString(field, value)
-    {
-        return [
-            '<head>',
-            '<meta name="', field, '" content="', value, '">',
-            '</head>'
-        ].join('');
-    }
-
     it("returns a language-specific meta field's value trimmed of whitespace", function() {
-        var dom = Fcommand._parseDomFromString(buildDocString("test", " \n v a l u e \t "));
+        var dom = Fcommand._parseDomFromString(buildOneFieldDocString("test", " \n v a l u e \t "));
 
         // to presume it is doing lang-specific lookup
         spyOn(Fcommand, "_getFromLangSelector").and.callThrough();
@@ -34,13 +43,13 @@ describe("_getMetadataFieldString", function() {
     });
 
     it("returns empty string if the meta field is only whitespace", function() {
-        var dom = Fcommand._parseDomFromString(buildDocString("test", " \n \t "));
+        var dom = Fcommand._parseDomFromString(buildOneFieldDocString("test", " \n \t "));
 
         expect(Fcommand._getMetadataFieldString("test", dom, lang)).toEqual("");
     });
 
     it("returns empty string if the meta field is empty", function() {
-        var dom = Fcommand._parseDomFromString(buildDocString("test", ""));
+        var dom = Fcommand._parseDomFromString(buildOneFieldDocString("test", ""));
 
         expect(Fcommand._getMetadataFieldString("test", dom, lang)).toEqual("");
     });
@@ -50,156 +59,66 @@ describe("_getMetadataFieldString", function() {
 describe("_extractData", function() {
 
 
-    it("throws if input document is invalid", function() {
-        expect(function () {
-            Fcommand._extractMetadata(null, lang);
-        }).toThrowError(TypeError,
-            "Cannot read property 'querySelectorAll' of null");
-    });
-
-
-    it("returns supported data from head's meta tags", function() {
-        var docstr = '<head>';
-        for (var f = 0; f < Fcommand._supportedStringMetaFields.length; ++f)
-        {
-            var el = Fcommand._supportedStringMetaFields[f];
-            docstr += '<meta name="' + el + '" content="test '+ el + '">';
-        }
-
-        docstr += '<link rel="icon" href="test icon url">' +
-            '</head>';
-
-        var doc = (new DOMParser).parseFromString(docstr, "text/html");
-
-        expect(Fcommand._extractMetadata(doc, lang)).toEqual( {
-            author: "test author",
-            description: "test description",
-            guid: "test guid",
-            keywords: [ "test", "keywords" ],
-            downloadURL: "test downloadURL",
-            updateURL: "test updateURL",
-            version: "test version",
-            context: "test context",
-            icon: "test icon url"
-        });
-    });
-
-
-    it("returns missing metadata fields as undefined", function() {
-        var doc = (new DOMParser).
-            parseFromString('<head></head>', "text/html");
-
-        expect(Fcommand._extractMetadata(doc, lang)).toEqual({
-            author: undefined,
-            description: undefined,
-            guid: undefined,
-            keywords: undefined,
-            downloadURL: undefined,
-            updateURL: undefined,
-            version: undefined,
-            context: undefined,
-            icon: undefined
+    it("returns null or empty objects for any fields not found in Fcommand document", function() {
+        expect(Fcommand._extractData("", lang)).toEqual({
+            author: null,
+            bgCodeString: null,
+            context: null,
+            description: null,
+            downloadUrl: null,
+            guid: null,
+            helpMarkup: null,
+            icon: null,
+            keywords: [],
+            optspec: {},
+            title: null,
+            updateUrl: null,
+            version: null,
         });
     });
 
 
     it("parses keywords delimited by ',' and disregarding whitespace", function() {
-        var docstr = '<head>';
-        for (var f = 0; f < Fcommand._requiredFields.length; ++f)
-        {
-            var el = Fcommand._requiredFields[f];
-            if (el === "keywords")
-                docstr += '<meta name="' + el + '" content=" , , k1 , ,, k2 , , ">';
-            else if (el === "version")
-                docstr += '<meta name="' + el + '" content="1.2.3">';
-            else
-                docstr += '<meta name="' + el + '" content="test '+ el + '">';
-        }
-
-        docstr += "</head>";
-
-        var doc = (new DOMParser).parseFromString(docstr, "text/html");
-
-        expect(Fcommand._extractMetadata(doc, lang)).toEqual({
-            author: "test author",
-            description: "test description",
-            guid: "test guid",
-            keywords: [ "k1", "k2" ],
-            version: "1.2.3",
-            downloadURL: undefined,
-            updateURL: undefined,
-            context: undefined,
-            icon: undefined
-        });
+        var doc = buildOneFieldDocString("keywords", " , \n , k1 , ,, k2 , \t , ");
+        expect(Fcommand._extractData(doc, lang).keywords).toEqual([ "k1", "k2" ]);
     });
 
+    // XXX: tests for other fields
 
-}); // _extractMetadata
-
-
-describe("_validateMetadata", function() {
+}); // _extractData
 
 
-    it("verifies required fields have a defined value", function() {
-        var docstr = '<head>';
-        for (var f = 0; f < Fcommand._requiredFields.length; ++f)
-        {
-            var el = Fcommand._requiredFields[f];
-            var doc = (new DOMParser).parseFromString(docstr + "</head>", "text/html");
-            var meta = Fcommand._extractMetadata(doc, lang);
+describe("_validateData", function() {
 
-            expect(function () {
-                Fcommand._validateMetadata(meta);
-            }).toThrowError("Metadata is missing required field " + el);
-
-            docstr += '<meta name="' + el + '" content="test '+ el + '">';
-        }
-    });
-
-
-    it("throws if version is not semver-format", function() {
-        var docstr = '<head>';
-        for (var f = 0; f< Fcommand._requiredFields.length; ++f)
-        {
-            var el = Fcommand._requiredFields[f];
-            docstr += '<meta name="' + el + '" content="test '+ el + '">';
+    it("validates required fields", function() {
+        try {
+            Fcommand._validateData({
+                author: null,
+                bgCodeString: null,
+                context: null,
+                description: null,
+                downloadUrl: null,
+                guid: null,
+                helpMarkup: null,
+                icon: null,
+                keywords: [],
+                optspec: {},
+                title: null,
+                updateUrl: null,
+                version: null,
+            });
         }
 
-        docstr += "</head>";
-
-        var doc = (new DOMParser).parseFromString(docstr, "text/html");
-        var meta = Fcommand._extractMetadata(doc, lang);
-
-        expect(function () {
-            Fcommand._validateMetadata(meta);
-        }).toThrowError("Metadata version 'test version' is not semver-compliant");
-    });
-
-
-    it("throws if a keyword string is empty", function() {
-        var docstr = '<head>';
-        for (var f = 0; f < Fcommand._requiredFields.length; ++f)
-        {
-            var el = Fcommand._requiredFields[f];
-            if (el === "keywords")
-                docstr += '<meta name="' + el + '" content="">';
-            else if (el === "version")
-                docstr += '<meta name="' + el + '" content="1.2.3">';
-            else
-                docstr += '<meta name="' + el + '" content="test '+ el + '">';
+        catch (e) {
+            expect(e).toMatch(/Fcommand field 'author' is required/);
+            expect(e).toMatch(/Fcommand field 'description' is required/);
+            expect(e).toMatch(/Fcommand field 'guid' is required/);
+            expect(e).toMatch(/Fcommand field 'keywords' must have at least one keyword/);
+            expect(e).toMatch(/Fcommand field 'title' is required/);
+            expect(e).toMatch(/Fcommand field 'version'='null' is not semver-compliant/);
         }
-
-        docstr += "</head>";
-
-        var doc = (new DOMParser).parseFromString(docstr, "text/html");
-
-        var meta = Fcommand._extractMetadata(doc, lang);
-
-        expect(function () {
-            Fcommand._validateMetadata(meta);
-        }).toThrowError("Metadata keyword field must have at least one keyword");
     });
-}); // _validateMetadata
+}); // _validateData
 
 
 describe("_extractOptSpec", function() {
@@ -213,9 +132,9 @@ describe("_extractOptSpec", function() {
     });
 
 
-    it("returns null if document has no template#getopt", function() {
+    it("returns empty object if document has no template#getopt", function() {
         var doc = (new DOMParser).parseFromString("<div></div>", "text/html");
-        expect(Fcommand._extractOptSpec(doc, lang)).toEqual(null);
+        expect(Fcommand._extractOptSpec(doc, lang)).toEqual({});
     });
 
 

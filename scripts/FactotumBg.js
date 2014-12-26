@@ -133,24 +133,24 @@ FactotumBg.dispatch = function (cmdline) {
     {
         try {
             var fcommand = window.XXXcommandCache[guid];
-            if (fcommand.metadata.keywords.indexOf(internalOptions._[0]) === -1)
+            if (fcommand.extractedData.keywords.indexOf(internalOptions._[0]) === -1)
                 continue;
 
             if (internalOptions.help)
             {
-                if (fcommand.helpMarkup === null)
+                if (fcommand.extractedData.helpMarkup === null)
                     throw Error("No help available for Fcommand '" +
-                        fcommand.metadata.description + "' (" + guid + ").");
+                        fcommand.extractedData.description + "' (" + guid + ").");
 
                 Help.showFcommandHelp(guid);
                 break;
             }
 
             // Parse the command line
-            var opts = GetOpt.getOptions(fcommand.optspec, internalOptions._);
+            var opts = GetOpt.getOptions(fcommand.extractedData.optspec, internalOptions._);
 
             // If the Fcommand is bg-only, invoke it now.
-            if (fcommand.metadata.context === "bg")
+            if (fcommand.extractedData.context === "bg")
             {
                 // Set up a fake response and invoke the bg code as though
                 // the response were sent from the content script.
@@ -169,8 +169,9 @@ FactotumBg.dispatch = function (cmdline) {
 
             var request = {
                 documentString: fcommand.documentString,
-                description: fcommand.metadata.description,
-                guid: fcommand.metadata.guid,
+                                //XXX: needs title, not description
+                description: fcommand.extractedData.description,
+                guid: fcommand.extractedData.guid,
                 cmdline: opts,
                 internalOptions: internalOptions,
             };
@@ -235,7 +236,7 @@ FactotumBg.runBgCode = function (response) {
         // work, since that's the context in which the code is being run).
         var bgFunction = new Function("data",
             (response.internalOptions.bgdebug ? "debugger;\n" : "") +
-                window.XXXcommandCache[response.guid].bgCodeString);
+                window.XXXcommandCache[response.guid].extractedData.bgCodeString);
 
         // Run the Fcommand's bgCode
         bgFunction(response.data);
