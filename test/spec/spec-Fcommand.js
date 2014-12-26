@@ -2,7 +2,7 @@
 
 describe("Fcommand", function () {
 
-var lang = navigator.language || "en-us";
+var lang = "en-us";
 var Fcommand = require("../../scripts/Fcommand.js");
 
 function buildMetaTag(field, value, lang)

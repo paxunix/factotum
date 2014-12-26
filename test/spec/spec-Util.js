@@ -3,7 +3,7 @@
 describe("Util", function() {
 
 
-var lang = navigator.language || "en-us";
+var lang = "en-us";
 var Util = require("../../scripts/Util.js");
 
 
