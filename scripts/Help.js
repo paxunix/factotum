@@ -6,7 +6,8 @@ var Help = {};
 
 /**
  * Popup help for the given Fcommand.
- * @param {Dialog} dialog - HTML dialog element that contains the markup to
+ * @param {String} fcommandGuid - The guid for the Fcommand whose help
+ * should be shown.
  * show.
  */
 Help.showFcommandHelp = function (fcommandGuid)
