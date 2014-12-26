@@ -57,43 +57,4 @@ describe("createImportLink", function() {
 }); // createImportLink
 
 
-describe("getCodeString", function() {
-
-    it("returns an evaluateable code string that calls a function with its arguments", function() {
-        var f = function (a, b) { return a+b; };
-        expect(Util.getCodeString([f, 1, 2])).toBe("return (\nfunction (a, b) { return a+b; }\n)(1,2);");
-    });
-
-
-    it("stringifies the arguments", function() {
-        var f = function () { };
-        expect(Util.getCodeString([f, { a: [ 1, 2 ] }])).toBe('return (\nfunction () { }\n)({"a":[1,2]});');
-    });
-
-
-    it("with no given additional arguments allows any arguments", function() {
-        var f = function () { };
-        expect(Util.getCodeString([f])).toBe("return (\nfunction () { }\n).apply(this, arguments);");
-    });
-
-
-    it("with no arguments returns null", function() {
-        expect(Util.getCodeString()).toBeNull();
-    });
-
-
-    it("with a null argument returns null", function() {
-        expect(Util.getCodeString(null)).toBeNull();
-    });
-
-
-    it("supports boolean opts.debug to inject debugger directive into returned code string", function() {
-        var f = function () { };
-        expect(Util.getCodeString([f],{ debug: true })).toBe('debugger;\nreturn (\nfunction () { }\n).apply(this, arguments);');
-    });
-
-
-}); // getCodeString
-
-
 }); // Util

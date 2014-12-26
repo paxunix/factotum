@@ -67,49 +67,6 @@ Util.createImportLink = function (parentDocument, opts)
 }   // Util.createImportLink
 
 
-/**
- * Convert an array of function object and list of arguments into a string
- * that invokes the function with those arguments.
- * @param {Array} args - [ functionObject, arg1, arg2, ... ].  Note that the
- *      arguments can be any value for which JSON.parse(JSON.stringify(arg))
- *      returns the original argument.  functionObject can use named
- *      arguments.
- *      If args contains only functionObject, the resulting string is
- *      constructed so that all arguments passed into the evaluated function
- *      are preserved.
- *  @param {Object} opts - options controlling the code string generation.
- *      Possible keys:
- *          debug:  Boolean - if true, "debugger" is injected at the start
- *              of the Fcommand, so the Fcommand code can more easily be
- *              debugged.  NOTE:  the user must have devtools open for the
- *              debugger statement to have any effect.
- * @return {String} Evaluatable string invoking func with arguments.
- */
-Util.getCodeString = function (arr, opts)
-{
-    if (typeof(arr) === "undefined" || arr === null)
-        return null;
-
-    opts = opts || {};
-
-    var code =
-        (opts.debug ? 'debugger;\n' : "") +
-        "return (\n" +
-        arr.shift().toString() +
-        "\n)";
-
-    // append comma-separated list of JSON-ified arguments
-    if (arr.length > 0)
-        code += "(" + arr.map(function (el) {
-                return JSON.stringify(el);
-            }).join(",") + ");";
-    else
-        code += ".apply(this, arguments);"
-
-    return code;
-}   // Util.getCodeString
-
-
 /*
  * Creates an object containing data from the Fcommand document suitable
  * for storage.
