@@ -247,8 +247,6 @@ FactotumBg.runBgCode = function (data) {
         // XXX:  surface error to user
         console.log("Fcommand '" + data.guid + "' error: ", e);
     }
-
-    // XXX: test me
 };  // FactotumBg.runBgCode
 
 
