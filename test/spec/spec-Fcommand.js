@@ -333,6 +333,7 @@ describe("constructor", function() {
     it("throws if Fcommand document fails validation", function() {
         try {
             var fcommand = new Fcommand("", lang);
+            throw "This should not happen";
         }
         catch (e) {
             expect(e).toMatch(/Fcommand field 'author' is required/);
