@@ -277,8 +277,74 @@ describe("_getFromLangSelector", function() {
 }); // _getFromLangSelector
 
 
+describe("constructor", function() {
+    var doc = [
+        '<head>',
+        '<title>test title</title>',
+        '<meta name="author" content="test author">',
+        '<meta name="description" content="test description">',
+        '<meta name="description" lang="fr" content="french test description">',
+        '<meta name="guid" content="test guid">',
+        '<meta name="keywords" content="testkey1, testkey2">',
+        '<meta name="downloadUrl" content="test download url">',
+        '<meta name="updateUrl" content="test update url">',
+        '<meta name="version" content="0.0.1">',
+        '<meta name="context" content="page">',
+        '<link rel="icon" type="image/png" href="test icon url">',
+        '</head>',
+        '<body>',
+        '<template id="help" lang="en">',
+        'help content <!-- not ignored comment -->',
+        '</template>',
+        '<template id="getopt">',
+        '<!-- ignored comment and script tag-->',
+        '<script>',
+        '{ "opt": { "type": "value", "default": "def" } }',
+        '</script>',
+        '</template>',
+        '<template id="bgCode">',
+        '<!-- ignored comment and script tag--><script>return "in bg";</script>',
+        '</template>',
+        '</body>',
+    ].join("\n");
 
-// XXX:  constructor needs tests
+    it("constructs an fcommand object from a valid Fcommand document", function() {
+        var fcommand = new Fcommand(doc, lang);
+
+        expect(fcommand.extractedData).toEqual({
+            author: "test author",
+            bgCodeString: "\nreturn \"in bg\";\n",
+            context: "page",
+            description: "test description",
+            downloadUrl: "test download url",
+            guid: "test guid",
+            helpMarkup: "\nhelp content <!-- not ignored comment -->\n",
+            icon: "test icon url",
+            keywords: [ "testkey1", "testkey2" ],
+            optspec: { opt: { type: "value", default: "def" } },
+            title: "test title",
+            updateUrl: "test update url",
+            version: "0.0.1",
+        });
+        expect(fcommand.documentString).toEqual(doc);
+        expect(fcommand instanceof Fcommand).toBe(true);
+    });
+
+    it("throws if Fcommand document fails validation", function() {
+        try {
+            var fcommand = new Fcommand("", lang);
+        }
+        catch (e) {
+            expect(e).toMatch(/Fcommand field 'author' is required/);
+            expect(e).toMatch(/Fcommand field 'description' is required/);
+            expect(e).toMatch(/Fcommand field 'guid' is required/);
+            expect(e).toMatch(/Fcommand field 'keywords' must have at least one keyword/);
+            expect(e).toMatch(/Fcommand field 'title' is required/);
+            expect(e).toMatch(/Fcommand field 'version'='null' is not semver-compliant/);
+        }
+    });
+
+}); // constructor
 
 
 }); // Fcommand

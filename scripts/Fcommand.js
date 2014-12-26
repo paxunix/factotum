@@ -19,8 +19,6 @@ function Fcommand(documentString, language) {
     Fcommand._validateData(this.extractedData);
 
     return this;
-
-    // XXX: test me
 }   // Fcommand constructor
 
 
