@@ -99,7 +99,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
 // Return an object that has checked for help or debug options in argv.
 FactotumBg.checkInternalOptions = function (argv) {
     var opts = GetOpt.getOptions({
-        "debug": { type: "boolean", aliases: [ "fg-debug" ] },
+        "debug": { type: "boolean", aliases: [ "fg-debug", "fgdebug" ] },
         "bgdebug": { type: "boolean", aliases: [ "bg-debug" ] },
         "help": { type: "boolean" },
     }, argv);
