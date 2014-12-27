@@ -1,3 +1,8 @@
+- might be useful to have a method to log a message to the collected set of
+  errors, etc. saved in the bg page.  Something like console.log, but it
+  sends a message to bg and saves the message.  Could then use the same
+  mechanism for all errors, warnings, notifications, etc.
+
 - investigate how to catch and surface errors when an Fcommand does
   something forbidden by the active page's CSP.
     - should provide mechanism to override CSP by intercepting requests?
@@ -71,27 +76,6 @@
     - can these be edited locally???
         - do we store a diff so you could apply a patch if the Fcommand were
           updated and you wanted to keep your changes?
-
-- popup page could show the last N Fcommands and/or the most frequently used
-  Fcommands
-
-- need an option to toggle error notifications on/off?
-
-- useful to make distinction between commands that require the current
-  page's context and those that don't?
-    - e.g. if an Fcommand is only opening a new tab, there's no need for it
-      to run within the current page--it can run fine in the background page
-    - too difficult to explain to users?
-
-- fcommand's response object could have an extra field that if somehow set
-  by the Fcommand's code (and the code succeeded) would indicate the
-  extension should popup a notification with custom content.
-
-- explore using a page action instead of a browser action for Factotum,
-  since it (currently) requires a page in order to do pretty much anything.
-  It would be great if there is a way to trigger the page action popup
-  (since it's not possible to trigger it for the browser action).  Then it
-  could be used for notifications, return statuses, etc.
 
 - should supply handy notification icons so bg code can easily pop a
   notification using standard icons included in the extension (then there's
