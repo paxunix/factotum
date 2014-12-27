@@ -23,43 +23,8 @@
       don't (so you can have a set of scripts just for work that aren't
       sync'd to your home account)?  Or just handle this via chrome profiles?
 
-- create class that manages Fcommands  FcommandManager
-    - Fcommands are stored in an IndexedDB
-      - indexed on unique guid
-      - indexed on name
-    - constructor
-        - sets up objectstore and indexes
-    - addCommand
-        - saves the given Fcommand
-    - deleteCommand
-        - removes the given Fcommand
-    - getCommandsByName
-        - returns list of Fcommand objects given a name.
-
-- Fcommand datastore
-    - keywords[] : indexed
-    - guid : indexed, unique key
-    - original document string
-    - description
-    - optSpec
-    - help document string
-    - bgcode string
-    - all of the metadata fields (if showing them separately, might as well
-      make them separate fields, although it seems silly to store the
-      original document then duplicate all its data in separate fields; it's
-      not silly if you wish to allow a user to override things in the
-      Fcommand document).
-    - enabled
-    - priority: integer specifying the relative order of this Fcommand to
-      others with overlapping keywords.  Lower number == highest priority.
-      Priority is used only to determine the order of the Fcommand names in
-      the omnibox dropdown.
-        - what if you have more of the same Fcommand names than will fit in
-          the omnibox dropdown?
-
-
-----------------
-
+- what if you have more of the same Fcommand names than will fit in
+  the omnibox dropdown?
 
 - provide a management interface on the options page just for F commands
     - shows a list of commands

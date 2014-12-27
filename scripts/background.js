@@ -1,7 +1,10 @@
 "use strict";
 
 var FactotumBg = require("./FactotumBg.js");
+var FcommandManager = require("./FcommandManager.js");
 
+// XXX: during testing, to create an Fcommand on-the-fly
+window.Fcommand = require("./Fcommand.js");
 
 if (1) {   // XXX:  this is for testing only.  Preload Fcommands so we can invoke them.
 window.XXXcommandCache = { };      // for testing only
@@ -42,6 +45,7 @@ fetchThese.forEach(function (p) {
 
 }
 
+window.fcommandManager = new FcommandManager();
 
 // Register Omnibox listeners.
 chrome.omnibox.onInputEntered.addListener(FactotumBg.onOmniboxInputEntered);

@@ -7,7 +7,9 @@ module.exports = (function() {
 
 /**
  * @class Fcommand Represents a single Fcommand.
- *
+ * Note that this constructor is NOT called when Dexie instantiates an
+ * Fcommand out of storage.  It is only used when initially creating an
+ * Fcommand object.
  * @constructor
  * @param {String} documentString - HTML document defining an Fcommand.
  * @param {String} language - extracts metadata for this BCP47 language string
@@ -17,6 +19,12 @@ function Fcommand(documentString, language) {
 
     this.extractedData = Fcommand._extractData(this.documentString, language);
     Fcommand._validateData(this.extractedData);
+
+    // An Fcommand is enabled by default
+    this.enabled = true;
+
+    // And has loweset order by default
+    this.order = 0;
 
     return this;
 }   // Fcommand constructor
