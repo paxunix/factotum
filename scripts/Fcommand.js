@@ -23,7 +23,7 @@ function Fcommand(documentString, language) {
     // An Fcommand is enabled by default
     this.enabled = true;
 
-    // And has loweset order by default
+    // And has lowest order by default
     this.order = 0;
 
     // Last update check time (millis since epoch)
