@@ -10,13 +10,6 @@ var Fcommand = require("./Fcommand.js");
 var FactotumBg = { };
 
 
-// Listener for Omnibox input.
-FactotumBg.onOmniboxInputEntered = function(text) {
-
-    FactotumBg.dispatch(text);
-};  // FactotumBg.onOmniboxInputEntered
-
-
 // Return a omnibox suggestion object suitable for the default suggestion,
 // i.e. has no content because that's determined on entry.
 FactotumBg.getOmniboxDescription = function(opts) {
@@ -106,7 +99,7 @@ FactotumBg.parseCommandLine = function (text) {
 // Given a command line, figure out the Fcommand and run its function.  Once the
 // function has executed, run the response callback, passing the response from
 // the function.
-FactotumBg.dispatch = function (cmdline) {
+FactotumBg.onOmniboxInputEntered = function (cmdline) {
     // Internal option parsing examines the entire command line, not just
     // everything after the first word.  Then parse the args resulting from
     // that as the actualy command line.
@@ -173,7 +166,7 @@ FactotumBg.dispatch = function (cmdline) {
 
     // XXX: some feedback if no matching Fcommand found for entered cmdline?
     // This can be done within the omnibox.
-};  // FactotumBg.dispatch
+};  // FactotumBg.onOmniboxInputEntered
 
 
 // Called when each Fcommand has finished/failed executing.
