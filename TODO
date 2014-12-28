@@ -1,7 +1,19 @@
+- maybe a hotkey that doesn't use the omnibox at all; but then you basically
+  build your own omnibox functionality in a popup.  Then you can put
+  whatever you want in it.  With polymer, a lot of the functionality of a
+  nice look-and-feel might be "free".
+    - not sure how that would affect the notion of the "current tab" in
+      which the Fcommand would execute.
+    - it would mean there would always be a window, so that an Fcommand
+      could execute regardless of whether it was bg or page context but the
+      user happened to be on an internal page
+
 - rewrite fcommand code in load-jquery to define the body function, then
   invoke it only if Factotum.runCommand exists; otherwise, just run it.
     - this illustrates how to write an Fcommand that can stand alone and
       still run--useful for prototyping/debugging outside of Factotum
+
+- can use chrome.alarms to schedule Fcommand update checks
 
 - maybe Fcommand should also have a method to build a request to the
   content script?
