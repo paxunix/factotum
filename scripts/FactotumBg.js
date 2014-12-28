@@ -9,8 +9,6 @@ var Fcommand = require("./Fcommand.js");
 
 var FactotumBg = { };
 
-// XXX: variables in this global scope are visible to the response code
-// string.
 
 // Listener for Omnibox input.
 FactotumBg.onOmniboxInputEntered = function(text) {
