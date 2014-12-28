@@ -139,13 +139,16 @@ FactotumBg.dispatch = function (cmdline) {
             if (fcommand.extractedData.context === "bg")
             {
                 // Set up a fake response and invoke the bg code as though
-                // the response were sent from the content script.
+                // the response were sent from the content script.  Bg
+                // code will have access to the Fcommand's DOM, passed
+                // as the parameter.
                 var fcommandDoc = Fcommand._parseDomFromString(fcommand.documentString);
                 FactotumBg.runBgCode({
                     guid: guid,
                     internalOptions: internalOptions,
                     data: {
-                        document: fcommandDoc,
+                    // XXX: test that this is as expected
+                        fcommandDocument: fcommandDoc,
                         cmdline: opts,
                     }
                 });
