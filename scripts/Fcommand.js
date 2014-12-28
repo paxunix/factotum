@@ -26,6 +26,9 @@ function Fcommand(documentString, language) {
     // And has loweset order by default
     this.order = 0;
 
+    // Last update check time (millis since epoch)
+    this.lastUpdateTime = Date.now();
+
     return this;
 }   // Fcommand constructor
 

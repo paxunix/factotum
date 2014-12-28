@@ -311,22 +311,29 @@ describe("constructor", function() {
     it("constructs an fcommand object from a valid Fcommand document", function() {
         var fcommand = new Fcommand(doc, lang);
 
-        expect(fcommand.extractedData).toEqual({
-            author: "test author",
-            bgCodeString: "\nreturn \"in bg\";\n",
-            context: "page",
-            description: "test description",
-            downloadUrl: "test download url",
-            guid: "test guid",
-            helpMarkup: "\nhelp content <!-- not ignored comment -->\n",
-            icon: "test icon url",
-            keywords: [ "testkey1", "testkey2" ],
-            optspec: { opt: { type: "value", default: "def" } },
-            title: "test title",
-            updateUrl: "test update url",
-            version: "0.0.1",
+        // expect() doesn't properly compare a class instance, thus the
+        // apparent redundancy of JSON parse and stringify
+        expect(JSON.parse(JSON.stringify(fcommand))).toEqual({
+            documentString: doc,
+            enabled: true,
+            order: 0,
+            lastUpdateTime: jasmine.any(Number),
+            extractedData: {
+                author: "test author",
+                bgCodeString: "\nreturn \"in bg\";\n",
+                context: "page",
+                description: "test description",
+                downloadUrl: "test download url",
+                guid: "test guid",
+                helpMarkup: "\nhelp content <!-- not ignored comment -->\n",
+                icon: "test icon url",
+                keywords: [ "testkey1", "testkey2" ],
+                optspec: { opt: { type: "value", default: "def" } },
+                title: "test title",
+                updateUrl: "test update url",
+                version: "0.0.1",
+            },
         });
-        expect(fcommand.documentString).toEqual(doc);
         expect(fcommand instanceof Fcommand).toBe(true);
     });
 
