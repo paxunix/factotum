@@ -18,6 +18,7 @@
 
 <template id="bgCode">
 <script>
+  console.log("Running in bg with:", data);
   chrome.tabs.create({
     url: "https://www.google.com/"
   });
