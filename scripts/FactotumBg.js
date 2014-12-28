@@ -13,11 +13,6 @@ var FactotumBg = { };
 // Return a omnibox suggestion object suitable for the default suggestion,
 // i.e. has no content because that's determined on entry.
 FactotumBg.getOmniboxDescription = function(opts) {
-    // XXX: detect internal options here too and modify the suggestion based
-    // on them.  Or maybe we should always add e other suggestions:  one for
-    // bg debug, fcommand debug, and help.  That will use up all the space
-    // in the omnibox dropdown, though.  And you'll still want to support
-    // --debug and --help anyway.
     // You can do the split and parse for internal options here, then
     // generate better suggestions.  And pass the parsed data instead of
     // rejoining everything.
