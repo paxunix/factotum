@@ -1,3 +1,8 @@
+- rewrite fcommand code in load-jquery to define the body function, then
+  invoke it only if Factotum.runCommand exists; otherwise, just run it.
+    - this illustrates how to write an Fcommand that can stand alone and
+      still run--useful for prototyping/debugging outside of Factotum
+
 - maybe Fcommand should also have a method to build a request to the
   content script?
 
