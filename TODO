@@ -1,3 +1,8 @@
+- should Fcommand have a method to run its bg code?  There probably isn't
+  a good reason to put that on FactotumBg.
+    - maybe Fcommand should also have a method to build a request to the
+      content script?
+
 - might be useful to have a method to log a message to the collected set of
   errors, etc. saved in the bg page.  Something like console.log, but it
   sends a message to bg and saves the message.  Could then use the same
