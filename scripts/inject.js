@@ -60,16 +60,17 @@ Factotum.getFcommandId = function (document)
  * code.
  * @param {Function} fcommandFunc - function that is the Fcommand.  Takes
  * these parameters:
- * @property {Object} parameters - minimist command line parameters passed to the Fcommand
+ * @property {Object} opts - minimist command line parameters passed to the Fcommand
  * @property {HTMLDocument} importDoc - the import document containing the Fcommand
  * @property {Function} onSuccess - called by the Fcommand code to indicate succesful completion.  Expects on Object (containing the data to be passed to the Fcommands bg code (if any)).
  * @property {Function} onFailure - called by the Fcommand code to indicate failure.  Expects one Object (either an Error object or a string).
  */
 Factotum.runCommand = function (fcommandFunc)
 {
+    // XXX: test me
     var importDoc = document.currentScript.ownerDocument;
     var guid = Factotum.getFcommandId(importDoc);
-    var parameters = Factotum._getDataAttribute(document, guid, "fcommandArgs");
+    var opts = Factotum._getDataAttribute(document, guid, "fcommandArgs");
     var internalOptions = Factotum._getDataAttribute(document, guid, "fcommandInternalOptions");
 
     var p = new Promise(function (resolve, reject) {
@@ -77,16 +78,17 @@ Factotum.runCommand = function (fcommandFunc)
             debugger;
 
         // Call the Fcommand
-        fcommandFunc(parameters, importDoc, resolve, reject);
+        fcommandFunc(opts, importDoc, resolve, reject);
     });
 
     p.then(function (bgData) {
         Factotum._cleanup(document, guid);
 
         var data = {
-            guid: guid,
-            data: bgData,
-            internalOptions: internalOptions
+            guid: guid,     // so the bg page can find the fcommand bg code
+            data: bgData,   // passed to the bg code
+            opts: opts,     // so bg code can know the cmdline
+            internalOptions: internalOptions    // so bg code can enable debug
         };
         postMessage(data, "*");
     }).catch(function (error) {

@@ -325,6 +325,36 @@ Fcommand._extractBgCodeString = function (document, language)
 }   // Fcommand._extractBgCodeString
 
 
+/**
+ * Run the bg code for this Fcommand, passing it the given data (as 'data').
+ * @param {Object} inputData - The data to be passed to the Function.
+ * Within the function the 'data' parameter takes this form:
+ *  {
+ *      data: inputData,
+ *      opts: <command line>,
+ *      fcommandDocument: <DOM for Fcommand>,
+ *  }
+ * @param {Object} opts - Parsed Fcommand command line.
+ * @param {Object} internalOpts - Internal command line options.
+ * Requires dev tools to be open within the context where this method is
+ * called.
+ */
+Fcommand.prototype.runBgCode = function (inputData, opts, internalOpts)
+{
+    var fcommandDoc = Fcommand._parseDomFromString(this.documentString);
+    var bgFunction = new Function("data",
+        (internalOpts.bgdebug ? "debugger;\n" : "") +
+            this.extractedData.bgCodeString);
+
+    // Run the Fcommand's bgCode
+    bgFunction({
+            data: inputData,
+            opts: opts,
+            fcommandDocument: fcommandDoc,
+        });
+}   // Fcommand.prototype.runBgCode
+
+
 return Fcommand;
 
 })();   // module.exports

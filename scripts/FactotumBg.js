@@ -114,22 +114,24 @@ FactotumBg.dispatch = function (cmdline) {
     // that as the actualy command line.
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
-    // XXX: test code only
-    for (var guid in window.XXXcommandCache)
-    {
-        try {
-            var fcommand = window.XXXcommandCache[guid];
-            if (fcommand.extractedData.keywords.indexOf(internalOptions._[0]) === -1)
-                continue;
+    fcommandManager.getByPrefix(internalOptions._[0])
+        .then(function (fcommands) {
+            if (fcommands.length === 0)
+                return;
+
+            var fcommand = fcommands[0];
 
             if (internalOptions.help)
             {
                 if (fcommand.extractedData.helpMarkup === null)
+                {
+                    // XXX: surface this to user
                     throw Error("No help available for Fcommand '" +
-                        fcommand.extractedData.title + "' (" + guid + ").");
+                        fcommand.extractedData.title + "' (" + fcommand.extractedData.guid + ").");
+                }
 
-                Help.showFcommandHelp(guid);
-                break;
+                Help.showFcommandHelp(fcommand.extractedData.guid);
+                return;
             }
 
             // Parse the command line
@@ -138,22 +140,8 @@ FactotumBg.dispatch = function (cmdline) {
             // If the Fcommand is bg-only, invoke it now.
             if (fcommand.extractedData.context === "bg")
             {
-                // Set up a fake response and invoke the bg code as though
-                // the response were sent from the content script.  Bg
-                // code will have access to the Fcommand's DOM, passed
-                // as the parameter.
-                var fcommandDoc = Fcommand._parseDomFromString(fcommand.documentString);
-                FactotumBg.runBgCode({
-                    guid: guid,
-                    internalOptions: internalOptions,
-                    data: {
-                    // XXX: test that this is as expected
-                        fcommandDocument: fcommandDoc,
-                        cmdline: opts,
-                    }
-                });
-
-                break;
+                fcommand.runBgCode(undefined, opts, internalOptions);
+                return;
             }
 
             // XXX: build this in a function so we can test it to be sure
@@ -179,16 +167,11 @@ FactotumBg.dispatch = function (cmdline) {
 
                 chrome.tabs.sendMessage(tabs[0].id, request);
             });
-        }
-
-        catch (e) {
+        }).catch(function (rejectWith) {
             // XXX: surface error to user
-            console.log("Fcommand error: ", e);
-        }
+            console.log("Failed to run Fcommand: ", rejectWith);
+        });
 
-        // Only execute on Fcommand for what was typed.
-        break;
-    }
 
     // XXX: some feedback if no matching Fcommand found for entered cmdline?
     // This can be done within the omnibox.
@@ -217,35 +200,21 @@ FactotumBg.responseHandler = function (response) {
     if (response.guid && "data" in response)
     {
         console.log("Fcommand responded:", response);
-        FactotumBg.runBgCode(response);
+
+        fcommandManager.get(response.guid)
+            .then(function (fcommand) {
+                    fcommand.runBgCode(
+                        response.data,
+                        response.opts,
+                        response.internalOptions
+                    );
+                })
+            .catch(function (rej) {
+                    // XXX: surface error to user
+                    console.log("Fcommand bg code failed: ", rej);
+                });
     }
 };  // FactotumBg.responseHandler
-
-
-// Retrieve the bg code for the Fcommand and run it with the given data.
-FactotumBg.runBgCode = function (data) {
-    if (!(data.guid in window.XXXcommandCache))
-        return;
-
-    try {
-        // Create function that runs the bg code.  If bg-debugging was
-        // requested, insert a debugger statement so that the user will drop
-        // into the debugger within their recognizable code (note that Dev
-        // Tools must be open for Factotum's background page for this to
-        // work, since that's the context in which the code is being run).
-        var bgFunction = new Function("data",
-            (data.internalOptions.bgdebug ? "debugger;\n" : "") +
-                window.XXXcommandCache[data.guid].extractedData.bgCodeString);
-
-        // Run the Fcommand's bgCode
-        bgFunction(data.data);
-    }
-
-    catch (e) {
-        // XXX:  surface error to user
-        console.log("Fcommand '" + data.guid + "' error: ", e);
-    }
-};  // FactotumBg.runBgCode
 
 
 return FactotumBg;

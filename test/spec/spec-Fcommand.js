@@ -355,4 +355,100 @@ describe("constructor", function() {
 }); // constructor
 
 
+describe("runBgCode", function() {
+
+    // Minimal test Fcommand with bgCode
+    var doc = [
+        '<head>',
+        '<title>test title</title>',
+        '<meta name="author" content="test author">',
+        '<meta name="description" content="test description">',
+        '<meta name="guid" content="test guid">',
+        '<meta name="keywords" content="testkey1, testkey2">',
+        '<meta name="version" content="0.0.1">',
+        '</head>',
+        '<body>',
+        '<template id="bgCode">',
+        'window.fcommandBgSpy(data);',
+        '</template>',
+        '</body>',
+    ].join("\n");
+
+    var fcommand = new Fcommand(doc, lang);
+
+    beforeEach(function () {
+        window.fcommandBgSpy = jasmine.createSpy("fcommandBgSpy");
+    });
+
+    it("passes input data to bg code via data.data", function () {
+        var passToBg = { value: 42 };
+        fcommand.runBgCode(passToBg, {}, {});
+
+        expect(window.fcommandBgSpy).toHaveBeenCalledWith({
+                data: passToBg,
+                opts: jasmine.any(Object),
+                fcommandDocument: jasmine.any(Object),
+            });
+    });
+
+    it("passes Fcommand cmdline data to bg code via data.opts", function () {
+        var opts = { min: 10, _: [ "test", 1 ] };
+        fcommand.runBgCode({}, opts, {});
+
+        expect(window.fcommandBgSpy).toHaveBeenCalledWith({
+                data: jasmine.any(Object),
+                opts: opts,
+                fcommandDocument: jasmine.any(Object),
+            });
+    });
+
+    it("passes Fcommand DOM to bg code via data.fcommandDocument", function () {
+        fcommand.runBgCode(null, {}, {});
+
+        expect(window.fcommandBgSpy).toHaveBeenCalledWith({
+                data: null,
+                opts: jasmine.any(Object),
+                fcommandDocument: jasmine.any(HTMLDocument),
+            });
+    });
+
+    it("passes no data to the bg code function", function () {
+        fcommand.runBgCode(undefined, {}, {});
+
+        expect(window.fcommandBgSpy).toHaveBeenCalledWith({
+                data: undefined,
+                opts: jasmine.any(Object),
+                fcommandDocument: jasmine.any(HTMLDocument),
+            });
+    });
+
+    it("enables debug mode if requested", function () {
+        // This test is imperfect, since it can't catch actually dropping
+        // into the debugger.  Instead, it checks for the presence of the
+        // 'debugger' statement that was injected by runBgCode().
+        var doc = [
+            '<head>',
+            '<title>test title</title>',
+            '<meta name="author" content="test author">',
+            '<meta name="description" content="test description">',
+            '<meta name="guid" content="test guid">',
+            '<meta name="keywords" content="testkey1, testkey2">',
+            '<meta name="version" content="0.0.1">',
+            '</head>',
+            '<body>',
+            '<template id="bgCode">',
+            'window.fcommandBgSpy(arguments.callee.toString());',
+            '</template>',
+            '</body>',
+        ].join("\n");
+
+        var fcommand = new Fcommand(doc, lang);
+
+        fcommand.runBgCode(null, {}, { bgdebug: true });
+
+        expect(window.fcommandBgSpy.calls.all()[0].args).toMatch(/d\ebugger;/);
+    });
+}); // runBgCode
+
+
 }); // Fcommand
