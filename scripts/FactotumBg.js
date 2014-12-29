@@ -45,10 +45,6 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     if (text === "")
         return;
 
-    // If the current tab's URL is an internal one, Fcommands won't work.  Show
-    // an omnibox suggestion to indicate that.
-    chrome.tabs.query({ active: true }, function (tabs) {
-
     // Set the default omnibox suggestion based on what's entered so far.
     // To support internal options as the first word, consider the entire
     // command line.
@@ -64,7 +60,6 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     }];
     suggestFunc(suggestions);
 
-    });   // chrome.tabs.query
 };  // FactotumBg.onOmniboxInputChanged
 
 
