@@ -131,7 +131,7 @@ Factotum.runCommand().
    record) the error via the Factotum extension.  The object you pass
    it can be any Error object, or a string.
 */
-Factotum.runCommand(function (opts, importDoc, onSuccess, onFailure) {
+function loadJquery(opts, importDoc, onSuccess, onFailure) {
   var url = "https://code.jquery.com/jquery-" +
       opts.version +
       (opts.min ? ".min" : "") + ".js";
@@ -163,8 +163,12 @@ Factotum.runCommand(function (opts, importDoc, onSuccess, onFailure) {
   // then the content instead loaded via bgCode and injected straight into
   // the page.
   (document.head || document.documentElement).appendChild(s);
-});
+} // loadJquery
 
+if (window.Factotum && Factotum.runCommand)
+  Factotum.runCommand(loadJquery);
+else
+  throw Error("Factotum not enabled");
 </script>
 
 <!--
