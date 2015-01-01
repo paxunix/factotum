@@ -127,6 +127,9 @@ FactotumBg.onOmniboxInputEntered = function (cmdline) {
 
             // XXX: build this in a function so we can test it to be sure
             // the content script receives what we expect
+            // XXX: need to include the parameter passed to this script so
+            // that the Fcommand can know if current/new foreground/new
+            // background tab action was used to enter the command.
             var request = {
                 documentString: fcommand.documentString,
                 title: fcommand.extractedData.title,
