@@ -10,56 +10,127 @@ var Fcommand = require("./Fcommand.js");
 var FactotumBg = { };
 
 
-// Return a omnibox suggestion object suitable for the default suggestion,
-// i.e. has no content because that's determined on entry.
-FactotumBg.getOmniboxDescription = function(opts) {
-    // You can do the split and parse for internal options here, then
-    // generate better suggestions.  And pass the parsed data instead of
-    // rejoining everything.
-    // XXX: detect multiple fcommands and show them
-    // only show internal option suggestions once an unambiguous Fcommand is
-    // known
+FactotumBg.stringifyInternalOptions = function(opts) {
+    return (opts.bgdebug ? "--bg-debug" :
+        (opts.debug ? "--debug" :
+            (opts.help ? "--help" : "")));
+    // XXX: test me
+}   // FactotumBg.stringifyInternalOptions
 
-    // Show an indicator for which internal option was entered.
-    var leader = "";
-    if (opts.bgdebug)
-        leader = "[Debug-bg]";
-    else if (opts.debug)
-        leader = "[Debug]";
-    else if (opts.help)
-        leader = "[Help]";
 
-    // Command isn't known yet, so show nothing
-    if (opts._.length === 0)
-        opts._ = [ "" ];
+/**
+ * Return an omnibox suggestion description.
+ * @param {Object} cmdlineObj - command line data
+ * @property cmdlineObj.title - Fcommand title for this suggestion.
+ * @property cmdlineObj.text - the command line text as entered
+ */
+FactotumBg.getOmniboxDescription = function(cmdlineObj) {
+    if (cmdlineObj.text === "")
+        return "Enter a command and arguments";
 
-    var description = leader + " <match>" + opts._[0] + "</match>" +
-        "<dim>" + opts._.slice(1).join(" ") + "</dim>";
+    // XXX: need to escape HTML entities
+    var description =
+        (cmdlineObj.title !== "" ?
+            "<match>" + cmdlineObj.title + "</match> " :
+            "") +
+        "<dim>" + cmdlineObj.text + "</dim>";
 
     return description;
+
+    // XXX: test me
 };  // FactotumBg.getOmniboxDescription
 
 
-// Listener for Omnibox changes
+// Set the default description before any text is entered.
+// XXX: this is currently not invoked, due to
+// https://code.google.com/p/chromium/issues/detail?id=258911
+FactotumBg.onOmniboxInputStarted = function() {
+    var description = FactotumBg.getOmniboxDescription({
+            title: "",
+            text: ""
+        });
+
+    chrome.omnibox.setDefaultSuggestion({ description: description });
+};  // FactotumBg.onOmniboxInputStarted
+
+
+// Listener for Omnibox changes.
+// If no text is yet entered:
+//      - set the default suggestion to some meaningful description about
+//        what to do (e.g. "Enter a command and arguments").  There
+//        are no further suggestions at that point.
+// After each subsequent character is entered (up to the first space):
+//      - set the default suggestion to exactly what is typed (but pretty)
+//      - generate a set of additional suggestions by looking up all
+//        Fcommands with the prefix and presenting them in preferred order,
+//        with all of the arguments given.
 FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
-    if (text === "")
+    // Default suggestion is always the exact command line as entered so
+    // far.
+    var description = FactotumBg.getOmniboxDescription({
+            title: "Run Fcommand:",
+            text: text
+        });
+
+    chrome.omnibox.setDefaultSuggestion({ description: description });
+
+    // Parse the command line to extract any internal options that may be
+    // given and find the first word (the Fcommand keyword).
+    var internalOptions = FactotumBg.parseCommandLine(text);
+
+    // If no command, generate no further suggestions.
+    if (internalOptions._.length === 0)
         return;
 
-    // Set the default omnibox suggestion based on what's entered so far.
-    // To support internal options as the first word, consider the entire
-    // command line.
-    var internalOptions = FactotumBg.parseCommandLine(text);
-    var defaultDesc = FactotumBg.getOmniboxDescription(internalOptions);
-    chrome.omnibox.setDefaultSuggestion({ description: defaultDesc });
+    // Create alternate suggestions based on Fcommands whose keywords match
+    // the given Fcommand name so far.  By keeping the default suggestion to
+    // be exactly what was typed, we can dispatch to Fcommands whose full
+    // name is a prefix of another Fcommand's longer name (e.g. 'jq' versus
+    // 'jqtest').
+    fcommandManager.getByPrefix(internalOptions._[0])
+        .then(function (fcommands) {
+                var suggestions = [];
+                var internalOptionString =
+                    FactotumBg.stringifyInternalOptions(internalOptions);
 
-    // XXX: append alternate Fcommand suggestions based on first word in
-    // internalOptions._ (since that's argv without the internal options)
-    var suggestions = [{
-        content: "loadjquery",
-        description: "Load jQuery",
-    }];
-    suggestFunc(suggestions);
+                // Build up list of suggestions for matched Fcommands.
+                // Substitute the primary keyword in place of the prefix so
+                // far and preserve the rest of the command line.
+                fcommands.forEach(function (fcommand) {
+                    // Prepend a space to the suggestion so that Chrome
+                    // doesn't think it's the same as the default suggestion
+                    // and remove it from the omnibox as you type extra
+                    // non-space characters.  This seems like a bug.
+                    var cmdline = " " +
+                        fcommand.extractedData.keywords[0] + " " +
+                        (internalOptionString !== "" ?
+                            internalOptionString + " " :
+                            "") +
+                        internalOptions._.slice(1).join(" ");
 
+                    // XXX:  this does not ensure that when the command is
+                    // entered, the proper Fcommand will be invoked
+                    // (because this query will be re-run and will take the
+                    // first cmd matching the prefix, which may not be the
+                    // one that was selected).  Need to include the guid on
+                    // the command line for the suggested ones.  Could do it
+                    // with a generic fcommand "launcher" that takes an
+                    // internal option of guid
+                    suggestions.push({
+                        description: FactotumBg.getOmniboxDescription({
+                                text: cmdline,
+                                title: fcommand.extractedData.title
+                            }),
+                        content: cmdline,
+                    });
+                });
+
+                suggestFunc(suggestions);
+            })
+        .catch(function (rej) {
+                // XXX: surface to user
+                console.log("Failed to retrieve Fcommands for '" + internalOptions._[0] + "': ", rej);
+            });
 };  // FactotumBg.onOmniboxInputChanged
 
 

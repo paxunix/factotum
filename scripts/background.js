@@ -6,6 +6,10 @@ var FcommandManager = require("./FcommandManager.js");
 window.fcommandManager = new FcommandManager();
 
 // Register Omnibox listeners.
+
+// XXX: commenting out onInputStarted since it currently doesn't do what it
+// says on the box: https://code.google.com/p/chromium/issues/detail?id=258911
+//chrome.omnibox.onInputStarted.addListener(FactotumBg.onOmniboxInputStarted);
 chrome.omnibox.onInputEntered.addListener(FactotumBg.onOmniboxInputEntered);
 chrome.omnibox.onInputChanged.addListener(FactotumBg.onOmniboxInputChanged);
 

@@ -1,3 +1,22 @@
+- simplify undefined checks
+
+- maybe I'm making the omnibox handling too smart.  Maybe it shouldn't show
+  prefix matches at all and should just show what it would dispatch to based
+  on the prefix.
+    - then how to select between same-keyword Fcommands with different
+      order values?
+        - this doesn't matter.  It's not clear to the user why this
+          differentiation exists in the Omnibox.  Instead, allow the user to
+          change Fcommand keywords on different Fcommands that have the same
+          keywords.  This is akin to want to install two programs with the
+          same name--only the first one in your $PATH will be found by that
+          name, but you can use the other by its full path.
+
+- since the additional suggestions based on prefix in the omnibox can
+  include whatever string content we want, it's possible to augment the
+  content to indicat a preset suggestion was chosen and use its content
+  as-is, without a prefix match (and instead a lookup by exact keyword)
+
 - maybe a hotkey that doesn't use the omnibox at all; but then you basically
   build your own omnibox functionality in a popup.  Then you can put
   whatever you want in it.  With polymer, a lot of the functionality of a
