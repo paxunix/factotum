@@ -1,5 +1,3 @@
-- simplify undefined checks
-
 - maybe I'm making the omnibox handling too smart.  Maybe it shouldn't show
   prefix matches at all and should just show what it would dispatch to based
   on the prefix.

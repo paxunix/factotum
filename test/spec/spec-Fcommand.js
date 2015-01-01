@@ -9,7 +9,7 @@ function buildMetaTag(field, value, lang)
 {
     return [
         '<meta name="', field, '" content="', value, '" ',
-            (typeof(lang) !== "undefined" ? 'lang="' + lang + '" ' : ""),
+            (lang !== undefined ? 'lang="' + lang + '" ' : ""),
         '>'
     ].join('');
 }

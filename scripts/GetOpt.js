@@ -64,7 +64,7 @@ getOptions: function (spec, argv) {
         {
             var ret = { opt: optMatch[1] };
 
-            if (optMatch[2] !== null && typeof(optMatch[2]) !== "undefined")
+            if (optMatch[2] !== null && optMatch[2] !== undefined)
                 ret.value = optMatch[2];
 
             // Exact matches are preferred.

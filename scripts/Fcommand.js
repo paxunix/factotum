@@ -64,7 +64,7 @@ Fcommand._getSelectorContent = function (selector, document, lang)
 {
     var value = (Fcommand._getFromLangSelector(document, selector, lang) || {}).content;
 
-    return (typeof(value) !== "undefined" ? value : null);
+    return (value !== undefined ? value : null);
 }   // Fcommand._getSelectorContent
 
 
