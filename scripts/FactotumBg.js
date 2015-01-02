@@ -55,15 +55,6 @@ FactotumBg.onOmniboxInputStarted = function() {
 
 
 // Listener for Omnibox changes.
-// If no text is yet entered:
-//      - set the default suggestion to some meaningful description about
-//        what to do (e.g. "Enter a command and arguments").  There
-//        are no further suggestions at that point.
-// After each subsequent character is entered (up to the first space):
-//      - set the default suggestion to exactly what is typed (but pretty)
-//      - generate a set of additional suggestions by looking up all
-//        Fcommands with the prefix and presenting them in preferred order,
-//        with all of the arguments given.
 FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     // Default suggestion is always the exact command line as entered so
     // far.
@@ -72,6 +63,9 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
             text: text
         });
 
+    // XXX: if the keyword entered corresponds exactly with an existing
+    // Fcommand, the title should be set to that Fcommand's title (and the
+    // subsequent suggestions should not include that Fcommand).
     chrome.omnibox.setDefaultSuggestion({ description: description });
 
     // Parse the command line to extract any internal options that may be
@@ -82,11 +76,11 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     if (internalOptions._.length === 0)
         return;
 
-    // Create alternate suggestions based on Fcommands whose keywords match
-    // the given Fcommand name so far.  By keeping the default suggestion to
-    // be exactly what was typed, we can dispatch to Fcommands whose full
-    // name is a prefix of another Fcommand's longer name (e.g. 'jq' versus
-    // 'jqtest').
+    // Create an alternate suggestion using the first Fcommand whose
+    // keywords match the given Fcommand name prefix so far.  This makes the
+    // omnibox work kind of like tab-completion:  type the first few
+    // characters, hit TAB, and you will run the first Fcommand that the
+    // typed-prefix matches with all the rest of the command line
     fcommandManager.getByPrefix(internalOptions._[0])
         .then(function (fcommands) {
                 var suggestions = [];

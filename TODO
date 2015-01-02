@@ -9,11 +9,11 @@
           keywords.  This is akin to want to install two programs with the
           same name--only the first one in your $PATH will be found by that
           name, but you can use the other by its full path.
-
-- since the additional suggestions based on prefix in the omnibox can
-  include whatever string content we want, it's possible to augment the
-  content to indicat a preset suggestion was chosen and use its content
-  as-is, without a prefix match (and instead a lookup by exact keyword)
+    - The difficulty with multiple suggestions is that the content of each
+      doesn't identify which actual Fcommand needs to be run because the
+      keywords are not necessarily unique.
+        - Could append something like "- <guid>" to the end and strip it off
+          as an internal option during dispatch
 
 - maybe a hotkey that doesn't use the omnibox at all; but then you basically
   build your own omnibox functionality in a popup.  Then you can put
