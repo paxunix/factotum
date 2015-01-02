@@ -56,31 +56,37 @@ FactotumBg.onOmniboxInputStarted = function() {
 
 // Listener for Omnibox changes.
 FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
-    // Default suggestion is always the exact command line as entered so
-    // far.
+    // Parse the command line to extract any internal options that may be
+    // given and find the first word (the Fcommand keyword).
+    var internalOptions = FactotumBg.parseCommandLine(text);
+
+    // If no command, generate a helpful description (something was entered,
+    // but there's no Fcommand word yet).
+    if (internalOptions._.length === 0)
+    {
+        var description = FactotumBg.getOmniboxDescription({
+                title: "Enter a command and arguments",
+                text: text
+            });
+
+        chrome.omnibox.setDefaultSuggestion({ description: description });
+        return;
+    }
+
+    // The default suggestion always has the exact command line as entered
+    // so far.
     var description = FactotumBg.getOmniboxDescription({
             title: "Run Fcommand:",
             text: text
         });
 
-    // XXX: if the keyword entered corresponds exactly with an existing
-    // Fcommand, the title should be set to that Fcommand's title (and the
-    // subsequent suggestions should not include that Fcommand).
-    chrome.omnibox.setDefaultSuggestion({ description: description });
+    chrome.omnibox.setDefaultSuggestion({
+        description: description
+    });
 
-    // Parse the command line to extract any internal options that may be
-    // given and find the first word (the Fcommand keyword).
-    var internalOptions = FactotumBg.parseCommandLine(text);
-
-    // If no command, generate no further suggestions.
-    if (internalOptions._.length === 0)
-        return;
-
-    // Create an alternate suggestion using the first Fcommand whose
-    // keywords match the given Fcommand name prefix so far.  This makes the
-    // omnibox work kind of like tab-completion:  type the first few
-    // characters, hit TAB, and you will run the first Fcommand that the
-    // typed-prefix matches with all the rest of the command line
+    // Create a suggestions using the first Fcommand whose keywords match
+    // the given Fcommand name prefix so far.  The default suggestion is
+    // always exactly what is entered.
     fcommandManager.getByPrefix(internalOptions._[0])
         .then(function (fcommands) {
                 var suggestions = [];
@@ -93,8 +99,8 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
                 fcommands.forEach(function (fcommand) {
                     // Prepend a space to the suggestion so that Chrome
                     // doesn't think it's the same as the default suggestion
-                    // and remove it from the omnibox as you type extra
-                    // non-space characters.  This seems like a bug.
+                    // (it removes it from the omnibox as you type extra
+                    // non-space characters, which seems like a bug).
                     var cmdline = " " +
                         fcommand.extractedData.keywords[0] + " " +
                         (internalOptionString !== "" ?

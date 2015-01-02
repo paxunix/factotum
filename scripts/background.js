@@ -27,6 +27,7 @@ var Util = require("./Util.js");
 var fetchThese = [
     Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html")),
     Util.fetchDocument(chrome.runtime.getURL("example/bgtest.html")),
+    Util.fetchDocument(chrome.runtime.getURL("example/bgtest2.html")),
 ];
 
 fetchThese.forEach(function (p) {
