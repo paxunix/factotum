@@ -9,6 +9,7 @@ var Fcommand = require("./Fcommand.js");
 
 var FactotumBg = { };
 
+var FCOMMAND_GUID_DELIM = "--guid=";
 
 FactotumBg.stringifyInternalOptions = function(opts) {
     return (opts.bgdebug ? "--bg-debug" :
@@ -97,25 +98,33 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
                 // Substitute the primary keyword in place of the prefix so
                 // far and preserve the rest of the command line.
                 fcommands.forEach(function (fcommand) {
-                    // Prepend a space to the suggestion so that Chrome
-                    // doesn't think it's the same as the default suggestion
-                    // (it removes it from the omnibox as you type extra
-                    // non-space characters, which seems like a bug).
-                    var cmdline = " " +
+                    // Append the guid of each Fcommand in the suggestion's
+                    // content.  This is needed because Chrome will suppress
+                    // omnibox entries if their content is the same as that
+                    // of an existing entry.  The guid is the only way to be
+                    // sure each entry is unique (since you could have the
+                    // same keyword used in multiple Fcommands).  This guid
+                    // suffix will be stripped off prior to dispatch.  It
+                    // looks ugly, but augmenting the content is the only
+                    // way to both pass this information and distinguish
+                    // between "identical" omnibox entries.
+                    // This augmentation can break things (e.g. if a guid
+                    // has '--guid--' in it), but that's just something we
+                    // have to put up with for now.  Note that we do NOT
+                    // process the --guid as an internal option (because it
+                    // is appended to whatever the user has entered, they
+                    // may have typed "--", which stop option parsing, thus
+                    // the --guid would appear as a regular argument and be
+                    // skipped by the option parser).
+                    var cmdline =
                         fcommand.extractedData.keywords[0] + " " +
                         (internalOptionString !== "" ?
                             internalOptionString + " " :
                             "") +
-                        internalOptions._.slice(1).join(" ");
+                        internalOptions._.slice(1).join(" ") +
+                        "  " + FCOMMAND_GUID_DELIM +
+                        fcommand.extractedData.guid;
 
-                    // XXX:  this does not ensure that when the command is
-                    // entered, the proper Fcommand will be invoked
-                    // (because this query will be re-run and will take the
-                    // first cmd matching the prefix, which may not be the
-                    // one that was selected).  Need to include the guid on
-                    // the command line for the suggested ones.  Could do it
-                    // with a generic fcommand "launcher" that takes an
-                    // internal option of guid
                     suggestions.push({
                         description: FactotumBg.getOmniboxDescription({
                                 text: cmdline,
@@ -159,18 +168,36 @@ FactotumBg.parseCommandLine = function (text) {
 
 // Given a command line, figure out the Fcommand and run its function.
 FactotumBg.onOmniboxInputEntered = function (cmdline) {
+    // Strip off the guid inserted for the omnibox suggestion.  If it
+    // exists, use it to dispatch directly to the proper Fcommand;
+    // otherwise, query for the first match based on the given prefix.
+    var guidFromCmdline = null;
+    var extraDataIndex = cmdline.lastIndexOf(FCOMMAND_GUID_DELIM);
+
+    if (extraDataIndex !== -1)
+    {
+        guidFromCmdline = cmdline.substr(extraDataIndex + FCOMMAND_GUID_DELIM.length);
+        // Rewrite command line without the extra data
+        cmdline = cmdline.substr(0, extraDataIndex - 1);
+    }
+
     // Internal option parsing examines the entire command line, not just
     // everything after the first word.  Then parse the args resulting from
     // that as the actualy command line.
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
-    fcommandManager.getByPrefix(internalOptions._[0])
-        .then(function (fcommands) {
+    var lookupPromise = guidFromCmdline !== null ?
+        fcommandManager.get(guidFromCmdline).then(function (res) {
+                // Make sure an array is returned
+                return res === undefined ? [] : [ res ]
+            }) :
+        fcommandManager.getByPrefix(internalOptions._[0]);
+
+    lookupPromise.then(function (fcommands) {
             if (fcommands.length === 0)
             {
                 // XXX: surface to user
-                console.log("No Fcommand keywords begin with '" +
-                    internalOptions._[0] + "'");
+                console.log("No matching Fcommand found.");
                 return;
             }
 
