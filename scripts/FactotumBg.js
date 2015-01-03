@@ -169,7 +169,12 @@ FactotumBg.onOmniboxInputEntered = function (cmdline) {
     fcommandManager.getByPrefix(internalOptions._[0])
         .then(function (fcommands) {
             if (fcommands.length === 0)
+            {
+                // XXX: surface to user
+                console.log("No Fcommand keywords begin with '" +
+                    internalOptions._[0] + "'");
                 return;
+            }
 
             var fcommand = fcommands[0];
 
