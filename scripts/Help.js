@@ -8,7 +8,6 @@ var Help = {};
  * Popup help for the given Fcommand.
  * @param {String} fcommandGuid - The guid for the Fcommand whose help
  * should be shown.
- * show.
  */
 Help.showFcommandHelp = function (fcommandGuid)
 {
