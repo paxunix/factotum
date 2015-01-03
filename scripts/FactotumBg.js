@@ -170,7 +170,8 @@ FactotumBg.parseCommandLine = function (text) {
 FactotumBg.onOmniboxInputEntered = function (cmdline) {
     // Strip off the guid inserted for the omnibox suggestion.  If it
     // exists, use it to dispatch directly to the proper Fcommand;
-    // otherwise, query for the first match based on the given prefix.
+    // otherwise, query for the first Fcommand with a keyword equal to the
+    // given prefix.
     var guidFromCmdline = null;
     var extraDataIndex = cmdline.lastIndexOf(FCOMMAND_GUID_DELIM);
 
@@ -191,7 +192,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline) {
                 // Make sure an array is returned
                 return res === undefined ? [] : [ res ]
             }) :
-        fcommandManager.getByPrefix(internalOptions._[0]);
+        fcommandManager.getByKeyword(internalOptions._[0]);
 
     lookupPromise.then(function (fcommands) {
             if (fcommands.length === 0)
