@@ -48,7 +48,8 @@ FcommandManager.prototype.save = function (fcommand)
  * @param {String} guid - GUID for the Fcommand.
  * @returns {Promise} Promise to retrieve the Fcommand by guid.  Promise
  * will resolve with undefined if no Fcommand for guid exists; otherwise,
- * resolves with an instantiated Fcommand.
+ * resolves with an instantiated Fcommand.  Does not care about
+ * enabled/disabled state.
  */
 FcommandManager.prototype.get = function (guid)
 {
@@ -82,12 +83,10 @@ FcommandManager.prototype.deleteAll = function ()
  * Return a Promise to retrieve all enabled Fcommands with keywords that
  * start with a prefix, ordered by their order properties.
  * @param {String} prefix - Search prefix.
- * @param {String} lang - BCP47 language string (used to specify the locale
- * for ordering Fcommand keywords)
  * @return {Promise} Promise to retrieve array of Fcommands.
  * Comparison is case-insensitive.  Promise will resolve with an array
- * containing Fcommand instances for each matching Fcommand.  If no matches,
- * the array will be empty.
+ * containing enabled Fcommand instances for each matching Fcommand.  If no
+ * enabled matches, the array will be empty.
  */
 FcommandManager.prototype.getByPrefix = function (prefix, lang)
 {
@@ -115,7 +114,6 @@ FcommandManager.prototype.getByPrefix = function (prefix, lang)
 
 /**
  * Return a Promise to retrieve all Fcommands.
- * @param {String} prefix - Search prefix.
  * @return {Promise} Promise to retrieve array of Fcommands.
  */
 FcommandManager.prototype.getAll = function ()
