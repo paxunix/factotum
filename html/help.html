@@ -35,7 +35,7 @@
       var guid = document.location.search.substr(6);
       var div = document.querySelector("#help-content");
 
-      bgScope.fcommandManager.get(guid)
+      bgScope.fcommandManager.getByGuid(guid)
         .then(function (fcommand) {
             div.innerHTML = fcommand.extractedData.helpMarkup;
           })

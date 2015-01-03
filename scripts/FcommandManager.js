@@ -51,10 +51,10 @@ FcommandManager.prototype.save = function (fcommand)
  * resolves with an instantiated Fcommand.  Does not care about
  * enabled/disabled state.
  */
-FcommandManager.prototype.get = function (guid)
+FcommandManager.prototype.getByGuid = function (guid)
 {
     return this.db.fcommands.get(guid);
-}   // FcommandManager.prototype.save
+}   // FcommandManager.prototype.getByGuid
 
 
 /**

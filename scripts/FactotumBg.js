@@ -187,7 +187,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline) {
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
     var lookupPromise = guidFromCmdline !== null ?
-        fcommandManager.get(guidFromCmdline).then(function (res) {
+        fcommandManager.getByGuid(guidFromCmdline).then(function (res) {
                 // Make sure an array is returned
                 return res === undefined ? [] : [ res ]
             }) :
@@ -286,7 +286,7 @@ FactotumBg.responseHandler = function (response) {
     {
         console.log("Fcommand responded:", response);
 
-        fcommandManager.get(response.guid)
+        fcommandManager.getByGuid(response.guid)
             .then(function (fcommand) {
                     fcommand.runBgCode(
                         response.data,
