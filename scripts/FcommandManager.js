@@ -113,6 +113,39 @@ FcommandManager.prototype.getByPrefix = function (prefix)
 
 
 /**
+ * Return a Promise to retrieve all enabled Fcommands with keywords that
+ * exactly match a string, ordered by their order properties.
+ * @param {String} str - Search string.
+ * @return {Promise} Promise to retrieve array of Fcommands.
+ * Comparison is case-insensitive.  Promise will resolve with an array
+ * containing enabled Fcommand instances for each matching Fcommand.  If no
+ * enabled matches, the array will be empty.
+ */
+FcommandManager.prototype.getByKeyword = function (str)
+{
+    return this.db.fcommands
+        .where("extractedData.keywords")
+        .equalsIgnoreCase(str)
+        .distinct()
+        .and(function (fcommand) {
+                return !!fcommand.enabled;
+            })
+        .toArray()  // XXX: would like to use Dexie's sortBy() instead of
+                    // toArray() but it doesn't support a comparator
+                    // (https://github.com/dfahlander/Dexie.js/issues/54)
+        .then(function (res) {
+                return res.sort(function (lhs, rhs) {
+                        return lhs.order > rhs.order ?
+                            +1 :
+                            (lhs.order < rhs.order ?
+                                -1 :
+                                0);
+                    });
+            });
+}   // FcommandManager.prototype.getByKeyword
+
+
+/**
  * Return a Promise to retrieve all Fcommands.
  * @return {Promise} Promise to retrieve array of Fcommands.
  */
