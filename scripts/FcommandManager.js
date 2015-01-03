@@ -88,7 +88,7 @@ FcommandManager.prototype.deleteAll = function ()
  * containing enabled Fcommand instances for each matching Fcommand.  If no
  * enabled matches, the array will be empty.
  */
-FcommandManager.prototype.getByPrefix = function (prefix, lang)
+FcommandManager.prototype.getByPrefix = function (prefix)
 {
     return this.db.fcommands
         .where("extractedData.keywords")
