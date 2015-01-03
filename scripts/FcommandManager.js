@@ -62,10 +62,10 @@ FcommandManager.prototype.getByGuid = function (guid)
  * @param {String} guid - GUID for the Fcommand.
  * @returns {Promise} Promise to delete the Fcommand by guid.
  */
-FcommandManager.prototype.delete = function (guid)
+FcommandManager.prototype.deleteByGuid = function (guid)
 {
     return this.db.fcommands.delete(guid);
-}   // FcommandManager.prototype.delete
+}   // FcommandManager.prototype.deleteByGuid
 
 
 /**
