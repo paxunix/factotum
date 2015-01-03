@@ -1,0 +1,25 @@
+<html>
+<head>
+<title>Load jQuery2</title>
+<meta name="author" content="paxunix@gmail.com">
+<meta name="description" content="Loads jQuery into the current page">
+<meta name="guid" content="eb01221d-1aeb-44b9-a858-2f52c0e23756">
+<meta name="keywords" content="jq,loadjq">
+<meta name="version" content="1.2.3">
+</head>
+
+<body>
+<script>
+function loadJquery(opts, importDoc, onSuccess, onFailure) {
+  console.log("loading jquery");
+  onSuccess({ jqueryVersion: jQuery.fn.jquery });
+} // loadJquery
+
+if (window.Factotum && Factotum.runCommand)
+  Factotum.runCommand(loadJquery);
+else
+  throw Error("Factotum not enabled");
+</script>
+
+</body>
+</html>
