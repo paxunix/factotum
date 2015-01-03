@@ -157,9 +157,7 @@ FactotumBg.parseCommandLine = function (text) {
 };  // FactotumBg.parseCommandLine
 
 
-// Given a command line, figure out the Fcommand and run its function.  Once the
-// function has executed, run the response callback, passing the response from
-// the function.
+// Given a command line, figure out the Fcommand and run its function.
 FactotumBg.onOmniboxInputEntered = function (cmdline) {
     // Internal option parsing examines the entire command line, not just
     // everything after the first word.  Then parse the args resulting from
