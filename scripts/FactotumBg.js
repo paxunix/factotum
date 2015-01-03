@@ -60,12 +60,12 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     // given and find the first word (the Fcommand keyword).
     var internalOptions = FactotumBg.parseCommandLine(text);
 
-    // If no command, generate a helpful description (something was entered,
+    // If no command, take the default description (something was entered,
     // but there's no Fcommand word yet).
     if (internalOptions._.length === 0)
     {
         var description = FactotumBg.getOmniboxDescription({
-                title: "Enter a command and arguments",
+                title: "",
                 text: text
             });
 
@@ -76,7 +76,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     // The default suggestion always has the exact command line as entered
     // so far.
     var description = FactotumBg.getOmniboxDescription({
-            title: "Run Fcommand:",
+            title: "Run Fcommand: ",
             text: text
         });
 
@@ -119,7 +119,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
                     suggestions.push({
                         description: FactotumBg.getOmniboxDescription({
                                 text: cmdline,
-                                title: fcommand.extractedData.title
+                                title: "Run '" + fcommand.extractedData.title + "':"
                             }),
                         content: cmdline,
                     });
