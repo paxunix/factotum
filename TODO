@@ -1,28 +1,3 @@
-- maybe I'm making the omnibox handling too smart.  Maybe it shouldn't show
-  prefix matches at all and should just show what it would dispatch to based
-  on the prefix.
-    - then how to select between same-keyword Fcommands with different
-      order values?
-        - this doesn't matter.  It's not clear to the user why this
-          differentiation exists in the Omnibox.  Instead, allow the user to
-          change Fcommand keywords on different Fcommands that have the same
-          keywords.  This is akin to want to install two programs with the
-          same name--only the first one in your $PATH will be found by that
-          name, but you can use the other by its full path.
-    - The difficulty with multiple suggestions is that the content of each
-      doesn't identify which actual Fcommand needs to be run because the
-      keywords are not necessarily unique.
-        - Could append something like "- <guid>" to the end and strip it off
-          as an internal option during dispatch
-        - Chrome requires the content to be unique:  a suggestion with the
-          same content as any other suggestion will not be shown.  This
-          means some distinguishing text in the content is needed to force
-          it to show up.  The only thing we presume to be unique is the
-          guid.  If we put the guid on the end of every suggestion, then we
-          don't need a prefix lookup on text entry.  We can do a lookup
-          directly by guid; still will need a prefix lookup if the default
-          selection is chosen (since you can't specify content for it).
-
 - maybe a hotkey that doesn't use the omnibox at all; but then you basically
   build your own omnibox functionality in a popup.  Then you can put
   whatever you want in it.  With polymer, a lot of the functionality of a
