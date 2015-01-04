@@ -19,6 +19,13 @@ FactotumBg.stringifyInternalOptions = function(opts) {
 }   // FactotumBg.stringifyInternalOptions
 
 
+FactotumBg.replaceHtmlEntities = function(s) {
+    return s.replace(/[<>\&'"]/gm, function(i) {
+            return "&#" + i.charCodeAt(0) + ";";
+        });
+}   // FactotumBg.replaceHtmlEntities
+
+
 /**
  * Return an omnibox suggestion description.
  * @param {Object} cmdlineObj - command line data
@@ -29,12 +36,11 @@ FactotumBg.getOmniboxDescription = function(cmdlineObj) {
     if (cmdlineObj.text === "")
         return "Enter a command and arguments";
 
-    // XXX: need to escape HTML entities
     var description =
         (cmdlineObj.title !== "" ?
-            "<match>" + cmdlineObj.title + "</match> " :
+            "<match>" + FactotumBg.replaceHtmlEntities(cmdlineObj.title) + "</match> " :
             "") +
-        "<dim>" + cmdlineObj.text + "</dim>";
+        "<dim>" + FactotumBg.replaceHtmlEntities(cmdlineObj.text) + "</dim>";
 
     return description;
 
