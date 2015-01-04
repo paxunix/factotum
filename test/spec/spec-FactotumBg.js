@@ -171,6 +171,10 @@ describe("reconstructCmdline", function() {
         expect(FactotumBg.reconstructCmdline(opts))
             .toEqual("cmd --bg-debug --debug --help arg1 arg2 arg3");
     });
+
+    it("returns empty string if nothing in opts", function () {
+        expect(FactotumBg.reconstructCmdline({})).toEqual("");
+    });
 }); // reconstructCmdline
 
 }); // FactotumBg

@@ -70,8 +70,13 @@ FactotumBg.getOmniboxDescription = function(title, opts) {
  */
 FactotumBg.reconstructCmdline = function(opts)
 {
+    opts = opts || {};
+    opts._ = opts._ || [];
+
+    // Clone args array and extract the keyword
+    var keyword = opts._.concat([]).shift();
     var cmdline = [
-        opts._[0],      // Fcommand keyword
+        keyword
     ];
 
     // Append internal options
