@@ -39,7 +39,8 @@ FactotumBg.getOmniboxDescription = function(title, opts) {
     if (opts === undefined || opts._ === undefined || opts._.length === 0)
         return "Enter a command and arguments";
 
-    // Reconstruct the command line, without the keyword
+    // Reconstruct the command line, without the keyword.  The order won't
+    // be identical to what was typed, but that's okay.
     var internalOptionString = FactotumBg.stringifyInternalOptions(opts);
     var text = (internalOptionString !== "" ?
         internalOptionString + " " :
