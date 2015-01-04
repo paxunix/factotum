@@ -1,3 +1,9 @@
+- now that omnibox suggestions' content gets the --guid=n appended to it,
+  you can have a situation where the user selects one, but then starts
+  typing afer the --guid=n value.  Accepting this modified command line will
+  invoke the exact match of the keyword, rather than what is specified by
+  the guid.  This will be surprising to users.
+
 - maybe a hotkey that doesn't use the omnibox at all; but then you basically
   build your own omnibox functionality in a popup.  Then you can put
   whatever you want in it.  With polymer, a lot of the functionality of a
