@@ -70,6 +70,63 @@ describe("checkInternalOptions", function() {
 }); // checkInternalOptions
 
 
+describe("getOmniboxDescription", function() {
+    it("returns a default description if no opts", function () {
+        expect(FactotumBg.getOmniboxDescription(null, {}))
+            .toEqual("Enter a command and arguments");
+
+        expect(FactotumBg.getOmniboxDescription(null, { _: [] }))
+            .toEqual("Enter a command and arguments");
+
+        expect(FactotumBg.getOmniboxDescription(null))
+            .toEqual("Enter a command and arguments");
+    });
+
+    it("returns markup for title", function () {
+        expect(FactotumBg.getOmniboxDescription("title", { _: [ "" ] }))
+            .toEqual("<url>title</url>");
+    });
+
+    it("returns markup for title, keyword", function () {
+        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key" ] }))
+            .toEqual("<url>title</url> <match>key</match>");
+    });
+
+    it("returns markup for title, keyword, args", function () {
+        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key", "arg1", "arg2" ] }))
+            .toEqual("<url>title</url> <match>key</match> <dim>arg1 arg2</dim>");
+    });
+
+    it("returns markup for no title, keyword", function () {
+        expect(FactotumBg.getOmniboxDescription("", { _: [ "key" ] }))
+            .toEqual("<match>key</match>");
+
+        expect(FactotumBg.getOmniboxDescription(null, { _: [ "key" ] }))
+            .toEqual("<match>key</match>");
+    });
+
+    it("returns markup for title, keyword, and internal options", function () {
+        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key", "arg1", "arg2" ], debug: true, bgdebug: true, help: true }))
+            .toEqual("<url>title</url> <match>key</match> <dim>--bg-debug --debug --help arg1 arg2</dim>");
+    });
+
+    it("returns markup if title has characters needing escape", function () {
+        expect(FactotumBg.getOmniboxDescription("title<>&'\"end", { _: [ "" ] }))
+            .toEqual("<url>title&#60;&#62;&#38;&#39;&#34;end</url>");
+    });
+
+    it("returns markup if keyword has characters needing escape", function () {
+        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key<>&'\"end" ] }))
+            .toEqual("<url>title</url> <match>key&#60;&#62;&#38;&#39;&#34;end</match>");
+    });
+
+    it("returns markup if args has characters needing escape", function () {
+        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key", "arg<>&'\"end" ] }))
+            .toEqual("<url>title</url> <match>key</match> <dim>arg&#60;&#62;&#38;&#39;&#34;end</dim>");
+    });
+}); // getOmniboxDescription
+
+
 describe("replaceHtmlEntities", function() {
     it("replaces the necessary characters with HTML entities", function () {
         expect(FactotumBg.replaceHtmlEntities("<>&'\""))
