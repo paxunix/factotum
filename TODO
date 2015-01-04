@@ -7,6 +7,7 @@
     - it would mean there would always be a window, so that an Fcommand
       could execute regardless of whether it was bg or page context but the
       user happened to be on an internal page
+    - Ubiquity used to be invoked this way (Ctrl-Space)
 
 - can use chrome.alarms to schedule Fcommand update checks
 
