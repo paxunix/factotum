@@ -12,10 +12,13 @@ var FactotumBg = { };
 var FCOMMAND_GUID_DELIM = "--guid=";
 
 FactotumBg.stringifyInternalOptions = function(opts) {
-    return (opts.bgdebug ? "--bg-debug" :
-        (opts.debug ? "--debug" :
-            (opts.help ? "--help" : "")));
-    // XXX: test me
+    var ret = [];
+
+    if (opts.bgdebug) ret.push("--bg-debug");
+    if (opts.debug) ret.push("--debug");
+    if (opts.help) ret.push("--help");
+
+    return ret.join(" ");
 }   // FactotumBg.stringifyInternalOptions
 
 

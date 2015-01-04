@@ -70,4 +70,33 @@ describe("checkInternalOptions", function() {
 }); // checkInternalOptions
 
 
+describe("stringifyInternalOptions", function() {
+    it("returns an empty string if no options", function () {
+        expect(FactotumBg.stringifyInternalOptions({}))
+            .toEqual("");
+    });
+
+    it("returns --bg-debug for bgdebug option", function () {
+        expect(FactotumBg.stringifyInternalOptions({ bgdebug: true }))
+            .toEqual("--bg-debug");
+    });
+
+    it("returns --debug for debug option", function () {
+        expect(FactotumBg.stringifyInternalOptions({ debug: true }))
+            .toEqual("--debug");
+    });
+
+    it("returns --help for help option", function () {
+        expect(FactotumBg.stringifyInternalOptions({ help: true }))
+            .toEqual("--help");
+    });
+
+    it("returns all-option string if each option true", function () {
+        expect(FactotumBg.stringifyInternalOptions({ help: true, bgdebug: true, debug: true }))
+            .toEqual("--bg-debug --debug --help");
+    });
+
+}); // stringifyInternalOptions
+
+
 }); // FactotumBg
