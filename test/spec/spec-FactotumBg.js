@@ -164,4 +164,13 @@ describe("stringifyInternalOptions", function() {
 }); // stringifyInternalOptions
 
 
+describe("reconstructCmdline", function() {
+    it("returns a string that can be reparsed equivalent to the original parsed string", function () {
+        var cmdline = "cmd --bg-debug arg1 --debug arg2 --help arg3";
+        var opts = FactotumBg.parseCommandLine(cmdline);
+        expect(FactotumBg.reconstructCmdline(opts))
+            .toEqual("cmd --bg-debug --debug --help arg1 arg2 arg3");
+    });
+}); // reconstructCmdline
+
 }); // FactotumBg

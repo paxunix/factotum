@@ -61,6 +61,31 @@ FactotumBg.getOmniboxDescription = function(title, opts) {
 };  // FactotumBg.getOmniboxDescription
 
 
+/**
+ * Return a suitable reconstruction of the commandline, given a parsed
+ * option object.  It won't perfectly match the original, but it will have
+ * all the pieces in the right places so that reparsing it would yield the
+ * same results.
+ * @param {Object} opts - Parsed command line options object.
+ */
+FactotumBg.reconstructCmdline = function(opts)
+{
+    var cmdline = [
+        opts._[0],      // Fcommand keyword
+    ];
+
+    // Append internal options
+    if (opts.bgdebug) cmdline.push("--bg-debug");
+    if (opts.debug) cmdline.push("--debug");
+    if (opts.help) cmdline.push("--help");
+
+    // Append remainder of arguments
+    cmdline = cmdline.concat(opts._.slice(1));
+
+    return cmdline.join(" ");
+};  // FactotumBg.reconstructCmdline
+
+
 // Set the default description before any text is entered.
 // XXX: this is currently not invoked, due to
 // https://code.google.com/p/chromium/issues/detail?id=258911
