@@ -124,12 +124,23 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
                     // the --guid would appear as a regular argument and be
                     // skipped by the option parser).
                     // XXX: refactor into a function and use it in getting
-                    // the description and here
-                    var cmdline =
-                        fcommand.extractedData.keywords[0] + " " +
-                        internalOptions._.slice(1).join(" ") +
-                        "  " + FCOMMAND_GUID_DELIM +
-                        fcommand.extractedData.guid;
+                    // the description and here, because it's doing the same
+                    // things all over again.  Probably just make
+                    // getOmniboxDescription return an omnibox suggestion.
+                    var cmdline = [
+                        fcommand.extractedData.keywords[0]
+                    ];
+
+                    if (internalOptions._.length > 1)
+                        cmdline = cmdline.concat(internalOptions._.slice(1));
+
+                    var internalOptionString =
+                        FactotumBg.stringifyInternalOptions(internalOptions);
+                    if (internalOptionString !== "")
+                        cmdline.push(internalOptionString);
+
+                    cmdline.push([ FCOMMAND_GUID_DELIM +
+                        fcommand.extractedData.guid ]);
 
                     var description = FactotumBg.getOmniboxDescription(
                             "Run '" + fcommand.extractedData.title + "':",
@@ -138,7 +149,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
 
                     suggestions.push({
                         description: description,
-                        content: cmdline,
+                        content: cmdline.join(" "),
                     });
                 });
 
