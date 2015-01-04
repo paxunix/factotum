@@ -124,6 +124,14 @@ describe("getOmniboxDescription", function() {
         expect(FactotumBg.getOmniboxDescription("title", { _: [ "key", "arg<>&'\"end" ] }))
             .toEqual("<url>title</url> <match>key</match> <dim>arg&#60;&#62;&#38;&#39;&#34;end</dim>");
     });
+
+    it("doesn't modify the input object's _ array", function () {
+        var cmdline = "cmd --bg-debug arg1 --debug arg2 --help arg3";
+        var opts = FactotumBg.parseCommandLine(cmdline);
+        var argClone = opts._.concat([]);
+        FactotumBg.getOmniboxDescription("title", opts);
+        expect(opts._).toEqual(argClone);
+    });
 }); // getOmniboxDescription
 
 
@@ -174,6 +182,14 @@ describe("reconstructCmdline", function() {
 
     it("returns empty string if nothing in opts", function () {
         expect(FactotumBg.reconstructCmdline({})).toEqual("");
+    });
+
+    it("doesn't modify the input object's _ array", function () {
+        var cmdline = "cmd --bg-debug arg1 --debug arg2 --help arg3";
+        var opts = FactotumBg.parseCommandLine(cmdline);
+        var argClone = opts._.concat([]);
+        FactotumBg.reconstructCmdline(opts);
+        expect(opts._).toEqual(argClone);
     });
 }); // reconstructCmdline
 
