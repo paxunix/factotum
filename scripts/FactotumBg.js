@@ -23,7 +23,7 @@ FactotumBg.stringifyInternalOptions = function(opts) {
 
 
 FactotumBg.replaceHtmlEntities = function(s) {
-    return s.replace(/[<>\&'"]/gm, function(i) {
+    return s.replace(/[<>&'"]/gm, function(i) {
             return "&#" + i.charCodeAt(0) + ";";
         });
 }   // FactotumBg.replaceHtmlEntities

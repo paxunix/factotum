@@ -70,6 +70,14 @@ describe("checkInternalOptions", function() {
 }); // checkInternalOptions
 
 
+describe("replaceHtmlEntities", function() {
+    it("replaces the necessary characters with HTML entities", function () {
+        expect(FactotumBg.replaceHtmlEntities("<>&'\""))
+            .toEqual("&#60;&#62;&#38;&#39;&#34;");
+    });
+}); // replaceHtmlEntities
+
+
 describe("stringifyInternalOptions", function() {
     it("returns an empty string if no options", function () {
         expect(FactotumBg.stringifyInternalOptions({}))
