@@ -107,7 +107,7 @@ describe("getOmniboxDescription", function() {
 
     it("returns markup for title, keyword, and internal options", function () {
         expect(FactotumBg.getOmniboxDescription("title", { _: [ "key", "arg1", "arg2" ], debug: true, bgdebug: true, help: true }))
-            .toEqual("<url>title</url> <match>key</match> <dim>--bg-debug --debug --help arg1 arg2</dim>");
+            .toEqual("<url>title</url> <match>key</match> <dim>arg1 --bg-debug --debug --help arg2</dim>");
     });
 
     it("returns markup if title has characters needing escape", function () {

@@ -41,18 +41,16 @@ FactotumBg.getOmniboxDescription = function(title, opts) {
 
     // Reconstruct the command line, without the keyword.  The order won't
     // be identical to what was typed, but that's okay.
-    var internalOptionString = FactotumBg.stringifyInternalOptions(opts);
-    var text = (internalOptionString !== "" ?
-        internalOptionString + " " :
-        "") + opts._.slice(1).join(" ");
-
+    var optsClone = JSON.parse(JSON.stringify(opts));
+    var keyword = optsClone._.shift();
+    var text = FactotumBg.reconstructCmdline(optsClone);
     var description = [];
 
     if (title !== undefined && title !== null && title !== "")
         description.push("<url>" + FactotumBg.replaceHtmlEntities(title) + "</url>");
 
-    if (opts._[0].length)
-        description.push("<match>" + FactotumBg.replaceHtmlEntities(opts._[0]) + "</match>");
+    if (keyword.length)
+        description.push("<match>" + FactotumBg.replaceHtmlEntities(keyword) + "</match>");
 
     if (text !== "")
         description.push("<dim>" + FactotumBg.replaceHtmlEntities(text) + "</dim>");
