@@ -187,8 +187,8 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
 };  // FactotumBg.onOmniboxInputChanged
 
 
-// Return an object that has checked for help or debug options in argv.
-FactotumBg.checkInternalOptions = function (argv) {
+// Return an object that has parsed for help or debug options in argv.
+FactotumBg.parseInternalOptions = function (argv) {
     var opts = GetOpt.getOptions({
         "debug": { type: "boolean", aliases: [ "fg-debug", "fgdebug" ] },
         "bgdebug": { type: "boolean", aliases: [ "bg-debug" ] },
@@ -196,7 +196,7 @@ FactotumBg.checkInternalOptions = function (argv) {
     }, argv);
 
     return opts;
-};  // FactotumBg.checkInternalOptions
+};  // FactotumBg.parseInternalOptions
 
 
 // Given a command line, check it for internal options and return the parsed
@@ -206,7 +206,7 @@ FactotumBg.parseCommandLine = function (text) {
 
     // To support internal options as the first word, consider the entire
     // command line.
-    return FactotumBg.checkInternalOptions(argv);
+    return FactotumBg.parseInternalOptions(argv);
 };  // FactotumBg.parseCommandLine
 
 
