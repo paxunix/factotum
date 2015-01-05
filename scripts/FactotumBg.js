@@ -30,20 +30,26 @@ FactotumBg.replaceHtmlEntities = function(s) {
 
 
 /**
- * Return an omnibox suggestion description.
+ * Return an omnibox suggestion.
  * @param {String} title - Fcommand title for this suggestion
  * @param {Object} opts - parsed command line object (as returned by
  * GetOpt.getOptions().
  */
-FactotumBg.getOmniboxDescription = function(title, opts) {
+FactotumBg.getOmniboxSuggestion = function(title, opts) {
+    var suggestion = {};
+
     if (opts === undefined || opts._ === undefined || opts._.length === 0)
-        return "Enter a command and arguments";
+    {
+        suggestion.description = "Enter a command and arguments";
+        suggestion.content = "";
+        return suggestion;
+    }
 
     // Reconstruct the command line, without the keyword.  The order won't
     // be identical to what was typed, but that's okay.
     var optsClone = JSON.parse(JSON.stringify(opts));
+    var cmdline = FactotumBg.reconstructCmdline(optsClone);
     var keyword = optsClone._.shift();
-    var text = FactotumBg.reconstructCmdline(optsClone);
     var description = [];
 
     if (title !== undefined && title !== null && title !== "")
@@ -52,11 +58,14 @@ FactotumBg.getOmniboxDescription = function(title, opts) {
     if (keyword.length)
         description.push("<match>" + FactotumBg.replaceHtmlEntities(keyword) + "</match>");
 
-    if (text !== "")
-        description.push("<dim>" + FactotumBg.replaceHtmlEntities(text) + "</dim>");
+    if (cmdline.noKeyword !== "")
+        description.push("<dim>" + FactotumBg.replaceHtmlEntities(cmdline.noKeyword) + "</dim>");
 
-    return description.join(" ");
-};  // FactotumBg.getOmniboxDescription
+    suggestion.description = description.join(" ");
+    suggestion.content = cmdline.withKeyword;
+
+    return suggestion;
+};  // FactotumBg.getOmniboxSuggestion
 
 
 /**
@@ -65,9 +74,18 @@ FactotumBg.getOmniboxDescription = function(title, opts) {
  * all the pieces in the right places so that reparsing it would yield the
  * same results.
  * @param {Object} opts - Parsed command line options object.
+ * @return {Object} Contains the reconstructed command line, with and
+ * without the keyword (since one is needed for descriptions and the other
+ * needed for dispatching).
+ *      {
+ *          noKeyword: {String},
+ *          withKeyword: {String}
+ *      }
  */
 FactotumBg.reconstructCmdline = function(opts)
 {
+    var ret = { };
+
     opts = opts || {};
     opts._ = opts._ || [];
 
@@ -85,7 +103,10 @@ FactotumBg.reconstructCmdline = function(opts)
     // Append remainder of arguments
     cmdline = cmdline.concat(opts._.slice(1));
 
-    return cmdline.join(" ");
+    ret.withKeyword = cmdline.join(" ");
+    ret.noKeyword = cmdline.slice(1).join(" ");
+
+    return ret;
 };  // FactotumBg.reconstructCmdline
 
 
@@ -93,8 +114,9 @@ FactotumBg.reconstructCmdline = function(opts)
 // XXX: this is currently not invoked, due to
 // https://code.google.com/p/chromium/issues/detail?id=258911
 FactotumBg.onOmniboxInputStarted = function() {
-    var description = FactotumBg.getOmniboxDescription("", {});
-    chrome.omnibox.setDefaultSuggestion({ description: description });
+    var suggestion = FactotumBg.getOmniboxSuggestion("", {});
+    delete suggestion.content;
+    chrome.omnibox.setDefaultSuggestion(suggestion);
 };  // FactotumBg.onOmniboxInputStarted
 
 
@@ -108,19 +130,17 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     // but there's no Fcommand word yet).
     if (internalOptions._.length === 0)
     {
-        var description = FactotumBg.getOmniboxDescription("", internalOptions);
-        chrome.omnibox.setDefaultSuggestion({ description: description });
+        var suggestion = FactotumBg.getOmniboxSuggestion("", internalOptions);
+        delete suggestion.content;
+        chrome.omnibox.setDefaultSuggestion(suggestion);
         return;
     }
 
     // The default suggestion always has the exact command line as entered
     // so far.
-    // XXX: same as above
-    var description = FactotumBg.getOmniboxDescription("Run Fcommand:", internalOptions);
-
-    chrome.omnibox.setDefaultSuggestion({
-        description: description
-    });
+    var suggestion = FactotumBg.getOmniboxSuggestion("Run Fcommand:", internalOptions);
+    delete suggestion.content;
+    chrome.omnibox.setDefaultSuggestion(suggestion);
 
     // Create a suggestions using the first Fcommand whose keywords match
     // the given Fcommand name prefix so far.  The default suggestion is
@@ -133,7 +153,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
                 // Substitute the primary keyword in place of the prefix so
                 // far and preserve the rest of the command line.
                 fcommands.forEach(function (fcommand) {
-                    // Append the guid of each Fcommand in the suggestion's
+                    // Append the guid of each Fcommand to the suggestion's
                     // content.  This is needed because Chrome will suppress
                     // omnibox entries if their content is the same as that
                     // of an existing entry.  The guid is the only way to be
@@ -144,41 +164,21 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
                     // way to both pass this information and distinguish
                     // between "identical" omnibox entries.
                     // This augmentation can break things (e.g. if a guid
-                    // has '--guid--' in it), but that's just something we
+                    // has '--guid=' in it), but that's just something we
                     // have to put up with for now.  Note that we do NOT
-                    // process the --guid as an internal option (because it
-                    // is appended to whatever the user has entered, they
-                    // may have typed "--", which stop option parsing, thus
-                    // the --guid would appear as a regular argument and be
-                    // skipped by the option parser).
-                    // XXX: refactor into a function and use it in getting
-                    // the description and here, because it's doing the same
-                    // things all over again.  Probably just make
-                    // getOmniboxDescription return an omnibox suggestion.
-                    var cmdline = [
-                        fcommand.extractedData.keywords[0]
-                    ];
-
-                    if (internalOptions._.length > 1)
-                        cmdline = cmdline.concat(internalOptions._.slice(1));
-
-                    var internalOptionString =
-                        FactotumBg.stringifyInternalOptions(internalOptions);
-                    if (internalOptionString !== "")
-                        cmdline.push(internalOptionString);
-
-                    cmdline.push([ FCOMMAND_GUID_DELIM +
-                        fcommand.extractedData.guid ]);
-
-                    var description = FactotumBg.getOmniboxDescription(
+                    // process the --guid when parsing internal options
+                    // because it is appended to whatever the user has
+                    // entered.  Since they may have typed "--" (which stops
+                    // option parsing) --guid would appear as a regular
+                    // argument and be skipped by the option parser.
+                    var suggestion = FactotumBg.getOmniboxSuggestion(
                             "Run '" + fcommand.extractedData.title + "':",
                             internalOptions
                         );
+                    suggestion.content += " " + FCOMMAND_GUID_DELIM +
+                        fcommand.extractedData.guid;
 
-                    suggestions.push({
-                        description: description,
-                        content: cmdline.join(" "),
-                    });
+                    suggestions.push(suggestion);
                 });
 
                 suggestFunc(suggestions);

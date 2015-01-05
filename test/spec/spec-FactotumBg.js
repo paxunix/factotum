@@ -70,69 +70,105 @@ describe("parseInternalOptions", function() {
 }); // parseInternalOptions
 
 
-describe("getOmniboxDescription", function() {
+describe("getOmniboxSuggestion", function() {
     it("returns a default description if no opts", function () {
-        expect(FactotumBg.getOmniboxDescription(null, {}))
-            .toEqual("Enter a command and arguments");
+        expect(FactotumBg.getOmniboxSuggestion(null, {}))
+            .toEqual({
+                description: "Enter a command and arguments",
+                content: ""
+            });
 
-        expect(FactotumBg.getOmniboxDescription(null, { _: [] }))
-            .toEqual("Enter a command and arguments");
+        expect(FactotumBg.getOmniboxSuggestion(null, { _: [] }))
+            .toEqual({
+                description: "Enter a command and arguments",
+                content: ""
+            });
 
-        expect(FactotumBg.getOmniboxDescription(null))
-            .toEqual("Enter a command and arguments");
+        expect(FactotumBg.getOmniboxSuggestion(null))
+            .toEqual({
+                description: "Enter a command and arguments",
+                content: ""
+            });
     });
 
     it("returns markup for title", function () {
-        expect(FactotumBg.getOmniboxDescription("title", { _: [ "" ] }))
-            .toEqual("<url>title</url>");
+        expect(FactotumBg.getOmniboxSuggestion("title", { _: [ "" ] }))
+            .toEqual({
+                description: "<url>title</url>",
+                content: ""
+            });
     });
 
     it("returns markup for title, keyword", function () {
-        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key" ] }))
-            .toEqual("<url>title</url> <match>key</match>");
+        expect(FactotumBg.getOmniboxSuggestion("title", { _: [ "key" ] }))
+            .toEqual({
+                description: "<url>title</url> <match>key</match>",
+                content: "key"
+            });
     });
 
     it("returns markup for title, keyword, args", function () {
-        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key", "arg1", "arg2" ] }))
-            .toEqual("<url>title</url> <match>key</match> <dim>arg1 arg2</dim>");
+        expect(FactotumBg.getOmniboxSuggestion("title", { _: [ "key", "arg1", "arg2" ] }))
+            .toEqual({
+                description: "<url>title</url> <match>key</match> <dim>arg1 arg2</dim>",
+                content: "key arg1 arg2"
+            });
     });
 
     it("returns markup for no title, keyword", function () {
-        expect(FactotumBg.getOmniboxDescription("", { _: [ "key" ] }))
-            .toEqual("<match>key</match>");
+        expect(FactotumBg.getOmniboxSuggestion("", { _: [ "key" ] }))
+            .toEqual({
+                description: "<match>key</match>",
+                content: "key"
+            });
 
-        expect(FactotumBg.getOmniboxDescription(null, { _: [ "key" ] }))
-            .toEqual("<match>key</match>");
+        expect(FactotumBg.getOmniboxSuggestion(null, { _: [ "key" ] }))
+            .toEqual({
+                description: "<match>key</match>",
+                content: "key"
+            });
     });
 
     it("returns markup for title, keyword, and internal options", function () {
-        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key", "arg1", "arg2" ], debug: true, bgdebug: true, help: true }))
-            .toEqual("<url>title</url> <match>key</match> <dim>arg1 --bg-debug --debug --help arg2</dim>");
+        expect(FactotumBg.getOmniboxSuggestion("title", { _: [ "key", "arg1", "arg2" ], debug: true, bgdebug: true, help: true }))
+            .toEqual({
+                description: "<url>title</url> <match>key</match> <dim>--bg-debug --debug --help arg1 arg2</dim>",
+                content: "key --bg-debug --debug --help arg1 arg2"
+            });
     });
 
     it("returns markup if title has characters needing escape", function () {
-        expect(FactotumBg.getOmniboxDescription("title<>&'\"end", { _: [ "" ] }))
-            .toEqual("<url>title&#60;&#62;&#38;&#39;&#34;end</url>");
+        expect(FactotumBg.getOmniboxSuggestion("title<>&'\"end", { _: [ "" ] }))
+            .toEqual({
+                description: "<url>title&#60;&#62;&#38;&#39;&#34;end</url>",
+                content: ""
+            });
     });
 
     it("returns markup if keyword has characters needing escape", function () {
-        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key<>&'\"end" ] }))
-            .toEqual("<url>title</url> <match>key&#60;&#62;&#38;&#39;&#34;end</match>");
+        expect(FactotumBg.getOmniboxSuggestion("title", { _: [ "key<>&'\"end" ] }))
+            .toEqual({
+                description: "<url>title</url> <match>key&#60;&#62;&#38;&#39;&#34;end</match>",
+                content: "key<>&'\"end"
+            });
     });
 
     it("returns markup if args has characters needing escape", function () {
-        expect(FactotumBg.getOmniboxDescription("title", { _: [ "key", "arg<>&'\"end" ] }))
-            .toEqual("<url>title</url> <match>key</match> <dim>arg&#60;&#62;&#38;&#39;&#34;end</dim>");
+        expect(FactotumBg.getOmniboxSuggestion("title", { _: [ "key", "arg<>&'\"end" ] }))
+            .toEqual({
+                description: "<url>title</url> <match>key</match> <dim>arg&#60;&#62;&#38;&#39;&#34;end</dim>",
+                content: "key arg<>&'\"end"
+            });
     });
 
     it("doesn't modify the input object's _ array", function () {
         var cmdline = "cmd --bg-debug arg1 --debug arg2 --help arg3";
         var opts = FactotumBg.parseCommandLine(cmdline);
         var argClone = opts._.concat([]);
-        FactotumBg.getOmniboxDescription("title", opts);
+        FactotumBg.getOmniboxSuggestion("title", opts);
         expect(opts._).toEqual(argClone);
     });
-}); // getOmniboxDescription
+}); // getOmniboxSuggestion
 
 
 describe("replaceHtmlEntities", function() {
@@ -173,15 +209,21 @@ describe("stringifyInternalOptions", function() {
 
 
 describe("reconstructCmdline", function() {
-    it("returns a string that can be reparsed equivalent to the original parsed string", function () {
+    it("returns an object with cmdline strings that can be reparsed equivalent to the original parsed string", function () {
         var cmdline = "cmd --bg-debug arg1 --debug arg2 --help arg3";
         var opts = FactotumBg.parseCommandLine(cmdline);
         expect(FactotumBg.reconstructCmdline(opts))
-            .toEqual("cmd --bg-debug --debug --help arg1 arg2 arg3");
+            .toEqual({
+                withKeyword: "cmd --bg-debug --debug --help arg1 arg2 arg3",
+                noKeyword: "--bg-debug --debug --help arg1 arg2 arg3"
+            });
     });
 
-    it("returns empty string if nothing in opts", function () {
-        expect(FactotumBg.reconstructCmdline({})).toEqual("");
+    it("returns empty cmdlines if nothing in opts", function () {
+        expect(FactotumBg.reconstructCmdline({})).toEqual({
+            withKeyword: "",
+            noKeyword: ""
+        });
     });
 
     it("doesn't modify the input object's _ array", function () {
