@@ -1,9 +1,3 @@
-- now that omnibox suggestions' content gets the --guid=n appended to it,
-  you can have a situation where the user selects one, but then starts
-  typing afer the --guid=n value.  Accepting this modified command line will
-  invoke the exact match of the keyword, rather than what is specified by
-  the guid.  This will be surprising to users.
-
 - can use chrome.alarms to schedule Fcommand update checks
 
 - maybe Fcommand should also have a method to build a request to the
@@ -21,6 +15,12 @@
 - record all errors passed back to bg from Fcommands and present them from a
   menu option
     - use a ring buffer?
+
+- now that omnibox suggestions' content gets the --guid=n appended to it,
+  you can have a situation where the user selects one, but then starts
+  typing afer the --guid=n value.  Accepting this modified command line will
+  invoke the exact match of the keyword, rather than what is specified by
+  the guid.  This will be surprising to users.
 
 - would be cool to flag an fcommand as taking no parameters and being able
   to be run from the context menu.  Then we can populate the context menu
