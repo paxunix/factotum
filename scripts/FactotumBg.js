@@ -127,18 +127,11 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     var internalOptions = FactotumBg.parseCommandLine(text);
 
     // If no command, take the default description (something was entered,
-    // but there's no Fcommand word yet).
-    if (internalOptions._.length === 0)
-    {
-        var suggestion = FactotumBg.getOmniboxSuggestion("", internalOptions);
-        delete suggestion.content;
-        chrome.omnibox.setDefaultSuggestion(suggestion);
-        return;
-    }
-
-    // The default suggestion always has the exact command line as entered
-    // so far.
-    var suggestion = FactotumBg.getOmniboxSuggestion("Run Fcommand:", internalOptions);
+    // but there's no Fcommand word yet).  Otherwise, the default suggestion
+    // always has the exact command line as entered so far.
+    var suggestion = FactotumBg.getOmniboxSuggestion(
+        internalOptions._.length === 0 ? "" : "Run Fcommand:",
+        internalOptions);
     delete suggestion.content;
     chrome.omnibox.setDefaultSuggestion(suggestion);
 
