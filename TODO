@@ -1,3 +1,20 @@
+- before adding tab disposition, refactor all the argument passing to the
+  content script, the import link generation, extracting and passing data to
+  the Fcommand, passing data back to the bg code, running the bg code, etc.
+  to take an object with a set of defined properties.  This instead of a
+  list of parameters will make it easier in the future to add possible
+  additional data without having to change interfaces all over the place.
+
+- disposition passed to the omnibox.onInputEntered event handler should be
+  passed to the Fcommand so it can know if the action is intended for a new
+  tab (bg or fg) or current tab
+    - does disposition have any meaning for bgcode?  If it does, how do we
+      tell the bgcode what is the current tab?  Actually, that's up to the
+      bg code to figure out (it's already executing in bg context, so it can
+      determine that).
+
+    - XXX: add tests for disposition passing to spec-Fcommand
+
 - can use chrome.alarms to schedule Fcommand update checks
 
 - maybe Fcommand should also have a method to build a request to the
