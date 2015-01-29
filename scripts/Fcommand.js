@@ -227,7 +227,7 @@ Fcommand._getFromLangSelector = function (document, selector, lang)
  * @private
  * @param {String} documentString - Input document to be parsed as HTML
  * markup.
- * @return {HTMLDocument} The HTMLDocument object resultfrin from
+ * @return {HTMLDocument} The HTMLDocument object resulting from
  * documentString.
  */
 Fcommand._parseDomFromString = function (documentString)
