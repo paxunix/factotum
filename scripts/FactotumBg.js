@@ -207,7 +207,7 @@ FactotumBg.parseCommandLine = function (text) {
 
 
 // Given a command line, figure out the Fcommand and run its function.
-FactotumBg.onOmniboxInputEntered = function (cmdline) {
+FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
     // Strip off the guid inserted for the omnibox suggestion.  If it
     // exists, use it to dispatch directly to the proper Fcommand;
     // otherwise, query for the first Fcommand with a keyword equal to the
@@ -267,18 +267,14 @@ FactotumBg.onOmniboxInputEntered = function (cmdline) {
                 return;
             }
 
-            // XXX: build this in a function so we can test it to be sure
-            // the content script receives what we expect
-            // XXX: need to include the parameter passed to this script so
-            // that the Fcommand can know if current/new foreground/new
-            // background tab action was used to enter the command.
-            var request = {
-                documentString: fcommand.documentString,
-                title: fcommand.extractedData.title,
-                guid: fcommand.extractedData.guid,
+            var request = fcommand.getContentScriptRequestData({
                 cmdline: opts,
                 internalOptions: internalOptions,
-            };
+                tabDisposition: tabDisposition,
+            });
+
+            // XXX: tab disposition should determine what happens.  Does it
+            // actually need to be passed into the Fcommand?
 
             // Ensure everything from this point happens for the current tab.
             chrome.tabs.query({ active: true }, function (tabs) {

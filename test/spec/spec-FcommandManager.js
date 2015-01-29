@@ -5,6 +5,7 @@ describe("FcommandManager", function() {
 var FcommandManager = require("../../scripts/FcommandManager.js");
 
     xit("constructs an FcommandManager object",
+        // XXX: need to handle creation of the DB
         function() {
             var mgr;
 
