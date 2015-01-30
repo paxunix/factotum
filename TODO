@@ -15,6 +15,9 @@
 
     - XXX: add tests for disposition passing to spec-Fcommand
 
+- should each Fcommand have its own config data?  Some Fcommands might want
+  to allow the user to save a setting that controls Fcommand behaviour.
+
 - can use chrome.alarms to schedule Fcommand update checks
 
 - maybe Fcommand should also have a method to build a request to the
