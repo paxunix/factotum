@@ -273,31 +273,28 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 tabDisposition: tabDisposition,
             });
 
-            // Dispatching the Fcommand requires we know the current tab
+            // Dispatching the Fcommand requires we know the current tab.
+            // We don't care about tab disposition here:  if a new tab was
+            // requested, we can't easily tell when the Factotum content
+            // script has been loaded within it, after which this code
+            // dispatches the Fcommand to it.  It's easier (for now, at
+            // least), to just invoke the Fcommand based on the current tab
+            // and pass the tab disposition to the Fcommand to be used
+            // appropriately.
             chrome.tabs.query({ active: true }, function (tabs) {
-                if (tabDisposition === "currentTab")
-                {
-                    // If the current page is internal, it can't run a "page"
-                    // context Fcommand.
-                    // XXX: may need some about: urls here too
-                    if (tabs[0].url.search(/^chrome/) !== -1)
-                    {
-                        console.log("Fcommand '" + fcommand.extractedData.title + "' cannot run on a browser page.");
-                        return;
-                    }
+                // Include current tab info in request
+                request.currentTab = tabs[0];
 
-                    chrome.tabs.sendMessage(tabs[0].id, request);
-                }
-                else
+                // If the current page is internal, it can't run a "page"
+                // context Fcommand.
+                // XXX: may need some about: urls here too
+                if (tabs[0].url.search(/^chrome/) !== -1)
                 {
-                    chrome.tabs.create({
-                        url: "about:blank",
-                        active: tabDisposition === "newForegroundTab",
-                        openerTabId:  tabs[0].id,
-                    }, function (newTab) {
-                        chrome.tabs.sendMessage(newTab.id, request);
-                    });
+                    console.log("Fcommand '" + fcommand.extractedData.title + "' cannot run on a browser page.");
+                    return;
                 }
+
+                chrome.tabs.sendMessage(tabs[0].id, request);
             });
         }).catch(function (rejectWith) {
             // XXX: surface error to user
