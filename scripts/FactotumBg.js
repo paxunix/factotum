@@ -273,11 +273,13 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 tabDisposition: tabDisposition,
             });
 
-            if (tabDisposition === "currentTab")
-            {
-                chrome.tabs.query({ active: true }, function (tabs) {
+            // Dispatching the Fcommand requires we know the current tab
+            chrome.tabs.query({ active: true }, function (tabs) {
+                if (tabDisposition === "currentTab")
+                {
                     // If the current page is internal, it can't run a "page"
                     // context Fcommand.
+                    // XXX: may need some about: urls here too
                     if (tabs[0].url.search(/^chrome/) !== -1)
                     {
                         console.log("Fcommand '" + fcommand.extractedData.title + "' cannot run on a browser page.");
@@ -285,18 +287,18 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                     }
 
                     chrome.tabs.sendMessage(tabs[0].id, request);
-                });
-            }
-            else
-            {
-                chrome.tabs.create({
-                    url: "about:blank",
-                    active: tabDisposition === "newForegroundTab",
-                    // XXX:  openerTabId:   set this to current tab ID?
-                }, function (newTab) {
-                    chrome.tabs.sendMessage(newTab.id, request);
-                });
-            }
+                }
+                else
+                {
+                    chrome.tabs.create({
+                        url: "about:blank",
+                        active: tabDisposition === "newForegroundTab",
+                        openerTabId:  tabs[0].id,
+                    }, function (newTab) {
+                        chrome.tabs.sendMessage(newTab.id, request);
+                    });
+                }
+            });
         }).catch(function (rejectWith) {
             // XXX: surface error to user
             console.log("Failed to run Fcommand: ", rejectWith);
