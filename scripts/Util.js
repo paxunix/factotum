@@ -59,6 +59,8 @@ Util.createImportLink = function (parentDocument, opts)
     var link = parentDocument.createElement("link");
     link.rel = "import";
     link.id = Util.getFcommandImportId(opts.guid);
+    // XXX: should include everything in opts???  That way, adding future
+    // parameters is easy.
     link.dataset.fcommandArgs = JSON.stringify(opts.cmdline);
     link.dataset.fcommandInternalOptions = JSON.stringify(opts.internalOptions);
     link.href = URL.createObjectURL(blob);

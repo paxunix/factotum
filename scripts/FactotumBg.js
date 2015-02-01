@@ -333,6 +333,8 @@ FactotumBg.responseHandler = function (response) {
         fcommandManager.getByGuid(response.guid)
             .then(function (fcommand) {
                     fcommand.runBgCode(
+                        // XXX: this should take an object of the same form
+                        // as passed to the content script
                         response.data,
                         response.opts,
                         response.internalOptions

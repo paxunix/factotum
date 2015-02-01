@@ -51,40 +51,40 @@ ContentScript.Cache = {
 
 /**
  * Return a Promise to load the import document specified in request.
- * @param {Object} obj - Input/output data.
- * @property {Object} obj.request - Fcommand data send from the background page
- * @property {String} obj.request.documentString - the HTML string to use as the import document for the Fcommand
- * @property {String} obj.request.cmdline - minimist parsed object containing Fcommand cmdline data
- * @property {String} obj.request.guid - Fcommand GUID
- * @property {Object} obj.request.internalOptions - internal options (like debug, help, etc.)
+ * @param {Object} request - Input/output data.  This becomes the object
+ * passed to resolves/rejecters.
+ * @property {String} request.documentString - the HTML string to use as the import document for the Fcommand
+ * @property {String} request.cmdline - minimist parsed object containing Fcommand cmdline data
+ * @property {String} request.guid - Fcommand GUID
+ * @property {Object} request.internalOptions - internal options (like debug, help, etc.)
  * @returns {Promise} - promise to load the import document
  */
-ContentScript.getLoadImportPromise = function (obj)
+ContentScript.getLoadImportPromise = function (request)
 {
     return new Promise(function (resolve, reject) {
-        if (ContentScript.Cache.get(obj.request.guid))
+        if (ContentScript.Cache.get(request.guid))
         {
-            obj.error = "Fcommand '" + obj.request.title +
-                "' (" + obj.request.guid + ") is still running in this tab.";
-            reject(obj);
+            request.error = "Fcommand '" + request.title +
+                "' (" + request.guid + ") is still running in this tab.";
+            reject(request);
 
             return;
         }
         else
-            ContentScript.Cache.set(obj.request.guid, true);
+            ContentScript.Cache.set(request.guid, true);
 
-        obj.linkElement = Util.createImportLink(document, obj.request);
+        request.linkElement = Util.createImportLink(document, request);
 
-        obj.linkElement.onload = function onload() {
-            resolve(obj);
+        request.linkElement.onload = function onload() {
+            resolve(request);
         };
 
-        obj.linkElement.onerror = function onerror(evt) {
-            obj.error = Error(evt.statusText);
-            reject(obj);
+        request.linkElement.onerror = function onerror(evt) {
+            request.error = Error(evt.statusText);
+            reject(request);
         };
 
-        ContentScript.appendNodeToDocumentHead(obj.linkElement);
+        ContentScript.appendNodeToDocumentHead(request.linkElement);
     });     // new Promise
 }   // ContentScript.getLoadImportPromise
 
@@ -96,12 +96,11 @@ ContentScript.getLoadImportPromise = function (obj)
 // is either a string or an Error object.
 ContentScript.factotumListener = function (request)
 {
-    ContentScript.getLoadImportPromise({ request: request }).
+    ContentScript.getLoadImportPromise(request).
         catch(function (rejectWith) {
             // This Fcommand is no longer running in this tab.
-            ContentScript.Cache.delete(request.guid);
+            ContentScript.Cache.delete(rejectWith.guid);
 
-            rejectWith.guid = request.guid;
             chrome.runtime.sendMessage(rejectWith);
         });
 
