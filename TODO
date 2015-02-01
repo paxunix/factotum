@@ -1,3 +1,8 @@
+- pass the full request's data to the content script, to the fcommand, and
+  back to the bg code (can strip out things like the document string).
+    - or create an object that holds the things that should be passed all
+      the way through
+
 - before adding tab disposition, refactor all the argument passing to the
   content script, the import link generation, extracting and passing data to
   the Fcommand, passing data back to the bg code, running the bg code, etc.
@@ -19,9 +24,6 @@
   to allow the user to save a setting that controls Fcommand behaviour.
 
 - can use chrome.alarms to schedule Fcommand update checks
-
-- maybe Fcommand should also have a method to build a request to the
-  content script?
 
 - might be useful to have a method to log a message to the collected set of
   errors, etc. saved in the bg page.  Something like console.log, but it
