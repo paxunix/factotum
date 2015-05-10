@@ -76,7 +76,7 @@
         "privacy",
         //"processes",
         "proxy",
-        "pushMessaging",
+        //"pushMessaging",
         "sessions",
         //"signedInDevices",
         "storage",
