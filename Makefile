@@ -66,7 +66,8 @@ build/test.js: $(TEST_SCRIPTS)
 
 build/help.html: html/help.html
 	mkdir -p $(OUTDIR)
-	./node_modules/vulcanize/bin/vulcanize --csp $^ -o $@
+	./node_modules/vulcanize/bin/vulcanize $^ | \
+        ./node_modules/crisper/bin/crisper --html $@ --js $(basename $@).js
 
 kill:
 	pkill -f `which watchify`; true
@@ -83,5 +84,5 @@ update:
 	bower update
 
 setup:
-	npm install debowerify watchify vulcanize
+	npm install debowerify watchify vulcanize crisper
 	bower update

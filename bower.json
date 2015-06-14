@@ -23,12 +23,12 @@
     "globals"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#~0.5.2",
-    "dexie": "~1.0.2",
-    "node-semver": "npm/node-semver#~4.1.1",
-    "paper-elements": "Polymer/paper-elements#~0.5.2"
+    "polymer": "Polymer/polymer",
+    "dexie": "",
+    "node-semver": "npm/node-semver",
+    "paper-elements": "PolymerElements/paper-elements"
   },
   "devDependencies": {
-    "jasmine": "~2.1.3"
+    "jasmine": ""
   }
 }
