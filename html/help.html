@@ -1,48 +1,54 @@
 <head>
-  <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
 
-  <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+  <link rel="import" href="../bower_components/paper-material/paper-material.html">
   <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
   <style>
+    #help-material {
+      height: 95%;
+      width: 95%;
+      padding: 1em;
+    }
   </style>
 </head>
 
 <body unresolved>
-  <template id="help-dialog" is="auto-binding">
-    <paper-dialog heading="Help XXX: fcommand" transition="core-transition-center" backdrop>
-      <div id="help-content"></div>
-      <paper-button id="dismiss-button" on-click="{{dismissDialog}}" raised autofocus tabindex="0">Dismiss</paper-button>
-    </paper-dialog>
-  </template>
+  <paper-material id="help-material" elevation="3">
+    <div id="help-content"></div>
+    <paper-button id="dismiss-button" raised autofocus>
+      Dismiss
+    </paper-button>
+  </paper-material>
 
   <script>
-    var dialog = document.querySelector("#help-dialog");
+    window.addEventListener("WebComponentsReady", function() {
+      // Put help markup for this Fcommand into the dialog
+      chrome.runtime.getBackgroundPage(function (bgScope) {
+        // Extract Fcommand guid from "?guid=abcd" query string and use it to
+        // get the help markup for the Fcommand.
+        var guid = document.location.search.substr(6);
+        var div = document.querySelector("#help-content");
 
-    dialog.dismissDialog = function () {
-      window.close();
-    };
+        bgScope.fcommandManager.getByGuid(guid)
+          .then(function (fcommand) {
+              div.innerHTML = fcommand.extractedData.helpMarkup;
 
-    window.addEventListener("polymer-ready", function() {
-      var dialog = document.querySelector("#help-dialog");
-      // XXX: YTF can't I get this button to focus?
-      dialog.$["dismiss-button"].focus();
-    });
+              // XXX: it would be handy to use the same keyword that
+              // activated the help, rather than always using the first
+              // keyword for the Fcommand
+              document.title = "Help: " + fcommand.extractedData.keywords[0];
+            })
+          .catch(function (rej) {
+              // XXX: surface error to user
+              console.log("Failed retrieving Fcommand: ", rej);
+            });
+      });
 
-    chrome.runtime.getBackgroundPage(function (bgScope) {
-      // Extract Fcommand guid from "?guid=abcd" query string and use it to
-      // get the help markup for the Fcommand.
-      var guid = document.location.search.substr(6);
-      var div = document.querySelector("#help-content");
-
-      bgScope.fcommandManager.getByGuid(guid)
-        .then(function (fcommand) {
-            div.innerHTML = fcommand.extractedData.helpMarkup;
-          })
-        .catch(function (rej) {
-            // XXX: surface error to user
-            console.log("Failed retrieving Fcommand: ", rej);
-          });
+      var dismissBtn = document.querySelector("#dismiss-button");
+      dismissBtn.addEventListener("click", function () {
+        window.close();
+      });
     });
   </script>
 </body>
