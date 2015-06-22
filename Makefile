@@ -10,42 +10,51 @@ TOOL := browserify
 # If adding/removing a bg file, update this list:
 #	browserify -t debowerify scripts/background.js --list | sed -e 's,'$PWD'/,,' -e '/^\//d'
 # We don't do it on each makefile invocation because it's time-consuming.
-BG_SCRIPTS := scripts/ShellParse.js \
-              scripts/Help.js \
-              scripts/GetOpt.js \
-              scripts/Util.js \
-              bower_components/node-semver/semver.js \
-              scripts/Fcommand.js \
-              scripts/FactotumBg.js \
-              scripts/background.js
+BG_SCRIPTS := \
+    scripts/Util.js \
+    scripts/GetOpt.js \
+    scripts/Help.js \
+    scripts/TransferObject.js \
+    scripts/ShellParse.js \
+    scripts/FactotumBg.js \
+    bower_components/dexie/dist/latest/Dexie.js \
+    scripts/FcommandManager.js \
+    bower_components/node-semver/semver.js \
+    scripts/Fcommand.js \
+    scripts/background.js \
 
 # If adding/removing a content file, update this list:
 #	browserify -t debowerify scripts/content.js --list | sed -e 's,'$PWD'/,,' -e '/^\//d'
 # We don't do it on each makefile invocation because it's time-consuming.
-CONTENT_SCRIPTS := scripts/Util.js \
-                   scripts/ContentScript.js \
-                   scripts/content.js
+CONTENT_SCRIPTS := \
+    scripts/Util.js \
+    scripts/ContentScript.js \
+    scripts/content.js \
 
 # If adding/removing a test file, update this list:
 #	browserify -t debowerify test/spec/*.js --list | sed -e 's,'$PWD'/,,' -e '/^\//d'
 # We don't do it on each makefile invocation because it's time-consuming.
-TEST_SCRIPTS := test/spec/spec-Util.js \
-				scripts/FcommandManager.js \
-				test/spec/spec-FcommandManager.js \
-				scripts/GetOpt.js \
-				test/spec/spec-GetOpt.js \
-				scripts/Util.js \
-				test/spec/spec-inject.js \
-				scripts/ShellParse.js \
-				test/spec/spec-ShellParse.js \
-				scripts/ContentScript.js \
-				test/spec/spec-ContentScript.js \
-				scripts/Help.js \
-				scripts/FactotumBg.js \
-				test/spec/spec-FactotumBg.js \
-				bower_components/node-semver/semver.js \
-				scripts/Fcommand.js \
-				test/spec/spec-Fcommand.js
+TEST_SCRIPTS := \
+    test/spec/spec-Fcommand.js \
+    test/spec/spec-Util.js \
+    scripts/Util.js \
+    test/spec/spec-inject.js \
+    scripts/GetOpt.js \
+    test/spec/spec-GetOpt.js \
+    scripts/ShellParse.js \
+    test/spec/spec-ShellParse.js \
+    scripts/TransferObject.js \
+    test/spec/spec-TransferObject.js \
+    scripts/ContentScript.js \
+    test/spec/spec-ContentScript.js \
+    scripts/Help.js \
+    scripts/FactotumBg.js \
+    bower_components/dexie/dist/latest/Dexie.js \
+    scripts/FcommandManager.js \
+    test/spec/spec-FcommandManager.js \
+    bower_components/node-semver/semver.js \
+    scripts/Fcommand.js \
+    test/spec/spec-FactotumBg.js \
 
 
 all: build
