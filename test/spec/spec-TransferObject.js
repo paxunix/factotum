@@ -12,35 +12,43 @@ it("constructs an empty TransferObject", function() {
 });
 
 
-it("sets/gets tab disposition", function() {
+it("sets/gets tab disposition, with setter chaining", function() {
     var o = new TransferObject();
-    o.setTabDisposition("test");
-
+    var o2 = o.setTabDisposition("test");
     expect(o.getTabDisposition()).toEqual("test");
+
+    o2.setTabDisposition("test2");
+    expect(o2.getTabDisposition()).toEqual("test2");
 });
 
 
 it("sets/gets document string", function() {
     var o = new TransferObject();
-    o.setDocumentString("the string");
-
+    var o2 = o.setDocumentString("the string");
     expect(o.getDocumentString()).toEqual("the string");
+
+    o2.setDocumentString("the string2");
+    expect(o2.getDocumentString()).toEqual("the string2");
 });
 
 
 it("sets/gets command line options", function() {
     var o = new TransferObject();
-    o.setCmdlineOptions({a: [1, 2]});
-
+    var o2 = o.setCmdlineOptions({a: [1, 2]});
     expect(o.getCmdlineOptions()).toEqual({a: [1, 2]});
+
+    o2.setCmdlineOptions({b: [3, 4]});
+    expect(o2.getCmdlineOptions()).toEqual({b: [3, 4]});
 });
 
 
 it("sets/gets internal command line options", function() {
     var o = new TransferObject();
-    o.setInternalCmdlineOptions({a: [1, 2]});
-
+    var o2 = o.setInternalCmdlineOptions({a: [1, 2]});
     expect(o.getInternalCmdlineOptions()).toEqual({a: [1, 2]});
+
+    o2.setInternalCmdlineOptions({b: [3, 4]});
+    expect(o2.getInternalCmdlineOptions()).toEqual({b: [3, 4]});
 });
 
 

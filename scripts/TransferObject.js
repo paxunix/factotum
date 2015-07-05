@@ -18,6 +18,7 @@ function TransferObject() {
  */
 TransferObject.prototype.setTabDisposition = function (disposition) {
     this.tabDisposition = disposition;
+    return this;
 }   // TransferObject.setTabDisposition
 
 
@@ -34,6 +35,7 @@ TransferObject.prototype.getTabDisposition = function () {
  */
 TransferObject.prototype.setDocumentString = function (documentString) {
     this.documentString = documentString;
+    return this;
 }   // TransferObject.setDocumentString
 
 
@@ -50,6 +52,7 @@ TransferObject.prototype.getDocumentString = function () {
  */
 TransferObject.prototype.setCmdlineOptions = function (options) {
     this.cmdlineOpts = options;
+    return this;
 }   // TransferObject.setCmdlineOptions
 
 
@@ -66,6 +69,7 @@ TransferObject.prototype.getCmdlineOptions = function () {
  */
 TransferObject.prototype.setInternalCmdlineOptions = function (options) {
     this.internalCmdlineOpts = options;
+    return this;
 }   // TransferObject.setInternalCmdlineOptions
 
 
