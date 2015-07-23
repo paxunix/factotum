@@ -81,6 +81,57 @@ TransferObject.prototype.getInternalCmdlineOptions = function () {
 }   // TransferObject.getInternalCmdlineOptions
 
 
+/**
+ * @param {String} title - title for the Fcommand
+ */
+TransferObject.prototype.setTitle = function (title) {
+    this.title = title;
+    return this;
+}   // TransferObject.setTitle
+
+
+/**
+ * @return {String} - title string
+ */
+TransferObject.prototype.getTitle = function () {
+    return this.title;
+}   // TransferObject.getTitle
+
+
+/**
+ * @param {String} guid - guid for the Fcommand
+ */
+TransferObject.prototype.setGuid = function (guid) {
+    this.guid = guid;
+    return this;
+}   // TransferObject.setGuid
+
+
+/**
+ * @return {String} - guid string
+ */
+TransferObject.prototype.getGuid = function () {
+    return this.guid;
+}   // TransferObject.getGuid
+
+
+/**
+ * @param {String} currentTab - currentTab for the Fcommand
+ */
+TransferObject.prototype.setCurrentTab = function (currentTab) {
+    this.currentTab = currentTab;
+    return this;
+}   // TransferObject.setCurrentTab
+
+
+/**
+ * @return {String} - currentTab string
+ */
+TransferObject.prototype.getCurrentTab = function () {
+    return this.currentTab;
+}   // TransferObject.getCurrentTab
+
+
 return TransferObject;
 
 

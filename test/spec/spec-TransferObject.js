@@ -52,4 +52,34 @@ it("sets/gets internal command line options", function() {
 });
 
 
+it("sets/gets title", function() {
+    var o = new TransferObject();
+    var o2 = o.setTitle("test title");
+    expect(o.getTitle()).toEqual("test title");
+
+    o2.setTitle("test title2");
+    expect(o2.getTitle()).toEqual("test title2");
+});
+
+
+it("sets/gets guid", function() {
+    var o = new TransferObject();
+    var o2 = o.setGuid("test guid");
+    expect(o.getGuid()).toEqual("test guid");
+
+    o2.setGuid("test guid2");
+    expect(o2.getGuid()).toEqual("test guid2");
+});
+
+
+it("sets/gets current tab object", function() {
+    var o = new TransferObject();
+    var o2 = o.setCurrentTab({a:1});
+    expect(o.getCurrentTab()).toEqual({a:1});
+
+    o2.setCurrentTab({b:2});
+    expect(o2.getCurrentTab()).toEqual({b:2});
+});
+
+
 }); // TransferObject
