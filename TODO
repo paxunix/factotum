@@ -2,6 +2,8 @@
   back to the bg code (can strip out things like the document string).
     - or create an object that holds the things that should be passed all
       the way through
+        - this is good, but the object needs to be loaded in both the
+          content script and bg
 
 - before adding tab disposition, refactor all the argument passing to the
   content script, the import link generation, extracting and passing data to

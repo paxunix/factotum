@@ -48,8 +48,8 @@ Util.fetchDocument = function (url)
  * @param {HTMLDocument} parentDocument - The document the <link> element will be appended to
  * @param {Object} opts - Specifies data used for the import
  * @property {String} opts.documentString - the text/html string data to import
- * @property {Object} opts.cmdline - the command line options to be made available for this Fcommand invocation
- * @property {Object} opts.internalOptions - internal-only command line options
+ * @property {Object} opts.cmdlineOpts - the command line options to be made available for this Fcommand invocation
+ * @property {Object} opts.internalCmdlineOpts - internal-only command line options
  * @property {Object} opts.guid - the GUID for the Fcommand being imported
  * @return {HTMLLinkElement} - A <link> element.
  */
@@ -61,8 +61,8 @@ Util.createImportLink = function (parentDocument, opts)
     link.id = Util.getFcommandImportId(opts.guid);
     // XXX: should include everything in opts???  That way, adding future
     // parameters is easy.
-    link.dataset.fcommandArgs = JSON.stringify(opts.cmdline);
-    link.dataset.fcommandInternalOptions = JSON.stringify(opts.internalOptions);
+    link.dataset.fcommandArgs = JSON.stringify(opts.cmdlineOpts);
+    link.dataset.fcommandInternalOptions = JSON.stringify(opts.internalCmdlineOpts);
     link.href = URL.createObjectURL(blob);
 
     return link;

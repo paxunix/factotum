@@ -268,11 +268,12 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 return;
             }
 
-            var request = fcommand.getContentScriptRequestData({
-                cmdline: opts,
-                internalOptions: internalOptions,
-                tabDisposition: tabDisposition,
-            });
+            var requestData = fcommand
+                .getContentScriptRequestData(new TransferObject()
+                    .setCmdlineOptions(opts)
+                    .setInternalCmdlineOptions(internalOptions)
+                    .setTabDisposition(tabDisposition)
+                );
 
             // Dispatching the Fcommand requires we know the current tab.
             // We don't care about tab disposition here:  if a new tab was
@@ -284,18 +285,18 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
             // appropriately.
             chrome.tabs.query({ active: true }, function (tabs) {
                 // Include current tab info in request
-                request.currentTab = tabs[0];
+                requestData.setCurrentTab(tabs[0]);
 
                 // If the current page is internal, it can't run a "page"
                 // context Fcommand.
                 // XXX: may need some about: urls here too
                 if (tabs[0].url.search(/^chrome/) !== -1)
                 {
-                    console.log("Fcommand '" + fcommand.extractedData.title + "' cannot run on a browser page.");
+                    console.log("Fcommand '" + requestData.getTitle() + "' cannot run on a browser page.");
                     return;
                 }
 
-                chrome.tabs.sendMessage(tabs[0].id, request);
+                chrome.tabs.sendMessage(tabs[0].id, requestData);
             });
         }).catch(function (rejectWith) {
             // XXX: surface error to user

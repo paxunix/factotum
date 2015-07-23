@@ -358,25 +358,17 @@ Fcommand.prototype.runBgCode = function (inputData, opts, internalOpts)
 /**
  * Return an object containing Fcommand data to be passed to the content
  * script, augmented with additional data depending on context.
- * @param {Object} augmentWith - object whose properties are added to the
- * returned object.
- * @return Object - Fcommand properties for passing to the content script,
- * augmented with the given properties.
+ * @param {TransferObject} transferObject - accumulator for data to be
+ * passed to the content script
+ * @return TransferObject - the input transferObject, with Fcommand-specific
+ * data.
  */
-Fcommand.prototype.getContentScriptRequestData = function(augmentWith)
+Fcommand.prototype.getContentScriptRequestData = function (transferObject)
 {
-    var ret = {
-        documentString: this.documentString,
-        title: this.extractedData.title,
-        guid: this.extractedData.guid,
-    };
-
-    for (var k in augmentWith)
-    {
-        ret[k] = augmentWith[k];
-    }
-
-    return ret;
+    return transferObject
+        .setDocumentString(this.documentString)
+        .setTitle(this.extractedData.title)
+        .setGuid(this.extractedData.guid);
     //XXX: test me
 }   // Fcommand.prototype.getContentScriptRequestData
 
