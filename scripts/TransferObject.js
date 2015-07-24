@@ -132,6 +132,23 @@ TransferObject.prototype.getCurrentTab = function () {
 }   // TransferObject.getCurrentTab
 
 
+/**
+ * @param {String} errorMessage
+ */
+TransferObject.prototype.setErrorMessage = function (msg) {
+    this.errorMessage = msg;
+    return this;
+}   // TransferObject.setErrorMessage
+
+
+/**
+ * @return {String} - error message text
+ */
+TransferObject.prototype.getErrorMessage = function () {
+    return this.errorMessage;
+}   // TransferObject.getErrorMessage
+
+
 return TransferObject;
 
 

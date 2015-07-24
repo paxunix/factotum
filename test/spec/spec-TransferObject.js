@@ -82,4 +82,14 @@ it("sets/gets current tab object", function() {
 });
 
 
+it("sets/gets error message", function() {
+    var o = new TransferObject();
+    var o2 = o.setErrorMessage("test error msg");
+    expect(o.getErrorMessage()).toEqual("test error msg");
+
+    o2.setErrorMessage("test error 2");
+    expect(o2.getErrorMessage()).toEqual("test error 2");
+});
+
+
 }); // TransferObject
