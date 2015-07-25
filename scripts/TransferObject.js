@@ -7,8 +7,19 @@ module.exports = (function() {
 /**
  * @class TransferObject Build and contain data for transfer between contexts.
  * @constructor
+ * @param {Object} obj - properties to be put into place in this object.
+ * If obj is an object, all its direct properties are shallow-copied into
+ * this object.
 */
-function TransferObject() {
+function TransferObject(obj) {
+    for (var p in (obj || {}))
+    {
+        if (obj.hasOwnProperty(p))
+        {
+            this[p] = obj[p];
+        }
+    }
+
     return this;
 }   // TransferObject constructor
 

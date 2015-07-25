@@ -12,6 +12,14 @@ it("constructs an empty TransferObject", function() {
 });
 
 
+it("constructs a TransferObject from an existing object", function() {
+    var o = new TransferObject({a: 1, guid: 2});
+    expect(o.a).toBe(1);
+    expect(o.getGuid()).toBe(2);
+    expect(o instanceof TransferObject).toBe(true);
+});
+
+
 it("sets/gets tab disposition, with setter chaining", function() {
     var o = new TransferObject();
     var o2 = o.setTabDisposition("test");
