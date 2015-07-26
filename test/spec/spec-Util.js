@@ -4,6 +4,7 @@ describe("Util", function() {
 
 
 var lang = "en-us";
+var TransferObject = require("../../scripts/TransferObject.js");
 var Util = require("../../scripts/Util.js");
 
 
@@ -36,21 +37,18 @@ describe("fetchDocument", function() {
 describe("createImportLink", function() {
 
     it("creates a link from documentString", function() {
-        var cmdline = { a: 1, b: [ 2, 3 ], c: { d: "four" } };
-        var internalOpts = { a: 1, b: [ 2, { c: "3" } ] };
-        var guid = "1234";
-        var link = Util.createImportLink(document, {
-            documentString: "docstring",
-            guid: guid,
-            internalOptions: internalOpts,
-            cmdline: cmdline,
-        });
+        var t = new TransferObject()
+            .setCmdlineOptions({ a: 1, b: [ 2, 3 ], c: { d: "four" } })
+            .setInternalCmdlineOptions({ a: 1, b: [ 2, { c: "3" } ] })
+            .setGuid("1234")
+            .setDocumentString("docstring");
+        var link = Util.createImportLink(document, t);
 
         expect(link instanceof HTMLLinkElement).toBe(true);
         expect(link.rel).toEqual("import");
-        expect(link.id).toEqual(Util.getFcommandImportId(guid));
-        expect(link.dataset.fcommandArgs).toEqual(JSON.stringify(cmdline));
-        expect(link.dataset.fcommandInternalOptions).toEqual(JSON.stringify(internalOpts));
+        expect(link.id).toEqual(Util.getFcommandImportId(t.getGuid()));
+        expect(link.dataset.fcommandArgs).toEqual(JSON.stringify(t.getCmdlineOptions()));
+        expect(link.dataset.fcommandInternalOptions).toEqual(JSON.stringify(t.getInternalCmdlineOptions()));
         URL.revokeObjectURL(link.href);
     });
 

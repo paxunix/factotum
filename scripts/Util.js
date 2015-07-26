@@ -2,6 +2,8 @@
 
 module.exports = (function() {
 
+var TransferObject = require("./TransferObject.js");
+
 var Util = {};
 
 /**
@@ -46,23 +48,17 @@ Util.fetchDocument = function (url)
 /**
  * Create a <link> import element to be inserted in the parentDocument.
  * @param {HTMLDocument} parentDocument - The document the <link> element will be appended to
- * @param {Object} opts - Specifies data used for the import
- * @property {String} opts.documentString - the text/html string data to import
- * @property {Object} opts.cmdlineOpts - the command line options to be made available for this Fcommand invocation
- * @property {Object} opts.internalCmdlineOpts - internal-only command line options
- * @property {Object} opts.guid - the GUID for the Fcommand being imported
+ * @param {TransferObject} transferObj - Object containing data from the bg.
  * @return {HTMLLinkElement} - A <link> element.
  */
-Util.createImportLink = function (parentDocument, opts)
+Util.createImportLink = function (parentDocument, transferObj)
 {
-    var blob = new Blob([opts.documentString], { type: "text/html" });
+    var blob = new Blob([transferObj.getDocumentString()], { type: "text/html" });
     var link = parentDocument.createElement("link");
     link.rel = "import";
-    link.id = Util.getFcommandImportId(opts.guid);
-    // XXX: should include everything in opts???  That way, adding future
-    // parameters is easy.
-    link.dataset.fcommandArgs = JSON.stringify(opts.cmdlineOpts);
-    link.dataset.fcommandInternalOptions = JSON.stringify(opts.internalCmdlineOpts);
+    link.id = Util.getFcommandImportId(transferObj.getGuid());
+    link.dataset.fcommandArgs = JSON.stringify(transferObj.getCmdlineOptions());
+    link.dataset.fcommandInternalOptions = JSON.stringify(transferObj.getInternalCmdlineOptions());
     link.href = URL.createObjectURL(blob);
 
     return link;

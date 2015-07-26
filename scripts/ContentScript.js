@@ -2,6 +2,7 @@
 
 module.exports = (function() {
 
+var TransferObject = require("./TransferObject.js");
 var Util = require("./Util.js");
 
 
@@ -50,41 +51,42 @@ ContentScript.Cache = {
 
 
 /**
- * Return a Promise to load the import document specified in request.
- * @param {Object} request - Input/output data.  This becomes the object
- * passed to resolves/rejecters.
- * @property {String} request.documentString - the HTML string to use as the import document for the Fcommand
- * @property {String} request.cmdline - minimist parsed object containing Fcommand cmdline data
- * @property {String} request.guid - Fcommand GUID
- * @property {Object} request.internalOptions - internal options (like debug, help, etc.)
+ * Return a Promise to load the import document specified by the transfer
+ * object's data.
+ * @param {TransferObject} transferObj - Input/output data.  This object is rejected/resolved.
  * @returns {Promise} - promise to load the import document
  */
-ContentScript.getLoadImportPromise = function (request)
+ContentScript.getLoadImportPromise = function (transferObj)
 {
     return new Promise(function (resolve, reject) {
-        if (ContentScript.Cache.get(request.guid))
+        if (ContentScript.Cache.get(transferObj.getGuid()))
         {
-            request.error = "Fcommand '" + request.title +
-                "' (" + request.guid + ") is still running in this tab.";
-            reject(request);
+            transferObj.setErrorMessage("Fcommand '" + transferObj.getTitle() +
+                "' (" + transferObj.getGuid() + ") is still running in this tab.");
+            reject(transferObj);
 
             return;
         }
         else
-            ContentScript.Cache.set(request.guid, true);
+            ContentScript.Cache.set(transferObj.getGuid(), true);
 
-        request.linkElement = Util.createImportLink(document, request);
+        // XXX:  why does this need to be put on the transferObj, if
+        // it's only needed in this function (and a ref to it is appended to
+        // the document head)?
+        transferObj.linkElement = Util.createImportLink(document, transferObj);
 
-        request.linkElement.onload = function onload() {
-            resolve(request);
+        transferObj.linkElement.onload = function onload() {
+            resolve(transferObj);
         };
 
-        request.linkElement.onerror = function onerror(evt) {
-            request.error = Error(evt.statusText);
-            reject(request);
+        transferObj.linkElement.onerror = function onerror(evt) {
+            // XXX:  should support error obj (like we used to) as well as
+            // just error message???
+            transferObj.setErrorMessage(evt.statusText);
+            reject(transferObj);
         };
 
-        ContentScript.appendNodeToDocumentHead(request.linkElement);
+        ContentScript.appendNodeToDocumentHead(transferObj.linkElement);
     });     // new Promise
 }   // ContentScript.getLoadImportPromise
 
@@ -96,10 +98,12 @@ ContentScript.getLoadImportPromise = function (request)
 // is either a string or an Error object.
 ContentScript.factotumListener = function (request)
 {
-    ContentScript.getLoadImportPromise(request).
+    var transferObj = new TransferObject(request);
+
+    ContentScript.getLoadImportPromise(transferObj).
         catch(function (rejectWith) {
             // This Fcommand is no longer running in this tab.
-            ContentScript.Cache.delete(rejectWith.guid);
+            ContentScript.Cache.delete(rejectWith.getGuid());
 
             chrome.runtime.sendMessage(rejectWith);
         });

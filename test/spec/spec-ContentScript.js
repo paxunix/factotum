@@ -3,6 +3,7 @@
 describe("ContentScript", function() {
 
 var ContentScript = require("../../scripts/ContentScript.js");
+var TransferObject = require("../../scripts/TransferObject.js");
 
 describe("getLoadImportPromise", function() {
 
@@ -19,19 +20,14 @@ describe("getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onload({});
             });
-        var p = ContentScript.getLoadImportPromise({
-            request: {
-                documentString: "test",
-            },
-            document: document,
-        });
+        var t = new TransferObject().setDocumentString("test");
+        var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
 
         p.then(function (obj) {
             expect(addToHead).toHaveBeenCalled();
-            expect(obj.document instanceof HTMLDocument).toBe(true);
-            expect(obj.request.documentString).toEqual("test");
+            expect(obj.getDocumentString()).toEqual(t.getDocumentString());
             expect(obj.linkElement instanceof HTMLLinkElement).toBe(true);
             done();
         }).catch(function (obj) {
@@ -53,12 +49,8 @@ describe("getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onerror({ statusText: err });
             });
-        var p = ContentScript.getLoadImportPromise({
-            request: {
-                documentString: "test",
-            },
-            document: document,
-        });
+        var t = new TransferObject().setDocumentString("test");
+        var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
 
@@ -72,11 +64,9 @@ describe("getLoadImportPromise", function() {
             throw obj;
         }).catch(function (obj) {
             expect(addToHead).toHaveBeenCalled();
-            expect(obj.document instanceof HTMLDocument).toBe(true);
-            expect(obj.request.documentString).toEqual("test");
+            expect(obj.getDocumentString()).toEqual(t.getDocumentString());
             expect(obj.linkElement instanceof HTMLLinkElement).toBe(true);
-            expect(obj.error instanceof Error);
-            expect(obj.error.message).toMatch(new RegExp(err));
+            expect(obj.getErrorMessage()).toMatch(new RegExp(err));
             done();
         });
     });
