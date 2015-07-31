@@ -20,13 +20,6 @@ ContentScript.appendNodeToDocumentHead = function (node)
 }   // ContentScript.appendNodeToDocumentHead
 
 
-// Each promise ultimately fulfills to an object so that necessary state can
-// be passed to other promises.  The object can contain:
-//      request: the request object as passed from the background page
-//      linkElement:  the HTMLLinkElement that specifies the import doc
-//      error:  Error object (only present if a promise has been rejected)
-
-
 // Keep track of Fcommands currently executing in this tab, since we need to
 // prevent the same Fcommand from running multiple overlapping times.
 ContentScript.Cache = {
@@ -96,6 +89,7 @@ ContentScript.getLoadImportPromise = function (transferObj)
 // Fcommand, the error message is returned to Factotum.
 // The rejection object is expected to contain an error property whose value
 // is either a string or an Error object.
+// The promise value is a TransferObject.
 ContentScript.factotumListener = function (request)
 {
     var transferObj = new TransferObject(request);
