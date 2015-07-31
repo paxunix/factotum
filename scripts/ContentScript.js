@@ -63,23 +63,20 @@ ContentScript.getLoadImportPromise = function (transferObj)
         else
             ContentScript.Cache.set(transferObj.getGuid(), true);
 
-        // XXX:  why does this need to be put on the transferObj, if
-        // it's only needed in this function (and a ref to it is appended to
-        // the document head)?
-        transferObj.linkElement = Util.createImportLink(document, transferObj);
+        var elem = Util.createImportLink(document, transferObj);
 
-        transferObj.linkElement.onload = function onload() {
+        elem.onload = function onload() {
             resolve(transferObj);
         };
 
-        transferObj.linkElement.onerror = function onerror(evt) {
+        elem.onerror = function onerror(evt) {
             // XXX:  should support error obj (like we used to) as well as
             // just error message???
             transferObj.setErrorMessage(evt.statusText);
             reject(transferObj);
         };
 
-        ContentScript.appendNodeToDocumentHead(transferObj.linkElement);
+        ContentScript.appendNodeToDocumentHead(elem);
     });     // new Promise
 }   // ContentScript.getLoadImportPromise
 

@@ -28,7 +28,6 @@ describe("getLoadImportPromise", function() {
         p.then(function (obj) {
             expect(addToHead).toHaveBeenCalled();
             expect(obj.getDocumentString()).toEqual(t.getDocumentString());
-            expect(obj.linkElement instanceof HTMLLinkElement).toBe(true);
             done();
         }).catch(function (obj) {
             // this is a little funky; if the promise was rejected, the test
@@ -65,7 +64,6 @@ describe("getLoadImportPromise", function() {
         }).catch(function (obj) {
             expect(addToHead).toHaveBeenCalled();
             expect(obj.getDocumentString()).toEqual(t.getDocumentString());
-            expect(obj.linkElement instanceof HTMLLinkElement).toBe(true);
             expect(obj.getErrorMessage()).toMatch(new RegExp(err));
             done();
         });
