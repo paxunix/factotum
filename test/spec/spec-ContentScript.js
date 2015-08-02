@@ -68,6 +68,9 @@ describe("getLoadImportPromise", function() {
             done();
         });
     });
+
+    // XXX: test that it won't import again if the import currently exists
+    // in document.
 }); // getLoadImportPromise
 
 

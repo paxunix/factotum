@@ -1,5 +1,15 @@
-- create a TransferObject that holds the things that should be passed
+- the cache used to prevent an Fcommand from rerunning before it has
+  completed doesn't work:  command runs -> sets cache -> command runs again
+  -> checks cache and removes it because of the rejection -> command can be
+  run again without issue even though first instance is still running.
+    - if rejecting because it's already running, don't clear the cache
+      value.  In all other cases, clear it before return.
+    - do we need the cache?  Would it instead be reasonable to just check
+      the document for the import link and if it's there, do nothing???
+
+- WIP:  create a TransferObject that holds the things that should be passed
   around between contexts.
+    - still needs to be used for the response data back to the bg context
 
 - before adding tab disposition, refactor all the argument passing to the
   content script, the import link generation, extracting and passing data to

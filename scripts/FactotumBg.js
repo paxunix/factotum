@@ -311,6 +311,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
 
 // Called when each Fcommand has finished/failed executing.
 FactotumBg.responseHandler = function (response) {
+    // XXX:  shouldn't response be a TransferObject????
     if (chrome.runtime.lastError)
     {
         // XXX: this represents a failure in the extension and it

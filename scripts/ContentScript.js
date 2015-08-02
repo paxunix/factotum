@@ -94,6 +94,9 @@ ContentScript.factotumListener = function (request)
     ContentScript.getLoadImportPromise(transferObj).
         catch(function (rejectWith) {
             // This Fcommand is no longer running in this tab.
+            // XXX:  this is bad; if there is an error on a subsequent,
+            // overlapping run, the cache entry is removed even if the first
+            // Fcommand run is still ongoing.
             ContentScript.Cache.delete(rejectWith.getGuid());
 
             chrome.runtime.sendMessage(rejectWith);
