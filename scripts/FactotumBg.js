@@ -321,7 +321,7 @@ FactotumBg.responseHandler = function (response) {
         return;
     }
 
-    if ("error" in response)
+    if ("errorMessage" in response)
     {
         // XXX: should show guid and Fcommand description or something
         // (maybe the cmdline)
