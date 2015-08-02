@@ -3,7 +3,7 @@ SHELL := /bin/zsh
 .SHELLFLAGS := -f -c
 OUTDIR := build
 
-_DEBUG := $(if $(DEBUG),-d,)
+_DEBUG := $(if $(NODEBUG),,-d)
 
 TOOL := browserify
 
