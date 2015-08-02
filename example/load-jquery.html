@@ -94,12 +94,14 @@ Factotum.runCommand().
 
 <template id="getopt">
 <!--
-  You can have regular HTML comments in here.
-  Everything else is presumed to be a single JSON object blob.
+  You can have regular HTML comments in here.  The textContent of this
+  template is used as the JSON optspec.
   See GetOpt.js for the spec.
 
   You can even wrap it in a <script> so that your editor's syntax
   highlighting will highlight the JSON.
+
+  You can't embed Javascript comments, though.
 -->
 <script>
 {
@@ -111,6 +113,10 @@ Factotum.runCommand().
     "type": "boolean",
     "default": false,
     "aliases": [ "minify", "minified" ]
+  },
+  "delay": {
+    "type": "value",
+    "default": 5
   }
 }
 </script>
@@ -136,6 +142,8 @@ function loadJquery(opts, importDoc, onSuccess, onFailure) {
       opts.version +
       (opts.min ? ".min" : "") + ".js";
 
+  opts.delay = opts.delay || 0;
+
   var s = document.createElement("script");
   s.src = url;
   s.onload = function () {
@@ -149,7 +157,9 @@ function loadJquery(opts, importDoc, onSuccess, onFailure) {
           console.log("calling onSuccess");
 
           onSuccess({ jqueryVersion: jQuery.fn.jquery });
-        }, 5000);
+        }, opts.delay * 1000);
+
+      console.log(`Sleeping ${opts.delay} seconds before loading jQuery...`);
   };
   s.onerror = function (e) {
       // No need to keep the script around once it has run
