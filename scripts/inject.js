@@ -97,9 +97,10 @@ Factotum.runCommand = function (fcommandFunc)
         // If a thrown Error, its details will not be preserved when passed
         // to the background context, so pull out the stack and use it
         // as the error string.
+        // XXX:  this should be put in a transferobject
         var response = {
             guid: guid,
-            error: (error instanceof Error) ?  error.stack : error,
+            errorMessage: (error instanceof Error) ?  error.stack : error,
         };
 
         postMessage(response, "*");

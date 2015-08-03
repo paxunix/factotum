@@ -325,7 +325,7 @@ FactotumBg.responseHandler = function (response) {
     {
         // XXX: should show guid and Fcommand description or something
         // (maybe the cmdline)
-        console.log("error from content script:", response.error);
+        console.log("error from content script:", response.errorMessage);
         return;
     }
 
