@@ -14,7 +14,7 @@ window.Factotum = { };
  */
 Factotum._getImportElement = function (document, guid)
 {
-    return document.querySelector("head link#fcommand-" + guid + "[rel=import]");
+    return document.querySelector(`head link#fcommand-${guid}[rel=import]`);
 }   // Factotum._getImportElement
 
 

@@ -44,7 +44,7 @@ function Fcommand(documentString, language) {
  */
 Fcommand._getMetadataFieldString = function (field, document, lang)
 {
-    var value = Fcommand._getSelectorContent("head meta[name='" + field + "']", document, lang);
+    var value = Fcommand._getSelectorContent(`head meta[name='${field}']`, document, lang);
 
     if (value !== null)
         value = value.replace(/^\s+/, "").replace(/\s+$/, "");
@@ -149,7 +149,7 @@ Fcommand._getDataValidator = function()
     {
         return function throwIfNull(value) {
             if (value === null)
-                throw Error("Fcommand field '" + field + "' is required.");
+                throw Error(`Fcommand field '${field}' is required.`);
         };
     }
 
@@ -164,7 +164,7 @@ Fcommand._getDataValidator = function()
         title: getNullChecker("title"),
         version: function (value) {
             if (semver.valid(value) === null)
-                throw Error("Fcommand field 'version'='" + value + "' is not semver-compliant");
+                throw Error(`Fcommand field 'version'='${value}' is not semver-compliant`);
         },
     };
 }   // Fcommand._getDataValidator
@@ -285,7 +285,7 @@ Fcommand._extractOptSpec = function (document, lang)
 
     catch (e)
     {
-        throw Error("Failed parsing " + sel + ": " + e.stack);
+        throw Error(`Failed parsing ${sel}: ${e.stack}`);
     }
 }   // Fcommand._extractOptSpec
 

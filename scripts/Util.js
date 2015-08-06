@@ -13,7 +13,7 @@ var Util = {};
  */
 Util.getFcommandImportId = function (guid)
 {
-    return "fcommand-" + guid;
+    return `fcommand-${guid}`;
 }   // Util.getFcommandImportId
 
 

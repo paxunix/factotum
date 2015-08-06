@@ -17,7 +17,7 @@ Help.showFcommandHelp = function (fcommandGuid)
     var width = Math.round(window.screen.width * 0.30);
     var height = Math.round(window.screen.height * 0.55);
     var url = chrome.runtime.getURL("build/help.html") +
-        "?guid=" + fcommandGuid;
+        `?guid=${fcommandGuid}`;
 
     chrome.windows.create({
         url: url,

@@ -25,7 +25,7 @@ FactotumBg.stringifyInternalOptions = function(opts) {
 
 FactotumBg.replaceHtmlEntities = function(s) {
     return s.replace(/[<>&'"]/gm, function(i) {
-            return "&#" + i.charCodeAt(0) + ";";
+            return `&#${i.charCodeAt(0)};`;
         });
 }   // FactotumBg.replaceHtmlEntities
 
@@ -54,13 +54,13 @@ FactotumBg.getOmniboxSuggestion = function(title, opts) {
     var description = [];
 
     if (title !== undefined && title !== null && title !== "")
-        description.push("<url>" + FactotumBg.replaceHtmlEntities(title) + "</url>");
+        description.push(`<url>${FactotumBg.replaceHtmlEntities(title)}</url>`);
 
     if (keyword.length)
-        description.push("<match>" + FactotumBg.replaceHtmlEntities(keyword) + "</match>");
+        description.push(`<match>${FactotumBg.replaceHtmlEntities(keyword)}</match>`);
 
     if (cmdline.noKeyword !== "")
-        description.push("<dim>" + FactotumBg.replaceHtmlEntities(cmdline.noKeyword) + "</dim>");
+        description.push(`<dim>${FactotumBg.replaceHtmlEntities(cmdline.noKeyword)}</dim>`);
 
     suggestion.description = description.join(" ");
     suggestion.content = cmdline.withKeyword;
@@ -166,7 +166,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
                     // option parsing) --guid would appear as a regular
                     // argument and be skipped by the option parser.
                     var suggestion = FactotumBg.getOmniboxSuggestion(
-                            "Run '" + fcommand.extractedData.title + "':",
+                            `Run '${fcommand.extractedData.title}':`,
                             internalOptions
                         );
                     suggestion.content += " " + FCOMMAND_GUID_DELIM +
@@ -179,7 +179,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
             })
         .catch(function (rej) {
                 // XXX: surface to user
-                console.log("Failed to retrieve Fcommands for '" + internalOptions._[0] + "': ", rej);
+                console.log(`Failed to retrieve Fcommands for '${internalOptions._[0]}': `, rej);
             });
 };  // FactotumBg.onOmniboxInputChanged
 
@@ -250,8 +250,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 if (fcommand.extractedData.helpMarkup === null)
                 {
                     // XXX: surface this to user
-                    throw Error("No help available for Fcommand '" +
-                        fcommand.extractedData.title + "' (" + fcommand.extractedData.guid + ").");
+                    throw Error(`No help available for Fcommand '${fcommand.extractedData.title}' (${fcommand.extractedData.guid}).`);
                 }
 
                 Help.showFcommandHelp(fcommand.extractedData.guid);
@@ -292,7 +291,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 // XXX: may need some about: urls here too
                 if (tabs[0].url.search(/^chrome/) !== -1)
                 {
-                    console.log("Fcommand '" + requestData.getTitle() + "' cannot run on a browser page.");
+                    console.log(`Fcommand '${requestData.getTitle()}' cannot run on a browser page.`);
                     return;
                 }
 

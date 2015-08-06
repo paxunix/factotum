@@ -164,8 +164,7 @@ getOptions: function (spec, argv) {
                 nameOfValueOpt = thing.opt;
             }
             else
-                throw("Unknown option type '" +
-                      spec[thing.opt].type + "'.");
+                throw(`Unknown option type '${spec[thing.opt].type}'.`);
 
             continue;
         }   // if it's an option

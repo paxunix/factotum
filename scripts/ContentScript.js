@@ -54,8 +54,7 @@ ContentScript.getLoadImportPromise = function (transferObj)
     return new Promise(function (resolve, reject) {
         if (ContentScript.Cache.get(transferObj.getGuid()))
         {
-            transferObj.setErrorMessage("Fcommand '" + transferObj.getTitle() +
-                "' (" + transferObj.getGuid() + ") is still running in this tab.");
+            transferObj.setErrorMessage(`Fcommand '{transferObj.getTitle()}' (${transferObj.getGuid()}) is still running in this tab.`);
             reject(transferObj);
 
             return;

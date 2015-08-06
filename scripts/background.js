@@ -37,7 +37,7 @@ fetchThese.forEach(function (p) {
             return fcommandManager.save(fcommand);
         })
     .then(function (res) {
-            console.log("Test fcommand (" + res + ") loaded");
+            console.log(`Test fcommand (${res}) loaded`);
         })
     .catch(function rejectedWith(data) {
         console.log("Fcommand load failure:", data);
