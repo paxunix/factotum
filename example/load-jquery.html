@@ -73,13 +73,19 @@ page.  Optional.
   </div>
   <h2>SYNOPSIS</h2>
   <div class="indented pretty">
-    jq [<span class="opt">--min</span>] [<span class="opt">--version</span> <span class="optarg">v</span>]
+    jq [<span class="opt">--min</span>] [<span class="opt">--version</span> <span class="optarg">v</span>] [<span class="opt">--delay</span> <span class="optarg">[sec]</span>] [<span class="opt">--error</span> <span class="optarg">[msg]</span>]
   </div>
   <h2>DESCRIPTION</h2>
   <div class="indented pretty">
     Loads jQuery into the page's main frame.  If <span class="opt">--version</span> is not given, loads 2.1.1.
     <p>
     With <span class="opt">--min</span>, the minified Javascript for the requested version will be loaded.
+    <p>
+    <span class="opt">--delay</span> <span class="optarg">[sec]</span> specifies the number of seconds to wait before loading jQuery into the page.  Default=5.
+    <p>
+    <span class="opt">--throw</span> <span class="optarg">msg</span> specifies an error message to throw before loading jQuery (intended for testing).
+    <p>
+    <span class="opt">--fail</span> <span class="optarg">msg</span> specifies an error message to pass to onFailure() (intended for testing)..
   </div>
 </template>
 
@@ -117,6 +123,12 @@ Factotum.runCommand().
   "delay": {
     "type": "value",
     "default": 5
+  },
+  "throw": {
+    "type": "value"
+  },
+  "fail": {
+    "type": "value"
   }
 }
 </script>
@@ -135,9 +147,23 @@ Factotum.runCommand().
 
    Call onFailure() or throw an exception if you want to surface (and
    record) the error via the Factotum extension.  The object you pass
-   it can be any Error object, or a string.
+   it can be any Error object, or a string.  NOTE:  if calling onFailure(),
+   you need to return immediately after, since it does not prevent further
+   processing.
 */
 function loadJquery(opts, importDoc, onSuccess, onFailure) {
+
+  if (opts.throw)
+  {
+      throw opts.throw;
+  }
+
+  if (opts.fail)
+  {
+      onFailure(opts.fail);
+      return;
+  }
+
   var url = "https://code.jquery.com/jquery-" +
       opts.version +
       (opts.min ? ".min" : "") + ".js";
