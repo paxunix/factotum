@@ -40,7 +40,7 @@ Factotum._cleanup = function (document, guid)
         URL.revokeObjectURL(linkEl.href);
         linkEl.remove();
     }
-}   // ContentScript.doCleanup
+}   // ContentScript._cleanup
 
 
 /**

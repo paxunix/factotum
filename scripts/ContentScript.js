@@ -20,29 +20,6 @@ ContentScript.appendNodeToDocumentHead = function (node)
 }   // ContentScript.appendNodeToDocumentHead
 
 
-// Keep track of Fcommands currently executing in this tab, since we need to
-// prevent the same Fcommand from running multiple overlapping times.
-ContentScript.Cache = {
-    _cache: { },
-
-    get: function (key) {
-        return this._cache[key];
-    },
-
-    set: function (key, value) {
-        this._cache[key] = value;
-    },
-
-    delete: function (key) {
-        delete this._cache[key];
-    },
-
-    clear: function () {
-        this._cache = { };
-    },
-};
-
-
 /**
  * Return a Promise to load the import document specified by the transfer
  * object's data.
@@ -52,15 +29,17 @@ ContentScript.Cache = {
 ContentScript.getLoadImportPromise = function (transferObj)
 {
     return new Promise(function (resolve, reject) {
-        if (ContentScript.Cache.get(transferObj.getGuid()))
+        // If the import document for the Fcommand is still present, the
+        // Fcommand has not completed yet.
+        // XXX: this is the same code as in inject.js.  Would be nice to put
+        // it in one place.
+        if (document.querySelector(`head link#fcommand-${transferObj.getGuid()}[rel=import]`))
         {
             transferObj.setErrorMessage(`Fcommand '${transferObj.getTitle()}' (${transferObj.getGuid()}) is still running in this tab.`);
             reject(transferObj);
 
             return;
         }
-        else
-            ContentScript.Cache.set(transferObj.getGuid(), true);
 
         var elem = Util.createImportLink(document, transferObj);
 
@@ -92,12 +71,6 @@ ContentScript.factotumListener = function (request)
 
     ContentScript.getLoadImportPromise(transferObj).
         catch(function (rejectWith) {
-            // This Fcommand is no longer running in this tab.
-            // XXX:  this is bad; if there is an error on a subsequent,
-            // overlapping run, the cache entry is removed even if the first
-            // Fcommand run is still ongoing.
-            ContentScript.Cache.delete(rejectWith.getGuid());
-
             chrome.runtime.sendMessage(rejectWith);
         });
 
@@ -118,9 +91,6 @@ ContentScript.messageListener = function (evt)
         evt.data === null ||
         !("guid" in evt.data))
             return;
-
-    // This Fcommand is no longer running in this tab.
-    ContentScript.Cache.delete(evt.data.guid);
 
     chrome.runtime.sendMessage(evt.data);
 }   // ContentScript.messageListener

@@ -7,12 +7,6 @@ var TransferObject = require("../../scripts/TransferObject.js");
 
 describe("getLoadImportPromise", function() {
 
-    beforeEach(function () {
-        // reset the "fcommand is running" cache
-        ContentScript.Cache.clear();
-    });
-
-
     it("appends a link import element to the document's head", function(done) {
         // Fake the call to add the link element to the document (this is
         // needed so that the import promise is resolved)
@@ -69,8 +63,32 @@ describe("getLoadImportPromise", function() {
         });
     });
 
-    // XXX: test that it won't import again if the import currently exists
-    // in document.
+    xit("rejects if Fcommand hasn't finished yet", function(done) {
+        // XXX: can't do this wihout the Fcommand actually calling
+        // onFailure/onSuccess.
+        var t = new TransferObject().setDocumentString("test");
+        var p = ContentScript.getLoadImportPromise(t);
+
+        expect(p instanceof Promise).toBe(true);
+
+        p.then(function (obj) {
+            expect(obj).toBe({});
+
+            // Fcommand has been loaded, so now try to load it again.
+            var p2 = ContentScript.getLoadImportPromise(t);
+            p2.then(function (obj2) {
+                done();
+                throw "Should not get here";
+                }).catch(function (obj2) {
+                    // Second load should fail
+                    expect(obj2.getErrorMessage()).toMatch(new RegExp("XXX: error string"));
+                    done();
+                });
+        }).catch(function (obj) {
+            done();
+            throw "Should not get here";
+        });
+    });
 }); // getLoadImportPromise
 
 
