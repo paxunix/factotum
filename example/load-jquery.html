@@ -223,6 +223,9 @@ It must be a <template> with an ID of "bgCode".
     comprise the body of the function executed in the background page when
     the Fcommand calls onSuccess().
 
+    !!!NOTE!!!:  this code runs with the full permissions of the Factotum
+    extension.
+
     The code becomes the body of a function and is passed a single argument
     'data' of the form:
       {
