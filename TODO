@@ -1,8 +1,3 @@
-- there is a race when injecting the Factotum API from content.js.  It seems
-  possible (but probably difficult and unlikely) that the user could run an
-  Fcommand before the injection has finished, since processing continues
-  immediately thereafter
-
 - WIP:  create a TransferObject that holds the things that should be passed
   around between contexts.
     - still needs to be used for the response data back to the bg context

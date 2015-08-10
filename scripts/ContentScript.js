@@ -96,17 +96,26 @@ ContentScript.messageListener = function (evt)
 }   // ContentScript.messageListener
 
 
-// Insert the Factotum API into the page, so in-page JS has access to it.
+// Return a promise to insert the Factotum API into the page, so in-page JS
+// has access to it.
 ContentScript.injectFactotumApi = function (document)
 {
-    var s = document.createElement("script");
-    s.src = chrome.runtime.getURL("scripts/inject.js");
-    s.onload = function () {
-        // No need to keep the script around once it has run
-        s.parentNode.removeChild(s);
-    };
+    var p = new Promise(function (resolve, reject) {
+        var s = document.createElement("script");
+        s.src = chrome.runtime.getURL("scripts/inject.js");
+        s.onload = function () {
+            // No need to keep the script around once it has run
+            s.parentNode.removeChild(s);
+            resolve();
+        };
+        s.onerror = function () {
+            reject();
+        };
 
-    (document.head || document.documentElement).appendChild(s);
+        (document.head || document.documentElement).appendChild(s);
+    });
+
+    return p;
 }   // ContentScript.injectFactotumApi
 
 

@@ -7,7 +7,11 @@ var ContentScript = require("./ContentScript.js");
  * Contains code that should only run via load by the extension.
  */
 
-ContentScript.injectFactotumApi(document);
+var p = ContentScript.injectFactotumApi(document);
 
-chrome.runtime.onMessage.addListener(ContentScript.factotumListener);
-window.addEventListener("message", ContentScript.messageListener, false);
+p.then(function () {
+    chrome.runtime.onMessage.addListener(ContentScript.factotumListener);
+    window.addEventListener("message", ContentScript.messageListener, false);
+}).catch(function () {
+    console.log("Error injecting Factotum API");
+});
