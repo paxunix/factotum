@@ -90,6 +90,10 @@ Factotum.runCommand = function (fcommandFunc)
             opts: opts,     // so bg code can know the cmdline
             internalOptions: internalOptions    // so bg code can enable debug
         };
+        // XXX:  should use a transferobject?  Shouldn't be needed if
+        // instead the listener in the content page converts this data into
+        // a transfer object (since then transferobject doesn't also have to
+        // be injected into the page)
         postMessage(data, "*");
     }).catch(function (error) {
         Factotum._cleanup(document, guid);
