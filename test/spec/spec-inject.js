@@ -9,17 +9,17 @@ describe("_getDataAttribute", function() {
 
     it("retrieves object from an Fcommand's import link data attribute", function(done) {
         var t = new TransferObject()
-            .setCmdlineOptions({ a: 1, b: [ { c: 2 } ] })
-            .setInternalCmdlineOptions({ debug: false })
-            .setGuid("guid")
-            .setDocumentString("testing");
+            .set("content.cmdlineOptions", { a: 1, b: [ { c: 2 } ] })
+            .set("content.internalCmdlineOptions", { debug: false })
+            .set("content.guid", "guid")
+            .set("content.documentString", "testing");
 
         var el = Util.createImportLink(document, t);
 
         el.onload = function onload() {
             URL.revokeObjectURL(el.href);
 
-            expect(Factotum._getDataAttribute(document, t.getGuid(), "fcommandArgs")).toEqual(t.getCmdlineOptions());
+            expect(Factotum._getDataAttribute(document, t.get("content.guid"), "fcommandArgs")).toEqual(t.get("content.cmdlineOptions"));
             el.remove();
             done();
         };
@@ -33,17 +33,17 @@ describe("getFcommandId", function() {
 
     it("retrieves guid from an Fcommand's import document metadata", function(done) {
         var t = new TransferObject()
-            .setCmdlineOptions({})
-            .setInternalCmdlineOptions({})
-            .setGuid("guid")
-            .setDocumentString('<head><meta name="guid" content="guid">');
+            .set("content.cmdlineOptions", {})
+            .set("content.internalCmdlineOptions", {})
+            .set("content.guid", "guid")
+            .set("content.documentString", '<head><meta name="guid" content="guid">');
 
         var el = Util.createImportLink(document, t);
 
         el.onload = function onload() {
             URL.revokeObjectURL(el.href);
 
-            expect(Factotum.getFcommandId(el.import)).toEqual(t.getGuid());
+            expect(Factotum.getFcommandId(el.import)).toEqual(t.get("content.guid"));
             el.remove();
             done();
         };

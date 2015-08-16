@@ -366,9 +366,9 @@ Fcommand.prototype.runBgCode = function (inputData, opts, internalOpts)
 Fcommand.prototype.getContentScriptRequestData = function (transferObject)
 {
     return transferObject
-        .setDocumentString(this.documentString)
-        .setTitle(this.extractedData.title)
-        .setGuid(this.extractedData.guid);
+        .set("content.documentString", this.documentString)
+        .set("content.title", this.extractedData.title)
+        .set("content.guid", this.extractedData.guid);
     //XXX: test me
 }   // Fcommand.prototype.getContentScriptRequestData
 

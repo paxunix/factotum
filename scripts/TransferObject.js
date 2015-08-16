@@ -9,14 +9,18 @@ module.exports = (function() {
  * @constructor
  * @param {Object} obj - properties to be put into place in this object.
  * If obj is an object, all its direct properties are shallow-copied into
- * this object.
+ * this object.  If obj is a TransferObject, it is appropriately
+ * shallow-copied.
 */
 function TransferObject(obj) {
-    for (var p in (obj || {}))
+    this.storage = {};
+
+    var from = obj ? ((obj instanceof TransferObject) ? obj.storage : obj) : {};
+    for (var p in from)
     {
-        if (obj.hasOwnProperty(p))
+        if (from.hasOwnProperty(p))
         {
-            this[p] = obj[p];
+            this.set(p, from[p]);
         }
     }
 
@@ -24,140 +28,47 @@ function TransferObject(obj) {
 }   // TransferObject constructor
 
 
+var supportedKeys = [
+    "content.tabDisposition",
+    "content.documentString",
+    "content.cmdlineOptions",
+    "content.internalCmdlineOptions",
+    "content.title",
+    "content.guid",
+    "content.currentTab",
+    "bg.errorMessage",
+];
+
+
 /**
- * @param {String} disposition - the string value as passed to the Omnibox's inputEntered event.
+ * Set the particular key to value.
+ * @param {String} key Key to receive value
+ * @param {*} value Value to store for key
+ * @throws {Error}  If key is unsupported.
  */
-TransferObject.prototype.setTabDisposition = function (disposition) {
-    this.tabDisposition = disposition;
+TransferObject.prototype.set = function (key, value) {
+
+    if (supportedKeys.indexOf(key) === -1)
+        throw new Error(`Unknown TransferObject key '${key}'`);
+
+    this.storage[key] = value;
+
     return this;
-}   // TransferObject.setTabDisposition
+}   // TransferObject.prototype.set
 
 
 /**
- * @return {String} - tab disposition
+ * Get the value for the given key.
+ * @return {*} Key to receive value
+ * @throws {Error}  If key is unsupported.
  */
-TransferObject.prototype.getTabDisposition = function () {
-    return this.tabDisposition;
-}   // TransferObject.getTabDisposition
+TransferObject.prototype.get = function (key) {
 
+    if (supportedKeys.indexOf(key) === -1)
+        throw new Error(`Unknown TransferObject key '${key}'`);
 
-/**
- * @param {String} docstring - the string value representing the Fcommand document
- */
-TransferObject.prototype.setDocumentString = function (documentString) {
-    this.documentString = documentString;
-    return this;
-}   // TransferObject.setDocumentString
-
-
-/**
- * @return {String} - document string
- */
-TransferObject.prototype.getDocumentString = function () {
-    return this.documentString;
-}   // TransferObject.getDocumentString
-
-
-/**
- * @param {Object} options - the object containing the Fcommand's command line options
- */
-TransferObject.prototype.setCmdlineOptions = function (options) {
-    this.cmdlineOpts = options;
-    return this;
-}   // TransferObject.setCmdlineOptions
-
-
-/**
- * @return {Object} - command line options object
- */
-TransferObject.prototype.getCmdlineOptions = function () {
-    return this.cmdlineOpts;
-}   // TransferObject.getCmdlineOptions
-
-
-/**
- * @param {Object} internalOptions - the object containing the Fcommand's internal command line options
- */
-TransferObject.prototype.setInternalCmdlineOptions = function (options) {
-    this.internalCmdlineOpts = options;
-    return this;
-}   // TransferObject.setInternalCmdlineOptions
-
-
-/**
- * @return {Object} - internal command line options object
- */
-TransferObject.prototype.getInternalCmdlineOptions = function () {
-    return this.internalCmdlineOpts;
-}   // TransferObject.getInternalCmdlineOptions
-
-
-/**
- * @param {String} title - title for the Fcommand
- */
-TransferObject.prototype.setTitle = function (title) {
-    this.title = title;
-    return this;
-}   // TransferObject.setTitle
-
-
-/**
- * @return {String} - title string
- */
-TransferObject.prototype.getTitle = function () {
-    return this.title;
-}   // TransferObject.getTitle
-
-
-/**
- * @param {String} guid - guid for the Fcommand
- */
-TransferObject.prototype.setGuid = function (guid) {
-    this.guid = guid;
-    return this;
-}   // TransferObject.setGuid
-
-
-/**
- * @return {String} - guid string
- */
-TransferObject.prototype.getGuid = function () {
-    return this.guid;
-}   // TransferObject.getGuid
-
-
-/**
- * @param {String} currentTab - currentTab for the Fcommand
- */
-TransferObject.prototype.setCurrentTab = function (currentTab) {
-    this.currentTab = currentTab;
-    return this;
-}   // TransferObject.setCurrentTab
-
-
-/**
- * @return {String} - currentTab string
- */
-TransferObject.prototype.getCurrentTab = function () {
-    return this.currentTab;
-}   // TransferObject.getCurrentTab
-
-
-/**
- * @param {String} errorMessage
- */
-TransferObject.prototype.setErrorMessage = function (msg) {
-    this.errorMessage = msg;
-    return this;
-}   // TransferObject.setErrorMessage
-
-
-/**
- * @return {String} - error message text
- */
-TransferObject.prototype.getErrorMessage = function () {
-    return this.errorMessage;
-}   // TransferObject.getErrorMessage
+    return this.storage[key];
+}   // TransferObject.prototype.get
 
 
 return TransferObject;

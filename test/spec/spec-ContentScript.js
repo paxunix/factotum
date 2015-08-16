@@ -14,14 +14,14 @@ describe("getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onload({});
             });
-        var t = new TransferObject().setDocumentString("test");
+        var t = new TransferObject().set("content.documentString", "test");
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
 
         p.then(function (obj) {
             expect(addToHead).toHaveBeenCalled();
-            expect(obj.getDocumentString()).toEqual(t.getDocumentString());
+            expect(obj.get("content.documentString")).toEqual(t.get("content.documentString"));
             done();
         }).catch(function (obj) {
             // this is a little funky; if the promise was rejected, the test
@@ -42,7 +42,7 @@ describe("getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onerror({ statusText: err });
             });
-        var t = new TransferObject().setDocumentString("test");
+        var t = new TransferObject().set("content.documentString", "test");
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
@@ -57,8 +57,8 @@ describe("getLoadImportPromise", function() {
             throw obj;
         }).catch(function (obj) {
             expect(addToHead).toHaveBeenCalled();
-            expect(obj.getDocumentString()).toEqual(t.getDocumentString());
-            expect(obj.getErrorMessage()).toMatch(new RegExp(err));
+            expect(obj.get("content.documentString")).toEqual(t.get("content.documentString"));
+            expect(obj.get("bg.errorMessage")).toMatch(new RegExp(err));
             done();
         });
     });
@@ -66,7 +66,7 @@ describe("getLoadImportPromise", function() {
     xit("rejects if Fcommand hasn't finished yet", function(done) {
         // XXX: can't do this wihout the Fcommand actually calling
         // onFailure/onSuccess.
-        var t = new TransferObject().setDocumentString("test");
+        var t = new TransferObject().set("content.documentString", "test");
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
@@ -81,7 +81,7 @@ describe("getLoadImportPromise", function() {
                 throw "Should not get here";
                 }).catch(function (obj2) {
                     // Second load should fail
-                    expect(obj2.getErrorMessage()).toMatch(new RegExp("XXX: error string"));
+                    expect(obj2.get("bg.errorMessage")).toMatch(new RegExp("XXX: error string"));
                     done();
                 });
         }).catch(function (obj) {

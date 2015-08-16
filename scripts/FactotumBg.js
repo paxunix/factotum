@@ -269,9 +269,9 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
 
             var requestData = fcommand
                 .getContentScriptRequestData(new TransferObject()
-                    .setCmdlineOptions(opts)
-                    .setInternalCmdlineOptions(internalOptions)
-                    .setTabDisposition(tabDisposition)
+                    .set("content.cmdlineOptions", opts)
+                    .set("content.internalCmdlineOptions", internalOptions)
+                    .set("content.tabDisposition", tabDisposition)
                 );
 
             // Dispatching the Fcommand requires we know the current tab.
@@ -284,14 +284,14 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
             // appropriately.
             chrome.tabs.query({ active: true }, function (tabs) {
                 // Include current tab info in request
-                requestData.setCurrentTab(tabs[0]);
+                requestData.set("content.currentTab", tabs[0]);
 
                 // If the current page is internal, it can't run a "page"
                 // context Fcommand.
                 // XXX: may need some about: urls here too
                 if (tabs[0].url.search(/^chrome/) !== -1)
                 {
-                    console.log(`Fcommand '${requestData.getTitle()}' cannot run on a browser page.`);
+                    console.log(`Fcommand '${requestData.get("content.title")}' cannot run on a browser page.`);
                     return;
                 }
 
@@ -305,6 +305,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
 
     // XXX: some feedback if no matching Fcommand found for entered cmdline?
     // This can be done within the omnibox.
+    // XXX: this really needs to be rewritten to be testable
 };  // FactotumBg.onOmniboxInputEntered
 
 
