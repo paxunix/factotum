@@ -12,10 +12,10 @@ TOOL := browserify
 # We don't do it on each makefile invocation because it's time-consuming.
 BG_SCRIPTS := \
     scripts/Util.js \
+    scripts/ShellParse.js \
     scripts/GetOpt.js \
     scripts/Help.js \
     scripts/TransferObject.js \
-    scripts/ShellParse.js \
     scripts/FactotumBg.js \
     bower_components/dexie/dist/latest/Dexie.js \
     scripts/FcommandManager.js \
@@ -27,6 +27,7 @@ BG_SCRIPTS := \
 #	browserify -t debowerify scripts/content.js --list | sed -e 's,'$PWD'/,,' -e '/^\//d'
 # We don't do it on each makefile invocation because it's time-consuming.
 CONTENT_SCRIPTS := \
+    scripts/TransferObject.js \
     scripts/Util.js \
     scripts/ContentScript.js \
     scripts/content.js \
@@ -36,17 +37,17 @@ CONTENT_SCRIPTS := \
 # We don't do it on each makefile invocation because it's time-consuming.
 TEST_SCRIPTS := \
     test/spec/spec-Fcommand.js \
+    test/spec/spec-TransferObject.js \
     test/spec/spec-Util.js \
-    scripts/Util.js \
-    test/spec/spec-inject.js \
+    scripts/TransferObject.js \
     scripts/GetOpt.js \
     test/spec/spec-GetOpt.js \
     scripts/ShellParse.js \
     test/spec/spec-ShellParse.js \
-    scripts/TransferObject.js \
-    test/spec/spec-TransferObject.js \
     scripts/ContentScript.js \
     test/spec/spec-ContentScript.js \
+    scripts/Util.js \
+    test/spec/spec-inject.js \
     scripts/Help.js \
     scripts/FactotumBg.js \
     bower_components/dexie/dist/latest/Dexie.js \
