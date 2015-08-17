@@ -15,7 +15,7 @@ module.exports = (function() {
 function TransferObject(obj) {
     this.storage = {};
 
-    var from = obj ? ((obj instanceof TransferObject) ? obj.storage : obj) : {};
+    var from = obj ? (('storage' in obj) ? obj.storage : obj) : {};
     for (var p in from)
     {
         if (from.hasOwnProperty(p))
