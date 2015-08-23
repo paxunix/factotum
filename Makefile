@@ -32,6 +32,13 @@ CONTENT_SCRIPTS := \
     scripts/ContentScript.js \
     scripts/content.js \
 
+# If adding/removing a content file, update this list:
+#	browserify -t debowerify scripts/inject.js --list | sed -e 's,'$PWD'/,,' -e '/^\//d'
+# We don't do it on each makefile invocation because it's time-consuming.
+INJECT_SCRIPTS := \
+	scripts/TransferObject.js \
+	scripts/inject.js \
+
 # If adding/removing a test file, update this list:
 #	browserify -t debowerify test/spec/*.js --list | sed -e 's,'$PWD'/,,' -e '/^\//d'
 # We don't do it on each makefile invocation because it's time-consuming.
@@ -60,7 +67,7 @@ TEST_SCRIPTS := \
 
 all: build
 
-build: build/background.js build/content.js build/test.js build/help.html
+build: build/background.js build/content.js build/inject.js build/test.js build/help.html
 
 build/background.js: $(BG_SCRIPTS)
 	mkdir -p $(OUTDIR)
@@ -69,6 +76,10 @@ build/background.js: $(BG_SCRIPTS)
 build/content.js: $(CONTENT_SCRIPTS)
 	mkdir -p $(OUTDIR)
 	$(TOOL) $(_DEBUG) -t debowerify $(lastword $^) -o $@ $(DISOWN)
+
+build/inject.js: $(INJECT_SCRIPTS)
+	mkdir -p $(OUTDIR)
+	$(TOOL) $(_DEBUG) -t debowerify $^ -o $@ $(DISOWN)
 
 build/test.js: $(TEST_SCRIPTS)
 	mkdir -p $(OUTDIR)

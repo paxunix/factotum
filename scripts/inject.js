@@ -1,5 +1,7 @@
 "use strict";
 
+var TransferObject = require("./TransferObject.js");
+
 /**
  * Define the Factotum API available to all Fcommands within a page.
  */
@@ -70,14 +72,16 @@ Factotum.runCommand = function (fcommandFunc)
     // XXX: test me
     var importDoc = document.currentScript.ownerDocument;
     var guid = Factotum.getFcommandId(importDoc);
-    var opts = Factotum._getDataAttribute(document, guid, "fcommandArgs");
-    var internalOptions = Factotum._getDataAttribute(document, guid, "fcommandInternalOptions");
+    var transferObject = new TransferObject(Factotum._getDataAttribute(document, guid, "transferObject"));
+    var opts = transferObject.get("content.cmdlineOptions");
+    var internalOptions = transferObject.get("content.internalCmdlineOptions");
 
     var p = new Promise(function (resolve, reject) {
         if (internalOptions.debug)
             debugger;
 
         // Call the Fcommand
+        // XXX: pass the transfer object instead of opts
         fcommandFunc(opts, importDoc, resolve, reject);
     });
 

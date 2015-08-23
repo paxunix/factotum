@@ -57,13 +57,10 @@ Util.createImportLink = function (parentDocument, transferObj)
     var link = parentDocument.createElement("link");
     link.rel = "import";
     link.id = Util.getFcommandImportId(transferObj.get("content.guid"));
-    // XXX: since this is how data is passed to the Fcommand, (probably) the
-    // entire transferobject needs to be included, not just args and
-    // internaloptions (don't need the document string).  This wil make it
-    // easier to pass additional information if needed in the future,
-    // without a breaking API change.
-    link.dataset.fcommandArgs = JSON.stringify(transferObj.get("content.cmdlineOptions"));
-    link.dataset.fcommandInternalOptions = JSON.stringify(transferObj.get("content.internalCmdlineOptions"));
+    var nodoc = JSON.parse(JSON.stringify(transferObj));  // XXX: this kills Date objects (of which there are currently none, so okay)
+    delete nodoc.storage["content.documentString"];
+
+    link.dataset.transferObject = JSON.stringify(nodoc);
     link.href = URL.createObjectURL(blob);
 
     return link;

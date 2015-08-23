@@ -7,7 +7,7 @@ var Util = require("../../scripts/Util.js");
 
 describe("_getDataAttribute", function() {
 
-    it("retrieves object from an Fcommand's import link data attribute", function(done) {
+    it("retrieves transfer object from an Fcommand's import link data attribute", function(done) {
         var t = new TransferObject()
             .set("content.cmdlineOptions", { a: 1, b: [ { c: 2 } ] })
             .set("content.internalCmdlineOptions", { debug: false })
@@ -19,7 +19,8 @@ describe("_getDataAttribute", function() {
         el.onload = function onload() {
             URL.revokeObjectURL(el.href);
 
-            expect(Factotum._getDataAttribute(document, t.get("content.guid"), "fcommandArgs")).toEqual(t.get("content.cmdlineOptions"));
+            delete t.storage["content.documentString"];     // XXX: ugly hack
+            expect(JSON.stringify(Factotum._getDataAttribute(document, t.get("content.guid"), "transferObject"))).toEqual(JSON.stringify(t));
             el.remove();
             done();
         };

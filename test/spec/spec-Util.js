@@ -47,8 +47,8 @@ describe("createImportLink", function() {
         expect(link instanceof HTMLLinkElement).toBe(true);
         expect(link.rel).toEqual("import");
         expect(link.id).toEqual(Util.getFcommandImportId(t.get("content.guid")));
-        expect(link.dataset.fcommandArgs).toEqual(JSON.stringify(t.get("content.cmdlineOptions")));
-        expect(link.dataset.fcommandInternalOptions).toEqual(JSON.stringify(t.get("content.internalCmdlineOptions")));
+        delete t.storage["content.documentString"];     // XXX: ugly hack
+        expect(link.dataset.transferObject).toEqual(JSON.stringify(t));
         URL.revokeObjectURL(link.href);
     });
 
