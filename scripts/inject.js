@@ -73,16 +73,15 @@ Factotum.runCommand = function (fcommandFunc)
     var importDoc = document.currentScript.ownerDocument;
     var guid = Factotum.getFcommandId(importDoc);
     var transferObject = new TransferObject(Factotum._getDataAttribute(document, guid, "transferObject"));
-    var opts = transferObject.get("content.cmdlineOptions");
-    var internalOptions = transferObject.get("content.internalCmdlineOptions");
+    var opts = transferObject.get("cmdlineOptions");
+    var internalOptions = transferObject.get("_content.internalCmdlineOptions");
 
     var p = new Promise(function (resolve, reject) {
         if (internalOptions.debug)
             debugger;
 
         // Call the Fcommand
-        // XXX: pass the transfer object instead of opts
-        fcommandFunc(opts, importDoc, resolve, reject);
+        fcommandFunc(transferObject, importDoc, resolve, reject);
     });
 
     p.then(function (bgData) {

@@ -13,17 +13,17 @@ it("constructs an empty TransferObject", function() {
 
 
 it("constructs a TransferObject from an existing plain object", function() {
-    var o = new TransferObject({"content.title": "title", "content.guid": 2});
-    expect(o.get("content.title")).toBe("title");
-    expect(o.get("content.guid")).toBe(2);
+    var o = new TransferObject({"_content.title": "title", "_content.guid": 2});
+    expect(o.get("_content.title")).toBe("title");
+    expect(o.get("_content.guid")).toBe(2);
 });
 
 
 it("constructs a TransferObject from an existing TransferObject", function() {
-    var o = new TransferObject({"content.title": "title", "content.guid": 2});
+    var o = new TransferObject({"_content.title": "title", "_content.guid": 2});
     var o2 = new TransferObject(o);
-    expect(o2.get("content.title")).toBe("title");
-    expect(o2.get("content.guid")).toBe(2);
+    expect(o2.get("_content.title")).toBe("title");
+    expect(o2.get("_content.guid")).toBe(2);
 });
 
 
@@ -43,14 +43,14 @@ it("throws error on getting unsupported key", function () {
 
 it("sets/gets value for supported key", function () {
     var o = new TransferObject();
-    o.set("content.guid", "value");
-    expect(o.get("content.guid")).toBe("value");
+    o.set("_content.guid", "value");
+    expect(o.get("_content.guid")).toBe("value");
 });
 
 
 it("set supports chaining", function () {
     var o = new TransferObject();
-    expect(o.set("content.guid", "value")).toBe(o);
+    expect(o.set("_content.guid", "value")).toBe(o);
 });
 
 

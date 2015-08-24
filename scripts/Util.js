@@ -53,12 +53,12 @@ Util.fetchDocument = function (url)
  */
 Util.createImportLink = function (parentDocument, transferObj)
 {
-    var blob = new Blob([transferObj.get("content.documentString")], { type: "text/html" });
+    var blob = new Blob([transferObj.get("_content.documentString")], { type: "text/html" });
     var link = parentDocument.createElement("link");
     link.rel = "import";
-    link.id = Util.getFcommandImportId(transferObj.get("content.guid"));
+    link.id = Util.getFcommandImportId(transferObj.get("_content.guid"));
     var nodoc = JSON.parse(JSON.stringify(transferObj));  // XXX: this kills Date objects (of which there are currently none, so okay)
-    delete nodoc.storage["content.documentString"];
+    delete nodoc.storage["_content.documentString"];
 
     link.dataset.transferObject = JSON.stringify(nodoc);
     link.href = URL.createObjectURL(blob);

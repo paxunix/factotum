@@ -151,7 +151,12 @@ Factotum.runCommand().
    you need to return immediately after, since it does not prevent further
    processing.
 */
-function loadJquery(opts, importDoc, onSuccess, onFailure) {
+function loadJquery(data, importDoc, onSuccess, onFailure) {
+
+  var opts = data.get("cmdlineOptions");
+
+  console.log("currentTab: ", data.get("currentTab"));
+  console.log("tabDisposition: ", data.get("tabDisposition"));
 
   if (opts.throw)
   {

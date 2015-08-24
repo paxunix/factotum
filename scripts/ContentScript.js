@@ -33,9 +33,9 @@ ContentScript.getLoadImportPromise = function (transferObj)
         // Fcommand has not completed yet.
         // XXX: this is the same code as in inject.js.  Would be nice to put
         // it in one place.
-        if (document.querySelector(`head link#fcommand-${transferObj.get("content.guid")}[rel=import]`))
+        if (document.querySelector(`head link#fcommand-${transferObj.get("_content.guid")}[rel=import]`))
         {
-            transferObj.set("bg.errorMessage", `Fcommand '${transferObj.get("content.title")}' (${transferObj.get("content.guid")}) is still running in this tab.`);
+            transferObj.set("_bg.errorMessage", `Fcommand '${transferObj.get("_content.title")}' (${transferObj.get("_content.guid")}) is still running in this tab.`);
             reject(transferObj);
 
             return;
@@ -50,7 +50,7 @@ ContentScript.getLoadImportPromise = function (transferObj)
         elem.onerror = function onerror(evt) {
             // XXX:  should support error obj (like we used to) as well as
             // just error message???
-            transferObj.set("bg.errorMessage", evt.statusText);
+            transferObj.set("_bg.errorMessage", evt.statusText);
             reject(transferObj);
         };
 

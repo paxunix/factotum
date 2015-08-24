@@ -29,14 +29,19 @@ function TransferObject(obj) {
 
 
 var supportedKeys = [
-    "content.tabDisposition",
-    "content.documentString",
-    "content.cmdlineOptions",
-    "content.internalCmdlineOptions",
-    "content.title",
-    "content.guid",
-    "content.currentTab",
-    "bg.errorMessage",
+    // Intended for direct use by Fcommands
+    "cmdlineOptions",
+    "currentTab",
+    "tabDisposition",
+
+    // For passing information from background to content script
+    "_content.documentString",
+    "_content.guid",
+    "_content.internalCmdlineOptions",
+    "_content.title",
+
+    // For passing information from content script to background
+    "_bg.errorMessage",
 ];
 
 

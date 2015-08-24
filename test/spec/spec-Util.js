@@ -38,16 +38,16 @@ describe("createImportLink", function() {
 
     it("creates a link from documentString", function() {
         var t = new TransferObject()
-            .set("content.cmdlineOptions", { a: 1, b: [ 2, 3 ], c: { d: "four" } })
-            .set("content.internalCmdlineOptions", { a: 1, b: [ 2, { c: "3" } ] })
-            .set("content.guid", "1234")
-            .set("content.documentString", "docstring");
+            .set("cmdlineOptions", { a: 1, b: [ 2, 3 ], c: { d: "four" } })
+            .set("_content.internalCmdlineOptions", { a: 1, b: [ 2, { c: "3" } ] })
+            .set("_content.guid", "1234")
+            .set("_content.documentString", "docstring");
         var link = Util.createImportLink(document, t);
 
         expect(link instanceof HTMLLinkElement).toBe(true);
         expect(link.rel).toEqual("import");
-        expect(link.id).toEqual(Util.getFcommandImportId(t.get("content.guid")));
-        delete t.storage["content.documentString"];     // XXX: ugly hack
+        expect(link.id).toEqual(Util.getFcommandImportId(t.get("_content.guid")));
+        delete t.storage["_content.documentString"];     // XXX: ugly hack
         expect(link.dataset.transferObject).toEqual(JSON.stringify(t));
         URL.revokeObjectURL(link.href);
     });
