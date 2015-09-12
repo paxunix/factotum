@@ -52,7 +52,6 @@ var supportedKeys = [
  * @throws {Error}  If key is unsupported.
  */
 TransferObject.prototype.set = function (key, value) {
-
     if (supportedKeys.indexOf(key) === -1)
         throw new Error(`Unknown TransferObject key '${key}'`);
 
@@ -68,12 +67,24 @@ TransferObject.prototype.set = function (key, value) {
  * @throws {Error}  If key is unsupported.
  */
 TransferObject.prototype.get = function (key) {
-
     if (supportedKeys.indexOf(key) === -1)
         throw new Error(`Unknown TransferObject key '${key}'`);
 
     return this.storage[key];
 }   // TransferObject.prototype.get
+
+
+/**
+ * Is key present in the object.
+ * @return {*} Key whose presence is retrieved.
+ * @throws {Error}  If key is unsupported.
+ */
+TransferObject.prototype.has = function (key) {
+    if (supportedKeys.indexOf(key) === -1)
+        throw new Error(`Unknown TransferObject key '${key}'`);
+
+    return (key in this.storage);
+}   // TransferObject.prototype.has
 
 
 /**

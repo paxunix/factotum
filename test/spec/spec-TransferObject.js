@@ -41,6 +41,13 @@ it("throws error on getting unsupported key", function () {
 });
 
 
+it("throws error on checking for unsupported key", function () {
+    expect(function () {
+        (new TransferObject()).has("unsupported");
+    }).toThrowError(Error, "Unknown TransferObject key 'unsupported'");
+});
+
+
 it("throws error on deleting unsupported key", function () {
     expect(function () {
         (new TransferObject()).delete("unsupported");
@@ -52,6 +59,14 @@ it("sets/gets value for supported key", function () {
     var o = new TransferObject();
     o.set("_content.guid", "value");
     expect(o.get("_content.guid")).toBe("value");
+});
+
+
+it("checks for key", function () {
+    var o = new TransferObject();
+    o.set("_content.guid", "value");
+    expect(o.has("_content.guid")).toBe(true);
+    expect(o.has("_bg.data")).toBe(false);
 });
 
 
