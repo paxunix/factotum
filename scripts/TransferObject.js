@@ -77,6 +77,22 @@ TransferObject.prototype.get = function (key) {
 
 
 /**
+ * Delete the key.
+ * @param {String} key Key to delete.
+ * @throws {Error}  If key is unsupported.
+ */
+TransferObject.prototype.delete = function (key) {
+    if (supportedKeys.indexOf(key) === -1)
+        throw new Error(`Unknown TransferObject key '${key}'`);
+
+    delete this.storage[key];
+
+    return this;
+}   // TransferObject.prototype.delete
+
+
+
+/**
  * Return a deep clone of this transfer object.
  * @return {TransferObject} Cloned object.
  */

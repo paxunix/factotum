@@ -41,6 +41,13 @@ it("throws error on getting unsupported key", function () {
 });
 
 
+it("throws error on deleting unsupported key", function () {
+    expect(function () {
+        (new TransferObject()).delete("unsupported");
+    }).toThrowError(Error, "Unknown TransferObject key 'unsupported'");
+});
+
+
 it("sets/gets value for supported key", function () {
     var o = new TransferObject();
     o.set("_content.guid", "value");
@@ -62,6 +69,19 @@ it("can deep clone itself", function () {
     var v = o.get("_content.guid");
     v.k = "newk";
     expect(o2.get("_content.guid")).toEqual({k: 1});
+});
+
+
+it("can delete a key", function () {
+    var o = new TransferObject({"_content.title": "title", "_content.guid": {k: 1 } });
+    o.delete("_content.guid");
+    expect(o.get("_content.guid")).toBe(undefined);
+});
+
+
+it("delete supports chaining", function () {
+    var o = new TransferObject({"_content.title": "title", "_content.guid": {k: 1 } });
+    expect(o.delete("_content.guid")).toBe(o);
 });
 
 
