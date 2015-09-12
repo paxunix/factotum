@@ -76,6 +76,18 @@ TransferObject.prototype.get = function (key) {
 }   // TransferObject.prototype.get
 
 
+/**
+ * Return a deep clone of this transfer object.
+ * @return {TransferObject} Cloned object.
+ */
+TransferObject.prototype.clone = function () {
+    // XXX:  yes, this doesn't clone functions, nor Date objects, nor
+    // probably some other things I don't really have to care about just
+    // yet.
+    return new TransferObject(JSON.parse(JSON.stringify(this)));
+}   // TransferObject.prototype.clone
+
+
 return TransferObject;
 
 

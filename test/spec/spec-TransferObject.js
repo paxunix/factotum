@@ -54,4 +54,15 @@ it("set supports chaining", function () {
 });
 
 
+it("can deep clone itself", function () {
+    var o = new TransferObject({"_content.title": "title", "_content.guid": {k: 1 } });
+    var o2 = o.clone();
+    expect(o).toEqual(o2);
+    // modify o to verify clone was deep
+    var v = o.get("_content.guid");
+    v.k = "newk";
+    expect(o2.get("_content.guid")).toEqual({k: 1});
+});
+
+
 }); // TransferObject
