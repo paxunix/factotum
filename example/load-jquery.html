@@ -40,14 +40,15 @@ commas.  Required. -->
      semantic versionning:  http://semver.org/ -->
 <meta name="version" content="1.2.3">
 
-<!-- Context in which the Fcommand's javascript is run.  If "bg", the code
-is evaluated within the background page and thus has no access to the page's
-DOM or javascript.  This is intended for Fcommands that only need to access
-to chrome.* APIs and nothing else.  All other values equate to evaluating
-the code within the page and have access to page's JS and DOM.  It can
-postMessage() to the content script, which will pass the posted data to the
-Fcommand's "bgCode" template script which will be run in the background
-page.  Optional.
+<!-- Context in which the Fcommand's javascript is run.
+
+If "bg", the code is evaluated within the background page and thus has no
+access to the page's DOM or javascript.  This is intended for Fcommands that
+only need to access to chrome.* APIs and nothing else.
+
+All other values equate to evaluating the code within the page and have
+access to page's JS and DOM.  It can pass data to the Fcommand's "bgCode"
+template script which will be run in the background page.  Optional.
 -->
 <meta name="context" content="page">
 
