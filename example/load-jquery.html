@@ -85,6 +85,8 @@ page.  Optional.
     <p>
     <span class="opt">--throw</span> <span class="optarg">msg</span> specifies an error message to throw before loading jQuery (intended for testing).
     <p>
+    <span class="opt">--bgthrow</span> <span class="optarg">msg</span> specifies an error message to throw from the bg context (after loading jQuery) (intended for testing).
+    <p>
     <span class="opt">--fail</span> <span class="optarg">msg</span> specifies an error message to pass to onFailure() (intended for testing)..
   </div>
 </template>
@@ -125,6 +127,9 @@ Factotum.runCommand().
     "default": 5
   },
   "throw": {
+    "type": "value"
+  },
+  "bgthrow": {
     "type": "value"
   },
   "fail": {
@@ -247,6 +252,13 @@ It must be a <template> with an ID of "bgCode".
   -->
 <script>
 console.log("Running in bg with:", transferObj);
+var opts = transferObj.get("cmdlineOptions");
+
+if (opts.bgthrow)
+{
+  throw opts.bgthrow;
+}
+
 chrome.notifications.create(
     "",
     {
