@@ -3,8 +3,6 @@
     - consider validating that the minimum fields needed are present in each
       context
 
-- XXX: add tests for disposition passing to spec-Fcommand
-
 - should each Fcommand have its own config data?  Some Fcommands might want
   to allow the user to save a setting that controls Fcommand behaviour.
 
