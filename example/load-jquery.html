@@ -63,8 +63,8 @@ page.  Optional.
      -help.
 
      There can be any content in here that you wish.  Factotum loads its own
-     styling for the help document and also adds a centered OK button at the
-     bottom, as well as capturing the Esc keypress to close the window.
+     styling for the help document and also adds a DISMISS button at the
+     bottom.
      -->
 <template id="help" lang="en">
   <h2>NAME</h2>
@@ -140,10 +140,10 @@ Factotum.runCommand().
    You _can_ run any code you want in a <script> block, but for it to
    be treated like an Fcommand, it needs to be called via runCommand().
 
-   Call onSuccess() once your Fcommand code has completed successfully.
-   Any object you pass to it will be passed to the bg code (if any) for
-   this Fcommand when it is run in the background page after onSuccess()
-   is called.
+   You must call onSuccess() once your Fcommand code has completed
+   successfully.  Any object you pass to it will be passed to the bg code
+   (if any) for this Fcommand when it is run in the background page after
+   onSuccess() is called.
 
    Call onFailure() or throw an exception if you want to surface (and
    record) the error via the Factotum extension.  The object you pass
@@ -157,11 +157,13 @@ function loadJquery(transferObj, onSuccess, onFailure) {
 
   console.log("transferObj: ", transferObj);
 
+  // For forcing a failure
   if (opts.throw)
   {
       throw opts.throw;
   }
 
+  // For pretending failure
   if (opts.fail)
   {
       onFailure(opts.fail);
