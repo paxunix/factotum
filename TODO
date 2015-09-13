@@ -1,7 +1,25 @@
-- WIP:  create a TransferObject that holds the things that should be passed
-  around between contexts.
-    - consider validating that the minimum fields needed are present in each
-      context
+- Fcommands from context menu
+    - no new "menu" context:  it's still "bg" or "page" (i.e. everything
+      else)
+        - because the Fcommand still runs based on that context; invoking it
+          via menu is no different than from the omnibox (you just don't
+          enter any parameters)
+        - how to flag Fcommand as "should appear in context menu"?  Need
+          another metadata field.  This field is needed anyway so that the
+          actual context in which the menu is invoked (e.g. over a link, on
+          a video, etc.) can be specified.
+    - on extension load, all Fcommands that specify "menu" context build
+      their menu items and add them to the master Fcommand menu
+        - master menu should show Fcommand titles, ordered alphabetically
+    - each all invokes some function in FactotumBG (which is basically some
+      of the guts from onOmniboxInputEntered, without the omnibox stuff)
+    - and that runs the Fcommand with no parameters
+        - this allows the command to still be invoked via omnibox with
+          parameters, but can also support parameter-less invocation via
+          menu
+
+- consider validating that the minimum transferobject fields needed are
+  present in each context
 
 - Omnibox should indicate if there is no Fcommand for the prefix given so far,
   because otherwise the first option to run the given Fcommand will do
@@ -31,11 +49,6 @@
   typing afer the --guid=n value.  Accepting this modified command line will
   invoke the exact match of the keyword, rather than what is specified by
   the guid.  This will be surprising to users.
-
-- would be cool to flag an fcommand as taking no parameters and being able
-  to be run from the context menu.  Then we can populate the context menu
-  with those Fcommands and when you click one, it runs it as if you had
-  typed its name in the omnibox
 
 - could just use the chrome filesystem sync api to store the factotum
   commands on the user's google drive and then make them available in all
