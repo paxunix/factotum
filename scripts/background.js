@@ -16,7 +16,9 @@ chrome.omnibox.onInputChanged.addListener(FactotumBg.onOmniboxInputChanged);
 // Listen for messages from content script
 chrome.runtime.onMessage.addListener(FactotumBg.responseHandler);
 
-if (1) {   // XXX:  this is for testing only.  Preload Fcommands so we can invoke them.
+// XXX:  consider doing this only done if there are any Fcommands that support
+// menu
+fcommandManager.createMainContextMenu().then(function (res) {
 
 // XXX: during testing, to create an Fcommand on-the-fly in devtools
 window.Fcommand = require("./Fcommand.js");
@@ -32,13 +34,11 @@ var fetchThese = [
 
 fetchThese.forEach(function (p) {
     p.then(function resolvedWith(event) {
-            var fcommand = new Fcommand(event.target.responseText, navigator.language);
-            return fcommandManager.save(fcommand);
-        })
-    .then(function (res) {
-            console.log(`Test fcommand (${res}) loaded`);
-        })
-    .catch(function rejectedWith(data) {
+        var fcommand = new Fcommand(event.target.responseText, navigator.language);
+        return fcommandManager.save(fcommand);
+    }).then(function (fcommand) {
+        return fcommand.createContextMenu(FcommandManager.MAIN_MENU_ID);
+    }).catch(function rejectedWith(data) {
         console.log("Fcommand load failure:", data);
         chrome.notifications.create(
             "",
@@ -46,7 +46,7 @@ fetchThese.forEach(function (p) {
                 type: "basic",
                 iconUrl: chrome.runtime.getURL("icons/md/error.png"),
                 title: "Error loading Fcommand",
-                message: data.message,
+                message: data.toString(),
                 // XXX: showing the stack is useless inside a tiny
                 // notification.  Show the message and maybe a button
                 // for more details, that pops a window that shows the
@@ -59,4 +59,4 @@ fetchThese.forEach(function (p) {
     });
 });
 
-}   // test code only
+});

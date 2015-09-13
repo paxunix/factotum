@@ -383,6 +383,50 @@ Fcommand.prototype.getContentScriptRequestData = function (transferObject)
 }   // Fcommand.prototype.getContentScriptRequestData
 
 
+// Return the ID to be used for this Fcommand's context menu entry (if it
+// has one).
+Fcommand.prototype._getContextMenuId = function ()
+{
+    return this.extractedData.guid;
+}   // Fcommand.prototype._getContextMenuId
+
+
+/**
+ * Return a promise to create a context menu item under the given parent.
+ * @returns {Promise}
+ */
+Fcommand.prototype.createContextMenu = function (parentMenuId)
+{
+    var self = this;
+
+    return new Promise(function (resolve, reject) {
+        if (self.extractedData.menu.length > 0)
+        {
+            chrome.contextMenus.create({
+                type: "normal",
+                id: self._getContextMenuId(),
+                parentId: parentMenuId,
+                title: self.extractedData.title,
+                contexts: self.extractedData.menu,
+                enabled: self.enabled,      // XXX: need to update this whenever the enabled state changes
+            }, function () {
+                if (chrome.runtime.lastError)
+                {
+                    reject(`Failed to create context menu for ${self.extractedData.title}: ${chrome.runtime.lastError}`);
+                    return;
+                }
+
+                resolve(self);
+            });
+        }
+        else
+        {
+            resolve(self);
+        }
+    });
+}   // Fcommand.prototype.createContextMenu
+
+
 return Fcommand;
 
 })();   // module.exports

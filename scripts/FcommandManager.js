@@ -29,6 +29,9 @@ function FcommandManager()
 }   // FcommandManager constructor
 
 
+FcommandManager.MAIN_MENU_ID = "FactotumMain";
+
+
 /**
  * Save the given Fcommand to storage.
  * @param {Fcommand} fcommand - The Fcommand to save.
@@ -39,7 +42,10 @@ FcommandManager.prototype.save = function (fcommand)
     // XXX: what if overwriting an existing Fcommand?  It's possible to
     // enforce this at the DB level by requiring guid to be unique.  This
     // would complicate saving of modifications to the fcommand, though.
-    return this.db.fcommands.put(fcommand);
+    return this.db.fcommands.put(fcommand).then(function (res) {
+        console.log(`Saved Fcommand ${res}`);
+        return fcommand;
+    });
 }   // FcommandManager.prototype.save
 
 
@@ -153,6 +159,37 @@ FcommandManager.prototype.getAll = function ()
 {
     return this.db.fcommands.toArray();
 }   // FcommandManager.prototype.getAll
+
+
+/**
+ * Return a promise to set up the main context menu, removing all menus if
+ * necessary.
+ * @return {Promise}
+ */
+FcommandManager.prototype.createMainContextMenu = function ()
+{
+    // When developing, reloading the extension does not seem to be removing
+    // any context menus, so remove them all before adding them again.
+    // XXX: file a chrome bug
+    return new Promise(function (resolve, reject) {
+        chrome.contextMenus.removeAll(function() {
+            chrome.contextMenus.create({
+                type: "normal",
+                id: FcommandManager.MAIN_MENU_ID,
+                title: "Factotum",
+                contexts: [ "all" ],
+            }, function () {
+                if (chrome.runtime.lastError)
+                {
+                    reject(`Failed removing all context menus: ${chrome.runtime.lastError}`);
+                    return;
+                }
+
+                resolve();
+            });
+        });
+    });
+}   // FcommandManager.prototype.createMainContextMenu
 
 
 return FcommandManager;
