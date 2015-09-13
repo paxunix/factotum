@@ -118,7 +118,23 @@ Fcommand._getDataExtractor = function(document, lang)
 
             return keywords;
         },
-        menu: getMetaFieldExtractor("menu"),
+        menu: function (document, lang) {
+            var words = Fcommand._getMetadataFieldString("menu", document, lang);
+
+            // "menu" field is a comma- or space-delimited list of words
+            if (words !== null)
+            {
+                words = words.
+                    split(/[,\s]+/).
+                    filter(function(el) {
+                        return (el !== "" && el !== " " && el !== ",")
+                    })
+            }
+            else
+                words = [];
+
+            return words;
+        },
         optspec: Fcommand._extractOptSpec,
         title: function (document, lang) {
             var title = Fcommand._getFromLangSelector(document, "head title", lang);

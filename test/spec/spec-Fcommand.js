@@ -71,7 +71,7 @@ describe("_extractData", function() {
             helpMarkup: null,
             icon: null,
             keywords: [],
-            menu: null,
+            menu: [],
             optspec: {},
             title: null,
             updateUrl: null,
@@ -83,6 +83,12 @@ describe("_extractData", function() {
     it("parses keywords delimited by ',' and disregarding whitespace", function() {
         var doc = buildOneFieldDocString("keywords", " , \n , k1 , ,, k2 , \t , ");
         expect(Fcommand._extractData(doc, lang).keywords).toEqual([ "k1", "k2" ]);
+    });
+
+
+    it("parses 'menu' delimited by ',' and disregarding whitespace", function() {
+        var doc = buildOneFieldDocString("menu", " , \n , k1 , ,, k2 , \t , ");
+        expect(Fcommand._extractData(doc, lang).menu).toEqual([ "k1", "k2" ]);
     });
 
     // XXX: tests for other fields
@@ -292,7 +298,7 @@ describe("constructor", function() {
         '<meta name="updateUrl" content="test update url">',
         '<meta name="version" content="0.0.1">',
         '<meta name="context" content="page">',
-        '<meta name="menu" content="all">',
+        '<meta name="menu" content="all,launcher">',
         '<link rel="icon" type="image/png" href="test icon url">',
         '</head>',
         '<body>',
@@ -331,7 +337,7 @@ describe("constructor", function() {
                 helpMarkup: "\nhelp content <!-- not ignored comment -->\n",
                 icon: "test icon url",
                 keywords: [ "testkey1", "testkey2" ],
-                menu: "all",
+                menu: [ "all", "launcher" ],
                 optspec: { opt: { type: "value", default: "def" } },
                 title: "test title",
                 updateUrl: "test update url",
