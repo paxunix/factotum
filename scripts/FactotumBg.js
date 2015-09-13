@@ -257,18 +257,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 return;
             }
 
-            // Parse the command line
             var opts = GetOpt.getOptions(fcommand.extractedData.optspec, internalOptions._);
-
-            // If the Fcommand is bg-only, invoke it now.
-            if (fcommand.extractedData.context === "bg")
-            {
-                // XXX:  still should get a transferobject, since tab
-                // disposition etc. may be useful
-                fcommand.runBgCode(undefined, opts, internalOptions);
-                return;
-            }
-
             var transferObject = fcommand
                 .getContentScriptRequestData((new TransferObject())
                     .set("cmdlineOptions", opts)
@@ -288,11 +277,27 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 // Include current tab info in request
                 transferObject.set("currentTab", tabs[0]);
 
+                // If the Fcommand is bg-only, invoke it now.
+                if (fcommand.extractedData.context === "bg")
+                {
+                    // XXX:  still should get a transferobject, since tab
+                    // disposition etc. may be useful
+                    fcommand.runBgCode(transferObject);
+                    // XXX: problem is that if the bg code fails, the
+                    // failure won't be caught below because this function
+                    // is executing in a callback.
+                    return;
+                }
+
                 // If the current page is internal, it can't run a "page"
                 // context Fcommand.
                 // XXX: may need some about: urls here too
                 if (tabs[0].url.search(/^chrome/) !== -1)
                 {
+                    // XXX: surface error to user
+                    // NOTE:  this can't be caught by the promise catch
+                    // below because it's executing in a different callback
+                    // context at this point.
                     console.log(`Fcommand '${transferObject.get("_content.title")}' cannot run on a browser page.`);
                     return;
                 }

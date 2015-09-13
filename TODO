@@ -3,14 +3,6 @@
     - consider validating that the minimum fields needed are present in each
       context
 
-- does tab disposition have any meaning for bgcode?  If it does, how do we
-  tell the bgcode what is the current tab?  Actually, that's up to the
-  bg code to figure out (it's already executing in bg context, so it can
-  determine that).
-    - this will be solved by always calling bg or page context Fcommands in
-      the current tab retrieval's callback, since both receive a
-      TransferObject
-
 - XXX: add tests for disposition passing to spec-Fcommand
 
 - should each Fcommand have its own config data?  Some Fcommands might want
