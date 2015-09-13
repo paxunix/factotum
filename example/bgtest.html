@@ -16,9 +16,25 @@
 
 <body>
 
+<template id="getopt">
+{
+  "bgthrow": {
+    "type": "value"
+  }
+}
+</template>
+
 <template id="bgCode">
 <script>
   console.log("Running in bg with:", transferObj);
+
+  var opts = transferObj.get("cmdlineOptions");
+
+  if (opts.bgthrow)
+  {
+    throw opts.bgthrow;
+  }
+
   chrome.tabs.create({
     url: "https://www.google.com/"
   });
