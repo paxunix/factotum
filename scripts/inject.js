@@ -63,7 +63,6 @@ Factotum.getFcommandId = function (document)
  * @param {Function} fcommandFunc - function that is the Fcommand.  Takes
  * these parameters:
  * @property {TransferObject} transferObj - contains command line options, tab disposition, etc.  @see {TransferObject}
- * @property {HTMLDocument} importDoc - the import document containing the Fcommand
  * @property {Function} onSuccess - called by the Fcommand code to indicate succesful completion.  Expects on Object (containing the data to be passed to the Fcommands bg code (if any)).
  * @property {Function} onFailure - called by the Fcommand code to indicate failure.  Expects one Object (either an Error object or a string).
  */
@@ -73,44 +72,32 @@ Factotum.runCommand = function (fcommandFunc)
     var importDoc = document.currentScript.ownerDocument;
     var guid = Factotum.getFcommandId(importDoc);
     var transferObject = new TransferObject(Factotum._getDataAttribute(document, guid, "transferObject"));
-    var opts = transferObject.get("cmdlineOptions");
-    var internalOptions = transferObject.get("_content.internalCmdlineOptions");
+    var clonedTransferObject = transferObject.clone().set("importDocument",
+        importDoc);
+    var isDebug = transferObject.get("_content.internalCmdlineOptions").debug;
 
     var p = new Promise(function (resolve, reject) {
-        if (internalOptions.debug)
+        if (isDebug)
             debugger;
 
         // Call the Fcommand
-        fcommandFunc(transferObject, importDoc, resolve, reject);
+        fcommandFunc(clonedTransferObject, resolve, reject);
     });
 
     p.then(function (bgData) {
         Factotum._cleanup(document, guid);
 
-        var data = {
-            guid: guid,     // so the bg page can find the fcommand bg code
-            data: bgData,   // passed to the bg code
-            opts: opts,     // so bg code can know the cmdline
-            internalOptions: internalOptions    // so bg code can enable debug
-        };
-        // XXX:  should use a transferobject?  Shouldn't be needed if
-        // instead the listener in the content page converts this data into
-        // a transfer object (since then transferobject doesn't also have to
-        // be injected into the page)
-        postMessage(data, "*");
+        transferObject.set("_bg.data", bgData);
+        postMessage(transferObject, "*");
     }).catch(function (error) {
         Factotum._cleanup(document, guid);
 
         // If a thrown Error, its details will not be preserved when passed
         // to the background context, so pull out the stack and use it
         // as the error string.
-        // XXX:  this should be put in a transferobject
-        var response = {
-            guid: guid,
-            errorMessage: (error instanceof Error) ?  error.stack : error,
-        };
-
-        postMessage(response, "*");
+        transferObject.set("_bg.errorMessage",
+            (error instanceof Error) ?  error.stack : error);
+        postMessage(transferObject, "*");
 
         if (error instanceof Error)
             throw error;

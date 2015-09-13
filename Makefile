@@ -43,26 +43,26 @@ INJECT_SCRIPTS := \
 #	browserify -t debowerify test/spec/*.js --list | sed -e 's,'$PWD'/,,' -e '/^\//d'
 # We don't do it on each makefile invocation because it's time-consuming.
 TEST_SCRIPTS := \
-    test/spec/spec-Fcommand.js \
-    test/spec/spec-TransferObject.js \
-    test/spec/spec-Util.js \
-    scripts/TransferObject.js \
-    scripts/GetOpt.js \
-    test/spec/spec-GetOpt.js \
-    scripts/ShellParse.js \
-    test/spec/spec-ShellParse.js \
-    scripts/ContentScript.js \
-    test/spec/spec-ContentScript.js \
-    scripts/Util.js \
-    test/spec/spec-inject.js \
-    scripts/Help.js \
-    scripts/FactotumBg.js \
-    bower_components/dexie/dist/latest/Dexie.js \
-    scripts/FcommandManager.js \
-    test/spec/spec-FcommandManager.js \
-    bower_components/node-semver/semver.js \
-    scripts/Fcommand.js \
-    test/spec/spec-FactotumBg.js \
+	test/spec/spec-Fcommand.js \
+	test/spec/spec-TransferObject.js \
+	test/spec/spec-Util.js \
+	scripts/TransferObject.js \
+	scripts/GetOpt.js \
+	test/spec/spec-GetOpt.js \
+	scripts/ShellParse.js \
+	test/spec/spec-ShellParse.js \
+	scripts/ContentScript.js \
+	test/spec/spec-ContentScript.js \
+	scripts/Util.js \
+	test/spec/spec-inject.js \
+	scripts/Help.js \
+	scripts/FactotumBg.js \
+	bower_components/node-semver/semver.js \
+	scripts/Fcommand.js \
+	test/spec/spec-FactotumBg.js \
+	bower_components/dexie/dist/latest/Dexie.js \
+	scripts/FcommandManager.js \
+	test/spec/spec-FcommandManager.js \
 
 
 all: build

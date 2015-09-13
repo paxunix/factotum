@@ -151,12 +151,11 @@ Factotum.runCommand().
    you need to return immediately after, since it does not prevent further
    processing.
 */
-function loadJquery(data, importDoc, onSuccess, onFailure) {
+function loadJquery(transferObj, onSuccess, onFailure) {
 
-  var opts = data.get("cmdlineOptions");
+  var opts = transferObj.get("cmdlineOptions");
 
-  console.log("currentTab: ", data.get("currentTab"));
-  console.log("tabDisposition: ", data.get("tabDisposition"));
+  console.log("transferObj: ", transferObj);
 
   if (opts.throw)
   {
@@ -231,27 +230,20 @@ It must be a <template> with an ID of "bgCode".
     !!!NOTE!!!:  this code runs with the full permissions of the Factotum
     extension.
 
-    The code becomes the body of a function and is passed a single argument
-    'data' of the form:
-      {
-          fcommandDocument: HTMLDocument,
-          cmdline: object,
-      }
-
-    fcommandDocument is the HTML document of the Fcommand itself.
-
-    cmdline is the parsed command line, based on the option specification
-    given in the Fcommand's 'getopt' template.
+    The code becomes the body of a function and is passed a TransferObject
+    which contains (amongst other things) a "_bg.data" key whose value is
+    the data passed to the Fcommand's onSuccess callback.
+    XXX:  document WTF is a TransferObject.
   -->
 <script>
-console.log("Running in bg with:", data);
+console.log("Running in bg with:", transferObj);
 chrome.notifications.create(
     "",
     {
         type: "basic",
         iconUrl: chrome.runtime.getURL("icons/md/info.png"),
         title: "Loaded jQuery",
-        message: "Version " + data.data.jqueryVersion,
+        message: "Version " + transferObj.get("_bg.data").jqueryVersion,
     },
     function() {}
 );

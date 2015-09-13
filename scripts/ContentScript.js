@@ -88,11 +88,11 @@ ContentScript.messageListener = function (evt)
     // expectations.
     if (evt.source !== window ||
         typeof(evt.data) !== "object" ||
-        evt.data === null ||
-        !("guid" in evt.data))
+        evt.data === null)
             return;
 
-    chrome.runtime.sendMessage(evt.data);
+    var transferObj = new TransferObject(evt.data);
+    chrome.runtime.sendMessage(transferObj);
 }   // ContentScript.messageListener
 
 

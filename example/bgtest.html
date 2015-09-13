@@ -18,7 +18,7 @@
 
 <template id="bgCode">
 <script>
-  console.log("Running in bg with:", data);
+  console.log("Running in bg with:", transferObj);
   chrome.tabs.create({
     url: "https://www.google.com/"
   });

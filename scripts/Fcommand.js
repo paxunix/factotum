@@ -326,32 +326,22 @@ Fcommand._extractBgCodeString = function (document, language)
 
 
 /**
- * Run the bg code for this Fcommand, passing it the given data (as 'data').
- * @param {Object} inputData - The data to be passed to the Function.
- * Within the function the 'data' parameter takes this form:
- *  {
- *      data: inputData,
- *      opts: <command line>,
- *      fcommandDocument: <DOM for Fcommand>,
- *  }
- * @param {Object} opts - Parsed Fcommand command line.
- * @param {Object} internalOpts - Internal command line options.
- * Requires dev tools to be open within the context where this method is
- * called.
+ * Run the bg code for this Fcommand, passing it the given data (as
+ * 'transferObj').
+ * @param {TransferObject} transferObject - Data passed to the Fcommand.
  */
-Fcommand.prototype.runBgCode = function (inputData, opts, internalOpts)
+Fcommand.prototype.runBgCode = function (transferObject)
 {
-    var fcommandDoc = Fcommand._parseDomFromString(this.documentString);
-    var bgFunction = new Function("data",
-        (internalOpts.bgdebug ? "debugger;\n" : "") +
+    var bgFunction = new Function("transferObj",
+        (transferObject.get("_content.internalCmdlineOptions").bgdebug ? "debugger;\n" : "") +
             this.extractedData.bgCodeString);
 
+    var cloneTransferObject = transferObject.clone();
+    cloneTransferObject.set("_bg.fcommandDocument",
+        Fcommand._parseDomFromString(this.documentString));
+
     // Run the Fcommand's bgCode
-    bgFunction({
-            data: inputData,
-            opts: opts,
-            fcommandDocument: fcommandDoc,
-        });
+    bgFunction(cloneTransferObject);
 }   // Fcommand.prototype.runBgCode
 
 

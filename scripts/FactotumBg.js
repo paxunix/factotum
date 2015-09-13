@@ -263,12 +263,14 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
             // If the Fcommand is bg-only, invoke it now.
             if (fcommand.extractedData.context === "bg")
             {
+                // XXX:  still should get a transferobject, since tab
+                // disposition etc. may be useful
                 fcommand.runBgCode(undefined, opts, internalOptions);
                 return;
             }
 
-            var requestData = fcommand
-                .getContentScriptRequestData(new TransferObject()
+            var transferObject = fcommand
+                .getContentScriptRequestData((new TransferObject())
                     .set("cmdlineOptions", opts)
                     .set("_content.internalCmdlineOptions", internalOptions)
                     .set("tabDisposition", tabDisposition)
@@ -284,18 +286,18 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
             // appropriately.
             chrome.tabs.query({ active: true }, function (tabs) {
                 // Include current tab info in request
-                requestData.set("currentTab", tabs[0]);
+                transferObject.set("currentTab", tabs[0]);
 
                 // If the current page is internal, it can't run a "page"
                 // context Fcommand.
                 // XXX: may need some about: urls here too
                 if (tabs[0].url.search(/^chrome/) !== -1)
                 {
-                    console.log(`Fcommand '${requestData.get("_content.title")}' cannot run on a browser page.`);
+                    console.log(`Fcommand '${transferObject.get("_content.title")}' cannot run on a browser page.`);
                     return;
                 }
 
-                chrome.tabs.sendMessage(tabs[0].id, requestData);
+                chrome.tabs.sendMessage(tabs[0].id, transferObject);
             });
         }).catch(function (rejectWith) {
             // XXX: surface error to user
@@ -311,7 +313,6 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
 
 // Called when each Fcommand has finished/failed executing.
 FactotumBg.responseHandler = function (response) {
-    // XXX:  shouldn't response be a TransferObject????
     if (chrome.runtime.lastError)
     {
         // XXX: this represents a failure in the extension and it
@@ -321,27 +322,22 @@ FactotumBg.responseHandler = function (response) {
         return;
     }
 
-    if ("errorMessage" in response)
+    var transferObj = new TransferObject(response);
+    if (transferObj.has("_bg.errorMessage"))
     {
         // XXX: should show guid and Fcommand description or something
         // (maybe the cmdline)
-        console.log("error from content script:", response.errorMessage);
+        console.log("error from content script:", transferObj.get("_bg.errorMessage"));
         return;
     }
 
-    if (response.guid && "data" in response)
+    if (transferObj.has("_content.guid") && transferObj.has("_bg.data"))
     {
-        console.log("Fcommand responded:", response);
+        console.log("Fcommand responded:", transferObj);
 
-        fcommandManager.getByGuid(response.guid)
+        fcommandManager.getByGuid(transferObj.get("_content.guid"))
             .then(function (fcommand) {
-                    fcommand.runBgCode(
-                        // XXX: this should take an object of the same form
-                        // as passed to the content script
-                        response.data,
-                        response.opts,
-                        response.internalOptions
-                    );
+                    fcommand.runBgCode(transferObj)
                 })
             .catch(function (rej) {
                     // XXX: surface error to user

@@ -4,6 +4,7 @@ describe("Fcommand", function () {
 
 var lang = "en-us";
 var Fcommand = require("../../scripts/Fcommand.js");
+var TransferObject = require("../../scripts/TransferObject.js");
 
 function buildMetaTag(field, value, lang)
 {
@@ -369,7 +370,7 @@ describe("runBgCode", function() {
         '</head>',
         '<body>',
         '<template id="bgCode">',
-        'window.fcommandBgSpy(data);',
+        'window.fcommandBgSpy(transferObj);',
         '</template>',
         '</body>',
     ].join("\n");
@@ -380,47 +381,17 @@ describe("runBgCode", function() {
         window.fcommandBgSpy = jasmine.createSpy("fcommandBgSpy");
     });
 
-    it("passes input data to bg code via data.data", function () {
-        var passToBg = { value: 42 };
-        fcommand.runBgCode(passToBg, {}, {});
+    it("includes Fcommand DOM in transfer object", function () {
+        var obj = new TransferObject({
+            cmdlineOptions: {},       // always present on TransferObjects passed to runBgCode()
+            "_content.internalCmdlineOptions": {},       // always present on TransferObjects passed to runBgCode()
+        });
+        fcommand.runBgCode(obj);
 
-        expect(window.fcommandBgSpy).toHaveBeenCalledWith({
-                data: passToBg,
-                opts: jasmine.any(Object),
-                fcommandDocument: jasmine.any(Object),
-            });
+        expect(window.fcommandBgSpy).toHaveBeenCalledWith(jasmine.any(TransferObject));
+        expect(window.fcommandBgSpy.calls.first().args[0].get("_bg.fcommandDocument") instanceof HTMLDocument).toBe(true);
     });
 
-    it("passes Fcommand cmdline data to bg code via data.opts", function () {
-        var opts = { min: 10, _: [ "test", 1 ] };
-        fcommand.runBgCode({}, opts, {});
-
-        expect(window.fcommandBgSpy).toHaveBeenCalledWith({
-                data: jasmine.any(Object),
-                opts: opts,
-                fcommandDocument: jasmine.any(Object),
-            });
-    });
-
-    it("passes Fcommand DOM to bg code via data.fcommandDocument", function () {
-        fcommand.runBgCode(null, {}, {});
-
-        expect(window.fcommandBgSpy).toHaveBeenCalledWith({
-                data: null,
-                opts: jasmine.any(Object),
-                fcommandDocument: jasmine.any(HTMLDocument),
-            });
-    });
-
-    it("passes no data to the bg code function", function () {
-        fcommand.runBgCode(undefined, {}, {});
-
-        expect(window.fcommandBgSpy).toHaveBeenCalledWith({
-                data: undefined,
-                opts: jasmine.any(Object),
-                fcommandDocument: jasmine.any(HTMLDocument),
-            });
-    });
 
     it("enables debug mode if requested", function () {
         // This test is imperfect, since it can't catch actually dropping
@@ -444,9 +415,14 @@ describe("runBgCode", function() {
 
         var fcommand = new Fcommand(doc, lang);
 
-        fcommand.runBgCode(null, {}, { bgdebug: true });
+        var obj = new TransferObject({
+            cmdlineOptions: {},       // always present on TransferObjects passed to runBgCode()
+            "_content.internalCmdlineOptions": { bgdebug: true},
+        });
 
-        expect(window.fcommandBgSpy.calls.all()[0].args).toMatch(/d\ebugger;/);
+        fcommand.runBgCode(obj);
+
+        expect(window.fcommandBgSpy.calls.first().args[0]).toMatch(/d\ebugger;/);
     });
 }); // runBgCode
 

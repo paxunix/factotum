@@ -48,7 +48,7 @@ Util.fetchDocument = function (url)
 /**
  * Create a <link> import element to be inserted in the parentDocument.
  * @param {HTMLDocument} parentDocument - The document the <link> element will be appended to
- * @param {TransferObject} transferObj - Object containing data from the bg.
+ * @param {TransferObject} transferObj - Object containing data from the bg.  Modifies transferObject to no longer have the document string.
  * @return {HTMLLinkElement} - A <link> element.
  */
 Util.createImportLink = function (parentDocument, transferObj)
@@ -57,10 +57,13 @@ Util.createImportLink = function (parentDocument, transferObj)
     var link = parentDocument.createElement("link");
     link.rel = "import";
     link.id = Util.getFcommandImportId(transferObj.get("_content.guid"));
-    var nodoc = JSON.parse(JSON.stringify(transferObj));  // XXX: this kills Date objects (of which there are currently none, so okay)
-    delete nodoc.storage["_content.documentString"];
 
-    link.dataset.transferObject = JSON.stringify(nodoc);
+    // No need to pass the document string since we already extracted it for
+    // our use.
+    transferObj.delete("_content.documentString");
+
+    // Content script needs access to all the transferred data
+    link.dataset.transferObject = JSON.stringify(transferObj);
     link.href = URL.createObjectURL(blob);
 
     return link;
