@@ -118,6 +118,7 @@ Fcommand._getDataExtractor = function(document, lang)
 
             return keywords;
         },
+        menu: getMetaFieldExtractor("menu"),
         optspec: Fcommand._extractOptSpec,
         title: function (document, lang) {
             var title = Fcommand._getFromLangSelector(document, "head title", lang);

@@ -1,13 +1,4 @@
 - Fcommands from context menu
-    - no new "menu" context:  it's still "bg" or "page" (i.e. everything
-      else)
-        - because the Fcommand still runs based on that context; invoking it
-          via menu is no different than from the omnibox (you just don't
-          enter any parameters)
-        - how to flag Fcommand as "should appear in context menu"?  Need
-          another metadata field.  This field is needed anyway so that the
-          actual context in which the menu is invoked (e.g. over a link, on
-          a video, etc.) can be specified.
     - on extension load, all Fcommands that specify "menu" context build
       their menu items and add them to the master Fcommand menu
         - master menu should show Fcommand titles, ordered alphabetically
