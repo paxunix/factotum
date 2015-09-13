@@ -3,6 +3,11 @@
     - consider validating that the minimum fields needed are present in each
       context
 
+- Omnibox should indicate if there is no Fcommand for the prefix given so far,
+  because otherwise the first option to run the given Fcommand will do
+  nothing when a user may expect it to do prefix matching (when it does not,
+  since that creates an ambiguity)
+
 - should each Fcommand have its own config data?  Some Fcommands might want
   to allow the user to save a setting that controls Fcommand behaviour.
 
