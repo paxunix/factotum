@@ -197,7 +197,15 @@ function loadJquery(transferObj, onSuccess, onFailure) {
   s.onerror = function (e) {
       // No need to keep the script around once it has run
       s.parentNode.removeChild(s);
-      throw Error("Failed to load jquery");
+
+      // NOTE:  since this is in the error handler for the script element,
+      // throwing will not result in the failure being caught by
+      // runCommand() because the context is already torn down.  Thus, you
+      // have to call onFailure() to allow Factotum to clean up this
+      // Fcommand.  The throw is just for fun.
+      var msg = "Failed to load jquery";
+      onFailure(msg);
+      throw Error(msg);
   };
 
   // NOTE:  this will NOT work if the page on which this Fcommand is running
