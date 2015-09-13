@@ -66,7 +66,7 @@ it("checks for key", function () {
     var o = new TransferObject();
     o.set("_content.guid", "value");
     expect(o.has("_content.guid")).toBe(true);
-    expect(o.has("_bg.data")).toBe(false);
+    expect(o.has("bgData")).toBe(false);
 });
 
 

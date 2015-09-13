@@ -34,6 +34,7 @@ var supportedKeys = [
     "currentTab",
     "tabDisposition",
     "importDocument",
+    "bgData",
 
     // For passing information from background to content script
     "_content.documentString",
@@ -43,7 +44,6 @@ var supportedKeys = [
 
     // For passing information from content script to background
     "_bg.errorMessage",
-    "_bg.data",
     "_bg.fcommandDocument",
 ];
 

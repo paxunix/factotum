@@ -87,7 +87,7 @@ Factotum.runCommand = function (fcommandFunc)
     p.then(function (bgData) {
         Factotum._cleanup(document, guid);
 
-        transferObject.set("_bg.data", bgData);
+        transferObject.set("bgData", bgData);
         postMessage(transferObject, "*");
     }).catch(function (error) {
         Factotum._cleanup(document, guid);
