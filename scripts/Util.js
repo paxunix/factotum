@@ -2,8 +2,6 @@
 
 module.exports = (function() {
 
-var TransferObject = require("./TransferObject.js");
-
 var Util = {};
 
 /**

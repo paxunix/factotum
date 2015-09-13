@@ -49,20 +49,20 @@ TEST_SCRIPTS := \
 	scripts/TransferObject.js \
 	scripts/GetOpt.js \
 	test/spec/spec-GetOpt.js \
+	scripts/Util.js \
+	test/spec/spec-inject.js \
 	scripts/ShellParse.js \
 	test/spec/spec-ShellParse.js \
 	scripts/ContentScript.js \
 	test/spec/spec-ContentScript.js \
-	scripts/Util.js \
-	test/spec/spec-inject.js \
 	scripts/Help.js \
 	scripts/FactotumBg.js \
-	bower_components/node-semver/semver.js \
-	scripts/Fcommand.js \
-	test/spec/spec-FactotumBg.js \
 	bower_components/dexie/dist/latest/Dexie.js \
 	scripts/FcommandManager.js \
 	test/spec/spec-FcommandManager.js \
+	bower_components/node-semver/semver.js \
+	scripts/Fcommand.js \
+	test/spec/spec-FactotumBg.js \
 
 
 all: build
