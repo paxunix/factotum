@@ -207,6 +207,52 @@ FactotumBg.parseCommandLine = function (text) {
 };  // FactotumBg.parseCommandLine
 
 
+// Return a promise to execute the Fcommand in the current tab.
+FactotumBg.runFcommandInCurrentTab = function (fcommand, transferObj) {
+    // Dispatching the Fcommand requires we know the current tab.
+    // We don't care about tab disposition here:  if a new tab was
+    // requested, we can't easily tell when the Factotum content
+    // script has been loaded within it, after which this code
+    // dispatches the Fcommand to it.  It's easier (for now, at
+    // least), to just invoke the Fcommand based on the current tab
+    // and pass the tab disposition to the Fcommand to be used
+    // appropriately.
+    return new Promise(function (resolve, reject) {
+        chrome.tabs.query({ active: true }, function (tabs) {
+            // Include current tab info in request
+            transferObj.set("currentTab", tabs[0]);
+
+            // If the Fcommand is bg-only, invoke it now.
+            if (fcommand.extractedData.context === "bg")
+            {
+                try {
+                    fcommand.runBgCode(transferObj);
+                    resolve();      // Fcommand succeeded
+                }
+
+                catch (e) {
+                    reject(`Fcommand bgCode exception: ${e}`);
+                }
+
+                return;
+            }
+
+            // If the current page is internal, it can't run a "page"
+            // context Fcommand.
+            // XXX: may need some about: urls here too
+            if (tabs[0].url.search(/^chrome/) !== -1)
+            {
+                reject(`Fcommand '${transferObj.get("_content.title")}' cannot run on a browser page.`);
+                return;
+            }
+
+            chrome.tabs.sendMessage(tabs[0].id, transferObj);
+            resolve();
+        });
+    });
+};  // FactotumBg.runFcommandInCurrentTab
+
+
 // Given a command line, figure out the Fcommand and run its function.
 FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
     // Strip off the guid inserted for the omnibox suggestion.  If it
@@ -265,45 +311,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                     .set("tabDisposition", tabDisposition)
                 );
 
-            // Dispatching the Fcommand requires we know the current tab.
-            // We don't care about tab disposition here:  if a new tab was
-            // requested, we can't easily tell when the Factotum content
-            // script has been loaded within it, after which this code
-            // dispatches the Fcommand to it.  It's easier (for now, at
-            // least), to just invoke the Fcommand based on the current tab
-            // and pass the tab disposition to the Fcommand to be used
-            // appropriately.
-            chrome.tabs.query({ active: true }, function (tabs) {
-                // Include current tab info in request
-                transferObject.set("currentTab", tabs[0]);
-
-                // If the Fcommand is bg-only, invoke it now.
-                if (fcommand.extractedData.context === "bg")
-                {
-                    // XXX:  still should get a transferobject, since tab
-                    // disposition etc. may be useful
-                    fcommand.runBgCode(transferObject);
-                    // XXX: problem is that if the bg code fails, the
-                    // failure won't be caught below because this function
-                    // is executing in a callback.
-                    return;
-                }
-
-                // If the current page is internal, it can't run a "page"
-                // context Fcommand.
-                // XXX: may need some about: urls here too
-                if (tabs[0].url.search(/^chrome/) !== -1)
-                {
-                    // XXX: surface error to user
-                    // NOTE:  this can't be caught by the promise catch
-                    // below because it's executing in a different callback
-                    // context at this point.
-                    console.log(`Fcommand '${transferObject.get("_content.title")}' cannot run on a browser page.`);
-                    return;
-                }
-
-                chrome.tabs.sendMessage(tabs[0].id, transferObject);
-            });
+            return FactotumBg.runFcommandInCurrentTab(fcommand, transferObject);
         }).catch(function (rejectWith) {
             // XXX: surface error to user
             console.log("Failed to run Fcommand: ", rejectWith);
