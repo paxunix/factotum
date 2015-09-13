@@ -339,6 +339,9 @@ Fcommand.prototype.runBgCode = function (transferObject)
     var cloneTransferObject = transferObject.clone();
     cloneTransferObject.set("_bg.fcommandDocument",
         Fcommand._parseDomFromString(this.documentString));
+    // No need to pass the document string since we already extracted it for
+    // our use.
+    cloneTransferObject.delete("_content.documentString");
 
     // Run the Fcommand's bgCode
     bgFunction(cloneTransferObject);
