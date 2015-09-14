@@ -25,6 +25,8 @@ function FcommandManager()
 
     this.db.open();
 
+    this.mainMenuCreated = false;
+
     return this;
 }   // FcommandManager constructor
 
@@ -162,17 +164,38 @@ FcommandManager.prototype.getAll = function ()
 
 
 /**
- * Return a promise to set up the main context menu, removing all menus if
- * necessary.
+ * Return a promise to remove all context menus.
  * @return {Promise}
  */
-FcommandManager.prototype.createMainContextMenu = function ()
+FcommandManager.prototype.removeContextMenus = function ()
 {
-    // When developing, reloading the extension does not seem to be removing
-    // any context menus, so remove them all before adding them again.
-    // XXX: file a chrome bug
     return new Promise(function (resolve, reject) {
         chrome.contextMenus.removeAll(function() {
+            resolve();
+        });
+    });
+}   // FcommandManager.prototype.removeContextMenus
+
+
+/**
+ * Return a promise to set up the main context menu.  If the menu already
+ * exists, does nothing.  Otherwise, ensures it is created if the fcommand
+ * has the menu field.
+ * @param {Fcommand} - Fcommand to be propagated along promise chain
+ * @return {Promise}
+ */
+FcommandManager.prototype.createMainContextMenu = function (fcommand)
+{
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        if (self.mainMenuCreated)
+        {
+            resolve(fcommand);
+            return;
+        }
+
+        if (fcommand.enabled && fcommand.extractedData.menu.length > 0)
+        {
             chrome.contextMenus.create({
                 type: "normal",
                 id: FcommandManager.MAIN_MENU_ID,
@@ -181,13 +204,19 @@ FcommandManager.prototype.createMainContextMenu = function ()
             }, function () {
                 if (chrome.runtime.lastError)
                 {
-                    reject(`Failed removing all context menus: ${chrome.runtime.lastError}`);
+                    reject(`Failed creating parent context menu item: ${chrome.runtime.lastError}`);
                     return;
                 }
 
-                resolve();
+                self.mainMenuCreated = true;
+
+                resolve(fcommand);
             });
-        });
+        }
+        else
+        {
+            resolve(fcommand);
+        }
     });
 }   // FcommandManager.prototype.createMainContextMenu
 

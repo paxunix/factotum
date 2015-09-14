@@ -16,10 +16,6 @@ chrome.omnibox.onInputChanged.addListener(FactotumBg.onOmniboxInputChanged);
 // Listen for messages from content script
 chrome.runtime.onMessage.addListener(FactotumBg.responseHandler);
 
-// XXX:  consider doing this only done if there are any Fcommands that support
-// menu
-fcommandManager.createMainContextMenu().then(function (res) {
-
 // XXX: during testing, to create an Fcommand on-the-fly in devtools
 window.Fcommand = require("./Fcommand.js");
 
@@ -32,10 +28,18 @@ var fetchThese = [
     Util.fetchDocument(chrome.runtime.getURL("example/bgtest2.html")),
 ];
 
+// When developing, reloading the extension does not seem to be removing
+// any context menus, so remove them all before possibly adding any.
+// XXX: file a chrome bug
+fcommandManager.removeContextMenus().then(function () {
+
+
 fetchThese.forEach(function (p) {
     p.then(function resolvedWith(event) {
         var fcommand = new Fcommand(event.target.responseText, navigator.language);
         return fcommandManager.save(fcommand);
+    }).then(function (fcommand) {
+        return fcommandManager.createMainContextMenu(fcommand);
     }).then(function (fcommand) {
         return fcommand.createContextMenu(FcommandManager.MAIN_MENU_ID);
     }).catch(function rejectedWith(data) {
@@ -58,5 +62,6 @@ fetchThese.forEach(function (p) {
         );
     });
 });
+
 
 });
