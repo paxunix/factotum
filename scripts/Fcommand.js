@@ -364,6 +364,10 @@ Fcommand.prototype.runBgCode = function (transferObj)
     cloneTransferObject.delete("_content.documentString");
 
     // Run the Fcommand's bgCode
+    // XXX: this should be done in a promise and pass onsuccess, onfailure
+    // the same as for page code.  This allows callbacks to throw exceptions
+    // and (if the author properly calls onfailure), the failure would be
+    // surfaced instead of lost, or killing the background script.
     return bgFunction(cloneTransferObject);
 }   // Fcommand.prototype.runBgCode
 
