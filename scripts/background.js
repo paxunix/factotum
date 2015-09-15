@@ -44,7 +44,7 @@ fetchThese.forEach(function (p) {
     }).then(function (fcommand) {
         return fcommand.createContextMenu(FcommandManager.MAIN_MENU_ID);
     }).catch(function rejectedWith(data) {
-        console.log("Fcommand load failure:", data);
+        console.error("Fcommand load failure:", data);
         chrome.notifications.create(
             "",
             {

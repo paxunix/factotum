@@ -178,7 +178,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
             })
         .catch(function (rej) {
                 // XXX: surface to user
-                console.log(`Failed to retrieve Fcommands for '${internalOptions._[0]}': `, rej);
+                console.error(`Failed to retrieve Fcommands for '${internalOptions._[0]}': `, rej);
             });
 };  // FactotumBg.onOmniboxInputChanged
 
@@ -264,7 +264,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
             return fcommand.execute(transferObj);
         }).catch(function (rejectWith) {
             // XXX: surface error to user
-            console.log("Failed to run Fcommand: ", rejectWith);
+            console.error("Failed to run Fcommand: ", rejectWith);
         });
 
 
@@ -281,7 +281,7 @@ FactotumBg.responseHandler = function (response) {
         // XXX: this represents a failure in the extension and it
         // should be surfaced to the user somehow (response will be
         // undefined)
-        console.log("response handler error:", chrome.runtime.lastError);
+        console.error("response handler error:", chrome.runtime.lastError);
         return;
     }
 
@@ -290,7 +290,7 @@ FactotumBg.responseHandler = function (response) {
     {
         // XXX: should show guid and Fcommand description or something
         // (maybe the cmdline)
-        console.log("error from content script:", transferObj.get("_bg.errorMessage"));
+        console.error("error from content script:", transferObj.get("_bg.errorMessage"));
         return;
     }
 
@@ -304,7 +304,7 @@ FactotumBg.responseHandler = function (response) {
                 })
             .catch(function (rej) {
                     // XXX: surface error to user
-                    console.log("Fcommand bg code failed: ", rej);
+                    console.error("Fcommand bg code failed: ", rej);
                 });
     }
 };  // FactotumBg.responseHandler
