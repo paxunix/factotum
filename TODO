@@ -1,3 +1,5 @@
+- move help stuff into Fcommand (it should know how to show its own help)
+
 - Fcommands from context menu
     - on extension load, all Fcommands that specify "menu" context build
       their menu items and add them to the master Fcommand menu
