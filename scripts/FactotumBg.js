@@ -5,7 +5,6 @@ module.exports = (function() {
 var ShellParse = require("./ShellParse.js");
 var GetOpt = require("./GetOpt.js");
 var Help = require("./Help.js");
-var Fcommand = require("./Fcommand.js");
 var TransferObject = require("./TransferObject.js");
 
 var FactotumBg = { };
@@ -207,52 +206,6 @@ FactotumBg.parseCommandLine = function (text) {
 };  // FactotumBg.parseCommandLine
 
 
-// Return a promise to execute the Fcommand in the current tab.
-FactotumBg.runFcommandInCurrentTab = function (fcommand, transferObj) {
-    // Dispatching the Fcommand requires we know the current tab.
-    // We don't care about tab disposition here:  if a new tab was
-    // requested, we can't easily tell when the Factotum content
-    // script has been loaded within it, after which this code
-    // dispatches the Fcommand to it.  It's easier (for now, at
-    // least), to just invoke the Fcommand based on the current tab
-    // and pass the tab disposition to the Fcommand to be used
-    // appropriately.
-    return new Promise(function (resolve, reject) {
-        chrome.tabs.query({ active: true }, function (tabs) {
-            // Include current tab info in request
-            transferObj.set("currentTab", tabs[0]);
-
-            // If the Fcommand is bg-only, invoke it now.
-            if (fcommand.extractedData.context === "bg")
-            {
-                try {
-                    fcommand.runBgCode(transferObj);
-                    resolve();      // Fcommand succeeded
-                }
-
-                catch (e) {
-                    reject(`Fcommand bgCode exception: ${e}`);
-                }
-
-                return;
-            }
-
-            // If the current page is internal, it can't run a "page"
-            // context Fcommand.
-            // XXX: may need some about: urls here too
-            if (tabs[0].url.search(/^chrome/) !== -1)
-            {
-                reject(`Fcommand '${transferObj.get("_content.title")}' cannot run on a browser page.`);
-                return;
-            }
-
-            chrome.tabs.sendMessage(tabs[0].id, transferObj);
-            resolve();
-        });
-    });
-};  // FactotumBg.runFcommandInCurrentTab
-
-
 // Given a command line, figure out the Fcommand and run its function.
 FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
     // Strip off the guid inserted for the omnibox suggestion.  If it
@@ -274,6 +227,10 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
     // that as the actualy command line.
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
+    var transferObj = new TransferObject()
+        .set("_content.internalCmdlineOptions", internalOptions)
+        .set("tabDisposition", tabDisposition);
+
     var lookupPromise = guidFromCmdline !== null ?
         fcommandManager.getByGuid(guidFromCmdline).then(function (res) {
                 // Make sure an array is returned
@@ -284,9 +241,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
     lookupPromise.then(function (fcommands) {
             if (fcommands.length === 0)
             {
-                // XXX: surface to user
-                console.log("No matching Fcommand found.");
-                return;
+                throw Error("No matching Fcommand found.");
             }
 
             var fcommand = fcommands[0];
@@ -295,7 +250,6 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
             {
                 if (fcommand.extractedData.helpMarkup === null)
                 {
-                    // XXX: surface this to user
                     throw Error(`No help available for Fcommand '${fcommand.extractedData.title}' (${fcommand.extractedData.guid}).`);
                 }
 
@@ -303,15 +257,11 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 return;
             }
 
-            var opts = GetOpt.getOptions(fcommand.extractedData.optspec, internalOptions._);
-            var transferObject = fcommand
-                .getContentScriptRequestData((new TransferObject())
-                    .set("cmdlineOptions", opts)
-                    .set("_content.internalCmdlineOptions", internalOptions)
-                    .set("tabDisposition", tabDisposition)
-                );
+            transferObj.set("cmdlineOptions",
+                GetOpt.getOptions(fcommand.extractedData.optspec,
+                    internalOptions._));
 
-            return FactotumBg.runFcommandInCurrentTab(fcommand, transferObject);
+            return fcommand.execute(transferObj);
         }).catch(function (rejectWith) {
             // XXX: surface error to user
             console.log("Failed to run Fcommand: ", rejectWith);
@@ -350,7 +300,7 @@ FactotumBg.responseHandler = function (response) {
 
         fcommandManager.getByGuid(transferObj.get("_content.guid"))
             .then(function (fcommand) {
-                    fcommand.runBgCode(transferObj)
+                    return fcommand.runBgCode(transferObj)
                 })
             .catch(function (rej) {
                     // XXX: surface error to user

@@ -39,6 +39,7 @@ fetchThese.forEach(function (p) {
         var fcommand = new Fcommand(event.target.responseText, navigator.language);
         return fcommandManager.save(fcommand);
     }).then(function (fcommand) {
+        console.debug(`Saved Fcommand ${fcommand.extractedData.title} (${fcommand.extractedData.guid})`);
         return fcommandManager.createMainContextMenu(fcommand);
     }).then(function (fcommand) {
         return fcommand.createContextMenu(FcommandManager.MAIN_MENU_ID);

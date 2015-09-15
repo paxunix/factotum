@@ -20,7 +20,7 @@ describe("_getDataAttribute", function() {
             URL.revokeObjectURL(el.href);
 
             delete t.storage["_content.documentString"];     // XXX: ugly hack
-            expect(JSON.stringify(Factotum._getDataAttribute(document, t.get("_content.guid"), "transferObject"))).toEqual(JSON.stringify(t));
+            expect(JSON.stringify(Factotum._getDataAttribute(document, t.get("_content.guid"), "transferObj"))).toEqual(JSON.stringify(t));
             el.remove();
             done();
         };

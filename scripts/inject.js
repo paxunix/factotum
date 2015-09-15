@@ -71,10 +71,10 @@ Factotum.runCommand = function (fcommandFunc)
     // XXX: test me
     var importDoc = document.currentScript.ownerDocument;
     var guid = Factotum.getFcommandId(importDoc);
-    var transferObject = new TransferObject(Factotum._getDataAttribute(document, guid, "transferObject"));
-    var clonedTransferObject = transferObject.clone().set("importDocument",
+    var transferObj = new TransferObject(Factotum._getDataAttribute(document, guid, "transferObj"));
+    var clonedTransferObject = transferObj.clone().set("importDocument",
         importDoc);
-    var isDebug = transferObject.get("_content.internalCmdlineOptions").debug;
+    var isDebug = transferObj.get("_content.internalCmdlineOptions").debug;
 
     var p = new Promise(function (resolve, reject) {
         if (isDebug)
@@ -87,17 +87,17 @@ Factotum.runCommand = function (fcommandFunc)
     p.then(function (bgData) {
         Factotum._cleanup(document, guid);
 
-        transferObject.set("bgData", bgData);
-        postMessage(transferObject, "*");
+        transferObj.set("bgData", bgData);
+        postMessage(transferObj, "*");
     }).catch(function (error) {
         Factotum._cleanup(document, guid);
 
         // If a thrown Error, its details will not be preserved when passed
         // to the background context, so pull out the stack and use it
         // as the error string.
-        transferObject.set("_bg.errorMessage",
+        transferObj.set("_bg.errorMessage",
             (error instanceof Error) ?  error.stack : error);
-        postMessage(transferObject, "*");
+        postMessage(transferObj, "*");
 
         if (error instanceof Error)
             throw error;

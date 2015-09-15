@@ -46,7 +46,7 @@ Util.fetchDocument = function (url)
 /**
  * Create a <link> import element to be inserted in the parentDocument.
  * @param {HTMLDocument} parentDocument - The document the <link> element will be appended to
- * @param {TransferObject} transferObj - Object containing data from the bg.  Modifies transferObject to no longer have the document string.
+ * @param {TransferObject} transferObj - Object containing data from the bg.  Modifies TransferObject to no longer have the document string.
  * @return {HTMLLinkElement} - A <link> element.
  */
 Util.createImportLink = function (parentDocument, transferObj)
@@ -61,14 +61,30 @@ Util.createImportLink = function (parentDocument, transferObj)
     transferObj.delete("_content.documentString");
 
     // Content script needs access to all the transferred data
-    link.dataset.transferObject = JSON.stringify(transferObj);
+    link.dataset.transferObj = JSON.stringify(transferObj);
     link.href = URL.createObjectURL(blob);
 
     return link;
 }   // Util.createImportLink
 
 
+/**
+ * Return a promise that resolves to the current tab.
+ * @return {Promise} - Promise resolved with the current Tab (@see
+ * chrome.runtime.tabs)
+ */
+Util.getCurrentTab = function ()
+{
+    return new Promise(function (resolve, reject) {
+        chrome.tabs.query({ active: true }, function (tabs) {
+            resolve(tabs[0]);
+        });
+    });
+}   // Util.getCurrentTab
+
+
 /*
+ * XXX: unused
  * Creates an object containing data from the Fcommand document suitable
  * for storage.
  * @return {Object} Fcommand data ready for storage.

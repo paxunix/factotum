@@ -45,7 +45,6 @@ FcommandManager.prototype.save = function (fcommand)
     // enforce this at the DB level by requiring guid to be unique.  This
     // would complicate saving of modifications to the fcommand, though.
     return this.db.fcommands.put(fcommand).then(function (res) {
-        console.log(`Saved Fcommand ${res}`);
         return fcommand;
     });
 }   // FcommandManager.prototype.save

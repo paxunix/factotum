@@ -1,6 +1,7 @@
 "use strict";
 
 var semver = require("node-semver/semver.js");
+var Util = require("./Util.js");
 
 module.exports = (function() {
 
@@ -345,15 +346,17 @@ Fcommand._extractBgCodeString = function (document, language)
 /**
  * Run the bg code for this Fcommand, passing it the given data (as
  * 'transferObj').
- * @param {TransferObject} transferObject - Data passed to the Fcommand.
+ * @param {TransferObject} transferObj - Data passed to the Fcommand.
+ * @return {*} Whatever the bg code function returns (though the value is
+ * ignored).
  */
-Fcommand.prototype.runBgCode = function (transferObject)
+Fcommand.prototype.runBgCode = function (transferObj)
 {
     var bgFunction = new Function("transferObj",
-        (transferObject.get("_content.internalCmdlineOptions").bgdebug ? "debugger;\n" : "") +
+        (transferObj.get("_content.internalCmdlineOptions").bgdebug ? "d\ebugger;\n" : "") +
             this.extractedData.bgCodeString);
 
-    var cloneTransferObject = transferObject.clone();
+    var cloneTransferObject = transferObj.clone();
     cloneTransferObject.set("_bg.fcommandDocument",
         Fcommand._parseDomFromString(this.documentString));
     // No need to pass the document string since we already extracted it for
@@ -361,26 +364,57 @@ Fcommand.prototype.runBgCode = function (transferObject)
     cloneTransferObject.delete("_content.documentString");
 
     // Run the Fcommand's bgCode
-    bgFunction(cloneTransferObject);
+    return bgFunction(cloneTransferObject);
 }   // Fcommand.prototype.runBgCode
 
 
 /**
- * Return an object containing Fcommand data to be passed to the content
- * script, augmented with additional data depending on context.
- * @param {TransferObject} transferObject - accumulator for data to be
- * passed to the content script
- * @return TransferObject - the input transferObject, with Fcommand-specific
- * data.
+ * Send the content script a message to run this Fcommand, passing it the
+ * given data.
+ * @param {Fcommand} fcommand - Fcommand to be invoked
+ * @param {TransferObject} transferObj - Data passed to the Fcommand.
  */
-Fcommand.prototype.getContentScriptRequestData = function (transferObject)
+Fcommand.prototype.runPageCode = function (transferObj)
 {
-    return transferObject
-        .set("_content.documentString", this.documentString)
-        .set("_content.title", this.extractedData.title)
-        .set("_content.guid", this.extractedData.guid);
-    //XXX: test me
-}   // Fcommand.prototype.getContentScriptRequestData
+    var tab = transferObj.get("currentTab");
+
+    // If the current page is internal, it can't run a "page" context
+    // Fcommand.
+    // XXX: may need some about: urls here too
+    if (tab.url.search(/^(chrome|about)[-\w]*:/i) !== -1)
+    {
+        throw Error(`Fcommand '${transferObj.get("_content.title")}' cannot run on a browser page.`);
+    }
+
+    chrome.tabs.sendMessage(tab.id, transferObj);
+}   // Fcommand.prototype.runPageCode
+
+
+/**
+ * Return a promise to execute this Fcommand in the current tab.  Does the
+ * right thing depending if it's a bg or page command.
+ * @param {TransferObject} - data for the Fcommand
+ * @return {Promise} - with no resolved data.
+ */
+Fcommand.prototype.execute = function (transferObj)
+{
+    var self = this;
+
+    return Util.getCurrentTab().then(function (tab) {
+        transferObj.set("currentTab", tab)
+            .set("_content.documentString", self.documentString)
+            .set("_content.title", self.extractedData.title)
+            .set("_content.guid", self.extractedData.guid);
+
+        // If the Fcommand is bg-only, invoke it now.
+        if (self.extractedData.context === "bg")
+        {
+            return self.runBgCode(transferObj);
+        }
+
+        return self.runPageCode(transferObj);
+    });
+}   // Fcommand.prototype.execute
 
 
 // Return the ID to be used for this Fcommand's context menu entry (if it

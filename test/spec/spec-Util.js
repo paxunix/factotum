@@ -48,7 +48,7 @@ describe("createImportLink", function() {
         expect(link.rel).toEqual("import");
         expect(link.id).toEqual(Util.getFcommandImportId(t.get("_content.guid")));
         delete t.storage["_content.documentString"];     // XXX: ugly hack
-        expect(link.dataset.transferObject).toEqual(JSON.stringify(t));
+        expect(link.dataset.transferObj).toEqual(JSON.stringify(t));
         URL.revokeObjectURL(link.href);
     });
 
