@@ -344,31 +344,31 @@ Fcommand._extractBgCodeString = function (document, language)
 
 
 /**
- * Run the bg code for this Fcommand, passing it the given data (as
- * 'transferObj').
+ * Return a promise to run the bg code for this Fcommand, passing it the
+ * given data (as 'transferObj').
  * @param {TransferObject} transferObj - Data passed to the Fcommand.
- * @return {*} Whatever the bg code function returns (though the value is
- * ignored).
+ * @return {Promise} - run the bg code, resolve to whatever the bg code
+ * returns from calling onSuccess();
  */
 Fcommand.prototype.runBgCode = function (transferObj)
 {
-    var bgFunction = new Function("transferObj",
-        (transferObj.get("_content.internalCmdlineOptions").bgdebug ? "d\ebugger;\n" : "") +
-            this.extractedData.bgCodeString);
+    var self = this;
 
     var cloneTransferObject = transferObj.clone();
     cloneTransferObject.set("_bg.fcommandDocument",
-        Fcommand._parseDomFromString(this.documentString));
+        Fcommand._parseDomFromString(self.documentString));
     // No need to pass the document string since we already extracted it for
     // our use.
     cloneTransferObject.delete("_content.documentString");
 
     // Run the Fcommand's bgCode
-    // XXX: this should be done in a promise and pass onsuccess, onfailure
-    // the same as for page code.  This allows callbacks to throw exceptions
-    // and (if the author properly calls onfailure), the failure would be
-    // surfaced instead of lost, or killing the background script.
-    return bgFunction(cloneTransferObject);
+    return new Promise(function (onSuccess, onFailure) {
+        var bgFunction = new Function("transferObj", "onSuccess", "onFailure",
+            (transferObj.get("_content.internalCmdlineOptions").bgdebug ? "d\ebugger;\n" : "") +
+                self.extractedData.bgCodeString);
+
+        return bgFunction(cloneTransferObject, onSuccess, onFailure);
+    });
 }   // Fcommand.prototype.runBgCode
 
 

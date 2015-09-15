@@ -20,7 +20,9 @@
 <script>
   console.log("Running bgtest 3/4 in bg with:", transferObj);
   chrome.tabs.create({
-    url: "https://www.google.com/"
+      url: "https://www.google.com/"
+    }, function () {
+      onSuccess();    // must be called when your bg code has finished successfully
   });
 </script>
 </template>

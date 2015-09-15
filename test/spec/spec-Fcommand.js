@@ -380,6 +380,7 @@ describe("runBgCode", function() {
         '<body>',
         '<template id="bgCode">',
         'window.fcommandBgSpy(transferObj);',
+        'onSuccess();',
         '</template>',
         '</body>',
     ].join("\n");
@@ -390,19 +391,21 @@ describe("runBgCode", function() {
         window.fcommandBgSpy = jasmine.createSpy("fcommandBgSpy");
     });
 
-    it("includes Fcommand DOM in transfer object", function () {
+    it("includes Fcommand DOM in transfer object", function (done) {
         var obj = new TransferObject({
             cmdlineOptions: {},       // always present on TransferObjects passed to runBgCode()
             "_content.internalCmdlineOptions": {},       // always present on TransferObjects passed to runBgCode()
         });
-        fcommand.runBgCode(obj);
 
-        expect(window.fcommandBgSpy).toHaveBeenCalledWith(jasmine.any(TransferObject));
-        expect(window.fcommandBgSpy.calls.first().args[0].get("_bg.fcommandDocument") instanceof HTMLDocument).toBe(true);
+        fcommand.runBgCode(obj).then(function () {
+            expect(window.fcommandBgSpy).toHaveBeenCalledWith(jasmine.any(TransferObject));
+            expect(window.fcommandBgSpy.calls.first().args[0].get("_bg.fcommandDocument") instanceof HTMLDocument).toBe(true);
+            done();
+        });
     });
 
 
-    it("enables debug mode if requested", function () {
+    it("enables debug mode if requested", function (done) {
         // This test is imperfect, since it can't catch actually dropping
         // into the debugger.  Instead, it checks for the presence of the
         // 'debugger' statement that was injected by runBgCode().
@@ -418,6 +421,7 @@ describe("runBgCode", function() {
             '<body>',
             '<template id="bgCode">',
             'window.fcommandBgSpy(arguments.callee.toString());',
+            'onSuccess();',
             '</template>',
             '</body>',
         ].join("\n");
@@ -429,9 +433,10 @@ describe("runBgCode", function() {
             "_content.internalCmdlineOptions": { bgdebug: true},
         });
 
-        fcommand.runBgCode(obj);
-
-        expect(window.fcommandBgSpy.calls.first().args[0]).toMatch(/d\ebugger;/);
+        fcommand.runBgCode(obj).then(function () {
+            expect(window.fcommandBgSpy.calls.first().args[0]).toMatch(/d\ebugger;/);
+            done();
+        });
     });
 }); // runBgCode
 

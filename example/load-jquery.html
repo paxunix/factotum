@@ -246,10 +246,20 @@ It must be a <template> with an ID of "bgCode".
     !!!NOTE!!!:  this code runs with the full permissions of the Factotum
     extension.
 
-    The code becomes the body of a function and is passed a TransferObject
-    which contains (amongst other things) a "bgData" key whose value is
-    the data passed to the Fcommand's onSuccess callback.
-    XXX:  document WTF is a TransferObject.
+    The code becomes the body of a function and is passed:  transferObject,
+    onSuccess, and onFailure.
+
+    transferObject is a TransferObject and contains (amongst other things) a
+    "bgData" key whose value is the data passed to the Fcommand's onSuccess
+    callback.  XXX:  document WTF is a TransferObject.
+
+   You must call onSuccess() once your Fcommand bg code has completed
+   successfully.
+
+   Call onFailure() or throw an exception if you want to surface (and
+   record) an error from your bg code.  The object you pass it can be any
+   Error object, or a string.  NOTE:  if calling onFailure(), you need to
+   return immediately after, since it does not prevent further processing.
   -->
 <script>
 console.log("Running in bg with:", transferObj);
@@ -268,7 +278,7 @@ chrome.notifications.create(
         title: "Loaded jQuery",
         message: "Version " + transferObj.get("bgData").jqueryVersion,
     },
-    function() {}
+    function() { onSuccess(); }
 );
 </script>
 </template>
