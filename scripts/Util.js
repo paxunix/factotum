@@ -83,18 +83,6 @@ Util.getCurrentTab = function ()
 }   // Util.getCurrentTab
 
 
-/*
- * XXX: unused
- * Creates an object containing data from the Fcommand document suitable
- * for storage.
- * @return {Object} Fcommand data ready for storage.
- */
-Util.getStorableFcommand = function (document, lang)
-{
-    // XXX
-}   // Util.getStorableFcommand
-
-
 return Util;
 
 })();   // module.exports
