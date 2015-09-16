@@ -52,6 +52,16 @@ template script which will be run in the background page.  Optional.
 -->
 <meta name="context" content="page">
 
+<!-- Indicate that this Fcommand can be invoked with no parameters via the
+context menu.
+
+The value is a list (delimited by spaces or commas) of context-type names in
+which this Fcommand is invocable via context menu.  See
+https://developer.chrome.com/extensions/contextMenus#method-create for the
+list of possible context types.  Optional.
+-->
+<meta name="menu" content="all">
+
 <!-- Specify the favicon for this Fcommand.  Optional.  -->
 <link rel="icon" type="image/png" href="http://example.com/favicon.png">
 
