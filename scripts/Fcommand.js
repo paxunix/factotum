@@ -449,7 +449,7 @@ Fcommand.prototype.createContextMenu = function (parentMenuId)
             }, function () {
                 if (chrome.runtime.lastError)
                 {
-                    reject(`Failed to create context menu for ${self.extractedData.title}: ${chrome.runtime.lastError}`);
+                    reject(Error(`Failed to create context menu for ${self.extractedData.title}: ${chrome.runtime.lastError}`));
                     return;
                 }
 
