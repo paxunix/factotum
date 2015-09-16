@@ -24,7 +24,7 @@ ContentScript.appendNodeToDocumentHead = function (node)
  * Return a Promise to load the import document specified by the transfer
  * object's data.
  * @param {TransferObject} transferObj - Input/output data.  This object is rejected/resolved.
- * @returns {Promise} - promise to load the import document
+ * @returns {Promise} - promise to load the import document; resolves/rejects with transferObj.
  */
 ContentScript.getLoadImportPromise = function (transferObj)
 {
@@ -55,7 +55,7 @@ ContentScript.getLoadImportPromise = function (transferObj)
         };
 
         ContentScript.appendNodeToDocumentHead(elem);
-    });     // new Promise
+    });
 }   // ContentScript.getLoadImportPromise
 
 
@@ -100,7 +100,7 @@ ContentScript.messageListener = function (evt)
 // has access to it.
 ContentScript.injectFactotumApi = function (document)
 {
-    var p = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         var s = document.createElement("script");
         s.src = chrome.runtime.getURL("build/inject.js");
         s.onload = function () {
@@ -114,8 +114,6 @@ ContentScript.injectFactotumApi = function (document)
 
         (document.head || document.documentElement).appendChild(s);
     });
-
-    return p;
 }   // ContentScript.injectFactotumApi
 
 

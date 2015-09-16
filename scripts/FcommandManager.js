@@ -180,8 +180,8 @@ FcommandManager.prototype.removeContextMenus = function ()
  * Return a promise to set up the main context menu.  If the menu already
  * exists, does nothing.  Otherwise, ensures it is created if the fcommand
  * has the menu field.
- * @param {Fcommand} - Fcommand to be propagated along promise chain
- * @return {Promise}
+ * @param {Fcommand} fcommand - Fcommand to be propagated along promise chain
+ * @return {Promise} - promise that resolves to the fcommand
  */
 FcommandManager.prototype.createMainContextMenu = function (fcommand)
 {
@@ -203,7 +203,7 @@ FcommandManager.prototype.createMainContextMenu = function (fcommand)
             }, function () {
                 if (chrome.runtime.lastError)
                 {
-                    reject(`Failed creating parent context menu item: ${chrome.runtime.lastError}`);
+                    reject(new Error(`Failed creating parent context menu item: ${chrome.runtime.lastError}`));
                     return;
                 }
 
