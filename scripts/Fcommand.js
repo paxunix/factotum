@@ -384,7 +384,6 @@ Fcommand.prototype.runPageCode = function (transferObj)
 
     // If the current page is internal, it can't run a "page" context
     // Fcommand.
-    // XXX: may need some about: urls here too
     if (tab.url.search(/^(chrome|about)[-\w]*:/i) !== -1)
     {
         throw Error(`Fcommand '${transferObj.get("_content.title")}' cannot run on a browser page.`);
