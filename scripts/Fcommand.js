@@ -410,7 +410,7 @@ Fcommand.prototype.execute = function (transferObj)
             .set("_content.guid", self.extractedData.guid);
 
         // If the Fcommand is bg-only, invoke it now.
-        if (self.extractedData.context === "bg")
+        if (self.extractedData.context.toLowerCase() === "bg")
         {
             return self.runBgCode(transferObj);
         }

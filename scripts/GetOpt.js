@@ -43,7 +43,7 @@ getOptions: function (spec, argv) {
 
     function saveValue(opt, value)
     {
-        if (spec[opt].array && spec[opt].type === "value")
+        if (spec[opt].array && spec[opt].type.toLowerCase() === "value")
             opts[opt] = [].concat(opts[opt] || [], value);
         else
             opts[opt] = value;
@@ -86,7 +86,7 @@ getOptions: function (spec, argv) {
             {
                 // Recursively retry with the non-negated name.
                 var trueOpt = getOptionOrArg("-" + toggleCheck[1]);
-                if (trueOpt.opt && spec[trueOpt.opt].type === "boolean")
+                if (trueOpt.opt && spec[trueOpt.opt].type.toLowerCase() === "boolean")
                 {
                     ret.opt = trueOpt.opt;
                     ret.isToggledOff = true;
@@ -135,7 +135,7 @@ getOptions: function (spec, argv) {
             // Otherwise, this word should be considered an arg, not an
             // option.
             if ("value" in thing)
-                if (spec[thing.opt].type === "value")
+                if (spec[thing.opt].type.toLowerCase() === "value")
                     argv.unshift(thing.value);
                 else
                 {
@@ -151,15 +151,15 @@ getOptions: function (spec, argv) {
                 nameOfValueOpt = null;
             }
 
-            if (spec[thing.opt].type === "boolean")
+            if (spec[thing.opt].type.toLowerCase() === "boolean")
             {
                 saveValue(thing.opt, !thing.isToggledOff);
             }
-            else if (spec[thing.opt].type === "incremental")
+            else if (spec[thing.opt].type.toLowerCase() === "incremental")
             {
                 saveValue(thing.opt, (opts[thing.opt] || 0) + 1);
             }
-            else if (spec[thing.opt].type === "value")
+            else if (spec[thing.opt].type.toLowerCase() === "value")
             {
                 nameOfValueOpt = thing.opt;
             }
