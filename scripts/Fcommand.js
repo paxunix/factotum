@@ -1,7 +1,7 @@
 "use strict";
 
 var GetOpt = require("./GetOpt.js");
-var semver = require("node-semver/semver.js");
+var semver = require("semver");
 var TransferObject = require("./TransferObject.js");
 var Util = require("./Util.js");
 

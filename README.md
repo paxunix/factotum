@@ -42,6 +42,8 @@ who gave you a free gun full of free bullets.**
 1. Install [Node.js](http://nodejs.org/download/) if you don't already have
    it.
 1. Run `make setup`.
+1. Apply dirty hack to your local Dexie copy as indicated in:
+   https://github.com/webpack/webpack/issues/138#issuecomment-123313230
 1. Then run `make`.
 1. Enable developer mode in `chrome://extensions/`.
 1. Click on the *Load unpacked extension...* button and select the directory
@@ -57,13 +59,6 @@ who gave you a free gun full of free bullets.**
 * After making changes, re-run `make` and then reload the extensions page.
   Depending on your changes, you may need to reload pages that now have an
   old version of the content and injected scripts.
-
-  * if you add a require() to a file, rerun `make deps`
-
-* Alternatively, if you just want it to auto-build when a file is modified,
-  run `make watchify` (remember to `make kill` if you wish to kill off the
-  watchers).  Then all you have to do is make changes, wait a couple
-  seconds, then reload the extensions page, etc.
 
 * Take a look at `example/load-jquery.html` to see what goes into writing an
   Fcommand.

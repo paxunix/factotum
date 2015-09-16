@@ -24,8 +24,6 @@
   ],
   "dependencies": {
     "polymer": "Polymer/polymer",
-    "dexie": "",
-    "node-semver": "npm/node-semver",
     "paper-elements": "PolymerElements/paper-elements"
   },
   "devDependencies": {

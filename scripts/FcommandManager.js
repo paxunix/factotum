@@ -6,7 +6,7 @@ module.exports = (function() {
 
 // XXX: default minified version won't work within browserify, so pull in
 // non-minified version
-var Dexie = require("../bower_components/dexie/dist/latest/Dexie.js");
+var Dexie = require("dexie");
 var Fcommand = require("./Fcommand.js");
 
 
