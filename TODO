@@ -2,17 +2,6 @@
 
 - TransferObject needs to use real method, not the key-based stuff.
 
-- Fcommands from context menu
-    - on extension load, all Fcommands that specify "menu" context build
-      their menu items and add them to the master Fcommand menu
-        - master menu should show Fcommand titles, ordered alphabetically
-    - each all invokes some function in FactotumBG (which is basically some
-      of the guts from onOmniboxInputEntered, without the omnibox stuff)
-    - and that runs the Fcommand with no parameters
-        - this allows the command to still be invoked via omnibox with
-          parameters, but can also support parameter-less invocation via
-          menu
-
 - consider validating that the minimum transferobject fields needed are
   present in each context
 

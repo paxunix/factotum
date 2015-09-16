@@ -1,6 +1,8 @@
 "use strict";
 
+var GetOpt = require("./GetOpt.js");
 var semver = require("node-semver/semver.js");
+var TransferObject = require("./TransferObject.js");
 var Util = require("./Util.js");
 
 module.exports = (function() {
@@ -446,6 +448,23 @@ Fcommand.prototype.createContextMenu = function (parentMenuId)
                 title: self.extractedData.title,
                 contexts: self.extractedData.menu,
                 enabled: self.enabled,      // XXX: need to update this whenever the enabled state changes
+                onclick: function (params, tab) {
+                    var transferObj = new TransferObject({
+                        // The command line is only the Fcommand keyword.
+                        // This isn't strictly necessary, but mimics
+                        // invoking the Fcommand by entering its first
+                        // keyword in the omnibox with no parameters.
+                        cmdlineOptions: GetOpt.getOptions(self.extractedData.optspec, [ self.extractedData.keywords[0] ]),
+                        // There are no internal command line options
+                        // because none could have been entered.
+                        "_content.internalCmdlineOptions": GetOpt.getOptions({},[]),
+                        // Context menu action always implies current tab
+                        "tabDisposition": "currentTab",
+                        "contextClickData": params,
+                    });
+
+                    self.execute(transferObj);
+                },
             }, function () {
                 if (chrome.runtime.lastError)
                 {

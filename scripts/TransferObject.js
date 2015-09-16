@@ -35,14 +35,17 @@ var supportedKeys = [
     "tabDisposition",
     "importDocument",
     "bgData",
+    "contextClickData", // only present if Fcommand invoked from context menu
 
-    // For passing information from background to content script
+    // For passing information from background to content script.  Not
+    // expected to be directly accessed by Fcommands.
     "_content.documentString",
     "_content.guid",
     "_content.internalCmdlineOptions",
     "_content.title",
 
-    // For passing information from content script to background
+    // For passing information from content script to background.  Not
+    // expected to be directly accessed by Fcommands.
     "_bg.errorMessage",
     "_bg.fcommandDocument",
 ];
