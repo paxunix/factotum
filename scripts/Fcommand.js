@@ -463,6 +463,11 @@ Fcommand.prototype.createContextMenu = function (parentMenuId)
                         "contextClickData": params,
                     });
 
+                    // XXX: the problem here is that there is no error trap;
+                    // an exception during execution will not surface to the
+                    // user because this happens after the onclick doesn't
+                    // happen as a result of a promise during regular
+                    // invocation.
                     self.execute(transferObj);
                 },
             }, function () {
