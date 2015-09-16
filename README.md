@@ -58,6 +58,8 @@ who gave you a free gun full of free bullets.**
   Depending on your changes, you may need to reload pages that now have an
   old version of the content and injected scripts.
 
+  * if you add a require() to a file, rerun `make deps`
+
 * Alternatively, if you just want it to auto-build when a file is modified,
   run `make watchify` (remember to `make kill` if you wish to kill off the
   watchers).  Then all you have to do is make changes, wait a couple
