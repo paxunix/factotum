@@ -9,7 +9,7 @@ describe("_getDataAttribute", function() {
 
     it("retrieves transfer object from an Fcommand's import link data attribute", function(done) {
         var t = new TransferObject()
-            .set("cmdlineOptions", { a: 1, b: [ { c: 2 } ] })
+            .setCommandLine({ a: 1, b: [ { c: 2 } ] })
             .set("_content.internalCmdlineOptions", { debug: false })
             .set("_content.guid", "guid")
             .set("_content.documentString", "testing");
@@ -34,7 +34,7 @@ describe("getFcommandId", function() {
 
     it("retrieves guid from an Fcommand's import document metadata", function(done) {
         var t = new TransferObject()
-            .set("cmdlineOptions", {})
+            .setCommandLine({})
             .set("_content.internalCmdlineOptions", {})
             .set("_content.guid", "guid")
             .set("_content.documentString", '<head><meta name="guid" content="guid">');

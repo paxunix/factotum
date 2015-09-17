@@ -257,9 +257,10 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 return;
             }
 
-            transferObj.set("cmdlineOptions",
+            transferObj.setCommandLine(
                 GetOpt.getOptions(fcommand.extractedData.optspec,
-                    internalOptions._));
+                    internalOptions._)
+            );
 
             return fcommand.execute(transferObj);
         }).catch(function (rejectWith) {

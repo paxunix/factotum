@@ -393,9 +393,10 @@ describe("runBgCode", function() {
 
     it("includes Fcommand DOM in transfer object", function (done) {
         var obj = new TransferObject({
-            cmdlineOptions: {},       // always present on TransferObjects passed to runBgCode()
             "_content.internalCmdlineOptions": {},       // always present on TransferObjects passed to runBgCode()
         });
+        // Always present on TransferObjects passed to runBgCode()
+        obj.setCommandLine({});
 
         fcommand.runBgCode(obj).then(function () {
             expect(window.fcommandBgSpy).toHaveBeenCalledWith(jasmine.any(TransferObject));
@@ -429,9 +430,10 @@ describe("runBgCode", function() {
         var fcommand = new Fcommand(doc, lang);
 
         var obj = new TransferObject({
-            cmdlineOptions: {},       // always present on TransferObjects passed to runBgCode()
             "_content.internalCmdlineOptions": { bgdebug: true},
         });
+        // Always present on TransferObjects passed to runBgCode()
+        obj.setCommandLine({});
 
         fcommand.runBgCode(obj).then(function () {
             expect(window.fcommandBgSpy.calls.first().args[0]).toMatch(/d\ebugger;/);

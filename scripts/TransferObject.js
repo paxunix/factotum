@@ -30,7 +30,6 @@ function TransferObject(obj) {
 
 var supportedKeys = [
     // Intended for direct use by Fcommands
-    "cmdlineOptions",
     "currentTab",
     "tabDisposition",
     "importDocument",
@@ -49,6 +48,64 @@ var supportedKeys = [
     "_bg.errorMessage",
     "_bg.fcommandDocument",
 ];
+
+
+/**
+ * Set the command line options object.
+ * @param {Object} opts - Value to store for command line options.
+ * @return {TransferObject} - this object, for chaining.
+ */
+TransferObject.prototype.setCommandLine = function (opts) {
+    this.storage.cmdlineOptions = opts;
+    return this;
+}   // TransferObject.prototype.setCommandLine
+
+
+/**
+ * Get the command line options object.
+ * @return {Object} - command line options object, or undefined if none were set.
+ */
+TransferObject.prototype.getCommandLine = function () {
+    return this.storage.cmdlineOptions;
+}   // TransferObject.prototype.getCommandLine
+
+
+/**
+ * Check for presence of command line object.
+ * @return {Boolean} - true if a command line object was set.
+ */
+TransferObject.prototype.hasCommandLine = function () {
+    return this.storage.hasOwnProperty("cmdlineOptions");
+}   // TransferObject.prototype.hasCommandLine
+
+
+/**
+ * Set the current tab object.
+ * @param {Object} opts - Value to store for current tab object.
+ * @return {TransferObject} - this object, for chaining.
+ */
+TransferObject.prototype.setCurrentTab = function (tab) {
+    this.storage.currentTab = tab;
+    return this;
+}   // TransferObject.prototype.set
+
+
+/**
+ * Get the current tab object.
+ * @return {Object} - current tab object, or undefined if none were set.
+ */
+TransferObject.prototype.getCurrentTab = function () {
+    return this.storage.currentTab;
+}   // TransferObject.prototype.set
+
+
+/**
+ * Check if current tab object is present.
+ * @return {Boolean} - true if a current tab object was set.
+ */
+TransferObject.prototype.hasCurrentTab = function () {
+    return ("currentTab" in this.storage);
+}   // TransferObject.prototype.set
 
 
 /**

@@ -27,6 +27,18 @@ it("constructs a TransferObject from an existing TransferObject", function() {
 });
 
 
+it("sets/gets/has command line object", function () {
+    var t = new TransferObject();
+    var o = t.setCommandLine({a:1});
+
+    expect(o).toBe(t);
+    expect(o.getCommandLine()).toEqual({a:1});
+    expect(o.hasCommandLine()).toBe(true);
+    expect(new TransferObject().getCommandLine()).toBeUndefined();
+    expect(new TransferObject().hasCommandLine()).toBe(false);
+});
+
+
 it("throws error on setting unsupported key", function () {
     expect(function () {
         (new TransferObject()).set("unsupported");

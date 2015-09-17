@@ -29,7 +29,7 @@
 <script>
   console.log("Running in bg with:", transferObj);
 
-  var opts = transferObj.get("cmdlineOptions");
+  var opts = transferObj.getCommandLine();
 
   if (opts.bgthrow)
   {

@@ -38,7 +38,7 @@ describe("createImportLink", function() {
 
     it("creates a link from documentString", function() {
         var t = new TransferObject()
-            .set("cmdlineOptions", { a: 1, b: [ 2, 3 ], c: { d: "four" } })
+            .setCommandLine({ a: 1, b: [ 2, 3 ], c: { d: "four" } })
             .set("_content.internalCmdlineOptions", { a: 1, b: [ 2, { c: "3" } ] })
             .set("_content.guid", "1234")
             .set("_content.documentString", "docstring");

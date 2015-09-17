@@ -169,7 +169,7 @@ Factotum.runCommand().
 */
 function loadJquery(transferObj, onSuccess, onFailure) {
 
-  var opts = transferObj.get("cmdlineOptions");
+  var opts = transferObj.getCommandLine();
 
   console.log("transferObj: ", transferObj);
 
@@ -273,7 +273,7 @@ It must be a <template> with an ID of "bgCode".
   -->
 <script>
 console.log("Running in bg with:", transferObj);
-var opts = transferObj.get("cmdlineOptions");
+var opts = transferObj.getCommandLine();
 
 if (opts.bgthrow)
 {
