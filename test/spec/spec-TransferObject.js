@@ -39,6 +39,18 @@ it("sets/gets/has command line object", function () {
 });
 
 
+it("sets/gets/has current tab", function () {
+    var t = new TransferObject();
+    var o = t.setCurrentTab({a:1});
+
+    expect(o).toBe(t);
+    expect(o.getCurrentTab()).toEqual({a:1});
+    expect(o.hasCurrentTab()).toBe(true);
+    expect(new TransferObject().getCurrentTab()).toBeUndefined();
+    expect(new TransferObject().hasCurrentTab()).toBe(false);
+});
+
+
 it("throws error on setting unsupported key", function () {
     expect(function () {
         (new TransferObject()).set("unsupported");

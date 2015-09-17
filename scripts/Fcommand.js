@@ -382,7 +382,7 @@ Fcommand.prototype.runBgCode = function (transferObj)
  */
 Fcommand.prototype.runPageCode = function (transferObj)
 {
-    var tab = transferObj.get("currentTab");
+    var tab = transferObj.getCurrentTab();
 
     // If the current page is internal, it can't run a "page" context
     // Fcommand.
@@ -406,7 +406,7 @@ Fcommand.prototype.execute = function (transferObj)
     var self = this;
 
     return Util.getCurrentTab().then(function (tab) {
-        transferObj.set("currentTab", tab)
+        transferObj.setCurrentTab(tab)
             .set("_content.documentString", self.documentString)
             .set("_content.title", self.extractedData.title)
             .set("_content.guid", self.extractedData.guid);

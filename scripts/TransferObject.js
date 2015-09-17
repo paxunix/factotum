@@ -30,7 +30,6 @@ function TransferObject(obj) {
 
 var supportedKeys = [
     // Intended for direct use by Fcommands
-    "currentTab",
     "tabDisposition",
     "importDocument",
     "bgData",
@@ -87,7 +86,7 @@ TransferObject.prototype.hasCommandLine = function () {
 TransferObject.prototype.setCurrentTab = function (tab) {
     this.storage.currentTab = tab;
     return this;
-}   // TransferObject.prototype.set
+}   // TransferObject.prototype.setCurrentTab
 
 
 /**
@@ -96,7 +95,7 @@ TransferObject.prototype.setCurrentTab = function (tab) {
  */
 TransferObject.prototype.getCurrentTab = function () {
     return this.storage.currentTab;
-}   // TransferObject.prototype.set
+}   // TransferObject.prototype.getCurrentTab
 
 
 /**
@@ -104,8 +103,8 @@ TransferObject.prototype.getCurrentTab = function () {
  * @return {Boolean} - true if a current tab object was set.
  */
 TransferObject.prototype.hasCurrentTab = function () {
-    return ("currentTab" in this.storage);
-}   // TransferObject.prototype.set
+    return this.storage.hasOwnProperty("currentTab");
+}   // TransferObject.prototype.hasCurrentTab
 
 
 /**
