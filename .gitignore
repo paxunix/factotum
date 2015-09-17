@@ -3,3 +3,7 @@
 /bower_components
 /node_modules
 /build/*
+deps-*.files
+*.crx
+*.pem
+factotum/
