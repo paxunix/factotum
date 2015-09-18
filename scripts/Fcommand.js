@@ -453,8 +453,6 @@ Fcommand.prototype.createContextMenu = function (parentMenuId)
                         // There are no internal command line options
                         // because none could have been entered.
                         "_content.internalCmdlineOptions": GetOpt.getOptions({},[]),
-                        // Context menu action always implies current tab
-                        "tabDisposition": "currentTab",
                     });
                     // The command line is only the Fcommand keyword.
                     // This isn't strictly necessary, but mimics
@@ -462,6 +460,8 @@ Fcommand.prototype.createContextMenu = function (parentMenuId)
                     // keyword in the omnibox with no parameters.
                     transferObj.setCommandLine(GetOpt.getOptions(self.extractedData.optspec, [ self.extractedData.keywords[0] ]));
                     transferObj.setContextClickData(contextMenuData);
+                    // Context menu action always implies current tab
+                    transferObj.setTabDisposition("currentTab");
 
                     // XXX: the problem here is that there is no error trap;
                     // an exception during execution will not surface to the

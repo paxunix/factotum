@@ -229,7 +229,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
 
     var transferObj = new TransferObject()
         .set("_content.internalCmdlineOptions", internalOptions)
-        .set("tabDisposition", tabDisposition);
+        .setTabDisposition(tabDisposition);
 
     var lookupPromise = guidFromCmdline !== null ?
         fcommandManager.getByGuid(guidFromCmdline).then(function (res) {

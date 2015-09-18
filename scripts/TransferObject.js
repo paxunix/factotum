@@ -30,7 +30,6 @@ function TransferObject(obj) {
 
 var supportedKeys = [
     // Intended for direct use by Fcommands
-    "tabDisposition",
     "importDocument",
     "bgData",
 
@@ -135,6 +134,35 @@ TransferObject.prototype.getContextClickData = function () {
 TransferObject.prototype.hasContextClickData = function () {
     return this.storage.hasOwnProperty("contextClickData");
 }   // TransferObject.prototype.hasContextClickData
+
+
+/**
+ * Set the tab disposition.
+ * @param {String} value - Value to store for tab disposition.
+ * @return {TransferObject} - this object, for chaining.
+ */
+TransferObject.prototype.setTabDisposition = function (value) {
+    this.storage.tabDisposition = value;
+    return this;
+}   // TransferObject.prototype.setTabDisposition
+
+
+/**
+ * Get the tab disposition.
+ * @return {String} - tab disposition, or undefined if none were set.
+ */
+TransferObject.prototype.getTabDisposition = function () {
+    return this.storage.tabDisposition;
+}   // TransferObject.prototype.getTabDisposition
+
+
+/**
+ * Check if tab disposition value is present.
+ * @return {Boolean} - true if tab disposition was set.
+ */
+TransferObject.prototype.hasTabDisposition = function () {
+    return this.storage.hasOwnProperty("tabDisposition");
+}   // TransferObject.prototype.hasTabDisposition
 
 
 /**
