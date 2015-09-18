@@ -51,6 +51,18 @@ it("sets/gets/has current tab", function () {
 });
 
 
+it("sets/gets/has context click data", function () {
+    var t = new TransferObject();
+    var o = t.setContextClickData({a:1});
+
+    expect(o).toBe(t);
+    expect(o.getContextClickData()).toEqual({a:1});
+    expect(o.hasContextClickData()).toBe(true);
+    expect(new TransferObject().getContextClickData()).toBeUndefined();
+    expect(new TransferObject().hasContextClickData()).toBe(false);
+});
+
+
 it("throws error on setting unsupported key", function () {
     expect(function () {
         (new TransferObject()).set("unsupported");

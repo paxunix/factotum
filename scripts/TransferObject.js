@@ -33,7 +33,6 @@ var supportedKeys = [
     "tabDisposition",
     "importDocument",
     "bgData",
-    "contextClickData", // only present if Fcommand invoked from context menu
 
     // For passing information from background to content script.  Not
     // expected to be directly accessed by Fcommands.
@@ -105,6 +104,37 @@ TransferObject.prototype.getCurrentTab = function () {
 TransferObject.prototype.hasCurrentTab = function () {
     return this.storage.hasOwnProperty("currentTab");
 }   // TransferObject.prototype.hasCurrentTab
+
+
+/**
+ * Set the context menu click data object.  Expected to only have been
+ * called if the Fcommand was invoked via the context menu.
+ * @param {Object} data - Value to store for context menu click data.
+ * @return {TransferObject} - this object, for chaining.
+ */
+TransferObject.prototype.setContextClickData = function (data) {
+    this.storage.contextClickData = data;
+    return this;
+}   // TransferObject.prototype.setContextClickData
+
+
+/**
+ * Get the context menu click data object.  Will only return a value if the
+ * Fcommand was invoked via the context menu.
+ * @return {Object} - context menu click data, or undefined if none were set.
+ */
+TransferObject.prototype.getContextClickData = function () {
+    return this.storage.contextClickData;
+}   // TransferObject.prototype.getContextClickData
+
+
+/**
+ * Check if context menu click data is present.
+ * @return {Boolean} - true if a context menu click data was set.
+ */
+TransferObject.prototype.hasContextClickData = function () {
+    return this.storage.hasOwnProperty("contextClickData");
+}   // TransferObject.prototype.hasContextClickData
 
 
 /**
