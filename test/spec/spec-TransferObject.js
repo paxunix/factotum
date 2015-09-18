@@ -75,6 +75,18 @@ it("sets/gets/has tab disposition", function () {
 });
 
 
+it("sets/gets/has import document", function () {
+    var t = new TransferObject();
+    var o = t.setImportDocument({a:1});
+
+    expect(o).toBe(t);
+    expect(o.getImportDocument()).toEqual({a:1});
+    expect(o.hasImportDocument()).toBe(true);
+    expect(new TransferObject().getImportDocument()).toBeUndefined();
+    expect(new TransferObject().hasImportDocument()).toBe(false);
+});
+
+
 it("throws error on setting unsupported key", function () {
     expect(function () {
         (new TransferObject()).set("unsupported");

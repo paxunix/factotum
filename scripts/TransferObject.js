@@ -30,7 +30,6 @@ function TransferObject(obj) {
 
 var supportedKeys = [
     // Intended for direct use by Fcommands
-    "importDocument",
     "bgData",
 
     // For passing information from background to content script.  Not
@@ -163,6 +162,35 @@ TransferObject.prototype.getTabDisposition = function () {
 TransferObject.prototype.hasTabDisposition = function () {
     return this.storage.hasOwnProperty("tabDisposition");
 }   // TransferObject.prototype.hasTabDisposition
+
+
+/**
+ * Set the import document.
+ * @param {Object} value - Value to store for import document.
+ * @return {TransferObject} - this object, for chaining.
+ */
+TransferObject.prototype.setImportDocument = function (value) {
+    this.storage.importDocument = value;
+    return this;
+}   // TransferObject.prototype.setImportDocument
+
+
+/**
+ * Get the import document.
+ * @return {String} - import document, or undefined if none were set.
+ */
+TransferObject.prototype.getImportDocument = function () {
+    return this.storage.importDocument;
+}   // TransferObject.prototype.getImportDocument
+
+
+/**
+ * Check if import document is present.
+ * @return {Boolean} - true if import document was set.
+ */
+TransferObject.prototype.hasImportDocument = function () {
+    return this.storage.hasOwnProperty("importDocument");
+}   // TransferObject.prototype.hasImportDocument
 
 
 /**

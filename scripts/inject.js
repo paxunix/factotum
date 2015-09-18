@@ -72,8 +72,7 @@ Factotum.runCommand = function (fcommandFunc)
     var importDoc = document.currentScript.ownerDocument;
     var guid = Factotum.getFcommandId(importDoc);
     var transferObj = new TransferObject(Factotum._getDataAttribute(document, guid, "transferObj"));
-    var clonedTransferObject = transferObj.clone().set("importDocument",
-        importDoc);
+    var clonedTransferObject = transferObj.clone().setImportDocument(importDoc);
     var isDebug = transferObj.get("_content.internalCmdlineOptions").debug;
 
     var p = new Promise(function (resolve, reject) {
