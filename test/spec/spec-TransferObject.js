@@ -87,6 +87,18 @@ it("sets/gets/has import document", function () {
 });
 
 
+it("sets/gets/has bgData", function () {
+    var t = new TransferObject();
+    var o = t.setBgData({a:1});
+
+    expect(o).toBe(t);
+    expect(o.getBgData()).toEqual({a:1});
+    expect(o.hasBgData()).toBe(true);
+    expect(new TransferObject().getBgData()).toBeUndefined();
+    expect(new TransferObject().hasBgData()).toBe(false);
+});
+
+
 it("throws error on setting unsupported key", function () {
     expect(function () {
         (new TransferObject()).set("unsupported");
@@ -122,7 +134,7 @@ it("sets/gets value for supported key", function () {
 });
 
 
-it("checks for key", function () {
+xit("checks for key", function () {
     var o = new TransferObject();
     o.set("_content.guid", "value");
     expect(o.has("_content.guid")).toBe(true);

@@ -295,7 +295,7 @@ FactotumBg.responseHandler = function (response) {
         return;
     }
 
-    if (transferObj.has("_content.guid") && transferObj.has("bgData"))
+    if (transferObj.has("_content.guid") && transferObj.hasBgData())
     {
         console.log("Fcommand responded:", transferObj);
 

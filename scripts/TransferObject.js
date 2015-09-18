@@ -29,9 +29,6 @@ function TransferObject(obj) {
 
 
 var supportedKeys = [
-    // Intended for direct use by Fcommands
-    "bgData",
-
     // For passing information from background to content script.  Not
     // expected to be directly accessed by Fcommands.
     "_content.documentString",
@@ -191,6 +188,35 @@ TransferObject.prototype.getImportDocument = function () {
 TransferObject.prototype.hasImportDocument = function () {
     return this.storage.hasOwnProperty("importDocument");
 }   // TransferObject.prototype.hasImportDocument
+
+
+/**
+ * Set the background data object.
+ * @param {Object} value - Value to store for background data.
+ * @return {TransferObject} - this object, for chaining.
+ */
+TransferObject.prototype.setBgData = function (value) {
+    this.storage.bgData = value;
+    return this;
+}   // TransferObject.prototype.setBgData
+
+
+/**
+ * Get the background data object.
+ * @return {Object} - background data, or undefined if none were set.
+ */
+TransferObject.prototype.getBgData = function () {
+    return this.storage.bgData;
+}   // TransferObject.prototype.getBgData
+
+
+/**
+ * Check if import document is present.
+ * @return {Boolean} - true if import document was set.
+ */
+TransferObject.prototype.hasBgData = function () {
+    return this.storage.hasOwnProperty("bgData");
+}   // TransferObject.prototype.hasBgData
 
 
 /**
