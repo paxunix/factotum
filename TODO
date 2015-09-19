@@ -1,8 +1,5 @@
 - move help stuff into Fcommand (it should know how to show its own help)
 
-- TransferObject needs to use real method, not the key-based stuff.
-    - needs delete* too
-
 - consider validating that the minimum transferobject fields needed are
   present in each context
 
