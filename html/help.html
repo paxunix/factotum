@@ -20,6 +20,11 @@
   </paper-material>
 
   <script>
+    var dismissBtn = document.querySelector("#dismiss-button");
+    dismissBtn.addEventListener("click", function () {
+      window.close();
+    });
+
     // Put help markup for this Fcommand into the dialog
     chrome.runtime.getBackgroundPage(function (bgScope) {
       // Extract Fcommand guid from "?guid=abcd" query string and use it to
@@ -40,11 +45,6 @@
             // XXX: surface error to user
             console.error("Failed retrieving Fcommand: ", rej);
           });
-    });
-
-    var dismissBtn = document.querySelector("#dismiss-button");
-    dismissBtn.addEventListener("click", function () {
-      window.close();
     });
   </script>
 </body>
