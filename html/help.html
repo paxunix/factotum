@@ -1,4 +1,5 @@
 <head>
+  <link rel="import" href="../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
   <link rel="import" href="../bower_components/paper-material/paper-material.html">
   <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
@@ -9,13 +10,15 @@
   </style>
 </head>
 
-<body layout unresolved>
+<body unresolved>
   <paper-material id="help-material" elevation="3">
     <div id="help-content">
     </div>
-    <paper-button id="dismiss-button" raised autofocus>
-      Dismiss
-    </paper-button>
+    <div class="horizontal layout center-justified">
+      <paper-button id="dismiss-button" raised autofocus>
+        Dismiss
+      </paper-button>
+    </div>
   </paper-material>
 
   <script>
