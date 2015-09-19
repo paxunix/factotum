@@ -134,11 +134,11 @@ it("sets/gets value for supported key", function () {
 });
 
 
-xit("checks for key", function () {
+it("checks for key", function () {
     var o = new TransferObject();
     o.set("_content.guid", "value");
     expect(o.has("_content.guid")).toBe(true);
-    expect(o.has("bgData")).toBe(false);
+    expect(o.has("_content.title")).toBe(false);
 });
 
 
