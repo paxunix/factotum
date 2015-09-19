@@ -4,16 +4,20 @@
 
   <style>
     #help-material {
-      height: 95%;
-      width: 95%;
+      height: 100%;
+      width: 100%;
+    }
+
+    #help-content {
       padding: 1em;
     }
   </style>
 </head>
 
 <body unresolved>
-  <paper-material id="help-material" elevation="3">
-    <div id="help-content"></div>
+  <paper-material vertical layout id="help-material" elevation="3">
+    <div id="help-content">
+    </div>
     <paper-button id="dismiss-button" raised autofocus>
       Dismiss
     </paper-button>
@@ -30,11 +34,11 @@
       // Extract Fcommand guid from "?guid=abcd" query string and use it to
       // get the help markup for the Fcommand.
       var guid = document.location.search.substr(6);
-      var div = document.querySelector("#help-content");
 
       bgScope.fcommandManager.getByGuid(guid)
         .then(function (fcommand) {
-            div.innerHTML = fcommand.extractedData.helpMarkup;
+            var container = document.querySelector("#help-content");
+            Polymer.dom(container).innerHTML = fcommand.extractedData.helpMarkup;
 
             // XXX: it would be handy to use the same keyword that
             // activated the help, rather than always using the first
