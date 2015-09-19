@@ -29,6 +29,14 @@ function TransferObject(obj) {
 
 
 var supportedKeys = [
+    // Intended for direct use by Fcommands
+    "cmdlineOptions",
+    "currentTab",
+    "tabDisposition",
+    "importDocument",
+    "bgData",
+    "contextClickData", // only present if Fcommand invoked from context menu
+
     // For passing information from background to content script.  Not
     // expected to be directly accessed by Fcommands.
     "_content.documentString",
