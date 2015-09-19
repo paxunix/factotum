@@ -234,8 +234,7 @@ TransferObject.prototype.hasBgData = function () {
  * @throws {Error}  If key is unsupported.
  */
 TransferObject.prototype.set = function (key, value) {
-    if (supportedKeys.indexOf(key) === -1)
-        throw new Error(`Unknown TransferObject key '${key}'`);
+    this.keyCheck(key);
 
     this.storage[key] = value;
 
@@ -249,8 +248,7 @@ TransferObject.prototype.set = function (key, value) {
  * @throws {Error}  If key is unsupported.
  */
 TransferObject.prototype.get = function (key) {
-    if (supportedKeys.indexOf(key) === -1)
-        throw new Error(`Unknown TransferObject key '${key}'`);
+    this.keyCheck(key);
 
     return this.storage[key];
 }   // TransferObject.prototype.get
@@ -262,8 +260,7 @@ TransferObject.prototype.get = function (key) {
  * @throws {Error}  If key is unsupported.
  */
 TransferObject.prototype.has = function (key) {
-    if (supportedKeys.indexOf(key) === -1)
-        throw new Error(`Unknown TransferObject key '${key}'`);
+    this.keyCheck(key);
 
     return this.storage.hasOwnProperty(key);
 }   // TransferObject.prototype.has
@@ -275,8 +272,7 @@ TransferObject.prototype.has = function (key) {
  * @throws {Error}  If key is unsupported.
  */
 TransferObject.prototype.delete = function (key) {
-    if (supportedKeys.indexOf(key) === -1)
-        throw new Error(`Unknown TransferObject key '${key}'`);
+    this.keyCheck(key);
 
     delete this.storage[key];
 
@@ -295,6 +291,12 @@ TransferObject.prototype.clone = function () {
     // yet.
     return new TransferObject(JSON.parse(JSON.stringify(this)));
 }   // TransferObject.prototype.clone
+
+
+TransferObject.prototype.keyCheck = function (key) {
+    if (supportedKeys.indexOf(key) === -1)
+        throw new Error(`Unknown TransferObject key '${key}'`);
+}
 
 
 return TransferObject;
