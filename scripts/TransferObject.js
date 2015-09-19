@@ -57,7 +57,7 @@ var supportedKeys = [
  * @return {TransferObject} - this object, for chaining.
  */
 TransferObject.prototype.setCommandLine = function (opts) {
-    this.storage.cmdlineOptions = opts;
+    this.set("cmdlineOptions", opts);
     return this;
 }   // TransferObject.prototype.setCommandLine
 
@@ -67,7 +67,7 @@ TransferObject.prototype.setCommandLine = function (opts) {
  * @return {Object} - command line options object, or undefined if none were set.
  */
 TransferObject.prototype.getCommandLine = function () {
-    return this.storage.cmdlineOptions;
+    return this.get("cmdlineOptions");
 }   // TransferObject.prototype.getCommandLine
 
 
@@ -76,7 +76,7 @@ TransferObject.prototype.getCommandLine = function () {
  * @return {Boolean} - true if a command line object was set.
  */
 TransferObject.prototype.hasCommandLine = function () {
-    return this.storage.hasOwnProperty("cmdlineOptions");
+    return this.has("cmdlineOptions");
 }   // TransferObject.prototype.hasCommandLine
 
 
@@ -86,7 +86,7 @@ TransferObject.prototype.hasCommandLine = function () {
  * @return {TransferObject} - this object, for chaining.
  */
 TransferObject.prototype.setCurrentTab = function (tab) {
-    this.storage.currentTab = tab;
+    this.set("currentTab", tab);
     return this;
 }   // TransferObject.prototype.setCurrentTab
 
@@ -96,7 +96,7 @@ TransferObject.prototype.setCurrentTab = function (tab) {
  * @return {Object} - current tab object, or undefined if none were set.
  */
 TransferObject.prototype.getCurrentTab = function () {
-    return this.storage.currentTab;
+    return this.get("currentTab");
 }   // TransferObject.prototype.getCurrentTab
 
 
@@ -105,7 +105,7 @@ TransferObject.prototype.getCurrentTab = function () {
  * @return {Boolean} - true if a current tab object was set.
  */
 TransferObject.prototype.hasCurrentTab = function () {
-    return this.storage.hasOwnProperty("currentTab");
+    return this.has("currentTab");
 }   // TransferObject.prototype.hasCurrentTab
 
 
@@ -116,7 +116,7 @@ TransferObject.prototype.hasCurrentTab = function () {
  * @return {TransferObject} - this object, for chaining.
  */
 TransferObject.prototype.setContextClickData = function (data) {
-    this.storage.contextClickData = data;
+    this.set("contextClickData", data);
     return this;
 }   // TransferObject.prototype.setContextClickData
 
@@ -127,7 +127,7 @@ TransferObject.prototype.setContextClickData = function (data) {
  * @return {Object} - context menu click data, or undefined if none were set.
  */
 TransferObject.prototype.getContextClickData = function () {
-    return this.storage.contextClickData;
+    return this.get("contextClickData");
 }   // TransferObject.prototype.getContextClickData
 
 
@@ -136,7 +136,7 @@ TransferObject.prototype.getContextClickData = function () {
  * @return {Boolean} - true if a context menu click data was set.
  */
 TransferObject.prototype.hasContextClickData = function () {
-    return this.storage.hasOwnProperty("contextClickData");
+    return this.has("contextClickData");
 }   // TransferObject.prototype.hasContextClickData
 
 
@@ -146,7 +146,7 @@ TransferObject.prototype.hasContextClickData = function () {
  * @return {TransferObject} - this object, for chaining.
  */
 TransferObject.prototype.setTabDisposition = function (value) {
-    this.storage.tabDisposition = value;
+    this.set("tabDisposition", value);
     return this;
 }   // TransferObject.prototype.setTabDisposition
 
@@ -156,7 +156,7 @@ TransferObject.prototype.setTabDisposition = function (value) {
  * @return {String} - tab disposition, or undefined if none were set.
  */
 TransferObject.prototype.getTabDisposition = function () {
-    return this.storage.tabDisposition;
+    return this.get("tabDisposition");
 }   // TransferObject.prototype.getTabDisposition
 
 
@@ -165,7 +165,7 @@ TransferObject.prototype.getTabDisposition = function () {
  * @return {Boolean} - true if tab disposition was set.
  */
 TransferObject.prototype.hasTabDisposition = function () {
-    return this.storage.hasOwnProperty("tabDisposition");
+    return this.has("tabDisposition");
 }   // TransferObject.prototype.hasTabDisposition
 
 
@@ -175,7 +175,7 @@ TransferObject.prototype.hasTabDisposition = function () {
  * @return {TransferObject} - this object, for chaining.
  */
 TransferObject.prototype.setImportDocument = function (value) {
-    this.storage.importDocument = value;
+    this.set("importDocument", value);
     return this;
 }   // TransferObject.prototype.setImportDocument
 
@@ -185,7 +185,7 @@ TransferObject.prototype.setImportDocument = function (value) {
  * @return {String} - import document, or undefined if none were set.
  */
 TransferObject.prototype.getImportDocument = function () {
-    return this.storage.importDocument;
+    return this.get("importDocument");
 }   // TransferObject.prototype.getImportDocument
 
 
@@ -194,7 +194,7 @@ TransferObject.prototype.getImportDocument = function () {
  * @return {Boolean} - true if import document was set.
  */
 TransferObject.prototype.hasImportDocument = function () {
-    return this.storage.hasOwnProperty("importDocument");
+    return this.has("importDocument");
 }   // TransferObject.prototype.hasImportDocument
 
 
@@ -204,7 +204,7 @@ TransferObject.prototype.hasImportDocument = function () {
  * @return {TransferObject} - this object, for chaining.
  */
 TransferObject.prototype.setBgData = function (value) {
-    this.storage.bgData = value;
+    this.set("bgData", value);
     return this;
 }   // TransferObject.prototype.setBgData
 
@@ -214,7 +214,7 @@ TransferObject.prototype.setBgData = function (value) {
  * @return {Object} - background data, or undefined if none were set.
  */
 TransferObject.prototype.getBgData = function () {
-    return this.storage.bgData;
+    return this.get("bgData");
 }   // TransferObject.prototype.getBgData
 
 
@@ -223,7 +223,7 @@ TransferObject.prototype.getBgData = function () {
  * @return {Boolean} - true if import document was set.
  */
 TransferObject.prototype.hasBgData = function () {
-    return this.storage.hasOwnProperty("bgData");
+    return this.has("bgData");
 }   // TransferObject.prototype.hasBgData
 
 
@@ -265,7 +265,7 @@ TransferObject.prototype.has = function (key) {
     if (supportedKeys.indexOf(key) === -1)
         throw new Error(`Unknown TransferObject key '${key}'`);
 
-    return (key in this.storage);
+    return this.storage.hasOwnProperty(key);
 }   // TransferObject.prototype.has
 
 
