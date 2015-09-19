@@ -1,6 +1,4 @@
 <head>
-  <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
-
   <link rel="import" href="../bower_components/paper-material/paper-material.html">
   <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
@@ -22,33 +20,31 @@
   </paper-material>
 
   <script>
-    window.addEventListener("WebComponentsReady", function() {
-      // Put help markup for this Fcommand into the dialog
-      chrome.runtime.getBackgroundPage(function (bgScope) {
-        // Extract Fcommand guid from "?guid=abcd" query string and use it to
-        // get the help markup for the Fcommand.
-        var guid = document.location.search.substr(6);
-        var div = document.querySelector("#help-content");
+    // Put help markup for this Fcommand into the dialog
+    chrome.runtime.getBackgroundPage(function (bgScope) {
+      // Extract Fcommand guid from "?guid=abcd" query string and use it to
+      // get the help markup for the Fcommand.
+      var guid = document.location.search.substr(6);
+      var div = document.querySelector("#help-content");
 
-        bgScope.fcommandManager.getByGuid(guid)
-          .then(function (fcommand) {
-              div.innerHTML = fcommand.extractedData.helpMarkup;
+      bgScope.fcommandManager.getByGuid(guid)
+        .then(function (fcommand) {
+            div.innerHTML = fcommand.extractedData.helpMarkup;
 
-              // XXX: it would be handy to use the same keyword that
-              // activated the help, rather than always using the first
-              // keyword for the Fcommand
-              document.title = "Help: " + fcommand.extractedData.keywords[0];
-            })
-          .catch(function (rej) {
-              // XXX: surface error to user
-              console.error("Failed retrieving Fcommand: ", rej);
-            });
-      });
+            // XXX: it would be handy to use the same keyword that
+            // activated the help, rather than always using the first
+            // keyword for the Fcommand
+            document.title = "Help: " + fcommand.extractedData.keywords[0];
+          })
+        .catch(function (rej) {
+            // XXX: surface error to user
+            console.error("Failed retrieving Fcommand: ", rej);
+          });
+    });
 
-      var dismissBtn = document.querySelector("#dismiss-button");
-      dismissBtn.addEventListener("click", function () {
-        window.close();
-      });
+    var dismissBtn = document.querySelector("#dismiss-button");
+    dismissBtn.addEventListener("click", function () {
+      window.close();
     });
   </script>
 </body>
