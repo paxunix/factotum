@@ -6,11 +6,12 @@ OUTDIR := build
 PACKAGE_NAME := factotum
 
 
-build: \
-	$(OUTDIR)/help.html \
-	webpack
+build: html webpack
 
-$(OUTDIR)/help.html: html/help.html
+html: \
+	$(OUTDIR)/help.html \
+
+$(OUTDIR)/%.html: html/%.html | webpack
 	mkdir -p $(dir $@)
 	./node_modules/vulcanize/bin/vulcanize $^ | \
         ./node_modules/crisper/bin/crisper --html $@ --js $(basename $@).js
