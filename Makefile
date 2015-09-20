@@ -10,6 +10,7 @@ build: html webpack
 
 html: \
 	$(OUTDIR)/help.html \
+	$(OUTDIR)/popup.html
 
 $(OUTDIR)/%.html: html/%.html | webpack
 	mkdir -p $(dir $@)

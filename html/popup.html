@@ -1,13 +1,38 @@
-<style>
-#background_panel
-{
-  background-color: white;
-  min-width: 20em;
-}
-</style>
+<!DOCTYPE html>
+<head>
+  <link rel="import" href="../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+  <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+  <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+  <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
 
-<div id="background_panel">
-  Chickens.
-  <p>
-  This page will be dynamically generated depending on what should show:
-</div>
+  <style is="custom-style">
+    #popup-menu {
+      min-width: 15em;
+    }
+
+    #popup-menu paper-icon-item {
+      --paper-item-icon-width: 34px;
+    }
+  </style>
+</head>
+
+<body>
+  <paper-menu id="popup-menu">
+    <paper-icon-item>
+      <iron-icon icon="icons:add-box" item-icon></iron-icon>
+      Quick add...
+    </paper-icon-item>
+    <paper-icon-item>
+      <iron-icon icon="icons:create" item-icon></iron-icon>
+      Edit
+    </paper-icon-item>
+    <paper-icon-item>
+      <iron-icon icon="icons:error" item-icon></iron-icon>
+      Errors
+    </paper-icon-item>
+    <paper-icon-item>
+      <iron-icon icon="icons:help" item-icon></iron-icon>
+      Help
+    </paper-icon-item>
+  </paper-menu
+</body>
