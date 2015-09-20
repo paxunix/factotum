@@ -27,13 +27,13 @@
         // content script will get the request from the bg page?
         // "all_frames": true,
         "js": [
-            "build/content.js"
+            "build/content.bundle.js"
         ]
     }],
 
     "background": {
         "scripts": [
-            "build/background.js"
+            "build/background.bundle.js"
         ]
     },
 
@@ -109,6 +109,6 @@
     "offline_enabled": false,
 
     "web_accessible_resources": [
-        "build/inject.js"
+        "build/inject.bundle.js"
     ]
 }

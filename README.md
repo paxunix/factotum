@@ -40,11 +40,11 @@ who gave you a free gun full of free bullets.**
 ## Setting up a local package
 
 1. Install [Node.js](http://nodejs.org/download/) if you don't already have
-   it.
-1. Run `make setup`.
+   it.  You'll need node and npm.
+1. Run `make setup`.  It will install the necessary node and bower packages.
 1. Apply dirty hack to your local Dexie copy as indicated in:
    https://github.com/webpack/webpack/issues/138#issuecomment-123313230
-1. Then run `make`.
+1. Run `make`.
 1. Enable developer mode in `chrome://extensions/`.
 1. Click on the *Load unpacked extension...* button and select the directory
    containing `manifest.json`.
@@ -59,6 +59,14 @@ who gave you a free gun full of free bullets.**
 * After making changes, re-run `make` and then reload the extensions page.
   Depending on your changes, you may need to reload pages that now have an
   old version of the content and injected scripts.
+
+  * You can run `make watch` to have webpack watch for changes in .js files
+    and rebuild them each time they're changed.
+
+    * Stop watching by running `make clean`
+
+  * If you modify `html/help.html`, you need to re-run `make`, since webpack
+    doesn't care about the html files.
 
 * Take a look at `example/load-jquery.html` to see what goes into writing an
   Fcommand.

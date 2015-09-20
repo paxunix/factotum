@@ -102,7 +102,7 @@ ContentScript.injectFactotumApi = function (document)
 {
     return new Promise(function (resolve, reject) {
         var s = document.createElement("script");
-        s.src = chrome.runtime.getURL("build/inject.js");
+        s.src = chrome.runtime.getURL("build/inject.bundle.js");
         s.onload = function () {
             // No need to keep the script around once it has run
             s.parentNode.removeChild(s);

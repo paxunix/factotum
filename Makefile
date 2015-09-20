@@ -1,47 +1,39 @@
 MAKEFLAGS := -j --output-sync
+SHELL := /bin/zsh
+.SHELLFLAGS := -f -c
 OUTDIR := build
-
-_DEBUG := $(if $(NODEBUG),,-d)
-
-TOOL := node_modules/webpack/bin/webpack.js
 
 PACKAGE_NAME := factotum
 
 
-all: build
-
 build: \
-    $(OUTDIR)/background.js \
-	$(OUTDIR)/content.js \
-	$(OUTDIR)/inject.js \
-	$(OUTDIR)/test.js \
-	$(OUTDIR)/help.html
-
-$(OUTDIR)/%.js: scripts/%.js
-	mkdir -p $(dir $@)
-	$(TOOL) $(_DEBUG) $^ $@
-
-$(OUTDIR)/test.js: $(wildcard test/spec/*.js)
-	mkdir -p $(dir $@)
-	$(TOOL) $(_DEBUG) $^ $@
+	$(OUTDIR)/help.html \
+	webpack
 
 $(OUTDIR)/help.html: html/help.html
 	mkdir -p $(dir $@)
 	./node_modules/vulcanize/bin/vulcanize $^ | \
         ./node_modules/crisper/bin/crisper --html $@ --js $(basename $@).js
 
+webpack:
+	./node_modules/webpack/bin/webpack.js -d
+
+watch:
+	pkill -f '[w]ebpack' ; true
+	./node_modules/webpack/bin/webpack.js -d -w &!
 
 package: manifest.json build/ html icons _locales example
 	mkdir -p $(PACKAGE_NAME)
 	cp -prv $^ $(PACKAGE_NAME)/
 
-
 clean:
+	pkill -f '[w]ebpack' ; true
 	rm -fr $(OUTDIR)
 
 update:
 	npm update
-	bower update
+	./node_modules/bower/bin/bower update
 
 setup:
-	npm install webpack bower vulcanize crisper
+	npm install
+	./node_modules/bower/bin/bower install

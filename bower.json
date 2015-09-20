@@ -23,10 +23,8 @@
     "globals"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer",
-    "paper-elements": "PolymerElements/paper-elements"
   },
   "devDependencies": {
-    "jasmine": ""
+    "paper-elements": "PolymerElements/paper-elements"
   }
 }

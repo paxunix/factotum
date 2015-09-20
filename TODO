@@ -1,3 +1,6 @@
+- after move to webpack and bundling test JS, the inject tests don't pass
+  any more, so fix them
+
 - consider validating that the minimum transferobject fields needed are
   present in each context
 
