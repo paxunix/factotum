@@ -1,5 +1,3 @@
-- move help stuff into Fcommand (it should know how to show its own help)
-
 - consider validating that the minimum transferobject fields needed are
   present in each context
 

@@ -4,7 +4,6 @@ module.exports = (function() {
 
 var ShellParse = require("./ShellParse.js");
 var GetOpt = require("./GetOpt.js");
-var Help = require("./Help.js");
 var TransferObject = require("./TransferObject.js");
 
 var FactotumBg = { };
@@ -248,12 +247,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
 
             if (internalOptions.help)
             {
-                if (fcommand.extractedData.helpMarkup === null)
-                {
-                    throw Error(`No help available for Fcommand '${fcommand.extractedData.title}' (${fcommand.extractedData.guid}).`);
-                }
-
-                Help.showFcommandHelp(fcommand.extractedData.guid);
+                fcommand.popupHelpWindow();
                 return;
             }
 
