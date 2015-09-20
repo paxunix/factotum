@@ -19,7 +19,7 @@ describe("_getDataAttribute", function() {
         el.onload = function onload() {
             URL.revokeObjectURL(el.href);
 
-            delete t.storage["_content.documentString"];     // XXX: ugly hack
+            t.delete("_content.documentString");
             expect(JSON.stringify(Factotum._getDataAttribute(document, t.get("_content.guid"), "transferObj"))).toEqual(JSON.stringify(t));
             el.remove();
             done();
