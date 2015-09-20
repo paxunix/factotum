@@ -4,6 +4,40 @@ module.exports = (function () {
 
 var Help = {};
 
+// Return a promise to get the focussed window; resolves to the Window
+// data object.
+function getFocussedWindow() {
+    return new Promise(function (resolve, reject) {
+        chrome.windows.getLastFocused(function (wnd) {
+            resolve(wnd);
+        });
+    });
+}
+
+
+// Return a promise to create the help window
+function createHelpWindow(fcommandGuid, wnd) {
+    var width = Math.round(wnd.width * 0.40);
+    var height = Math.round(wnd.height * 0.65);
+    var url = chrome.runtime.getURL("build/help.html") +
+        `?guid=${fcommandGuid}`;
+
+    return new Promise(function (resolve, reject) {
+        chrome.windows.create({
+            url: url,
+            type: "popup",
+            left: Math.round((wnd.width - width) / 2),
+            top: Math.round((wnd.height - height) / 2),
+            width: width,
+            height: height,
+            focused: true,
+        }, function (wnd) {
+            resolve(wnd);
+        });
+    });
+}
+
+
 /**
  * Popup help for the given Fcommand.
  * @param {String} fcommandGuid - The guid for the Fcommand whose help
@@ -11,22 +45,11 @@ var Help = {};
  */
 Help.showFcommandHelp = function (fcommandGuid)
 {
-    // Arbitrarily make the help dialog's container 50% of the screen's
-    // width and 70% of the screen's height.
-    // XXX: need min+max range e.g. Math.min(Math.max(300, x), 1000);
-    var width = Math.round(window.screen.width * 0.30);
-    var height = Math.round(window.screen.height * 0.55);
-    var url = chrome.runtime.getURL("build/help.html") +
-        `?guid=${fcommandGuid}`;
-
-    chrome.windows.create({
-        url: url,
-        type: "popup",
-        left: Math.round((window.screen.width - width) / 2),
-        top: Math.round((window.screen.height - height) / 2),
-        width: width,
-        height: height,
-        focused: true,
+    getFocussedWindow().then(function (wnd) {
+        return createHelpWindow(fcommandGuid, wnd);
+    }).catch(function (err) {
+        // XXX: surface error to user
+        console.error(`Failed creating help window for Fcommand ${fcommandGuid}:`, err);
     });
 }   // showFcommandHelp
 
