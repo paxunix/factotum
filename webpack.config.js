@@ -17,7 +17,8 @@ module.exports = {
         background: "./scripts/background.js",
         inject: "./scripts/inject.js",
         content: "./scripts/content.js",
-        test: "./test/spec/run-spec.js"
+        test: "./test/spec/run-spec.js",
+        "popup-core": "./scripts/popup-core.js"
     },
     output: {
         path: __dirname + "/" + outputDir,

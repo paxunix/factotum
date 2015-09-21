@@ -2,38 +2,45 @@
 <head>
   <link rel="import" href="../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
   <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-  <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
   <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+  <link rel="import" href="../bower_components/paper-input/paper-input.html">
 
   <style is="custom-style">
-    #popup-menu {
-      min-width: 15em;
+    #list {
+      min-width: 20em;
     }
 
-    #popup-menu paper-icon-item {
+    paper-icon-item {
       --paper-item-icon-width: 34px;
       cursor: pointer;
+    }
+
+    paper-icon-item:hover {
+      background-color: #d8d8d8;
     }
   </style>
 </head>
 
 <body>
-  <paper-menu id="popup-menu">
-    <paper-icon-item>
+  <div id="list">
+    <paper-icon-item id="menu-quick-add">
       <iron-icon icon="icons:add-box" item-icon></iron-icon>
-      Quick add...
+      <paper-input label="Quick Add" placeholder="Fcommand URL">
+      </paper-input>
     </paper-icon-item>
-    <paper-icon-item>
-      <iron-icon icon="icons:create" item-icon></iron-icon>
-      Edit
+    <paper-icon-item id="menu-settings">
+      <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
+      Settings
     </paper-icon-item>
-    <paper-icon-item>
+    <paper-icon-item id="menu-errors">
       <iron-icon icon="icons:error" item-icon></iron-icon>
       Errors
     </paper-icon-item>
-    <paper-icon-item>
+    <paper-icon-item id="menu-help">
       <iron-icon icon="icons:help" item-icon></iron-icon>
       Help
     </paper-icon-item>
-  </paper-menu
+  </div>
+
+  <script src="../build/popup-core.bundle.js"></script>
 </body>
