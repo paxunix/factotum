@@ -20,16 +20,17 @@ $(OUTDIR)/%.html: html/%.html | webpack
 webpack:
 	./node_modules/webpack/bin/webpack.js -d
 
-watch:
-	pkill -f '[w]ebpack' ; true
+watch: kill
 	./node_modules/webpack/bin/webpack.js -d -w &!
 
 package: manifest.json build/ html icons _locales example
 	mkdir -p $(PACKAGE_NAME)
 	cp -prv $^ $(PACKAGE_NAME)/
 
-clean:
+kill:
 	pkill -f '[w]ebpack' ; true
+
+clean: kill
 	rm -fr $(OUTDIR)
 
 update:
