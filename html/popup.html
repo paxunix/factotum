@@ -4,6 +4,7 @@
   <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
   <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
   <link rel="import" href="../bower_components/paper-input/paper-input.html">
+  <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 
   <style is="custom-style">
     #list {
@@ -23,23 +24,25 @@
 
 <body>
   <div id="list">
-    <paper-icon-item id="menu-quick-add">
+    <paper-icon-item id="quick-add">
       <iron-icon icon="icons:add-box" item-icon></iron-icon>
       <paper-input label="Quick Add" placeholder="Fcommand URL">
       </paper-input>
     </paper-icon-item>
-    <paper-icon-item id="menu-settings">
-      <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
-      Settings
-    </paper-icon-item>
-    <paper-icon-item id="menu-errors">
-      <iron-icon icon="icons:error" item-icon></iron-icon>
-      Errors
-    </paper-icon-item>
-    <paper-icon-item id="menu-help">
-      <iron-icon icon="icons:help" item-icon></iron-icon>
-      Help
-    </paper-icon-item>
+    <paper-menu>
+      <paper-icon-item id="menu-settings" disabled>
+        <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
+        Settings
+      </paper-icon-item>
+      <paper-icon-item id="menu-errors" disabled>
+        <iron-icon icon="icons:error" item-icon></iron-icon>
+        Errors
+      </paper-icon-item>
+      <paper-icon-item id="menu-help" disabled>
+        <iron-icon icon="icons:help" item-icon></iron-icon>
+        Help
+      </paper-icon-item>
+    </paper-menu>
   </div>
 
   <script src="../build/popup-core.bundle.js"></script>
