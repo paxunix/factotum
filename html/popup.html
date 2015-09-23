@@ -19,15 +19,24 @@
     paper-icon-item:hover {
       background-color: #d8d8d8;
     }
+
+    #loadUrl {
+      margin-top: 20px;
+      transition-property: transform;
+      transition-duration: 0.2s;
+    }
+
+    #loadUrl:hover {
+      transform: scale(1.2);
+    }
   </style>
 </head>
 
 <body>
   <div id="list">
     <paper-icon-item id="quick-add">
-      <iron-icon icon="icons:add-box" item-icon></iron-icon>
-      <paper-input label="Quick Add" placeholder="Fcommand URL">
-      </paper-input>
+      <paper-input label="Quick Add" placeholder="Fcommand URL"></paper-input>
+      <iron-icon id="loadUrl" icon="icons:check"></iron-icon>
     </paper-icon-item>
     <paper-menu>
       <paper-icon-item id="menu-settings" disabled>
