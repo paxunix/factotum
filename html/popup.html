@@ -1,58 +1,6 @@
 <!DOCTYPE html>
-<head>
-  <link rel="import" href="../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
-  <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-  <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
-  <link rel="import" href="../bower_components/paper-input/paper-input.html">
-  <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 
-  <style is="custom-style">
-    #list {
-      min-width: 20em;
-    }
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="factotum-popup-polymer.html">
 
-    paper-icon-item {
-      --paper-item-icon-width: 34px;
-      cursor: pointer;
-    }
-
-    paper-icon-item:hover {
-      background-color: #d8d8d8;
-    }
-
-    #loadUrl {
-      margin-top: 20px;
-      transition-property: transform;
-      transition-duration: 0.2s;
-    }
-
-    #loadUrl:hover {
-      transform: scale(1.2);
-    }
-  </style>
-</head>
-
-<body>
-  <div id="list">
-    <paper-icon-item id="quick-add">
-      <paper-input label="Quick Add" placeholder="Fcommand URL"></paper-input>
-      <iron-icon id="loadUrl" icon="icons:check"></iron-icon>
-    </paper-icon-item>
-    <paper-menu>
-      <paper-icon-item id="menu-settings" disabled>
-        <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
-        Settings
-      </paper-icon-item>
-      <paper-icon-item id="menu-errors" disabled>
-        <iron-icon icon="icons:error" item-icon></iron-icon>
-        Errors
-      </paper-icon-item>
-      <paper-icon-item id="menu-help" disabled>
-        <iron-icon icon="icons:help" item-icon></iron-icon>
-        Help
-      </paper-icon-item>
-    </paper-menu>
-  </div>
-
-  <script src="../build/popup-core.bundle.js"></script>
-</body>
+<factotum-popup></factotum-popup>

@@ -12,6 +12,8 @@ html: \
 	$(OUTDIR)/help.html \
 	$(OUTDIR)/popup.html
 
+$(OUTDIR)/popup.html: html/factotum-popup-polymer.html
+
 $(OUTDIR)/%.html: html/%.html | webpack
 	mkdir -p $(dir $@)
 	./node_modules/vulcanize/bin/vulcanize $< | \

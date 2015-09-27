@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+
+<dom-module id="factotum-popup">
+  <template>
+    <style is="custom-style">
+      paper-icon-item {
+        --paper-item-icon-width: 34px;
+        cursor: pointer;
+      }
+
+      paper-icon-item:hover {
+        background-color: #d8d8d8;
+      }
+
+      #loadUrl {
+        margin-top: 20px;
+        transition-property: transform;
+        transition-duration: 0.2s;
+      }
+
+      #loadUrl:hover {
+        transform: scale(1.2);
+      }
+
+      #quick-add /deep/ input {
+        font-size: 13px;
+        min-width: 15em;
+        transition-property: min-width;
+        transition-duration: 0.2s;
+      }
+
+      #quick-add /deep/ input:focus {
+        min-width: 23em;
+      }
+
+    </style>
+
+    <div id="list">
+      <paper-icon-item>
+        <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}"></paper-input>
+        <iron-icon id="loadUrl" icon="icons:check" on-click="clickCheckmark"></iron-icon>
+      </paper-icon-item>
+      <paper-menu>
+        <paper-icon-item id="menu-settings" disabled>
+          <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
+          Settings
+        </paper-icon-item>
+        <paper-icon-item id="menu-errors" disabled>
+          <iron-icon icon="icons:error" item-icon></iron-icon>
+          Errors
+        </paper-icon-item>
+        <paper-icon-item id="menu-help" disabled>
+          <iron-icon icon="icons:help" item-icon></iron-icon>
+          Help
+        </paper-icon-item>
+      </paper-menu>
+    </div>
+  </template>
+</dom-module>
+<script>
+"use strict";
+
+Polymer({
+    is: "factotum-popup",
+
+    properties: {
+        fcommandUrl: {
+            type: String,
+            value: "",
+        }
+    },
+
+    clickCheckmark: function () {
+        console.log("url:", this.fcommandUrl);
+    },
+});
+</script>
