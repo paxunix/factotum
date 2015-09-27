@@ -13,12 +13,11 @@ catch (e) {
 
 module.exports = {
     entry: {
-        // One for each script context
+        // One for each script context that doesn't require vulcanization (FFS)
         background: "./scripts/background.js",
         inject: "./scripts/inject.js",
         content: "./scripts/content.js",
         test: "./test/spec/run-spec.js",
-        "popup-core": "./scripts/popup-core.js"
     },
     output: {
         path: __dirname + "/" + outputDir,

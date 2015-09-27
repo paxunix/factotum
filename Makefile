@@ -14,7 +14,7 @@ html: \
 
 $(OUTDIR)/%.html: html/%.html | webpack
 	mkdir -p $(dir $@)
-	./node_modules/vulcanize/bin/vulcanize $^ | \
+	./node_modules/vulcanize/bin/vulcanize $< | \
         ./node_modules/crisper/bin/crisper --html $@ --js $(basename $@).js
 
 webpack:
