@@ -4,6 +4,8 @@
 <link rel="import" href="../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/paper-styles/color.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 
@@ -19,14 +21,17 @@
         background-color: #d8d8d8;
       }
 
-      #loadUrl {
-        margin-top: 20px;
-        transition-property: transform;
-        transition-duration: 0.2s;
+      paper-icon-button.green {
+        color: var(--paper-green-500);
       }
 
-      #loadUrl:hover {
-        transform: scale(1.2);
+      paper-icon-button.green:hover {
+        background: var(--paper-green-50);
+        border-radius: 45%;
+      }
+
+      #loadUrl {
+        margin-top: 13px;
       }
 
       #quick-add /deep/ input {
@@ -45,7 +50,7 @@
     <div id="list">
       <paper-icon-item>
         <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}"></paper-input>
-        <iron-icon id="loadUrl" icon="icons:check" on-click="clickCheckmark"></iron-icon>
+        <paper-icon-button id="loadUrl" icon="check" class="green" on-click="clickCheckmark"></paper-icon-button>
       </paper-icon-item>
       <paper-menu>
         <paper-icon-item id="menu-settings" disabled>
