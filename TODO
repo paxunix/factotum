@@ -1,3 +1,17 @@
+- since the context menu integration doesn't actually care about the page's
+  document, it's not as useful as you would expect
+    - maybe need a context menu handler in every page so that context
+      Fcommands can have access to whatever object was right-clicked
+        - although, maybe only if the fcommand is context=page fcommand and
+          menu= is given, then it hooks into the page itself
+        - otherwise, for context=bg and menu=, it's a ubiquitous context
+          menu command, since it doesn't need page data
+    - since the right click in the page and the context menu showing up are
+      two entirely different events in two different worlds, within the page
+      some state would have to be stored by the content script so that when
+      the context menu option was selected, the Fcommand code could retrieve
+      the state data.
+
 - consider validating that the minimum transferobject fields needed are
   present in each context
 
