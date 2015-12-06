@@ -125,6 +125,12 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     // given and find the first word (the Fcommand keyword).
     var internalOptions = FactotumBg.parseCommandLine(text);
 
+    // If the user removes all text from the omnibox after the trigger word,
+    // the command line array will be empty and lookups will fail.  So, do
+    // nothing.
+    if (internalOptions._.length === 0)
+        return;
+
     // If no command, take the default description (something was entered,
     // but there's no Fcommand word yet).  Otherwise, the default suggestion
     // always has the exact command line as entered so far.
