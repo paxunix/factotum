@@ -15,10 +15,13 @@
 - consider validating that the minimum transferobject fields needed are
   present in each context
 
-- Omnibox should indicate if there is no Fcommand for the prefix given so far,
-  because otherwise the first option to run the given Fcommand will do
-  nothing when a user may expect it to do prefix matching (when it does not,
-  since that creates an ambiguity)
+- Omnibox now does prefix matching, which could still yield an ambiguous
+  result if you have multiple Fcommands with the same prefix on their
+  keywords.
+    - maybe if there is more than one match, the default suggestion does
+      nothing in order to encourage the user to select one below to
+      disambiguate
+    - if there is only one, it's fine to set it as the default suggestion
 
 - should each Fcommand have its own config data?  Some Fcommands might want
   to allow the user to save a setting that controls Fcommand behaviour.

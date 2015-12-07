@@ -131,25 +131,42 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
     if (internalOptions._.length === 0)
         return;
 
-    // If no command, take the default description (something was entered,
-    // but there's no Fcommand word yet).  Otherwise, the default suggestion
-    // always has the exact command line as entered so far.
-    var suggestion = FactotumBg.getOmniboxSuggestion(
-        internalOptions._.length === 0 ? "" : "Run Fcommand:",
-        internalOptions);
-    delete suggestion.content;
-    chrome.omnibox.setDefaultSuggestion(suggestion);
-
     // Create a suggestions using the first Fcommand whose keywords match
-    // the given Fcommand name prefix so far.  The default suggestion is
-    // always exactly what is entered.
+    // the given Fcommand name prefix so far.
     fcommandManager.getByPrefix(internalOptions._[0])
         .then(function (fcommands) {
                 var suggestions = [];
 
-                // Build up list of suggestions for matched Fcommands.
-                // Substitute the primary keyword in place of the prefix so
-                // far and preserve the rest of the command line.
+                // If the given prefix yields no Fcommands, feedback to the
+                // user via the default suggestion (which does nothing).
+                if (fcommands.length === 0)
+                {
+                    chrome.omnibox.setDefaultSuggestion({
+                        description: `Unknown Fcommand keyword prefix '${internalOptions._[0]}'...`
+                    });
+
+                    return;
+                }
+
+                // Otherwise, set the default suggestion to be the first
+                // Fcommand that matched (this must be the same logic as in
+                // FactotumBg.onOmniboxInputEntered).
+                var suggestion = FactotumBg.getOmniboxSuggestion(
+                        `Run '${fcommands[0].extractedData.title}':`,
+                        internalOptions
+                    );
+                delete suggestion.content;
+                chrome.omnibox.setDefaultSuggestion(suggestion);
+
+                // Since the default suggestion takes care of the first
+                // Fcommand, there is no need to duplicate it again in the
+                // remainder of the suggestions.
+                fcommands.shift();
+
+                // Build up list of suggestions for remaining matched
+                // Fcommands.  Substitute the primary keyword in place of
+                // the prefix so far and preserve the rest of the command
+                // line.
                 fcommands.forEach(function (fcommand) {
                     // Append the guid of each Fcommand to the suggestion's
                     // content.  This is needed because Chrome will suppress
@@ -241,7 +258,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
                 // Make sure an array is returned
                 return res === undefined ? [] : [ res ]
             }) :
-        fcommandManager.getByKeyword(internalOptions._[0]);
+        fcommandManager.getByPrefix(internalOptions._[0]);
 
     lookupPromise.then(function (fcommands) {
             if (fcommands.length === 0)
