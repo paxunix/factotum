@@ -10,7 +10,7 @@
   "dependencies": {},
   "devDependencies": {
     "bower": "^1.x",
-    "crisper": "^1.x",
+    "crisper": "^2.x",
     "dexie": "^1.x",
     "jasmine": "^2.x",
     "semver": "^5.x",
