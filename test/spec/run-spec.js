@@ -8,3 +8,4 @@ require("./spec-inject.js");
 require("./spec-ShellParse.js");
 require("./spec-TransferObject.js");
 require("./spec-Util.js");
+require("./spec-ErrorCache.js");
