@@ -229,12 +229,10 @@ Fcommand._getFromLangSelector = function (document, selector, lang)
 
     for (var lidx = 0; lidx < langList.length; ++lidx)
     {
-        //for (var el of elements)      XXX: won't work in Chrome yet: https://code.google.com/p/chromium/issues/detail?id=401699
-        // XXX: also doesn't work with browserify
-        for (var i = 0; i < elements.length; ++i)
+        for (var el of elements)
         {
-            if (langList[lidx] === elements[i].lang.toLowerCase())
-                return elements[i];
+            if (langList[lidx] === el.lang.toLowerCase())
+                return el;
         }
     }
 
