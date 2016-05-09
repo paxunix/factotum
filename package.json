@@ -9,6 +9,8 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "babel-loader": "^6.x",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.x",
     "bower": "^1.x",
     "crisper": "^2.x",
     "dexie": "^1.x",

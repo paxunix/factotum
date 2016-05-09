@@ -112,4 +112,4 @@ class ErrorCache
 }
 
 
-module.exports = ErrorCache;
+export default ErrorCache;

@@ -23,4 +23,10 @@ module.exports = {
         path: __dirname + "/" + outputDir,
         filename: "[name].bundle.js",
     },
+    module: {
+        loaders: [{
+            loader: "babel-loader",
+            test: /\.js$/,
+        }],
+    },
 }

@@ -1,6 +1,6 @@
 "use strict";
 
-var ErrorCache = require("../../scripts/ErrorCache.js");
+import ErrorCache from "../../scripts/ErrorCache.js";
 
 
 describe("ErrorCache", function () {
