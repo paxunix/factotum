@@ -1,3 +1,20 @@
+- consider an fcommand: protocol handler that lets a user specify an
+  Fcommand and parameters
+        fcommand:loadjq --version 1.2.6 --min
+    - this lets you create a bookmark and have one-click running of
+      pre-canned fcommands
+    - it should confirm on the first time it ever runs a given version of
+      an Fcommand via protocol like this (it prevents hijacking or phishing
+      for fcommands)
+    - you could extend this farther with some kind of variables:
+        fcommand:loadjq --version ${VER} --min
+            - where does VER get defined?
+    - or maybe if you want to be really crazy, it's actually a
+      template string
+        fcommand:loadjq --version ${window.prompt("JQ version:", "1.2.6")} --min
+    - it's already able to run arbitrary javascript--there is no need for
+      anything beyond the protocol handler and running it
+
 - since the context menu integration doesn't actually care about the page's
   document, it's not as useful as you would expect
     - maybe need a context menu handler in every page so that context
