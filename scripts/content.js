@@ -1,6 +1,6 @@
 "use strict";
 
-var ContentScript = require("./ContentScript.js");
+import ContentScript from "./ContentScript.js";
 
 
 /**

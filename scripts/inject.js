@@ -1,7 +1,8 @@
 "use strict";
 
-var TransferObject = require("./TransferObject.js");
+import TransferObject from "./TransferObject.js";
 
+// XXX: make me a class
 /**
  * Define the Factotum API available to all Fcommands within a page.
  */

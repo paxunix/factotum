@@ -1,11 +1,12 @@
 "use strict";
 
+import TransferObject from "../../scripts/TransferObject.js";
+import Util from "../../scripts/Util.js";
+
 describe("Util", function() {
 
 
 var lang = "en-us";
-var TransferObject = require("../../scripts/TransferObject.js");
-var Util = require("../../scripts/Util.js");
 
 
 describe("fetchDocument", function() {

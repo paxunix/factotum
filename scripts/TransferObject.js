@@ -1,32 +1,6 @@
 "use strict";
 
-
-module.exports = (function() {
-
-
-/**
- * @class TransferObject Build and contain data for transfer between contexts.
- * @constructor
- * @param {Object} obj - properties to be put into place in this object.
- * If obj is an object, all its direct properties are shallow-copied into
- * this object.  If obj is a TransferObject, it is appropriately
- * shallow-copied.
-*/
-function TransferObject(obj) {
-    this.storage = {};
-
-    var from = obj ? (('storage' in obj) ? obj.storage : obj) : {};
-    for (var p in from)
-    {
-        if (from.hasOwnProperty(p))
-        {
-            this.set(p, from[p]);
-        }
-    }
-
-    return this;
-}   // TransferObject constructor
-
+// XXX: this seems like it would be simpler with a Proxy object
 
 var supportedKeys = [
     // Intended for direct use by Fcommands
@@ -51,33 +25,62 @@ var supportedKeys = [
 ];
 
 
+
+class TransferObject
+{
+
+
+/**
+ * @class TransferObject Build and contain data for transfer between contexts.
+ * @constructor
+ * @param {Object} obj - properties to be put into place in this object.
+ * If obj is an object, all its direct properties are shallow-copied into
+ * this object.  If obj is a TransferObject, it is appropriately
+ * shallow-copied.
+*/
+constructor(obj) {
+    this.storage = {};
+
+    var from = obj ? (('storage' in obj) ? obj.storage : obj) : {};
+    for (var p in from)
+    {
+        if (from.hasOwnProperty(p))
+        {
+            this.set(p, from[p]);
+        }
+    }
+
+    return this;
+}   // TransferObject constructor
+
+
 /**
  * Set the command line options object.
  * @param {Object} opts - Value to store for command line options.
  * @return {TransferObject} - this object, for chaining.
  */
-TransferObject.prototype.setCommandLine = function (opts) {
+setCommandLine(opts) {
     this.set("cmdlineOptions", opts);
     return this;
-}   // TransferObject.prototype.setCommandLine
+}   // TransferObject.setCommandLine
 
 
 /**
  * Get the command line options object.
  * @return {Object} - command line options object, or undefined if none were set.
  */
-TransferObject.prototype.getCommandLine = function () {
+getCommandLine() {
     return this.get("cmdlineOptions");
-}   // TransferObject.prototype.getCommandLine
+}   // TransferObject.getCommandLine
 
 
 /**
  * Check for presence of command line object.
  * @return {Boolean} - true if a command line object was set.
  */
-TransferObject.prototype.hasCommandLine = function () {
+hasCommandLine() {
     return this.has("cmdlineOptions");
-}   // TransferObject.prototype.hasCommandLine
+}   // TransferObject.hasCommandLine
 
 
 /**
@@ -85,28 +88,28 @@ TransferObject.prototype.hasCommandLine = function () {
  * @param {Object} opts - Value to store for current tab object.
  * @return {TransferObject} - this object, for chaining.
  */
-TransferObject.prototype.setCurrentTab = function (tab) {
+setCurrentTab(tab) {
     this.set("currentTab", tab);
     return this;
-}   // TransferObject.prototype.setCurrentTab
+}   // TransferObject.setCurrentTab
 
 
 /**
  * Get the current tab object.
  * @return {Object} - current tab object, or undefined if none were set.
  */
-TransferObject.prototype.getCurrentTab = function () {
+getCurrentTab() {
     return this.get("currentTab");
-}   // TransferObject.prototype.getCurrentTab
+}   // TransferObject.getCurrentTab
 
 
 /**
  * Check if current tab object is present.
  * @return {Boolean} - true if a current tab object was set.
  */
-TransferObject.prototype.hasCurrentTab = function () {
+hasCurrentTab() {
     return this.has("currentTab");
-}   // TransferObject.prototype.hasCurrentTab
+}   // TransferObject.hasCurrentTab
 
 
 /**
@@ -115,10 +118,10 @@ TransferObject.prototype.hasCurrentTab = function () {
  * @param {Object} data - Value to store for context menu click data.
  * @return {TransferObject} - this object, for chaining.
  */
-TransferObject.prototype.setContextClickData = function (data) {
+setContextClickData(data) {
     this.set("contextClickData", data);
     return this;
-}   // TransferObject.prototype.setContextClickData
+}   // TransferObject.setContextClickData
 
 
 /**
@@ -126,18 +129,18 @@ TransferObject.prototype.setContextClickData = function (data) {
  * Fcommand was invoked via the context menu.
  * @return {Object} - context menu click data, or undefined if none were set.
  */
-TransferObject.prototype.getContextClickData = function () {
+getContextClickData() {
     return this.get("contextClickData");
-}   // TransferObject.prototype.getContextClickData
+}   // TransferObject.getContextClickData
 
 
 /**
  * Check if context menu click data is present.
  * @return {Boolean} - true if a context menu click data was set.
  */
-TransferObject.prototype.hasContextClickData = function () {
+hasContextClickData() {
     return this.has("contextClickData");
-}   // TransferObject.prototype.hasContextClickData
+}   // TransferObject.hasContextClickData
 
 
 /**
@@ -145,28 +148,28 @@ TransferObject.prototype.hasContextClickData = function () {
  * @param {String} value - Value to store for tab disposition.
  * @return {TransferObject} - this object, for chaining.
  */
-TransferObject.prototype.setTabDisposition = function (value) {
+setTabDisposition(value) {
     this.set("tabDisposition", value);
     return this;
-}   // TransferObject.prototype.setTabDisposition
+}   // TransferObject.setTabDisposition
 
 
 /**
  * Get the tab disposition.
  * @return {String} - tab disposition, or undefined if none were set.
  */
-TransferObject.prototype.getTabDisposition = function () {
+getTabDisposition() {
     return this.get("tabDisposition");
-}   // TransferObject.prototype.getTabDisposition
+}   // TransferObject.getTabDisposition
 
 
 /**
  * Check if tab disposition value is present.
  * @return {Boolean} - true if tab disposition was set.
  */
-TransferObject.prototype.hasTabDisposition = function () {
+hasTabDisposition() {
     return this.has("tabDisposition");
-}   // TransferObject.prototype.hasTabDisposition
+}   // TransferObject.hasTabDisposition
 
 
 /**
@@ -174,28 +177,28 @@ TransferObject.prototype.hasTabDisposition = function () {
  * @param {Object} value - Value to store for import document.
  * @return {TransferObject} - this object, for chaining.
  */
-TransferObject.prototype.setImportDocument = function (value) {
+setImportDocument(value) {
     this.set("importDocument", value);
     return this;
-}   // TransferObject.prototype.setImportDocument
+}   // TransferObject.setImportDocument
 
 
 /**
  * Get the import document.
  * @return {String} - import document, or undefined if none were set.
  */
-TransferObject.prototype.getImportDocument = function () {
+getImportDocument() {
     return this.get("importDocument");
-}   // TransferObject.prototype.getImportDocument
+}   // TransferObject.getImportDocument
 
 
 /**
  * Check if import document is present.
  * @return {Boolean} - true if import document was set.
  */
-TransferObject.prototype.hasImportDocument = function () {
+hasImportDocument() {
     return this.has("importDocument");
-}   // TransferObject.prototype.hasImportDocument
+}   // TransferObject.hasImportDocument
 
 
 /**
@@ -203,28 +206,28 @@ TransferObject.prototype.hasImportDocument = function () {
  * @param {Object} value - Value to store for background data.
  * @return {TransferObject} - this object, for chaining.
  */
-TransferObject.prototype.setBgData = function (value) {
+setBgData(value) {
     this.set("bgData", value);
     return this;
-}   // TransferObject.prototype.setBgData
+}   // TransferObject.setBgData
 
 
 /**
  * Get the background data object.
  * @return {Object} - background data, or undefined if none were set.
  */
-TransferObject.prototype.getBgData = function () {
+getBgData() {
     return this.get("bgData");
-}   // TransferObject.prototype.getBgData
+}   // TransferObject.getBgData
 
 
 /**
  * Check if import document is present.
  * @return {Boolean} - true if import document was set.
  */
-TransferObject.prototype.hasBgData = function () {
+hasBgData() {
     return this.has("bgData");
-}   // TransferObject.prototype.hasBgData
+}   // TransferObject.hasBgData
 
 
 /**
@@ -233,13 +236,13 @@ TransferObject.prototype.hasBgData = function () {
  * @param {*} value Value to store for key
  * @throws {Error}  If key is unsupported.
  */
-TransferObject.prototype.set = function (key, value) {
+set(key, value) {
     this.keyCheck(key);
 
     this.storage[key] = value;
 
     return this;
-}   // TransferObject.prototype.set
+}   // TransferObject.set
 
 
 /**
@@ -247,11 +250,11 @@ TransferObject.prototype.set = function (key, value) {
  * @return {*} Key to receive value
  * @throws {Error}  If key is unsupported.
  */
-TransferObject.prototype.get = function (key) {
+get(key) {
     this.keyCheck(key);
 
     return this.storage[key];
-}   // TransferObject.prototype.get
+}   // TransferObject.get
 
 
 /**
@@ -259,11 +262,11 @@ TransferObject.prototype.get = function (key) {
  * @return {*} Key whose presence is retrieved.
  * @throws {Error}  If key is unsupported.
  */
-TransferObject.prototype.has = function (key) {
+has(key) {
     this.keyCheck(key);
 
     return this.storage.hasOwnProperty(key);
-}   // TransferObject.prototype.has
+}   // TransferObject.has
 
 
 /**
@@ -271,13 +274,13 @@ TransferObject.prototype.has = function (key) {
  * @param {String} key Key to delete.
  * @throws {Error}  If key is unsupported.
  */
-TransferObject.prototype.delete = function (key) {
+delete(key) {
     this.keyCheck(key);
 
     delete this.storage[key];
 
     return this;
-}   // TransferObject.prototype.delete
+}   // TransferObject.delete
 
 
 
@@ -285,21 +288,20 @@ TransferObject.prototype.delete = function (key) {
  * Return a deep clone of this transfer object.
  * @return {TransferObject} Cloned object.
  */
-TransferObject.prototype.clone = function () {
+clone() {
     // XXX:  yes, this doesn't clone functions, nor Date objects, nor
     // probably some other things I don't really have to care about just
     // yet.
     return new TransferObject(JSON.parse(JSON.stringify(this)));
-}   // TransferObject.prototype.clone
+}   // TransferObject.clone
 
 
-TransferObject.prototype.keyCheck = function (key) {
+keyCheck(key) {
     if (supportedKeys.indexOf(key) === -1)
         throw new Error(`Unknown TransferObject key '${key}'`);
 }
 
+}   // class TransferObject
 
-return TransferObject;
 
-
-})();   // module.exports
+export default TransferObject;

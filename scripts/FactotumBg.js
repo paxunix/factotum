@@ -1,16 +1,19 @@
 "use strict";
 
-module.exports = (function() {
 
-var ShellParse = require("./ShellParse.js");
-var GetOpt = require("./GetOpt.js");
-var TransferObject = require("./TransferObject.js");
+import ShellParse from "./ShellParse.js";
+import GetOpt from "./GetOpt.js";
+import TransferObject from "./TransferObject.js";
 
-var FactotumBg = { };
 
-var FCOMMAND_GUID_DELIM = "--guid=";
+let FCOMMAND_GUID_DELIM = "--guid=";
 
-FactotumBg.stringifyInternalOptions = function(opts) {
+
+class FactotumBg
+{
+
+
+static stringifyInternalOptions(opts) {
     var ret = [];
 
     if (opts.bgdebug) ret.push("--bg-debug");
@@ -21,7 +24,7 @@ FactotumBg.stringifyInternalOptions = function(opts) {
 }   // FactotumBg.stringifyInternalOptions
 
 
-FactotumBg.replaceHtmlEntities = function(s) {
+static replaceHtmlEntities(s) {
     return s.replace(/[<>&'"]/gm, function(i) {
             return `&#${i.charCodeAt(0)};`;
         });
@@ -34,7 +37,7 @@ FactotumBg.replaceHtmlEntities = function(s) {
  * @param {Object} opts - parsed command line object (as returned by
  * GetOpt.getOptions().
  */
-FactotumBg.getOmniboxSuggestion = function(title, opts) {
+static getOmniboxSuggestion(title, opts) {
     var suggestion = {};
 
     if (opts === undefined || opts._ === undefined || opts._.length === 0)
@@ -81,7 +84,7 @@ FactotumBg.getOmniboxSuggestion = function(title, opts) {
  *          withKeyword: {String}
  *      }
  */
-FactotumBg.reconstructCmdline = function(opts)
+static reconstructCmdline(opts)
 {
     var ret = { };
 
@@ -112,7 +115,7 @@ FactotumBg.reconstructCmdline = function(opts)
 // Set the default description before any text is entered.
 // XXX: this is currently not invoked, due to
 // https://code.google.com/p/chromium/issues/detail?id=258911
-FactotumBg.onOmniboxInputStarted = function() {
+static onOmniboxInputStarted() {
     var suggestion = FactotumBg.getOmniboxSuggestion("", {});
     delete suggestion.content;
     chrome.omnibox.setDefaultSuggestion(suggestion);
@@ -120,7 +123,7 @@ FactotumBg.onOmniboxInputStarted = function() {
 
 
 // Listener for Omnibox changes.
-FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
+static onOmniboxInputChanged(text, suggestFunc) {
     // Parse the command line to extract any internal options that may be
     // given and find the first word (the Fcommand keyword).
     var internalOptions = FactotumBg.parseCommandLine(text);
@@ -206,7 +209,7 @@ FactotumBg.onOmniboxInputChanged = function(text, suggestFunc) {
 
 
 // Return an object that has parsed for help or debug options in argv.
-FactotumBg.parseInternalOptions = function (argv) {
+static parseInternalOptions(argv) {
     var opts = GetOpt.getOptions({
         "debug": { type: "boolean", aliases: [ "fg-debug", "fgdebug" ] },
         "bgdebug": { type: "boolean", aliases: [ "bg-debug" ] },
@@ -219,7 +222,7 @@ FactotumBg.parseInternalOptions = function (argv) {
 
 // Given a command line, check it for internal options and return the parsed
 // data.
-FactotumBg.parseCommandLine = function (text) {
+static parseCommandLine(text) {
     var argv = ShellParse.split(text);
 
     // To support internal options as the first word, consider the entire
@@ -229,7 +232,7 @@ FactotumBg.parseCommandLine = function (text) {
 
 
 // Given a command line, figure out the Fcommand and run its function.
-FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
+static onOmniboxInputEntered(cmdline, tabDisposition) {
     // Strip off the guid inserted for the omnibox suggestion.  If it
     // exists, use it to dispatch directly to the proper Fcommand;
     // otherwise, query for the first Fcommand with a keyword equal to the
@@ -293,7 +296,7 @@ FactotumBg.onOmniboxInputEntered = function (cmdline, tabDisposition) {
 
 
 // Called when each Fcommand has finished/failed executing.
-FactotumBg.responseHandler = function (response) {
+static responseHandler(response) {
     if (chrome.runtime.lastError)
     {
         // XXX: this represents a failure in the extension and it
@@ -328,6 +331,7 @@ FactotumBg.responseHandler = function (response) {
 };  // FactotumBg.responseHandler
 
 
-return FactotumBg;
+}   // class FactotumBg
 
-})();  // module.exports function
+
+export default FactotumBg;

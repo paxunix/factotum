@@ -1,12 +1,13 @@
 "use strict";
 
-var GetOpt = require("./GetOpt.js");
-var semver = require("semver");
-var TransferObject = require("./TransferObject.js");
-var Util = require("./Util.js");
+import GetOpt from "./GetOpt.js";
+import semver from "semver";
+import TransferObject from "./TransferObject.js";
+import Util from "./Util.js";
 
-module.exports = (function() {
 
+class Fcommand
+{
 
 /**
  * @class Fcommand Represents a single Fcommand.
@@ -17,7 +18,7 @@ module.exports = (function() {
  * @param {String} documentString - HTML document defining an Fcommand.
  * @param {String} language - extracts metadata for this BCP47 language string
 */
-function Fcommand(documentString, language) {
+constructor(documentString, language) {
     this.documentString = documentString;
 
     this.extractedData = Fcommand._extractData(this.documentString, language);
@@ -45,7 +46,7 @@ function Fcommand(documentString, language) {
  * @return String The value for field, or null if it doesn't exist.  Any
  * value has leading and trailing whitespace removed.
  */
-Fcommand._getMetadataFieldString = function (field, document, lang)
+static _getMetadataFieldString(field, document, lang)
 {
     var value = Fcommand._getSelectorContent(`head meta[name='${field}']`, document, lang);
 
@@ -63,7 +64,7 @@ Fcommand._getMetadataFieldString = function (field, document, lang)
  * @param {String} lang - BCP47 language string
  * @return String The value for field, or null if it doesn't exist.
  */
-Fcommand._getSelectorContent = function (selector, document, lang)
+static _getSelectorContent(selector, document, lang)
 {
     var value = (Fcommand._getFromLangSelector(document, selector, lang) || {}).content;
 
@@ -80,7 +81,7 @@ Fcommand._getSelectorContent = function (selector, document, lang)
  * retrieve data for that field.  Each extract function takes an
  * HTMLDocument and a language string.
  */
-Fcommand._getDataExtractor = function(document, lang)
+static _getDataExtractor(document, lang)
 {
     function getMetaFieldExtractor(field)
     {
@@ -163,7 +164,7 @@ Fcommand._getDataExtractor = function(document, lang)
  * extraction functions.  Fields with no validation function don't get
  * validated (duh).
  */
-Fcommand._getDataValidator = function()
+static _getDataValidator()
 {
     function getNullChecker(field)
     {
@@ -197,7 +198,7 @@ Fcommand._getDataValidator = function()
  * @returns {Object} Retrieved values for every key (field) specified in
  * _getDataExtractor.
  */
-Fcommand._extractData = function (documentString, lang)
+static _extractData(documentString, lang)
 {
     var dom = Fcommand._parseDomFromString(documentString);
     var extractor = Fcommand._getDataExtractor(dom, lang);
@@ -219,7 +220,7 @@ Fcommand._extractData = function (documentString, lang)
  * @param {String} selector - document query selector
  * @param {String} lang - BCP47 language string
  */
-Fcommand._getFromLangSelector = function (document, selector, lang)
+static _getFromLangSelector(document, selector, lang)
 {
     var elements = document.querySelectorAll(selector);
 
@@ -248,7 +249,7 @@ Fcommand._getFromLangSelector = function (document, selector, lang)
  * @return {HTMLDocument} The HTMLDocument object resulting from
  * documentString.
  */
-Fcommand._parseDomFromString = function (documentString)
+static _parseDomFromString(documentString)
 {
     return (new DOMParser).parseFromString(documentString, "text/html");
 }   // Fcommand._parseDomFromString
@@ -260,7 +261,7 @@ Fcommand._parseDomFromString = function (documentString)
  * @param {Object} data - Object with fields as from _extractData().
  * @throws {Error} On validation failure.
  */
-Fcommand._validateData = function (data)
+static _validateData(data)
 {
     var validator = Fcommand._getDataValidator();
     var error = "";
@@ -290,7 +291,7 @@ Fcommand._validateData = function (data)
  * @param {String} lang - extracts metadata for this BCP47 language string
  * @returns {Object} Option parsing data
  */
-Fcommand._extractOptSpec = function (document, lang)
+static _extractOptSpec(document, lang)
 {
     var sel = "template#getopt";
     var template = Fcommand._getFromLangSelector(document, sel, lang);
@@ -314,7 +315,7 @@ Fcommand._extractOptSpec = function (document, lang)
  * @param {String} lang - extracts help markup for this BCP47 language string
  * @returns {String} Help command markup.
  */
-Fcommand._extractHelpMarkup = function (document, lang)
+static _extractHelpMarkup(document, lang)
 {
     var sel = "template#help";
     var template = Fcommand._getFromLangSelector(document, sel, lang);
@@ -332,7 +333,7 @@ Fcommand._extractHelpMarkup = function (document, lang)
  * @param {String} language - extracts metadata for this BCP47 language string
  * @returns {String} Fcommand background-code string.
  */
-Fcommand._extractBgCodeString = function (document, language)
+static _extractBgCodeString(document, language)
 {
     var sel = "template#bgCode";
     var template = Fcommand._getFromLangSelector(document, sel, language);
@@ -350,7 +351,7 @@ Fcommand._extractBgCodeString = function (document, language)
  * @return {Promise} - run the bg code, resolve to whatever the bg code
  * returns from calling onSuccess();
  */
-Fcommand.prototype.runBgCode = function (transferObj)
+runBgCode(transferObj)
 {
     var self = this;
 
@@ -369,7 +370,7 @@ Fcommand.prototype.runBgCode = function (transferObj)
 
         return bgFunction(cloneTransferObject, onSuccess, onFailure);
     });
-}   // Fcommand.prototype.runBgCode
+}   // Fcommand.runBgCode
 
 
 /**
@@ -378,7 +379,7 @@ Fcommand.prototype.runBgCode = function (transferObj)
  * @param {Fcommand} fcommand - Fcommand to be invoked
  * @param {TransferObject} transferObj - Data passed to the Fcommand.
  */
-Fcommand.prototype.runPageCode = function (transferObj)
+runPageCode(transferObj)
 {
     var tab = transferObj.getCurrentTab();
 
@@ -390,7 +391,7 @@ Fcommand.prototype.runPageCode = function (transferObj)
     }
 
     chrome.tabs.sendMessage(tab.id, transferObj);
-}   // Fcommand.prototype.runPageCode
+}   // Fcommand.runPageCode
 
 
 /**
@@ -399,7 +400,7 @@ Fcommand.prototype.runPageCode = function (transferObj)
  * @param {TransferObject} - data for the Fcommand
  * @return {Promise} - with no resolved data.
  */
-Fcommand.prototype.execute = function (transferObj)
+execute(transferObj)
 {
     var self = this;
 
@@ -417,22 +418,22 @@ Fcommand.prototype.execute = function (transferObj)
 
         return self.runPageCode(transferObj);
     });
-}   // Fcommand.prototype.execute
+}   // Fcommand.execute
 
 
 // Return the ID to be used for this Fcommand's context menu entry (if it
 // has one).
-Fcommand.prototype._getContextMenuId = function ()
+_getContextMenuId()
 {
     return this.extractedData.guid;
-}   // Fcommand.prototype._getContextMenuId
+}   // Fcommand._getContextMenuId
 
 
 /**
  * Return a promise to create a context menu item under the given parent.
  * @returns {Promise}
  */
-Fcommand.prototype.createContextMenu = function (parentMenuId)
+createContextMenu(parentMenuId)
 {
     var self = this;
 
@@ -483,7 +484,29 @@ Fcommand.prototype.createContextMenu = function (parentMenuId)
             resolve(self);
         }
     });
-}   // Fcommand.prototype.createContextMenu
+}   // Fcommand.createContextMenu
+
+
+/**
+ * Return a promise to create the help popup window for this Fcommand.  If
+ * no help markup exists, say so.
+ * @returns {Promise}
+ */
+popupHelpWindow()
+{
+    var self = this;
+
+    return getFocussedWindow().then(function (wnd) {
+        if (self.extractedData.helpMarkup === null)
+        {
+            throw Error(`No help available for Fcommand '${self.extractedData.title}' (${self.extractedData.guid}).`);
+        }
+
+        return createHelpWindow(self.extractedData.guid, wnd);
+    });
+}
+
+}   // class Fcommand
 
 
 // Return a promise to get the focussed window; resolves to the Window
@@ -520,26 +543,4 @@ function createHelpWindow(fcommandGuid, wnd) {
 }
 
 
-/**
- * Return a promise to create the help popup window for this Fcommand.  If
- * no help markup exists, say so.
- * @returns {Promise}
- */
-Fcommand.prototype.popupHelpWindow = function ()
-{
-    var self = this;
-
-    return getFocussedWindow().then(function (wnd) {
-        if (self.extractedData.helpMarkup === null)
-        {
-            throw Error(`No help available for Fcommand '${self.extractedData.title}' (${self.extractedData.guid}).`);
-        }
-
-        return createHelpWindow(self.extractedData.guid, wnd);
-    });
-}
-
-
-return Fcommand;
-
-})();   // module.exports
+export default Fcommand;

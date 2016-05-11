@@ -1,9 +1,10 @@
 'use strict';
 
+import ContentScript from "../../scripts/ContentScript.js";
+import TransferObject from "../../scripts/TransferObject.js";
+
 describe("ContentScript", function() {
 
-var ContentScript = require("../../scripts/ContentScript.js");
-var TransferObject = require("../../scripts/TransferObject.js");
 
 describe("getLoadImportPromise", function() {
 

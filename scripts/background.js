@@ -1,7 +1,8 @@
 "use strict";
 
-var FactotumBg = require("./FactotumBg.js");
-var FcommandManager = require("./FcommandManager.js");
+import FactotumBg from "./FactotumBg.js";
+import FcommandManager from "./FcommandManager.js";
+import Util from "./Util.js";
 
 window.fcommandManager = new FcommandManager();
 
@@ -17,9 +18,7 @@ chrome.omnibox.onInputChanged.addListener(FactotumBg.onOmniboxInputChanged);
 chrome.runtime.onMessage.addListener(FactotumBg.responseHandler);
 
 // XXX: during testing, to create an Fcommand on-the-fly in devtools
-window.Fcommand = require("./Fcommand.js");
-
-var Util = require("./Util.js");
+import Fcommand from "./Fcommand.js";
 
 // Ensure some test Fcommands are always present
 var fetchThese = [

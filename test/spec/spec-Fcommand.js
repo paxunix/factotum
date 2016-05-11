@@ -1,10 +1,11 @@
 "use strict";
 
+import Fcommand from "../../scripts/Fcommand.js";
+import TransferObject from "../../scripts/TransferObject.js";
+
 describe("Fcommand", function () {
 
 var lang = "en-us";
-var Fcommand = require("../../scripts/Fcommand.js");
-var TransferObject = require("../../scripts/TransferObject.js");
 
 function buildMetaTag(field, value, lang)
 {

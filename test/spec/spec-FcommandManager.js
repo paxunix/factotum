@@ -1,8 +1,8 @@
 "use strict";
 
-describe("FcommandManager", function() {
+import FcommandManager from "../../scripts/FcommandManager.js";
 
-var FcommandManager = require("../../scripts/FcommandManager.js");
+describe("FcommandManager", function() {
 
     xit("constructs an FcommandManager object",
         // XXX: need to handle creation of the DB

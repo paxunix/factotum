@@ -1,9 +1,9 @@
 "use strict";
 
-describe("FactotumBg", function () {
+import FactotumBg from "../../scripts/FactotumBg.js";
+import Fcommand from "../../scripts/Fcommand.js";
 
-var FactotumBg = require("../../scripts/FactotumBg.js");
-var Fcommand = require("../../scripts/Fcommand.js");
+describe("FactotumBg", function () {
 
 function getTestFcommand(guid, bgCodeString)
 {

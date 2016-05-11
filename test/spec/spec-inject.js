@@ -1,9 +1,9 @@
 "use strict";
 
-describe("inject", function() {
+import TransferObject from "../../scripts/TransferObject.js";
+import Util from "../../scripts/Util.js";
 
-var TransferObject = require("../../scripts/TransferObject.js");
-var Util = require("../../scripts/Util.js");
+describe("inject", function() {
 
 describe("_getDataAttribute", function() {
 

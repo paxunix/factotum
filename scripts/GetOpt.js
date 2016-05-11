@@ -1,6 +1,7 @@
 "use strict";
 
-module.exports = {
+class GetOpt
+{
 
 
 /**
@@ -36,7 +37,7 @@ module.exports = {
  *  The _ array will always be present (it will be empty if there were no
  *  arguments).
  */
-getOptions: function (spec, argv) {
+static getOptions(spec, argv) {
     var opts = { _: [ ] };
     var nameOfValueOpt = null;
 
@@ -189,4 +190,7 @@ getOptions: function (spec, argv) {
     return opts;
 }   // GetOpt.getOptions
 
-};  // module.exports
+}   // class GetOpt
+
+
+export default GetOpt;

@@ -1,19 +1,17 @@
 "use strict";
 
+import Dexie from "dexie";
+import Fcommand from "./Fcommand.js";
+
 // XXX: test all of me
 
-module.exports = (function() {
-
-// XXX: default minified version won't work within browserify, so pull in
-// non-minified version
-var Dexie = require("dexie");
-var Fcommand = require("./Fcommand.js");
-
+class FcommandManager
+{
 
 /**
  * @class FcommandManager Manages the set of Fcommands.
  */
-function FcommandManager()
+constructor()
 {
     this.db = new Dexie("FcommandDb");
     this.db.version(1).stores({
@@ -31,7 +29,6 @@ function FcommandManager()
 }   // FcommandManager constructor
 
 
-FcommandManager.MAIN_MENU_ID = "FactotumMain";
 
 
 /**
@@ -39,7 +36,7 @@ FcommandManager.MAIN_MENU_ID = "FactotumMain";
  * @param {Fcommand} fcommand - The Fcommand to save.
  * @returns {Promise} Promise to save the Fcommand.
  */
-FcommandManager.prototype.save = function (fcommand)
+save(fcommand)
 {
     // XXX: what if overwriting an existing Fcommand?  It's possible to
     // enforce this at the DB level by requiring guid to be unique.  This
@@ -47,7 +44,7 @@ FcommandManager.prototype.save = function (fcommand)
     return this.db.fcommands.put(fcommand).then(function (res) {
         return fcommand;
     });
-}   // FcommandManager.prototype.save
+}   // save
 
 
 /**
@@ -58,10 +55,10 @@ FcommandManager.prototype.save = function (fcommand)
  * resolves with an instantiated Fcommand.  Does not care about
  * enabled/disabled state.
  */
-FcommandManager.prototype.getByGuid = function (guid)
+getByGuid(guid)
 {
     return this.db.fcommands.get(guid);
-}   // FcommandManager.prototype.getByGuid
+}   // getByGuid
 
 
 /**
@@ -69,10 +66,10 @@ FcommandManager.prototype.getByGuid = function (guid)
  * @param {String} guid - GUID for the Fcommand.
  * @returns {Promise} Promise to delete the Fcommand by guid.
  */
-FcommandManager.prototype.deleteByGuid = function (guid)
+deleteByGuid(guid)
 {
     return this.db.fcommands.delete(guid);
-}   // FcommandManager.prototype.deleteByGuid
+}   // deleteByGuid
 
 
 /**
@@ -80,10 +77,10 @@ FcommandManager.prototype.deleteByGuid = function (guid)
  * @param {String} guid - GUID for the Fcommand.
  * @returns {Promise} Promise to delete all Fcommands.
  */
-FcommandManager.prototype.deleteAll = function ()
+deleteAll()
 {
     return this.db.fcommands.clear();
-}   // FcommandManager.prototype.delete
+}   // deleteAll
 
 
 /**
@@ -95,7 +92,7 @@ FcommandManager.prototype.deleteAll = function ()
  * containing enabled Fcommand instances for each matching Fcommand.  If no
  * enabled matches, the array will be empty.
  */
-FcommandManager.prototype.getByPrefix = function (prefix)
+getByPrefix(prefix)
 {
     return this.db.fcommands
         .where("extractedData.keywords")
@@ -116,7 +113,7 @@ FcommandManager.prototype.getByPrefix = function (prefix)
                                 0);
                     });
             });
-}   // FcommandManager.prototype.getByPrefix
+}   // getByPrefix
 
 
 /**
@@ -128,7 +125,7 @@ FcommandManager.prototype.getByPrefix = function (prefix)
  * containing enabled Fcommand instances for each matching Fcommand.  If no
  * enabled matches, the array will be empty.
  */
-FcommandManager.prototype.getByKeyword = function (str)
+getByKeyword(str)
 {
     return this.db.fcommands
         .where("extractedData.keywords")
@@ -149,31 +146,31 @@ FcommandManager.prototype.getByKeyword = function (str)
                                 0);
                     });
             });
-}   // FcommandManager.prototype.getByKeyword
+}   // getByKeyword
 
 
 /**
  * Return a Promise to retrieve all Fcommands.
  * @return {Promise} Promise to retrieve array of Fcommands.
  */
-FcommandManager.prototype.getAll = function ()
+getAll()
 {
     return this.db.fcommands.toArray();
-}   // FcommandManager.prototype.getAll
+}   // getAll
 
 
 /**
  * Return a promise to remove all context menus.
  * @return {Promise}
  */
-FcommandManager.prototype.removeContextMenus = function ()
+removeContextMenus()
 {
     return new Promise(function (resolve, reject) {
         chrome.contextMenus.removeAll(function() {
             resolve();
         });
     });
-}   // FcommandManager.prototype.removeContextMenus
+}   // removeContextMenus
 
 
 /**
@@ -183,7 +180,7 @@ FcommandManager.prototype.removeContextMenus = function ()
  * @param {Fcommand} fcommand - Fcommand to be propagated along promise chain
  * @return {Promise} - promise that resolves to the fcommand
  */
-FcommandManager.prototype.createMainContextMenu = function (fcommand)
+createMainContextMenu(fcommand)
 {
     var self = this;
     return new Promise(function (resolve, reject) {
@@ -217,9 +214,13 @@ FcommandManager.prototype.createMainContextMenu = function (fcommand)
             resolve(fcommand);
         }
     });
-}   // FcommandManager.prototype.createMainContextMenu
+}   // createMainContextMenu
 
 
-return FcommandManager;
+}   // class FcommandManager
 
-})();   // module.exports
+
+FcommandManager.MAIN_MENU_ID = "FactotumMain";
+
+
+export default FcommandManager;

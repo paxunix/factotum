@@ -1,12 +1,10 @@
 'use strict';
 
-module.exports = (function() {
+import TransferObject from "./TransferObject.js";
+import Util from "./Util.js";
 
-var TransferObject = require("./TransferObject.js");
-var Util = require("./Util.js");
-
-
-var ContentScript = {};
+class ContentScript
+{
 
 
 /**
@@ -14,7 +12,7 @@ var ContentScript = {};
  * isn't present.
  * Exists primarily to simplify testing by giving a known function to mock.
  */
-ContentScript.appendNodeToDocumentHead = function (node)
+static appendNodeToDocumentHead(node)
 {
     (document.head || document.documentElement).appendChild(node);
 }   // ContentScript.appendNodeToDocumentHead
@@ -26,7 +24,7 @@ ContentScript.appendNodeToDocumentHead = function (node)
  * @param {TransferObject} transferObj - Input/output data.  This object is rejected/resolved.
  * @returns {Promise} - promise to load the import document; resolves/rejects with transferObj.
  */
-ContentScript.getLoadImportPromise = function (transferObj)
+static getLoadImportPromise(transferObj)
 {
     return new Promise(function (resolve, reject) {
         // If the import document for the Fcommand is still present, the
@@ -65,7 +63,7 @@ ContentScript.getLoadImportPromise = function (transferObj)
 // The rejection object is expected to contain an error property whose value
 // is either a string or an Error object.
 // The promise value is a TransferObject.
-ContentScript.factotumListener = function (request)
+static factotumListener(request)
 {
     var transferObj = new TransferObject(request);
 
@@ -82,7 +80,7 @@ ContentScript.factotumListener = function (request)
 // Define a listener for messages posted from the content's window.
 // Fcommands whose code runs in the "page" context use this to communicate
 // back to the extension.
-ContentScript.messageListener = function (evt)
+static messageListener(evt)
 {
     // Only accept messages from same frame and that conform to our
     // expectations.
@@ -98,7 +96,7 @@ ContentScript.messageListener = function (evt)
 
 // Return a promise to insert the Factotum API into the page, so in-page JS
 // has access to it.
-ContentScript.injectFactotumApi = function (document)
+static injectFactotumApi(document)
 {
     return new Promise(function (resolve, reject) {
         var s = document.createElement("script");
@@ -117,6 +115,6 @@ ContentScript.injectFactotumApi = function (document)
 }   // ContentScript.injectFactotumApi
 
 
-return ContentScript;
+}
 
-})();   // module.exports
+export default ContentScript;

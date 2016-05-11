@@ -1,7 +1,7 @@
 "use strict";
 
 
-var TransferObject = require("../../scripts/TransferObject.js");
+import TransferObject from "../../scripts/TransferObject.js";
 
 
 describe("TransferObject", function () {

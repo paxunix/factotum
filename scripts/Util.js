@@ -1,15 +1,15 @@
 "use strict";
 
-module.exports = (function() {
 
-var Util = {};
+class Util {
+
 
 /**
  * Returns a string to be used as the id on the link.import element injected
  * into the page.
  * @param {String} guid - The GUID of the Fcommand
  */
-Util.getFcommandImportId = function (guid)
+static getFcommandImportId(guid)
 {
     return `fcommand-${guid}`;
 }   // Util.getFcommandImportId
@@ -19,7 +19,7 @@ Util.getFcommandImportId = function (guid)
  * Retrieve a text string from a URL.
  * @return {Promise} The results of the retrieval.
  */
-Util.fetchDocument = function (url)
+static fetchDocument(url)
 {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
@@ -49,7 +49,7 @@ Util.fetchDocument = function (url)
  * @param {TransferObject} transferObj - Object containing data from the bg.  Modifies TransferObject to no longer have the document string.
  * @return {HTMLLinkElement} - A <link> element.
  */
-Util.createImportLink = function (parentDocument, transferObj)
+static createImportLink(parentDocument, transferObj)
 {
     var blob = new Blob([transferObj.get("_content.documentString")], { type: "text/html" });
     var link = parentDocument.createElement("link");
@@ -73,7 +73,7 @@ Util.createImportLink = function (parentDocument, transferObj)
  * @return {Promise} - Promise resolved with the current Tab (@see
  * chrome.runtime.tabs)
  */
-Util.getCurrentTab = function ()
+static getCurrentTab()
 {
     return new Promise(function (resolve, reject) {
         chrome.tabs.query({ active: true }, function (tabs) {
@@ -83,6 +83,7 @@ Util.getCurrentTab = function ()
 }   // Util.getCurrentTab
 
 
-return Util;
+}   // class Util
 
-})();   // module.exports
+
+export default Util;
