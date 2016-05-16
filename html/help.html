@@ -1,34 +1,29 @@
 <!DOCTYPE html>
 
 <head>
-  <link rel="import" href="../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
-  <link rel="import" href="../bower_components/paper-material/paper-material.html">
-  <link rel="import" href="../bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+  <link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
+  <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
 
+  <style is="custom-style" include="iron-flex iron-positioning"></style>
   <style is="custom-style">
-    #help-material {
-      padding: 1em;
+    #help-content {
+      padding-left: 72px;  /* XXX: can be determined dynamically based on toolbar padding? */
+      padding-right: 72px;
     }
   </style>
 </head>
 
-<body unresolved>
-  <paper-material id="help-material" elevation="3">
-    <div id="help-content">
+<body class="fullbleed layout vertical">
+  <paper-header-panel mode="standard">
+    <paper-toolbar>
+      <div class="title">Factotum Command Help: <span id="fcommandName"></span></div>
+    </paper-toolbar>
+    <div id="help-content" class="fit">
     </div>
-    <div class="horizontal layout center-justified">
-      <paper-button id="dismiss-button" raised autofocus>
-        Dismiss
-      </paper-button>
-    </div>
-  </paper-material>
+  </paper-header-panel>
 
   <script>
-    var dismissBtn = document.querySelector("#dismiss-button");
-    dismissBtn.addEventListener("click", function () {
-      window.close();
-    });
-
     // Put help markup for this Fcommand into the dialog
     chrome.runtime.getBackgroundPage(function (bgScope) {
       // Extract Fcommand guid from "?guid=abcd" query string and use it to
@@ -37,13 +32,16 @@
 
       bgScope.fcommandManager.getByGuid(guid)
         .then(function (fcommand) {
-            var container = document.querySelector("#help-content");
-            Polymer.dom(container).innerHTML = fcommand.extractedData.helpMarkup;
+            document.querySelector("#help-content").innerHTML =
+                fcommand.extractedData.helpMarkup;
 
             // XXX: it would be handy to use the same keyword that
             // activated the help, rather than always using the first
             // keyword for the Fcommand
-            document.title = "Help: " + fcommand.extractedData.keywords[0];
+            let title = `Factotum Command Help: ${fcommand.extractedData.keywords[0]}`;
+            document.title = title;
+            document.querySelector("#fcommandName").innerText =
+                fcommand.extractedData.keywords[0];
           })
         .catch(function (rej) {
             // XXX: surface error to user
