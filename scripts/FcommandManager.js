@@ -1,6 +1,7 @@
 "use strict";
 
 import Dexie from "dexie";
+import ErrorCache from "./ErrorCache.js";
 import Fcommand from "./Fcommand.js";
 
 // XXX: test all of me
@@ -24,6 +25,8 @@ constructor()
     this.db.open();
 
     this.mainMenuCreated = false;
+
+    this.errorCache = new ErrorCache({maxSize: 50});       // XXX: from config somehow?
 
     return this;
 }   // FcommandManager constructor
@@ -215,6 +218,16 @@ createMainContextMenu(fcommand)
         }
     });
 }   // createMainContextMenu
+
+
+/**
+ * Saves the given error to the error buffer.
+ * @param {Error} error - error object to save
+ */
+saveError(error)
+{
+    this.errorCache.push(error);
+}   // saveError
 
 
 }   // class FcommandManager
