@@ -35,17 +35,34 @@ constructor()
 
 
 /**
- * Save the given Fcommand to storage.
+ * Save the given Fcommand to storage.  Also adds the fcommand to the
+ * context menu if the fcommand is enabled and wants to be on the context
+ * menu.
  * @param {Fcommand} fcommand - The Fcommand to save.
- * @returns {Promise} Promise to save the Fcommand.
+ * @returns {Promise} Promise to save the Fcommand and return it.
  */
 save(fcommand)
 {
     // XXX: what if overwriting an existing Fcommand?  It's possible to
     // enforce this at the DB level by requiring guid to be unique.  This
     // would complicate saving of modifications to the fcommand, though.
-    return this.db.fcommands.put(fcommand).then(function (res) {
-        return fcommand;
+    return this.db.fcommands.put(fcommand).then(() => {
+        if (fcommand.enabled && fcommand.extractedData.menu.length > 0)
+        {
+            return this.createMainContextMenu(FcommandManager.MAIN_MENU_ID)
+                .then((parentMenu) => fcommand.createContextMenu(parentMenu))
+                .then(() => {
+                    console.debug(`Saved Fcommand ${fcommand.extractedData.title} (${fcommand.extractedData.guid})`);
+
+                    return fcommand
+                })
+        }
+        else
+        {
+            console.debug(`Saved Fcommand ${fcommand.extractedData.title} (${fcommand.extractedData.guid})`);
+
+            return fcommand;
+        }
     });
 }   // save
 
@@ -178,44 +195,36 @@ removeContextMenus()
 
 /**
  * Return a promise to set up the main context menu.  If the menu already
- * exists, does nothing.  Otherwise, ensures it is created if the fcommand
- * has the menu field.
- * @param {Fcommand} fcommand - Fcommand to be propagated along promise chain
- * @return {Promise} - promise that resolves to the fcommand
+ * exists, does nothing.  Otherwise, ensures it is created.
+ * @return {Promise} - promise to create the main context menu, resolve with
+ * the main menu's ID
  */
-createMainContextMenu(fcommand)
+createMainContextMenu()
 {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (self.mainMenuCreated)
+    return new Promise((resolve, reject) => {
+        if (this.mainMenuCreated)
         {
-            resolve(fcommand);
+            resolve(FcommandManager.MAIN_MENU_ID);
             return;
         }
 
-        if (fcommand.enabled && fcommand.extractedData.menu.length > 0)
-        {
-            chrome.contextMenus.create({
-                type: "normal",
-                id: FcommandManager.MAIN_MENU_ID,
-                title: "Factotum",
-                contexts: [ "all" ],
-            }, function () {
-                if (chrome.runtime.lastError)
-                {
-                    reject(new Error(`Failed creating parent context menu item: ${chrome.runtime.lastError}`));
-                    return;
-                }
+        chrome.contextMenus.create({
+            type: "normal",
+            id: FcommandManager.MAIN_MENU_ID,
+            title: "Factotum",
+            contexts: [ "all" ],
+        }, () => {
+            if (chrome.runtime.lastError)
+            {
+                reject(new Error(`Failed creating parent context menu item: ${chrome.runtime.lastError}`));
 
-                self.mainMenuCreated = true;
+                return;
+            }
 
-                resolve(fcommand);
-            });
-        }
-        else
-        {
-            resolve(fcommand);
-        }
+            this.mainMenuCreated = true;
+
+            resolve(FcommandManager.MAIN_MENU_ID);
+        });
     });
 }   // createMainContextMenu
 

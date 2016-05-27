@@ -27,41 +27,18 @@ var fetchThese = [
     Util.fetchDocument(chrome.runtime.getURL("example/bgtest2.html")),
 ];
 
-// When developing, reloading the extension does not seem to be removing
-// any context menus, so remove them all before possibly adding any.
-// XXX: file a chrome bug
-fcommandManager.removeContextMenus().then(function () {
-
-
-fetchThese.forEach(function (p) {
-    p.then(function resolvedWith(event) {
-        var fcommand = new Fcommand(event.target.responseText, navigator.language);
-        return fcommandManager.save(fcommand);
-    }).then(function (fcommand) {
-        console.debug(`Saved Fcommand ${fcommand.extractedData.title} (${fcommand.extractedData.guid})`);
-        return fcommandManager.createMainContextMenu(fcommand);
-    }).then(function (fcommand) {
-        return fcommand.createContextMenu(FcommandManager.MAIN_MENU_ID);
-    }).catch(function rejectedWith(data) {
-        console.error("Fcommand load failure:", data);
-        chrome.notifications.create(
-            "",
-            {
-                type: "basic",
-                iconUrl: chrome.runtime.getURL("icons/md/error.png"),
-                title: "Error loading Fcommand",
-                message: data.toString(),
-                // XXX: showing the stack is useless inside a tiny
-                // notification.  Show the message and maybe a button
-                // for more details, that pops a window that shows the
-                // stack.
-                // Should record all failures so you can view errors from
-                // the extension menu?  Kind of like a JS console.
-            },
-            function() {}
-        );
+for (let p of fetchThese)
+{
+    let p_getFcommand = p.then((event) => {
+        return new Fcommand(event.target.responseText, navigator.language);
     });
-});
 
+    let p_saveFcommand =
+        p_getFcommand.then(fcommand => fcommandManager.save(fcommand));
 
-});
+    p_saveFcommand.catch((error) =>
+        p_getFcommand.then((fcommand) =>
+            fcommandManager.saveError(`Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid}):  ${error}`)
+        )
+    );
+}
