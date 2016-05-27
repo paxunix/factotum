@@ -3,6 +3,7 @@
 import Dexie from "dexie";
 import ErrorCache from "./ErrorCache.js";
 import Fcommand from "./Fcommand.js";
+import Util from "./Util.js";
 
 // XXX: test all of me
 
@@ -177,6 +178,27 @@ getAll()
 {
     return this.db.fcommands.toArray();
 }   // getAll
+
+
+/**
+ * Promise to fetch an Fcommand by URL and save it.
+ * @return {Promise}
+ */
+fetchFcommandUrl(url)
+{
+    let p_getFcommand = Util.fetchDocument(url).then(event => {
+        return new Fcommand(event.target.responseText, navigator.language);
+    }).catch(error => {
+        fcommandManager.saveError(`Fcommand fetch failure (${url}):  ${error}`)
+        throw error;
+    });
+
+    let p_saveFcommand = p_getFcommand.then(fcommand => fcommandManager.save(fcommand));
+
+    p_saveFcommand.catch(error => p_getFcommand.then(fcommand =>
+        fcommandManager.saveError(`Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid}):  ${error}`))
+    );
+}   // fetchFcommandUrl
 
 
 /**
