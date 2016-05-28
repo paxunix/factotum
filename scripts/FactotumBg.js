@@ -282,8 +282,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
     p_gotFcommand.then(fcommand => {
             if (internalOptions.help)
             {
-                fcommand.popupHelpWindow();
-                return;
+                return fcommand.popupHelpWindow();
             }
 
             transferObj.setCommandLine(
