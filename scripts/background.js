@@ -3,6 +3,7 @@
 import FactotumBg from "./FactotumBg.js";
 import FcommandManager from "./FcommandManager.js";
 import Util from "./Util.js";
+import WrappErr from "wrapperr";
 
 window.fcommandManager = new FcommandManager();
 
@@ -39,7 +40,7 @@ for (let p of fetchThese)
 
     p_saveFcommand.catch(error =>
         p_getFcommand.then(fcommand =>
-            fcommandManager.saveError(`Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid}):  ${error}`)
+            fcommandManager.saveError(new WrappErr(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`))
         )
     );
 }

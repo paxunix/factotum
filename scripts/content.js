@@ -1,6 +1,7 @@
 "use strict";
 
 import ContentScript from "./ContentScript.js";
+import WrappErr from "wrapperr";
 
 
 /**
@@ -12,6 +13,6 @@ var p = ContentScript.injectFactotumApi(document);
 p.then(function () {
     chrome.runtime.onMessage.addListener(ContentScript.factotumListener);
     window.addEventListener("message", ContentScript.messageListener, false);
-}).catch(function () {
-    console.error(new Error("Error injecting Factotum API"));
+}).catch(error => {
+    throw new WrappErr(error, "Error injecting Factotum API");
 });

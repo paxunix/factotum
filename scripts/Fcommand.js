@@ -4,6 +4,7 @@ import GetOpt from "./GetOpt.js";
 import semver from "semver";
 import TransferObject from "./TransferObject.js";
 import Util from "./Util.js";
+import WrappErr from "wrapperr";
 
 
 class Fcommand
@@ -304,7 +305,7 @@ static _extractOptSpec(document, lang)
 
     catch (e)
     {
-        throw Error(`Failed parsing ${sel}: ${e.stack}`);
+        throw new WrappErr(e, `Failed parsing ${sel}`);
     }
 }   // Fcommand._extractOptSpec
 

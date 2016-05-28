@@ -157,7 +157,7 @@ describe("_extractOptSpec", function() {
 
         catch (e)
         {
-            expect(e.message).toMatch(/^Failed parsing template#getopt: SyntaxError: Unexpected token X/);
+            expect(e.message).toMatch(/^Failed parsing template#getopt: Unexpected token X/);
         }
     });
 
