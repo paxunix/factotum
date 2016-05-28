@@ -310,10 +310,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
 static responseHandler(response) {
     if (chrome.runtime.lastError)
     {
-        // XXX: this represents a failure in the extension and it
-        // should be surfaced to the user somehow (response will be
-        // undefined)
-        console.error("response handler error:", chrome.runtime.lastError);
+        fcommandManager.saveError(new Error(`Internal error: ${chrome.runtime.lastError}`));
         return;
     }
 
@@ -321,8 +318,9 @@ static responseHandler(response) {
     if (transferObj.has("_bg.errorMessage"))
     {
         // XXX: should show guid and Fcommand description or something
-        // (maybe the cmdline)
-        console.error("error from content script:", transferObj.get("_bg.errorMessage"));
+        // (maybe the cmdline).  Would have to include that in the
+        // transferobject.
+        fcommandManager.saveError(new Error(`Error from Fcommand: ${transferObj.get("_bg.errorMessage")}`));
         return;
     }
 
@@ -330,13 +328,14 @@ static responseHandler(response) {
     {
         console.log("Fcommand responded:", transferObj);
 
+        // XXX:  fcommandManager is magically in scope, which feels bad
         fcommandManager.getByGuid(transferObj.get("_content.guid"))
             .then(function (fcommand) {
                     return fcommand.runBgCode(transferObj)
                 })
-            .catch(function (rej) {
-                    // XXX: surface error to user
-                    console.error("Fcommand bg code failed: ", rej);
+            .catch(error => {
+                    fcommandManager.saveError(new WrappErr(error,
+                        "Fcommand bg code failed"));
                 });
     }
 };  // FactotumBg.responseHandler
