@@ -4,6 +4,7 @@
 import ShellParse from "./ShellParse.js";
 import GetOpt from "./GetOpt.js";
 import TransferObject from "./TransferObject.js";
+import WrappErr from "wrapperr";
 
 
 let FCOMMAND_GUID_DELIM = "--guid=";
@@ -204,7 +205,7 @@ static onOmniboxInputChanged(text, suggestFunc) {
                 suggestFunc(suggestions);
         }).catch(error => {
             // XXX:  fcommandManager is magically in scope, which feels bad
-            fcommandManager.saveError(Error(`Failed to retrieve Fcommands for prefix '${prefix}': ${error}`));
+            fcommandManager.saveError(new WrappErr(error, `Failed to retrieve Fcommands for prefix '${prefix}'`));
         });
 };  // FactotumBg.onOmniboxInputChanged
 
@@ -257,21 +258,28 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
         .set("_content.internalCmdlineOptions", internalOptions)
         .setTabDisposition(tabDisposition);
 
+    let prefix = internalOptions._[0];
     var lookupPromise = guidFromCmdline !== null ?
+        // XXX:  fcommandManager is magically in scope, which feels bad
         fcommandManager.getByGuid(guidFromCmdline).then(function (res) {
                 // Make sure an array is returned
                 return res === undefined ? [] : [ res ]
             }) :
-        fcommandManager.getByPrefix(internalOptions._[0]);
+        fcommandManager.getByPrefix(prefix);
 
-    lookupPromise.then(function (fcommands) {
+    let p_gotFcommand = lookupPromise.then(function (fcommands) {
             if (fcommands.length === 0)
             {
-                throw Error("No matching Fcommand found.");
+                throw Error(`No matching Fcommand found for prefix '${prefix}'`);
             }
 
-            var fcommand = fcommands[0];
+            return fcommands[0];
+        }).catch(error => {
+            // XXX:  fcommandManager is magically in scope, which feels bad
+            fcommandManager.saveError(error);
+        });
 
+    p_gotFcommand.then(fcommand => {
             if (internalOptions.help)
             {
                 fcommand.popupHelpWindow();
@@ -284,11 +292,12 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
             );
 
             return fcommand.execute(transferObj);
-        }).catch(function (rejectWith) {
-            // XXX: surface error to user
-            console.error("Failed to run Fcommand: ", rejectWith);
+        }).catch(error => {
+            // XXX:  fcommandManager is magically in scope, which feels bad
+            p_gotFcommand.then(fcommand => {
+                fcommandManager.saveError(new WrappErr(error, `Failed to execute Fcommand '${fcommand.extractedData.title}'`));
+            });
         });
-
 
     // XXX: some feedback if no matching Fcommand found for entered cmdline?
     // This can be done within the omnibox.
