@@ -136,7 +136,9 @@ static onOmniboxInputChanged(text, suggestFunc) {
 
     // Create a suggestions using the first Fcommand whose keywords match
     // the given Fcommand name prefix so far.
-    fcommandManager.getByPrefix(internalOptions._[0])
+    // XXX:  fcommandManager is magically in scope, which feels bad
+    let prefix = internalOptions._[0];
+    fcommandManager.getByPrefix(prefix)
         .then(function (fcommands) {
                 var suggestions = [];
 
@@ -200,11 +202,10 @@ static onOmniboxInputChanged(text, suggestFunc) {
                 });
 
                 suggestFunc(suggestions);
-            })
-        .catch(function (rej) {
-                // XXX: surface to user
-                console.error(`Failed to retrieve Fcommands for '${internalOptions._[0]}': `, rej);
-            });
+        }).catch(error => {
+            // XXX:  fcommandManager is magically in scope, which feels bad
+            fcommandManager.saveError(Error(`Failed to retrieve Fcommands for prefix '${prefix}': ${error}`));
+        });
 };  // FactotumBg.onOmniboxInputChanged
 
 
