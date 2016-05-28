@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * A cache for containing a maximum of N objects.
+ * A cache for containing a maximum of N Error objects.
  *
  * Acts mostly like an array.
  * Supports deleting multiple elements at once by indices.
@@ -23,15 +23,18 @@ class ErrorCache
 
 
     /**
-     * Saves the given object at the end of the list of current objects.
+     * Saves the given Error at the end of the list of current errors.
      *
      * If adding it would cause the list to exceed maxSize, remove the first
      * (oldest) element.
      *
-     * @param {Object} obj - object to save
+     * @param {Error} error - Error object to save
      */
     push(obj)
     {
+        if (! (obj instanceof Error))
+            throw new TypeError("Parameter must be an Error object");
+
         this.cache.push(obj);
 
         if (this.cache.length > this.maxSize)
@@ -44,7 +47,7 @@ class ErrorCache
     /**
      * Return the length of the list.
      *
-     * @return {Integer} number of objects in the list
+     * @return {Integer} number of Errors in the list
      */
     length()
     {
@@ -57,7 +60,7 @@ class ErrorCache
      *
      * @param {Integer} index - 0-based position of the element to return.
      * If outside the set of elements, return undefined.
-     * @return {Object} - the object at the given position
+     * @return {Error} - the error at the given position
      */
     at(index)
     {
@@ -67,7 +70,7 @@ class ErrorCache
 
     /**
      * Remove and return the first (oldest) element in the list.
-     * @return {Object} - first elements from list
+     * @return {Error} - first Error from list
      */
     shift()
     {

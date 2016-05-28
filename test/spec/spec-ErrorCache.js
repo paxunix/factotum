@@ -1,6 +1,7 @@
 "use strict";
 
 import ErrorCache from "../../scripts/ErrorCache.js";
+import WrappErr from "wrapperr"
 
 
 describe("ErrorCache", function () {
@@ -38,9 +39,18 @@ describe("constructor", function() {
 
 describe("push", function() {
 
+    it("throws if object is not an Error", function() {
+        let cache = new ErrorCache({maxSize: 2});
+        expect(() => cache.push("test0"))
+            .toThrowError(Error, "Parameter must be an Error object")
+
+        expect(cache.length()).toBe(0);
+    });
+
+
     it("does not save given message if max size 0", function() {
         let cache = new ErrorCache({maxSize: 0});
-        cache.push("test1");
+        cache.push(new Error("test1"));
 
         expect(cache.length()).toBe(0);
     });
@@ -48,25 +58,44 @@ describe("push", function() {
 
     it("saves messages in order", function() {
         let cache = new ErrorCache({maxSize: 2});
-        cache.push("test0");
-        cache.push("test1");
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
 
         expect(cache.length()).toBe(2);
-        expect(cache.at(0)).toBe("test0");
-        expect(cache.at(1)).toBe("test1");
+        expect(cache.at(0).message).toBe("test0");
+        expect(cache.at(1).message).toBe("test1");
+    });
+
+
+    it("saves objects that inherit from Error", function() {
+        let cache = new ErrorCache({maxSize: 1});
+        cache.push(new TypeError("test0"));
+
+        expect(cache.length()).toBe(1);
+        expect(cache.at(0).message).toBe("test0");
+    });
+
+
+    it("saves WrappErr objects", function() {
+        let cache = new ErrorCache({maxSize: 1});
+        cache.push(new WrappErr(new Error("test0"), "other stuff"));
+
+        expect(cache.length()).toBe(1);
+        expect(cache.at(0).message).toMatch(/test0/);
     });
 
 
     it("drops first message if saving over max-size messages", function() {
         let cache = new ErrorCache({maxSize: 2});
-        cache.push("test0");
-        cache.push("test1");
-        cache.push("test2");
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
+        cache.push(new Error("test2"));
 
         expect(cache.length()).toBe(2);
-        expect(cache.at(0)).toBe("test1");
-        expect(cache.at(1)).toBe("test2");
+        expect(cache.at(0).message).toBe("test1");
+        expect(cache.at(1).message).toBe("test2");
     });
+
 
 }); // push
 
@@ -81,8 +110,8 @@ describe("length", function() {
 
     it("handles messages", function() {
         let cache = new ErrorCache({maxSize: 2});
-        cache.push("test0");
-        cache.push("test1");
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
 
         expect(cache.length()).toBe(2);
     });
@@ -100,17 +129,17 @@ describe("at", function() {
 
     it("handles messages", function() {
         let cache = new ErrorCache({maxSize: 2});
-        cache.push("test0");
-        cache.push("test1");
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
 
-        expect(cache.at(0)).toBe("test0");
+        expect(cache.at(0).message).toBe("test0");
     });
 
 
     it("handles indexing past number of messages", function() {
         let cache = new ErrorCache({maxSize: 2});
-        cache.push("test0");
-        cache.push("test1");
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
 
         expect(cache.at(2)).toBeUndefined();
     });
@@ -128,10 +157,10 @@ describe("shift", function() {
 
     it("handles messages", function() {
         let cache = new ErrorCache({maxSize: 2});
-        cache.push("test0");
-        cache.push("test1");
-        expect(cache.shift()).toBe("test0");
-        expect(cache.shift()).toBe("test1");
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
+        expect(cache.shift().message).toBe("test0");
+        expect(cache.shift().message).toBe("test1");
         expect(cache.length()).toBe(0);
     });
 
@@ -156,17 +185,17 @@ describe("removeAt", function() {
 
     it("handles messages", function() {
         let cache = new ErrorCache({maxSize: 2});
-        cache.push("test0");
-        cache.push("test1");
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
         cache.removeAt(0);
         expect(cache.length()).toBe(1);
-        expect(cache.at(0)).toBe("test1");
+        expect(cache.at(0).message).toBe("test1");
     });
 
 
     it("handles removal at end", function() {
         let cache = new ErrorCache({maxSize: 2});
-        cache.push("test0");
+        cache.push(new Error("test0"));
         cache.removeAt(0);
         expect(cache.length()).toBe(0);
     });
@@ -174,9 +203,9 @@ describe("removeAt", function() {
 
     it("handles multiple removals", function() {
         let cache = new ErrorCache({maxSize: 3});
-        cache.push("test0");
-        cache.push("test1");
-        cache.push("test2");
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
+        cache.push(new Error("test2"));
         cache.removeAt(0, 1, 2);
         expect(cache.length()).toBe(0);
     });
@@ -184,14 +213,14 @@ describe("removeAt", function() {
 
     it("handles multiple disjoint removals", function() {
         let cache = new ErrorCache({maxSize: 4});
-        cache.push("test0");
-        cache.push("test1");
-        cache.push("test2");
-        cache.push("test3");
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
+        cache.push(new Error("test2"));
+        cache.push(new Error("test3"));
         cache.removeAt(1, 3);
         expect(cache.length()).toBe(2);
-        expect(cache.at(0)).toBe("test0");
-        expect(cache.at(1)).toBe("test2");
+        expect(cache.at(0).message).toBe("test0");
+        expect(cache.at(1).message).toBe("test2");
     });
 
 
@@ -208,12 +237,12 @@ describe("[Symbol.iterator]", function() {
 
     it("iterates over all elements in cache", function() {
         let cache = new ErrorCache({maxSize: 3});
-        cache.push("test0");
-        cache.push("test1");
-        cache.push("test2");
-        expect(Array.from(cache)).toEqual(["test0", "test1", "test2"]);
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
+        cache.push(new Error("test2"));
+        expect(Array.from(cache).map(el => el.message)).toEqual(["test0", "test1", "test2"]);
         // verify iteration restarts
-        expect(Array.from(cache)).toEqual(["test0", "test1", "test2"]);
+        expect(Array.from(cache).map(el => el.message)).toEqual(["test0", "test1", "test2"]);
     });
 
 }); // [Symbol.iterator]
