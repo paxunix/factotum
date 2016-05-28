@@ -16,7 +16,18 @@ describe("fetchDocument", function() {
         var p = Util.fetchDocument("this is not a URL");
         expect(p instanceof Promise).toBe(true);
         p.catch(function (err) {
-            expect(err.type).toEqual("error");
+            expect(err instanceof Error).toBe(true);
+            done();
+        });
+    });
+
+
+    it("retrieves an Fcommand document at non-existent URL", function(done) {
+        var p = Util.fetchDocument("http://www.example.com/NoDocument");
+        expect(p instanceof Promise).toBe(true);
+        p.catch(function (err) {
+            expect(err instanceof Error).toBe(true);
+            expect(err.message).toMatch(/Failed to fetch 'http:\/\/www.example.com\/NoDocument'.*404.*Not Found/i);
             done();
         });
     });
@@ -25,8 +36,8 @@ describe("fetchDocument", function() {
     it("retrieves an Fcommand document via URL", function(done) {
         var p = Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html"));
         expect(p instanceof Promise).toBe(true);
-        p.then(function (response) {
-            expect(typeof(response.target.responseText)).toBe("string");
+        p.then(function (body) {
+            expect(typeof(body)).toBe("string");
             done();
         });
     });

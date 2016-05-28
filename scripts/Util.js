@@ -17,28 +17,22 @@ static getFcommandImportId(guid)
 
 /**
  * Retrieve a text string from a URL.
- * @return {Promise} The results of the retrieval.
+ * @param {...} - Same parameters as accepted by the fetch API
+ * @return {Promise} Resolves to the body text of the retrieval.  Rejects
+ * with error about retrieval.
  */
-static fetchDocument(url)
+static fetchDocument(...args)
 {
-    return new Promise(function (resolve, reject) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-        xhr.responseType = "text";
-        xhr.onload = function (evt) {
-            if (this.status == 200)
-                resolve(evt);
-            else
-                reject(evt);
-        };
-        xhr.onerror = function (evt) {
-            reject(evt);
-        };
-        xhr.onabort = function (evt) {
-            reject(evt);
-        };
+    return window.fetch(...args).then(response => {
+        // Response will not be ok if the request was made but failed (e.g.
+        // 404), so we want to reject the promise in those cases.  Regular
+        // rejections (e.g. bad protocol) will have already been rejected.
+        if (!response.ok)
+        {
+            throw Error(`Failed to fetch '${response.url}': ${response.status} ${response.statusText}`);
+        }
 
-        xhr.send();
+        return response.text();
     });
 }   // Util.fetchDocument
 

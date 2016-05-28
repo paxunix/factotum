@@ -29,15 +29,16 @@ var fetchThese = [
 
 for (let p of fetchThese)
 {
-    let p_getFcommand = p.then((event) => {
-        return new Fcommand(event.target.responseText, navigator.language);
+    fcommandManager
+    let p_getFcommand = p.then(bodyText => {
+        return new Fcommand(bodyText, navigator.language);
     });
 
     let p_saveFcommand =
         p_getFcommand.then(fcommand => fcommandManager.save(fcommand));
 
-    p_saveFcommand.catch((error) =>
-        p_getFcommand.then((fcommand) =>
+    p_saveFcommand.catch(error =>
+        p_getFcommand.then(fcommand =>
             fcommandManager.saveError(`Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid}):  ${error}`)
         )
     );

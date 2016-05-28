@@ -182,16 +182,16 @@ getAll()
 
 /**
  * Promise to fetch an Fcommand by URL and save it.
- * @return {Promise}
+ * @return {Promise} Resolves to saved Fcommand object; rejects with Error.
  */
 fetchFcommandUrl(url)
 {
-    let p_getFcommand = Util.fetchDocument(url).then(event => {
-        return new Fcommand(event.target.responseText, navigator.language);
-    }).catch(error => {
-        fcommandManager.saveError(`Fcommand fetch failure (${url}):  ${error}`)
-        throw error;
-    });
+    let p_getFcommand = Util.fetchDocument(url)
+        .then(bodyText => new Fcommand(bodyText, navigator.language))
+        .catch(error => {
+            fcommandManager.saveError(`Fcommand fetch failure (${url}):  ${error}`)
+            throw error;
+        });
 
     let p_saveFcommand = p_getFcommand.then(fcommand => fcommandManager.save(fcommand));
 
