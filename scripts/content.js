@@ -13,5 +13,5 @@ p.then(function () {
     chrome.runtime.onMessage.addListener(ContentScript.factotumListener);
     window.addEventListener("message", ContentScript.messageListener, false);
 }).catch(function () {
-    console.error("Error injecting Factotum API");
+    console.error(new Error("Error injecting Factotum API"));
 });

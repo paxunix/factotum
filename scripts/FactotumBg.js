@@ -270,7 +270,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
     let p_gotFcommand = lookupPromise.then(function (fcommands) {
             if (fcommands.length === 0)
             {
-                throw Error(`No matching Fcommand found for prefix '${prefix}'`);
+                throw new Error(`No matching Fcommand found for prefix '${prefix}'`);
             }
 
             return fcommands[0];

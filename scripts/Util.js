@@ -29,7 +29,7 @@ static fetchDocument(...args)
         // rejections (e.g. bad protocol) will have already been rejected.
         if (!response.ok)
         {
-            throw Error(`Failed to fetch '${response.url}': ${response.status} ${response.statusText}`);
+            throw new Error(`Failed to fetch '${response.url}': ${response.status} ${response.statusText}`);
         }
 
         return response.text();

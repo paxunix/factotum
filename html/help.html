@@ -44,7 +44,7 @@
                 fcommand.extractedData.keywords[0];
           }).catch(error => {
               p_getFcommand.then(fcommand => {
-                bgScope.fcommandManager.saveError(Error(`Failed help display for '${fcommand.extractedData.title}': ${error}`));
+                bgScope.fcommandManager.saveError(new Error(`Failed help display for '${fcommand.extractedData.title}': ${error}`));
               });
           });
     });

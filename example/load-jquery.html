@@ -221,7 +221,7 @@ function loadJquery(transferObj, onSuccess, onFailure) {
       // this Fcommand.  The throw is just for fun.
       var msg = "Failed to load jquery";
       onFailure(msg);
-      throw Error(msg);
+      throw new Error(msg);
   };
 
   // NOTE:  this will NOT work if the page on which this Fcommand is running
@@ -235,7 +235,7 @@ function loadJquery(transferObj, onSuccess, onFailure) {
 if (window.Factotum && Factotum.runCommand)
   Factotum.runCommand(loadJquery);
 else
-  throw Error("Factotum not enabled");
+  throw new Error("Factotum not enabled");
 </script>
 
 <!--

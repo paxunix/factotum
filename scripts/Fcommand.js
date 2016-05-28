@@ -170,7 +170,7 @@ static _getDataValidator()
     {
         return function throwIfNull(value) {
             if (value === null)
-                throw Error(`Fcommand field '${field}' is required.`);
+                throw new Error(`Fcommand field '${field}' is required.`);
         };
     }
 
@@ -180,12 +180,12 @@ static _getDataValidator()
         guid: getNullChecker("guid"),
         keywords: function (value) {
             if (value.length === 0)
-                throw Error("Fcommand field 'keywords' must have at least one keyword");
+                throw new Error("Fcommand field 'keywords' must have at least one keyword");
         },
         title: getNullChecker("title"),
         version: function (value) {
             if (semver.valid(value) === null)
-                throw Error(`Fcommand field 'version'='${value}' is not semver-compliant`);
+                throw new Error(`Fcommand field 'version'='${value}' is not semver-compliant`);
         },
     };
 }   // Fcommand._getDataValidator
@@ -280,7 +280,7 @@ static _validateData(data)
     }
 
     if (error.length)
-        throw Error(error);
+        throw new Error(error);
 }   // Fcommand._validateData
 
 
@@ -387,7 +387,7 @@ runPageCode(transferObj)
     // Fcommand.
     if (tab.url.search(/^(chrome|about)[-\w]*:/i) !== -1)
     {
-        throw Error(`Fcommand '${transferObj.get("_content.title")}' cannot run on a browser page.`);
+        throw new Error(`Fcommand '${transferObj.get("_content.title")}' cannot run on a browser page.`);
     }
 
     chrome.tabs.sendMessage(tab.id, transferObj);
@@ -472,7 +472,7 @@ createContextMenu(parentMenuId)
             }, function () {
                 if (chrome.runtime.lastError)
                 {
-                    reject(Error(`Failed to create context menu for ${self.extractedData.title}: ${chrome.runtime.lastError}`));
+                    reject(new Error(`Failed to create context menu for ${self.extractedData.title}: ${chrome.runtime.lastError}`));
                     return;
                 }
 
@@ -499,7 +499,7 @@ popupHelpWindow()
     return getFocussedWindow().then(function (wnd) {
         if (self.extractedData.helpMarkup === null)
         {
-            throw Error(`No help available for Fcommand '${self.extractedData.title}' (${self.extractedData.guid}).`);
+            throw new Error(`No help available for Fcommand '${self.extractedData.title}' (${self.extractedData.guid}).`);
         }
 
         return createHelpWindow(self.extractedData.guid, wnd);
