@@ -399,7 +399,7 @@ runPageCode(transferObj)
  * Return a promise to execute this Fcommand in the current tab.  Does the
  * right thing depending if it's a bg or page command.
  * @param {TransferObject} - data for the Fcommand
- * @return {Promise} - with no resolved data.
+ * @return {Promise} - with the transferObj data for the Fcommand.
  */
 execute(transferObj)
 {
