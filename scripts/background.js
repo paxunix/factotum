@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(FactotumBg.responseHandler);
 import Fcommand from "./Fcommand.js";
 
 // Ensure some test Fcommands are always present
-var fetchThese = [
+let fetchThese = [
     Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html")),
     Util.fetchDocument(chrome.runtime.getURL("example/bgtest.html")),
     Util.fetchDocument(chrome.runtime.getURL("example/bgtest2.html")),
