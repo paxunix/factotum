@@ -48,6 +48,8 @@ save(fcommand)
     // enforce this at the DB level by requiring guid to be unique.  This
     // would complicate saving of modifications to the fcommand, though.
     return this.db.fcommands.put(fcommand).then(() => {
+        // When saving, if the Fcommand wants to show a context menu, be
+        // sure to create it.
         if (fcommand.enabled && fcommand.extractedData.menu.length > 0)
         {
             return this.createMainContextMenu(FcommandManager.MAIN_MENU_ID)

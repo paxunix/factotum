@@ -16,7 +16,7 @@ class Fcommand
  * Fcommand object.
  * @constructor
  * @param {String} documentString - HTML document defining an Fcommand.
- * @param {String} language - extracts metadata for this BCP47 language string
+ * @param {String} language - BCP47 language string
 */
 constructor(documentString, language) {
     this.documentString = documentString;
