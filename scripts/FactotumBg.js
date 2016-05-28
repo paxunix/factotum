@@ -279,7 +279,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
             fcommandManager.saveError(error);
         });
 
-    p_gotFcommand.then(fcommand => {
+    let p_runFcommand = p_gotFcommand.then(fcommand => {
             if (internalOptions.help)
             {
                 return fcommand.popupHelpWindow();
@@ -291,7 +291,9 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
             );
 
             return fcommand.execute(transferObj);
-        }).catch(error => {
+        });
+
+    p_runFcommand.catch(error => {
             // XXX:  fcommandManager is magically in scope, which feels bad
             p_gotFcommand.then(fcommand => {
                 fcommandManager.saveError(new WrappErr(error, `Failed to execute Fcommand '${fcommand.extractedData.title}'`));
