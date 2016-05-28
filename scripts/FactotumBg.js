@@ -148,7 +148,7 @@ static onOmniboxInputChanged(text, suggestFunc) {
                 if (fcommands.length === 0)
                 {
                     chrome.omnibox.setDefaultSuggestion({
-                        description: `Unknown Fcommand keyword prefix '${internalOptions._[0]}'...`
+                        description: `Unknown Fcommand keyword prefix '${prefix}'...`
                     });
 
                     return;
