@@ -30,8 +30,8 @@
       // get the help markup for the Fcommand.
       var guid = document.location.search.substr(6);
 
-      bgScope.fcommandManager.getByGuid(guid)
-        .then(function (fcommand) {
+      p_getFcommand = bgScope.fcommandManager.getByGuid(guid);
+      p_getFcommand.then(fcommand => {
             document.querySelector("#help-content").innerHTML =
                 fcommand.extractedData.helpMarkup;
 
@@ -42,10 +42,10 @@
             document.title = title;
             document.querySelector("#fcommandName").innerText =
                 fcommand.extractedData.keywords[0];
-          })
-        .catch(function (rej) {
-            // XXX: surface error to user
-            console.error("Failed retrieving Fcommand: ", rej);
+          }).catch(error => {
+              p_getFcommand.then(fcommand => {
+                bgScope.fcommandManager.saveError(Error(`Failed help display for '${fcommand.extractedData.title}': ${error}`));
+              });
           });
     });
   </script>
