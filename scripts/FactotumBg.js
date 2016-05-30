@@ -292,9 +292,6 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
                 g_fcommandManager.getErrorManager().save(error, `Failed to execute Fcommand '${fcommand.extractedData.title}'`);
             });
         });
-
-    // XXX: some feedback if no matching Fcommand found for entered cmdline?
-    // This can be done within the omnibox.
     // XXX: this really needs to be rewritten to be testable
 };  // FactotumBg.onOmniboxInputEntered
 
