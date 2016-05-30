@@ -5,7 +5,7 @@ import FcommandManager from "./FcommandManager.js";
 import Util from "./Util.js";
 import FcommandErrors from "./FcommandErrors.js";
 
-window.fcommandManager = new FcommandManager(new FcommandErrors(value => chrome.browserAction.setBadgeText({text: value.toString() })));
+window.g_fcommandManager = new FcommandManager(new FcommandErrors(value => chrome.browserAction.setBadgeText({text: value.toString() })));
 
 // Register Omnibox listeners.
 
@@ -35,11 +35,11 @@ for (let p of fetchThese)
     });
 
     let p_saveFcommand =
-        p_getFcommand.then(fcommand => fcommandManager.save(fcommand));
+        p_getFcommand.then(fcommand => g_fcommandManager.save(fcommand));
 
     p_saveFcommand.catch(error =>
         p_getFcommand.then(fcommand =>
-            fcommandManager.getErrorManager().save(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`)
+            g_fcommandManager.getErrorManager().save(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`)
         )
     );
 }

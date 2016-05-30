@@ -30,7 +30,7 @@
       // get the help markup for the Fcommand.
       var guid = document.location.search.substr(6);
 
-      p_getFcommand = bgScope.fcommandManager.getByGuid(guid);
+      p_getFcommand = bgScope.g_fcommandManager.getByGuid(guid);
       p_getFcommand.then(fcommand => {
             document.querySelector("#help-content").innerHTML =
                 fcommand.extractedData.helpMarkup;
@@ -44,7 +44,7 @@
                 fcommand.extractedData.keywords[0];
           }).catch(error => {
               p_getFcommand.then(fcommand => {
-                bgScope.fcommandManager.getErrorManager().save(error, `Failed help display for '${fcommand.extractedData.title}'`);
+                bgScope.g_fcommandManager.getErrorManager().save(error, `Failed help display for '${fcommand.extractedData.title}'`);
               });
           });
     });

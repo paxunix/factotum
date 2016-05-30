@@ -202,7 +202,7 @@ fetchFcommandUrl(url)
             this.getErrorManager().save(error, `Fcommand fetch failure (${url})`)
         });
 
-    let p_saveFcommand = p_getFcommand.then(fcommand => fcommandManager.save(fcommand));
+    let p_saveFcommand = p_getFcommand.then(fcommand => this.save(fcommand));
 
     p_saveFcommand.catch(error => p_getFcommand.then(fcommand =>
         this.getErrorManager().save(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`))

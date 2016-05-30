@@ -136,9 +136,8 @@ static onOmniboxInputChanged(text, suggestFunc) {
 
     // Create a suggestions using the first Fcommand whose keywords match
     // the given Fcommand name prefix so far.
-    // XXX:  fcommandManager is magically in scope, which feels bad
     let prefix = internalOptions._[0];
-    fcommandManager.getByPrefix(prefix)
+    g_fcommandManager.getByPrefix(prefix)
         .then(function (fcommands) {
                 var suggestions = [];
 
@@ -203,8 +202,7 @@ static onOmniboxInputChanged(text, suggestFunc) {
 
                 suggestFunc(suggestions);
         }).catch(error => {
-            // XXX:  fcommandManager is magically in scope, which feels bad
-            fcommandManager.getErrorManager().save(error, `Failed to retrieve Fcommands for prefix '${prefix}'`);
+            g_fcommandManager.getErrorManager().save(error, `Failed to retrieve Fcommands for prefix '${prefix}'`);
         });
 };  // FactotumBg.onOmniboxInputChanged
 
@@ -260,11 +258,11 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
     let prefix = internalOptions._[0];
     var lookupPromise = guidFromCmdline !== null ?
         // XXX:  fcommandManager is magically in scope, which feels bad
-        fcommandManager.getByGuid(guidFromCmdline).then(function (res) {
+        g_fcommandManager.getByGuid(guidFromCmdline).then(function (res) {
                 // Make sure an array is returned
                 return res === undefined ? [] : [ res ]
             }) :
-        fcommandManager.getByPrefix(prefix);
+        g_fcommandManager.getByPrefix(prefix);
 
     let p_gotFcommand = lookupPromise.then(function (fcommands) {
             if (fcommands.length === 0)
@@ -275,7 +273,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
             return fcommands[0];
         }).catch(error => {
             // XXX:  fcommandManager is magically in scope, which feels bad
-            fcommandManager.saveError(error);
+            g_fcommandManager.saveError(error);
         });
 
     let p_runFcommand = p_gotFcommand.then(fcommand => {
@@ -295,7 +293,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
     p_runFcommand.catch(error => {
             // XXX:  fcommandManager is magically in scope, which feels bad
             p_gotFcommand.then(fcommand => {
-                fcommandManager.saveError(new WrappErr(error, `Failed to execute Fcommand '${fcommand.extractedData.title}'`));
+                g_fcommandManager.saveError(new WrappErr(error, `Failed to execute Fcommand '${fcommand.extractedData.title}'`));
             });
         });
 
@@ -309,7 +307,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
 static responseHandler(response) {
     if (chrome.runtime.lastError)
     {
-        fcommandManager.getErrorManager().save(`Internal error: ${chrome.runtime.lastError}`);
+        g_fcommandManager.getErrorManager().save(`Internal error: ${chrome.runtime.lastError}`);
         return;
     }
 
@@ -319,7 +317,7 @@ static responseHandler(response) {
         // XXX: should show guid and Fcommand description or something
         // (maybe the cmdline).  Would have to include that in the
         // transferobject.
-        fcommandManager.getErrorManager().save(`Error from Fcommand: ${transferObj.get("_bg.errorMessage")}`);
+        g_fcommandManager.getErrorManager().save(`Error from Fcommand: ${transferObj.get("_bg.errorMessage")}`);
         return;
     }
 
@@ -327,13 +325,12 @@ static responseHandler(response) {
     {
         console.log("Fcommand responded:", transferObj);
 
-        // XXX:  fcommandManager is magically in scope, which feels bad
-        fcommandManager.getByGuid(transferObj.get("_content.guid"))
+        g_fcommandManager.getByGuid(transferObj.get("_content.guid"))
             .then(function (fcommand) {
                     return fcommand.runBgCode(transferObj)
                 })
             .catch(error => {
-                    fcommandManager.getErrorManager().save(error, "Fcommand bg code failed");
+                    g_fcommandManager.getErrorManager().save(error, "Fcommand bg code failed");
                 });
     }
 };  // FactotumBg.responseHandler
