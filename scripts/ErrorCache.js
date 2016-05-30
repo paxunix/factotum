@@ -107,15 +107,16 @@ class ErrorCache
 
     /**
      * Return an iterator over elements of the list.
-     * @return {[Symbol.iterator]} - iterator
+     * @return {Iterator} - iterator
      */
     [Symbol.iterator]()
     {
         let i = 0;
+        let self = this;
         return {
             next: () => {
-                let value = this.cache[i];
-                let done = i >= this.length();
+                let value = self.cache[i];
+                let done = i >= self.length();
                 ++i;
                 return { value, done };
             }

@@ -262,8 +262,29 @@ describe("[Symbol.iterator]", function() {
         cache.push(new Error("test1"));
         cache.push(new Error("test2"));
         expect(Array.from(cache).map(el => el.message)).toEqual(["test0", "test1", "test2"]);
-        // verify iteration restarts
-        expect(Array.from(cache).map(el => el.message)).toEqual(["test0", "test1", "test2"]);
+    });
+
+
+    it("gives a new iterator after prior iterator's completion", function() {
+        let cache = new ErrorCache({maxSize: 2});
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
+        let els1 = Array.from(cache).map(el => el.message);
+        let els2 = Array.from(cache).map(el => el.message);
+        expect(els1).toEqual(els2);
+    });
+
+
+    it("instance cannot restart iteration", function() {
+        let cache = new ErrorCache({maxSize: 2});
+        cache.push(new Error("test0"));
+        let iter = cache[Symbol.iterator]();
+        let el1 = iter.next();
+        let el2 = iter.next();
+        let el3 = iter.next();
+        expect(el1).toEqual({value: jasmine.any(Object), done: false });
+        expect(el2).toEqual({value: undefined, done: true });
+        expect(el3).toEqual({value: undefined, done: true });
     });
 
 }); // [Symbol.iterator]
