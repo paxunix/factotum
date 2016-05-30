@@ -256,44 +256,40 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
         .setTabDisposition(tabDisposition);
 
     let prefix = internalOptions._[0];
-    var lookupPromise = guidFromCmdline !== null ?
-        // XXX:  fcommandManager is magically in scope, which feels bad
-        g_fcommandManager.getByGuid(guidFromCmdline).then(function (res) {
-                // Make sure an array is returned
-                return res === undefined ? [] : [ res ]
+    var p_lookupFcommand = guidFromCmdline !== null ?
+        g_fcommandManager.getByGuid(guidFromCmdline).then(function (fcommand) {
+                return fcommand === undefined ? [] : [ fcommand ]
             }) :
         g_fcommandManager.getByPrefix(prefix);
 
-    let p_gotFcommand = lookupPromise.then(function (fcommands) {
+    let p_gotFcommand = p_lookupFcommand.then(function (fcommands) {
             if (fcommands.length === 0)
             {
                 throw new Error(`No matching Fcommand found for prefix '${prefix}'`);
             }
 
             return fcommands[0];
-        }).catch(error => {
-            // XXX:  fcommandManager is magically in scope, which feels bad
-            g_fcommandManager.saveError(error);
         });
 
-    let p_runFcommand = p_gotFcommand.then(fcommand => {
+    let p_fcommandHelp = p_gotFcommand.then(fcommand => {
             if (internalOptions.help)
             {
                 return fcommand.popupHelpWindow();
             }
 
+            return fcommand;
+        });
+
+    let p_runFcommand = p_fcommandHelp.then(fcommand => {
             transferObj.setCommandLine(
                 GetOpt.getOptions(fcommand.extractedData.optspec,
                     internalOptions._)
             );
 
             return fcommand.execute(transferObj);
-        });
-
-    p_runFcommand.catch(error => {
-            // XXX:  fcommandManager is magically in scope, which feels bad
-            p_gotFcommand.then(fcommand => {
-                g_fcommandManager.saveError(new WrappErr(error, `Failed to execute Fcommand '${fcommand.extractedData.title}'`));
+        }).catch(error => {
+            return p_gotFcommand.then(fcommand => {
+                g_fcommandManager.getErrorManager().save(error, `Failed to execute Fcommand '${fcommand.extractedData.title}'`);
             });
         });
 
