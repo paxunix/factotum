@@ -18,7 +18,7 @@ class ErrorCache
         if (maxSize < 0)
             throw new RangeError("maxSize must be >= 0");
 
-        this.cache = [];
+        this.clear();
     }
 
 
@@ -93,6 +93,15 @@ class ErrorCache
         }
 
         this.cache = this.cache.filter(el => el !== undefined && el !== null );
+    }
+
+
+    /**
+     * Remove all elements from the list.
+     */
+    clear()
+    {
+        this.cache = [];
     }
 
 

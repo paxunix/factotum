@@ -227,6 +227,27 @@ describe("removeAt", function() {
 }); // removeAt
 
 
+
+describe("clear", function() {
+
+    it("works with no messages", function() {
+        let cache = new ErrorCache({maxSize: 0});
+        cache.clear();
+        expect(cache.length()).toBe(0);
+    });
+
+
+    it("works with messages", function() {
+        let cache = new ErrorCache({maxSize: 2});
+        cache.push(new Error("test0"));
+        cache.push(new Error("test1"));
+        cache.clear();
+        expect(cache.length()).toBe(0);
+    });
+
+}); // clear
+
+
 describe("[Symbol.iterator]", function() {
 
     it("does nothing if cache is empty", function() {
