@@ -18,28 +18,14 @@ chrome.omnibox.onInputChanged.addListener(FactotumBg.onOmniboxInputChanged);
 // Listen for messages from content script
 chrome.runtime.onMessage.addListener(FactotumBg.responseHandler);
 
-// XXX: during testing, to create an Fcommand on-the-fly in devtools
-import Fcommand from "./Fcommand.js";
-
 // Ensure some test Fcommands are always present
-let fetchThese = [
-    Util.fetchDocument(chrome.runtime.getURL("example/load-jquery.html")),
-    Util.fetchDocument(chrome.runtime.getURL("example/bgtest.html")),
-    Util.fetchDocument(chrome.runtime.getURL("example/bgtest2.html")),
+let fetchUrls = [
+    chrome.runtime.getURL("example/load-jquery.html"),
+    chrome.runtime.getURL("example/bgtest.html"),
+    chrome.runtime.getURL("example/bgtest2.html"),
 ];
 
-for (let p of fetchThese)
+for (let url of fetchUrls)
 {
-    let p_getFcommand = p.then(bodyText => {
-        return new Fcommand(bodyText, navigator.language);
-    });
-
-    let p_saveFcommand =
-        p_getFcommand.then(fcommand => g_fcommandManager.save(fcommand));
-
-    p_saveFcommand.catch(error =>
-        p_getFcommand.then(fcommand =>
-            g_fcommandManager.getErrorManager().save(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`)
-        )
-    );
+    g_fcommandManager.fetchFcommandUrl(url);
 }
