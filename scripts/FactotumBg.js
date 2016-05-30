@@ -4,7 +4,6 @@
 import ShellParse from "./ShellParse.js";
 import GetOpt from "./GetOpt.js";
 import TransferObject from "./TransferObject.js";
-import WrappErr from "wrapperr";
 
 
 let FCOMMAND_GUID_DELIM = "--guid=";
@@ -205,7 +204,7 @@ static onOmniboxInputChanged(text, suggestFunc) {
                 suggestFunc(suggestions);
         }).catch(error => {
             // XXX:  fcommandManager is magically in scope, which feels bad
-            fcommandManager.saveError(new WrappErr(error, `Failed to retrieve Fcommands for prefix '${prefix}'`));
+            fcommandManager.getErrorManager().save(error, `Failed to retrieve Fcommands for prefix '${prefix}'`);
         });
 };  // FactotumBg.onOmniboxInputChanged
 
@@ -310,7 +309,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
 static responseHandler(response) {
     if (chrome.runtime.lastError)
     {
-        fcommandManager.saveError(new Error(`Internal error: ${chrome.runtime.lastError}`));
+        fcommandManager.getErrorManager().save(`Internal error: ${chrome.runtime.lastError}`);
         return;
     }
 
@@ -320,7 +319,7 @@ static responseHandler(response) {
         // XXX: should show guid and Fcommand description or something
         // (maybe the cmdline).  Would have to include that in the
         // transferobject.
-        fcommandManager.saveError(new Error(`Error from Fcommand: ${transferObj.get("_bg.errorMessage")}`));
+        fcommandManager.getErrorManager().save(`Error from Fcommand: ${transferObj.get("_bg.errorMessage")}`);
         return;
     }
 
@@ -334,8 +333,7 @@ static responseHandler(response) {
                     return fcommand.runBgCode(transferObj)
                 })
             .catch(error => {
-                    fcommandManager.saveError(new WrappErr(error,
-                        "Fcommand bg code failed"));
+                    fcommandManager.getErrorManager().save(error, "Fcommand bg code failed");
                 });
     }
 };  // FactotumBg.responseHandler

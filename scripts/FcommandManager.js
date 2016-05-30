@@ -1,7 +1,6 @@
 "use strict";
 
 import Dexie from "dexie";
-import ErrorCache from "./ErrorCache.js";
 import Fcommand from "./Fcommand.js";
 import Util from "./Util.js";
 
@@ -12,9 +11,11 @@ class FcommandManager
 
 /**
  * @class FcommandManager Manages the set of Fcommands.
+ * @param {FcommandErrors} errorMgr - used to save/manage errors
  */
-constructor()
+constructor(errorMgr)
 {
+    this.errorMgr = errorMgr;
     this.db = new Dexie("FcommandDb");
     this.db.version(1).stores({
         fcommands: "extractedData.guid,*extractedData.keywords"
@@ -27,12 +28,19 @@ constructor()
 
     this.mainMenuCreated = false;
 
-    this.errorCache = new ErrorCache({maxSize: 50});       // XXX: from config somehow?
-
     return this;
 }   // FcommandManager constructor
 
 
+/**
+ * Get a reference to the error manager.
+ * XXX: leaky abstraction, but we need a way to save any error and tie it
+ * back into the regular error-surfacing mechanism within the extension
+ */
+getErrorManager()
+{
+    return this.errorMgr;
+}
 
 
 /**
@@ -191,14 +199,13 @@ fetchFcommandUrl(url)
     let p_getFcommand = Util.fetchDocument(url)
         .then(bodyText => new Fcommand(bodyText, navigator.language))
         .catch(error => {
-            fcommandManager.saveError(`Fcommand fetch failure (${url}):  ${error}`)
-            throw error;
+            this.getErrorManager().save(error, `Fcommand fetch failure (${url})`)
         });
 
     let p_saveFcommand = p_getFcommand.then(fcommand => fcommandManager.save(fcommand));
 
     p_saveFcommand.catch(error => p_getFcommand.then(fcommand =>
-        fcommandManager.saveError(`Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid}):  ${error}`))
+        this.getErrorManager().save(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`))
     );
 }   // fetchFcommandUrl
 
@@ -251,16 +258,6 @@ createMainContextMenu()
         });
     });
 }   // createMainContextMenu
-
-
-/**
- * Saves the given error to the error buffer.
- * @param {Error} error - error object to save
- */
-saveError(error)
-{
-    this.errorCache.push(error);
-}   // saveError
 
 
 }   // class FcommandManager

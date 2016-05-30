@@ -3,9 +3,9 @@
 import FactotumBg from "./FactotumBg.js";
 import FcommandManager from "./FcommandManager.js";
 import Util from "./Util.js";
-import WrappErr from "wrapperr";
+import FcommandErrors from "./FcommandErrors.js";
 
-window.fcommandManager = new FcommandManager();
+window.fcommandManager = new FcommandManager(new FcommandErrors(value => chrome.browserAction.setBadgeText({text: value.toString() })));
 
 // Register Omnibox listeners.
 
@@ -30,7 +30,6 @@ let fetchThese = [
 
 for (let p of fetchThese)
 {
-    fcommandManager
     let p_getFcommand = p.then(bodyText => {
         return new Fcommand(bodyText, navigator.language);
     });
@@ -40,7 +39,7 @@ for (let p of fetchThese)
 
     p_saveFcommand.catch(error =>
         p_getFcommand.then(fcommand =>
-            fcommandManager.saveError(new WrappErr(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`))
+            fcommandManager.getErrorManager().save(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`)
         )
     );
 }
