@@ -248,7 +248,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
 
     // Internal option parsing examines the entire command line, not just
     // everything after the first word.  Then parse the args resulting from
-    // that as the actualy command line.
+    // that as the actual command line.
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
     var transferObj = new TransferObject()
