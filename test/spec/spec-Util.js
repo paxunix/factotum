@@ -46,25 +46,4 @@ describe("fetchDocument", function() {
 }); // fetchDocument
 
 
-describe("createImportLink", function() {
-
-    it("creates a link from documentString", function() {
-        var t = new TransferObject()
-            .setCommandLine({ a: 1, b: [ 2, 3 ], c: { d: "four" } })
-            .set("_content.internalCmdlineOptions", { a: 1, b: [ 2, { c: "3" } ] })
-            .set("_content.guid", "1234")
-            .set("_content.documentString", "docstring");
-        var link = Util.createImportLink(document, t);
-
-        expect(link instanceof HTMLLinkElement).toBe(true);
-        expect(link.rel).toEqual("import");
-        expect(link.id).toEqual(Util.getFcommandImportId(t.get("_content.guid")));
-        delete t.storage["_content.documentString"];     // XXX: ugly hack
-        expect(link.dataset.transferObj).toEqual(JSON.stringify(t));
-        URL.revokeObjectURL(link.href);
-    });
-
-}); // createImportLink
-
-
 }); // Util

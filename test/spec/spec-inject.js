@@ -1,7 +1,7 @@
 "use strict";
 
 import TransferObject from "../../scripts/TransferObject.js";
-import Util from "../../scripts/Util.js";
+import ContentScript from "../../scripts/ContentScript.js";
 
 describe("inject", function() {
 
@@ -14,7 +14,7 @@ describe("_getDataAttribute", function() {
             .set("_content.guid", "guid")
             .set("_content.documentString", "testing");
 
-        var el = Util.createImportLink(document, t);
+        var el = ContentScript.createImportLink(document, t);
 
         el.onload = function onload() {
             URL.revokeObjectURL(el.href);
@@ -39,7 +39,7 @@ describe("getFcommandId", function() {
             .set("_content.guid", "guid")
             .set("_content.documentString", '<head><meta name="guid" content="guid">');
 
-        var el = Util.createImportLink(document, t);
+        var el = ContentScript.createImportLink(document, t);
 
         el.onload = function onload() {
             URL.revokeObjectURL(el.href);
