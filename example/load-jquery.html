@@ -176,7 +176,7 @@ function loadJquery(transferObj, onSuccess, onFailure) {
   // For forcing a failure
   if (opts.throw)
   {
-      throw opts.throw;
+      throw new Error("Fcommand error: " + opts.throw);
   }
 
   // For pretending failure
@@ -218,10 +218,9 @@ function loadJquery(transferObj, onSuccess, onFailure) {
       // throwing will not result in the failure being caught by
       // runCommand() because that execution context is already torn down.
       // Thus, you have to call onFailure() to allow Factotum to clean up
-      // this Fcommand.  The throw is just for fun.
-      var msg = "Failed to load jquery";
-      onFailure(msg);
-      throw new Error(msg);
+      // this Fcommand.
+      var error = new Error("Failed to load jquery");
+      onFailure(error);
   };
 
   // NOTE:  this will NOT work if the page on which this Fcommand is running
@@ -277,7 +276,8 @@ var opts = transferObj.getCommandLine();
 
 if (opts.bgthrow)
 {
-  throw opts.bgthrow;
+  let error = new Error("Fcommand bg error: " + opts.bgthrow);
+  throw error;      // in bgCode, throwing is the same as calling onFailure(error)
 }
 
 chrome.notifications.create(
