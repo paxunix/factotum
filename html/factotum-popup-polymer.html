@@ -40,6 +40,11 @@
 
     <div id="list">
       <paper-icon-item>
+        <!--
+        XXX: show and then fade out one of these icons when the Fcommand is saved successfully, or there is a problem.
+        <iron-icon class="error" icon="icons:error" item-icon></iron-icon>
+        <iron-icon class="success" icon="icons:check-circle" item-icon></iron-icon>
+        -->
         <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}"></paper-input>
         <paper-icon-button id="loadUrl" icon="save" on-click="saveAction"></paper-icon-button>
       </paper-icon-item>
