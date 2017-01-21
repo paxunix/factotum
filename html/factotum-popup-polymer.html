@@ -53,7 +53,7 @@
           <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
           Settings
         </paper-icon-item>
-        <paper-icon-item id="menu-errors" disabled>
+        <paper-icon-item id="menu-errors" on-click="clickErrors">
           <iron-icon icon="icons:error" item-icon></iron-icon>
           Errors
         </paper-icon-item>
@@ -95,6 +95,29 @@ Polymer({
                   // XXX: should have some visual indication of failure (like backround of control fades from red to default)
               });
         })
+    },
+
+    clickErrors: function () {
+        let errorPageUrl = chrome.runtime.getURL("build/errors.html");
+        // If tab already exists, switch to it; otherwise open it
+        chrome.tabs.query({ url: errorPageUrl },
+            tabs => {
+                if (tabs.length === 0)
+                {
+                    chrome.tabs.create({ url: errorPageUrl }, () => { });
+                }
+                else
+                {
+                    // Focus the window with the tab, then activate the tab
+                    chrome.windows.update(tabs[0].windowId, { focused: true },
+                        wnd => {
+                        chrome.tabs.update(tabs[0].id,
+                            { active: true }, () => {});
+                        }
+                    );
+                }
+            }
+        );
     },
 });
 </script>
