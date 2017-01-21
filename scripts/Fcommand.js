@@ -49,7 +49,7 @@ constructor(documentString, language) {
  */
 static _getMetadataFieldString(field, document, lang)
 {
-    var value = Fcommand._getSelectorContent(`head meta[name='${field}']`, document, lang);
+    let value = Fcommand._getSelectorContent(`head meta[name='${field}']`, document, lang);
 
     if (value !== null)
         value = value.replace(/^\s+/, "").replace(/\s+$/, "");
@@ -67,7 +67,7 @@ static _getMetadataFieldString(field, document, lang)
  */
 static _getSelectorContent(selector, document, lang)
 {
-    var value = (Fcommand._getFromLangSelector(document, selector, lang) || {}).content;
+    let value = (Fcommand._getFromLangSelector(document, selector, lang) || {}).content;
 
     return (value !== undefined ? value : null);
 }   // Fcommand._getSelectorContent
@@ -100,14 +100,14 @@ static _getDataExtractor(document, lang)
         guid: getMetaFieldExtractor("guid"),
         helpMarkup: Fcommand._extractHelpMarkup,
         icon: function (document, lang) {
-            var icon = Fcommand._getFromLangSelector(document, "head link[rel=icon]", lang);
+            let icon = Fcommand._getFromLangSelector(document, "head link[rel=icon]", lang);
             if (icon !== null)
                 icon = icon.getAttribute("href");
 
             return icon;
         },
         keywords: function (document, lang) {
-            var keywords = Fcommand._getMetadataFieldString("keywords", document, lang);
+            let keywords = Fcommand._getMetadataFieldString("keywords", document, lang);
 
             // Keywords is a comma- or space-delimited list of words
             if (keywords !== null)
@@ -124,7 +124,7 @@ static _getDataExtractor(document, lang)
             return keywords;
         },
         menu: function (document, lang) {
-            var words = Fcommand._getMetadataFieldString("menu", document, lang);
+            let words = Fcommand._getMetadataFieldString("menu", document, lang);
 
             // "menu" field is a comma- or space-delimited list of words
             if (words !== null)
@@ -142,7 +142,7 @@ static _getDataExtractor(document, lang)
         },
         optspec: Fcommand._extractOptSpec,
         title: function (document, lang) {
-            var title = Fcommand._getFromLangSelector(document, "head title", lang);
+            let title = Fcommand._getFromLangSelector(document, "head title", lang);
             if (title !== null)
                 title = title.textContent;
 
@@ -201,13 +201,13 @@ static _getDataValidator()
  */
 static _extractData(documentString, lang)
 {
-    var dom = Fcommand._parseDomFromString(documentString);
-    var extractor = Fcommand._getDataExtractor(dom, lang);
-    var extractData = {};
+    let dom = Fcommand._parseDomFromString(documentString);
+    let extractor = Fcommand._getDataExtractor(dom, lang);
+    let extractData = {};
 
-    for (var field in extractor)
+    for (let [field, extractFn] of Object.entries(extractor))
     {
-        extractData[field] = extractor[field](dom, lang);
+        extractData[field] = extractFn(dom, lang);
     }
 
     return extractData;
@@ -223,15 +223,15 @@ static _extractData(documentString, lang)
  */
 static _getFromLangSelector(document, selector, lang)
 {
-    var elements = document.querySelectorAll(selector);
+    let elements = document.querySelectorAll(selector);
 
     // List of languages in order of preference:  given language (presumably
     // from the browser), given language with no subtags, no language
-    var langList = [ lang.toLowerCase(), lang.toLowerCase().split("-")[0], "" ];
+    let langList = [ lang.toLowerCase(), lang.toLowerCase().split("-")[0], "" ];
 
-    for (var lidx = 0; lidx < langList.length; ++lidx)
+    for (let lidx = 0; lidx < langList.length; ++lidx)
     {
-        for (var el of elements)
+        for (let el of elements)
         {
             if (langList[lidx] === el.lang.toLowerCase())
                 return el;
@@ -264,13 +264,13 @@ static _parseDomFromString(documentString)
  */
 static _validateData(data)
 {
-    var validator = Fcommand._getDataValidator();
-    var error = "";
+    let validator = Fcommand._getDataValidator();
+    let error = "";
 
-    for (var field in validator)
+    for (let [field, validateFn] of Object.entries(validator))
     {
         try {
-            validator[field](data[field]);
+            validateFn(data[field]);
         }
         catch (e) {
             if (error.length)
@@ -294,8 +294,8 @@ static _validateData(data)
  */
 static _extractOptSpec(document, lang)
 {
-    var sel = "template#getopt";
-    var template = Fcommand._getFromLangSelector(document, sel, lang);
+    let sel = "template#getopt";
+    let template = Fcommand._getFromLangSelector(document, sel, lang);
     if (!template)
         return {};
 
@@ -318,8 +318,8 @@ static _extractOptSpec(document, lang)
  */
 static _extractHelpMarkup(document, lang)
 {
-    var sel = "template#help";
-    var template = Fcommand._getFromLangSelector(document, sel, lang);
+    let sel = "template#help";
+    let template = Fcommand._getFromLangSelector(document, sel, lang);
     if (!template)
         return null;
 
@@ -336,8 +336,8 @@ static _extractHelpMarkup(document, lang)
  */
 static _extractBgCodeString(document, language)
 {
-    var sel = "template#bgCode";
-    var template = Fcommand._getFromLangSelector(document, sel, language);
+    let sel = "template#bgCode";
+    let template = Fcommand._getFromLangSelector(document, sel, language);
     if (!template)
         return null;
 
@@ -354,9 +354,9 @@ static _extractBgCodeString(document, language)
  */
 runBgCode(transferObj)
 {
-    var self = this;
+    let self = this;
 
-    var cloneTransferObject = transferObj.clone();
+    let cloneTransferObject = transferObj.clone();
     cloneTransferObject.set("_bg.fcommandDocument",
         Fcommand._parseDomFromString(self.documentString));
     // No need to pass the document string since we already extracted it for
@@ -365,7 +365,7 @@ runBgCode(transferObj)
 
     // Run the Fcommand's bgCode
     return new Promise(function (onSuccess, onFailure) {
-        var bgFunction = new Function("transferObj", "onSuccess", "onFailure",
+        let bgFunction = new Function("transferObj", "onSuccess", "onFailure",
             (transferObj.get("_content.internalCmdlineOptions").bgdebug ? "d\ebugger;\n" : "") +
                 self.extractedData.bgCodeString);
 
@@ -382,7 +382,7 @@ runBgCode(transferObj)
  */
 runPageCode(transferObj)
 {
-    var tab = transferObj.getCurrentTab();
+    let tab = transferObj.getCurrentTab();
 
     // If the current page is internal, it can't run a "page" context
     // Fcommand.
@@ -403,7 +403,7 @@ runPageCode(transferObj)
  */
 execute(transferObj)
 {
-    var self = this;
+    let self = this;
 
     return Util.getCurrentTab().then(function (tab) {
         transferObj.setCurrentTab(tab)
@@ -436,7 +436,7 @@ _getContextMenuId()
  */
 createContextMenu(parentMenuId)
 {
-    var self = this;
+    let self = this;
 
     return new Promise(function (resolve, reject) {
         if (self.extractedData.menu.length > 0)
@@ -449,7 +449,7 @@ createContextMenu(parentMenuId)
                 contexts: self.extractedData.menu,
                 enabled: self.enabled,      // XXX: need to update this whenever the enabled state changes
                 onclick: function (contextMenuData, tab) {
-                    var transferObj = new TransferObject({
+                    let transferObj = new TransferObject({
                         // There are no internal command line options
                         // because none could have been entered.
                         "_content.internalCmdlineOptions": GetOpt.getOptions({},[]),
@@ -495,7 +495,7 @@ createContextMenu(parentMenuId)
  */
 popupHelpWindow()
 {
-    var self = this;
+    let self = this;
 
     return getFocussedWindow().then(function (wnd) {
         if (self.extractedData.helpMarkup === null)
@@ -523,9 +523,9 @@ function getFocussedWindow() {
 
 // Return a promise to create the help window
 function createHelpWindow(fcommandGuid, wnd) {
-    var width = Math.round(wnd.width * 0.40);
-    var height = Math.round(wnd.height * 0.65);
-    var url = chrome.runtime.getURL("build/help.html") +
+    let width = Math.round(wnd.width * 0.40);
+    let height = Math.round(wnd.height * 0.65);
+    let url = chrome.runtime.getURL("build/help.html") +
         `?guid=${fcommandGuid}`;
 
     return new Promise(function (resolve, reject) {

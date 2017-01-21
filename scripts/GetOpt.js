@@ -73,10 +73,10 @@ static getOptions(spec, argv) {
                 return ret;
 
             // Otherwise, see if it's an exact alias match.
-            for (var i in spec)
-                if ((spec[i].aliases || []).indexOf(ret.opt) != -1)
+            for (let [k, v] of Object.entries(spec))
+                if ((v.aliases || []).indexOf(ret.opt) != -1)
                 {
-                    ret.opt = i;
+                    ret.opt = k;
                     return ret;
                 }
 
@@ -104,10 +104,10 @@ static getOptions(spec, argv) {
     }   // getOptionOrArg
 
     // Set default values for options that have them
-    for (var opt in spec)
+    for (let [k, v] of Object.entries(spec))
     {
-        if ("default" in spec[opt])
-            saveValue(opt, spec[opt].default);
+        if ("default" in v)
+            saveValue(k, v.default);
     }
 
     // Pull options and their values out of argv.

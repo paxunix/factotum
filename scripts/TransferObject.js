@@ -42,7 +42,7 @@ constructor(obj) {
     this.storage = {};
 
     var from = obj ? (('storage' in obj) ? obj.storage : obj) : {};
-    for (var p in from)
+    for (let p in from)
     {
         if (from.hasOwnProperty(p))
         {
