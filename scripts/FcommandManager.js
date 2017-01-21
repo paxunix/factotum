@@ -203,11 +203,12 @@ fetchFcommandUrl(url)
             this.getErrorManager().save(error, `Fcommand fetch failure (${url})`)
         });
 
-    let p_saveFcommand = p_getFcommand.then(fcommand => this.save(fcommand));
+    //debugger; //XXX:  this part is fucked; the promise chain is fucked
+    //let p_saveFcommand = p_getFcommand.then(fcommand => this.save(fcommand));
 
-    p_saveFcommand.catch(error => p_getFcommand.then(fcommand =>
-        this.getErrorManager().save(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`))
-    );
+    //p_saveFcommand.catch(error => p_getFcommand.then(fcommand =>
+        //this.getErrorManager().save(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`))
+    //);
 }   // fetchFcommandUrl
 
 
