@@ -21,15 +21,6 @@
         background-color: #d8d8d8;
       }
 
-      paper-icon-button.green {
-        color: var(--paper-green-500);
-      }
-
-      paper-icon-button.green:hover {
-        background: var(--paper-green-50);
-        border-radius: 45%;
-      }
-
       #loadUrl {
         margin-top: 13px;
       }
@@ -50,7 +41,7 @@
     <div id="list">
       <paper-icon-item>
         <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}"></paper-input>
-        <paper-icon-button id="loadUrl" icon="check" class="green" on-click="clickCheckmark"></paper-icon-button>
+        <paper-icon-button id="loadUrl" icon="save" on-click="saveAction"></paper-icon-button>
       </paper-icon-item>
       <paper-menu>
         <paper-icon-item id="menu-settings" disabled>
@@ -82,10 +73,15 @@ Polymer({
         }
     },
 
-    clickCheckmark: function () {
+    saveAction: function () {
+        let url = this.fcommandUrl.trim();
+
+        if (url === "")
+            return;
+
         chrome.runtime.getBackgroundPage(bgScope => {
             // XXX:  this can fail, and we should alert the user somehow
-            bgScope.g_fcommandManager.fetchFcommandUrl(this.fcommandUrl)
+            bgScope.g_fcommandManager.fetchFcommandUrl(url)
               .then(() => {
                   // Clear the URL entry control
                   // XXX: should have some visual indication of success (like backround of control fades from green to default)
