@@ -87,9 +87,9 @@ removeAt(...indices)
 
 
 /**
- * Return an iterator over the errors (from oldest to newest).
+ * Iterate over the current list of errors (from oldest to newest).
  */
-getIterator()
+[Symbol.iterator]()
 {
     return this.errorCache[Symbol.iterator]();
 }
