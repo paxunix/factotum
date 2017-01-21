@@ -30,7 +30,7 @@ constructor(badgeSetFn)
  */
 _updateBadge()
 {
-    let numErrors = this.errorCache.length();
+    let numErrors = this.length();
 
     this.badgeSetFn(numErrors > 0 ? numErrors.toString() : "");
 }
