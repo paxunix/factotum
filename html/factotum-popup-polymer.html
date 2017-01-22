@@ -10,61 +10,70 @@
 <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 
 <dom-module id="factotum-popup">
-  <template>
-    <style is="custom-style">
-      paper-icon-item {
-        --paper-item-icon-width: 34px;
-        cursor: pointer;
-      }
 
-      paper-icon-item:hover {
-        background-color: #d8d8d8;
-      }
+<template>
+<style is="custom-style">
+  paper-icon-item {
+    --paper-item-icon-width: 34px;
+    cursor: pointer;
+  }
 
-      #loadUrl {
-        margin-top: 13px;
-      }
+  paper-icon-item:hover {
+    background-color: #d8d8d8;
+  }
 
-      #quick-add /deep/ input {
-        font-size: 13px;
-        min-width: 15em;
-        transition-property: min-width;
-        transition-duration: 0.2s;
-      }
+  #loadUrl {
+    margin-top: 13px;
+  }
 
-      #quick-add /deep/ input:focus {
-        min-width: 23em;
-      }
+  #quick-add /deep/ input {
+    font-size: 13px;
+    min-width: 15em;
+    transition-property: min-width;
+    transition-duration: 0.2s;
+  }
 
-    </style>
+  #quick-add /deep/ input:focus {
+    min-width: 23em;
+  }
 
-    <div id="list">
-      <paper-icon-item>
-        <!--
-        XXX: show and then fade out one of these icons when the Fcommand is saved successfully, or there is a problem.
-        <iron-icon class="error" icon="icons:error" item-icon></iron-icon>
-        <iron-icon class="success" icon="icons:check-circle" item-icon></iron-icon>
-        -->
-        <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}"></paper-input>
-        <paper-icon-button id="loadUrl" icon="save" on-click="saveAction"></paper-icon-button>
-      </paper-icon-item>
-      <paper-menu>
-        <paper-icon-item id="menu-settings" disabled>
-          <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
-          Settings
-        </paper-icon-item>
-        <paper-icon-item id="menu-errors" on-click="clickErrors">
-          <iron-icon icon="icons:error" item-icon></iron-icon>
-          Errors
-        </paper-icon-item>
-        <paper-icon-item id="menu-help" disabled>
-          <iron-icon icon="icons:help" item-icon></iron-icon>
-          Help
-        </paper-icon-item>
-      </paper-menu>
-    </div>
-  </template>
-</dom-module>
+  .error {
+    color: red;
+  }
+
+  .success {
+    color: green;
+  }
+
+</style>
+
+<div id="list">
+  <paper-icon-item>
+    <!--
+    XXX: show and then fade out one of these icons when the Fcommand is saved successfully, or there is a problem.
+    <iron-icon class="error" icon="icons:error" item-icon></iron-icon>
+    <iron-icon class="success" icon="icons:check-circle" item-icon></iron-icon>
+    -->
+    <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}"></paper-input>
+    <paper-icon-button id="loadUrl" icon="save" on-click="saveAction"></paper-icon-button>
+  </paper-icon-item>
+  <paper-menu>
+    <paper-icon-item id="menu-settings" disabled>
+      <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
+      Settings
+    </paper-icon-item>
+    <paper-icon-item id="menu-errors" on-click="clickErrors">
+      <iron-icon icon="icons:error" item-icon></iron-icon>
+      Errors
+    </paper-icon-item>
+    <paper-icon-item id="menu-help" disabled>
+      <iron-icon icon="icons:help" item-icon></iron-icon>
+      Help
+    </paper-icon-item>
+  </paper-menu>
+</div>
+</template>
+
 <script>
 "use strict";
 
@@ -121,3 +130,5 @@ Polymer({
     },
 });
 </script>
+
+</dom-module>
