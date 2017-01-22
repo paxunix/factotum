@@ -25,6 +25,7 @@
   "dependencies": {
   },
   "devDependencies": {
-    "paper-elements": "PolymerElements/paper-elements"
+    "paper-elements": "PolymerElements/paper-elements",
+    "iron-icons": "PolymerElements/iron-icons"
   }
 }
