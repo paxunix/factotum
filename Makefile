@@ -10,9 +10,12 @@ build: html webpack
 
 html: \
 	$(OUTDIR)/help.html \
-	$(OUTDIR)/popup.html
+	$(OUTDIR)/popup.html \
+	$(OUTDIR)/errors.html
 
 $(OUTDIR)/popup.html: html/factotum-popup-polymer.html
+
+$(OUTDIR)/errors.html: html/factotum-error-polymer.html
 
 $(OUTDIR)/%.html: html/%.html | webpack
 	mkdir -p $(dir $@)

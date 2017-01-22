@@ -9,6 +9,10 @@ import WrappErr from "wrapperr";
 /**
  * Wrap an ErrorCache to manage the browser UI changes as the number of
  * cached errors changes.
+ *
+ * Since the error list exists as a separate view, rather than hook up event
+ * listeners and firing events into that view if it exists, we just reload
+ * any error pages if they are open.
  */
 class FcommandErrors
 {
@@ -26,13 +30,68 @@ constructor(badgeSetFn)
 
 
 /**
- * Set the extension's badge to show the number of errors currently cached.
+ * Update UI elements representing the error list state.
  */
-_updateBadge()
+_update()
 {
     let numErrors = this.length();
 
-    this.badgeSetFn(numErrors > 0 ? numErrors.toString() : "");
+    // XXX: should badge show count of errors or count of known Fcommands or
+    // be configurable for either (or none)?
+    chrome.browserAction.setBadgeText({
+        text: numErrors > 0 ? numErrors.toString() : ""
+    });
+
+    // If there are any error page tabs open, reload them (they'll pick up
+    // information from this error manager automatically).
+    this._reloadErrorPages();
+}
+
+
+/**
+ * Open or switch to the errors page.
+ */
+_openErrorPage()
+{
+    let errorPageUrl = chrome.runtime.getURL("build/errors.html");
+
+    // If tab already exists, switch to it; otherwise open it
+    chrome.tabs.query({ url: errorPageUrl },
+        tabs => {
+            if (tabs.length === 0)
+            {
+                chrome.tabs.create({ url: errorPageUrl }, () => { });
+            }
+            else
+            {
+                // Focus the window with the tab, then activate the tab
+                chrome.windows.update(tabs[0].windowId, { focused: true, drawAttention: true },
+                    wnd => {
+                        chrome.tabs.update(tabs[0].id,
+                            { active: true }, () => {});
+                    }
+                );
+            }
+        }
+    );
+}
+
+
+/**
+ * Reload any open error pages.
+ */
+_reloadErrorPages()
+{
+    let errorPageUrl = chrome.runtime.getURL("build/errors.html");
+
+    chrome.tabs.query({ url: errorPageUrl },
+        tabs => {
+            for (let tab of tabs)
+            {
+                chrome.tabs.reload(tab.id);
+            }
+        }
+    );
 }
 
 
@@ -53,7 +112,7 @@ save(...errors)
     }
 
     this.errorCache.push(err);
-    this._updateBadge();
+    this._update();
 }
 
 
@@ -63,7 +122,7 @@ save(...errors)
 clear()
 {
     this.errorCache.clear();
-    this._updateBadge();
+    this._update();
 }
 
 
@@ -82,7 +141,7 @@ length()
 removeAt(...indices)
 {
     this.errorCache.removeAt(...indices);
-    this._updateBadge();
+    this._update();
 }
 
 

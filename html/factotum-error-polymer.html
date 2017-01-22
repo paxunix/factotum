@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+
+<head>
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+  <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+  <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+  <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+  <link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
+  <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+</head>
+
+<dom-module id="factotum-error">
+
+<style is="custom-style" include="iron-flex iron-flex-alignment iron-positioning">
+#errorList {
+    width: 100%;
+}
+
+.errorRow:nth-child(odd) {
+    background-color: #e9f5f0;
+}
+</style>
+
+<template>
+  <div class="fit">
+    <paper-header-panel mode="standard">
+      <paper-toolbar>
+        <div class="title">Factotum Errors</div>
+        <paper-icon-button id="deleteErrors" icon="icons:delete" on-click="deleteAction"></paper-icon-button>
+      </paper-toolbar>
+
+      <table id="errorList">
+        <template is="dom-repeat" items="[[errorList]]">
+          <tr class="errorRow">
+            <td>
+              <pre>[[item.stack]]</pre>
+            </td>
+          </tr>
+        </template>
+      </table>
+
+    </paper-header-panel>
+  </div>
+</template>
+
+<script>
+"use strict";
+
+Polymer({
+    is: "factotum-error",
+
+
+    properties: {
+        errorList: {
+            type: Array,
+            value: [],
+        },
+        deleteActionEnabled: {
+            type: Boolean,
+            observer: "_deleteActionEnabled",
+        },
+    },
+
+
+    _deleteActionEnabled: function (newValue, oldValue) {
+        this.$.deleteErrors.disabled = !newValue;
+    },
+
+
+    ready: function () {
+        chrome.runtime.getBackgroundPage(bgScope => {
+            let errorManager = bgScope.g_fcommandManager.getErrorManager();
+            this.deleteActionEnabled = errorManager.length() != 0;
+
+            for (let err of errorManager)
+            {
+                this.push("errorList", err);
+            }
+        });
+    },
+
+
+    deleteAction: function () {
+        chrome.runtime.getBackgroundPage(bgScope => {
+            let errorManager = bgScope.g_fcommandManager.getErrorManager();
+
+            errorManager.clear();
+        });
+    },
+});
+
+</script>
+
+</dom-module>

@@ -5,7 +5,7 @@ import FcommandManager from "./FcommandManager.js";
 import Util from "./Util.js";
 import FcommandErrors from "./FcommandErrors.js";
 
-window.g_fcommandManager = new FcommandManager(new FcommandErrors(value => chrome.browserAction.setBadgeText({text: value.toString() })));
+window.g_fcommandManager = new FcommandManager(new FcommandErrors());
 
 // Register Omnibox listeners.
 
