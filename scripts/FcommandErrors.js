@@ -97,7 +97,7 @@ _reloadErrorPages()
 
 /**
  * Saves the given errors and adjusts the extension badge (error count).
- * If a single non-Error object is given, it is convertd into an Error object.
+ * If a single non-Error object is given, it is converted into an Error object.
  * If multiple arguments are given, they will be wrapped by subsequent
  * errors.
  */
