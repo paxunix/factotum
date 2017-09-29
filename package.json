@@ -11,7 +11,7 @@
   "devDependencies": {
     "bower": "^1.x",
     "crisper": "^2.x",
-    "dexie": "^1.x",
+    "dexie": "^2.x",
     "jasmine": "^2.x",
     "vulcanize": "^1.x",
     "webpack": "^3.6.0"
