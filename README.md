@@ -60,14 +60,6 @@ who gave you a free gun full of free bullets.**
   Depending on your changes, you may need to reload pages that now have an
   old version of the content and injected scripts.
 
-  * You can run `make watch` to have webpack watch for changes in .js files
-    and rebuild them each time they're changed.
-
-    * Stop watching by running `make clean`
-
-  * If you modify `html/help.html`, you need to re-run `make`, since webpack
-    doesn't care about the html files.
-
 * Take a look at `example/load-jquery.html` to see what goes into writing an
   Fcommand.
 

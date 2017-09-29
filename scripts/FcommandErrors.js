@@ -53,7 +53,7 @@ _update()
  */
 _openErrorPage()
 {
-    let errorPageUrl = chrome.runtime.getURL("build/errors.html");
+    let errorPageUrl = chrome.runtime.getURL("errors.html");
 
     // If tab already exists, switch to it; otherwise open it
     chrome.tabs.query({ url: errorPageUrl },
@@ -82,7 +82,7 @@ _openErrorPage()
  */
 _reloadErrorPages()
 {
-    let errorPageUrl = chrome.runtime.getURL("build/errors.html");
+    let errorPageUrl = chrome.runtime.getURL("errors.html");
 
     chrome.tabs.query({ url: errorPageUrl },
         tabs => {

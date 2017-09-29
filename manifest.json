@@ -27,14 +27,12 @@
         // content script will get the request from the bg page?
         // "all_frames": true,
         "js": [
-            "build/content.bundle.js"
+            "content.bundle.js"
         ]
     }],
 
     "background": {
-        "scripts": [
-            "build/background.bundle.js"
-        ]
+        "scripts": [ "background.bundle.js" ]
     },
 
     // Yes, ask for all permissions possible.  This extension exists to
@@ -101,7 +99,7 @@
     "browser_action": {
         "default_icon": "icons/factotum-128.png",
         "default_title": "Factotum",
-        "default_popup": "build/popup.html"
+        "default_popup": "popup.html"
     },
 
     // "minimum_chrome_version": XXX,
@@ -109,6 +107,6 @@
     "offline_enabled": false,
 
     "web_accessible_resources": [
-        "build/inject.bundle.js"
+        "inject.bundle.js"
     ]
 }
