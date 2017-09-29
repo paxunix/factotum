@@ -1,3 +1,58 @@
+- migrate to using polymer-cli instead of vulcanize+crisper
+
+- to check whether onFailure or onSuccess were called:
+    - instead define two functions available to all Fcommands and bgcode:
+        getOnSuccessFn() and getOnFailureFn()
+    - if, when the Fcommand has finished executing, neither of those have
+      been called, then call onFailure() for them (regardless of anything,
+      since they broke contract).
+    - callers then have to invoke the return value from either of those
+      functions in order to finalize an Fcommand execution promise (if they
+      don't, it's immediately rejected).
+    - this doesn't prevent people from doing:
+         new Promise((res, rej) => {
+            doSomething();
+            getOnSuccessFn()();
+         }
+      but we at least immediately reject the Fcommand promise
+      - could we somehow only allow getOnSuccessFn() to be called only from
+        within the Fcommand's direct scope?
+    - could we just make Fcommands be promises and the return value from
+      your Fcommand is immediately waited on?  And if it succeeds, then our
+      resolve() (i.e. onSuccess) is called, otherwise we reject?
+
+- need a linter for Fcommands that detects issues
+    - bgCode and regular code but context is "bg" (so only bg code will run)
+
+- need a way to detect on extension reload that the pages need to be
+  reloaded so the Factotum connection can be re-established.
+    (I think that's why Fcommands don't work on pages that were loaded from
+    before the reload).
+        - alternatively, figure out a way to make it work (might be tough if
+          the injected code is no longer compatible with the extension
+          code).
+
+- look into bluebird's coroutine, or using generators to yield promises and
+  using that to abstract multiple async actions into one function that looks
+  synchronous
+    - just pull in bluebird
+
+- help page
+    - allow string substitution in the help content
+      - {{keywordList}} expands to comma-separated list of keywords
+      - {{keyword}} expands to first keyword
+      - {{title}} expands to Fcommand's title
+
+- factotum URL entry
+    - should it clear on failure?
+    - should there be some other UI indication of failure instead of just
+      logging the error?
+
+- errors page
+    - needs a way to enter how many errors should be kept in the buffer
+    - needs to show a timestamp of when the error occurred
+    - would like better stacktraces
+
 - consider an fcommand: protocol handler that lets a user specify an
   Fcommand and parameters
         fcommand:loadjq --version 1.2.6 --min
@@ -14,6 +69,11 @@
         fcommand:loadjq --version ${window.prompt("JQ version:", "1.2.6")} --min
     - it's already able to run arbitrary javascript--there is no need for
       anything beyond the protocol handler and running it
+    - this might not be possible--I don't know if chrome is continuing to
+      support arbitrary protocol handlers.  If not, then we need a mechanism
+      that can invoke an Fcommand from some javascript in a page.  This is a
+      security nightmare because then any page could run any Fcommand
+      without the user even knowing.
 
 - since the context menu integration doesn't actually care about the page's
   document, it's not as useful as you would expect
@@ -52,7 +112,9 @@
 
 - investigate how to catch and surface errors when an Fcommand does
   something forbidden by the active page's CSP.
-    - should provide mechanism to override CSP by intercepting requests?
+    - should provide mechanism to override CSP by intercepting requests?  I
+      think this is going to be necessary, or some Fcommands just won't work
+      on some pages because of their CSP.
 
 - record all errors passed back to bg from Fcommands and present them from a
   menu option
@@ -106,3 +168,6 @@
       user happened to be on an internal page
     - Ubiquity used to be invoked this way (Ctrl-Space)
 
+- should Fcommands have an associated domain match on which they are
+  available, and are otherwise suppressed?  It would be nice to have the
+  context menu for an Fcommand to only show on a page on which it's useful
