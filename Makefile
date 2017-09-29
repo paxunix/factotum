@@ -7,6 +7,7 @@ PACKAGE_NAME := factotum
 
 .PHONY: all
 all: bundle xform-html flat-copy non-flat-copy
+	ln -sf -t $(OUTDIR) ../bower_components
 
 .PHONY: bundle
 bundle: \
