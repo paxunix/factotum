@@ -70,3 +70,7 @@ update:
 setup:
 	npm install
 	./node_modules/bower/bin/bower install
+
+.PHONY: testserver
+testserver:
+	-python -m SimpleHTTPServer
