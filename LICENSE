@@ -2,9 +2,6 @@ A subset of Google's Material Design notification icons (./icons/md) is used
 as per https://github.com/google/material-design-icons/blob/master/LICENSE,
 but have been scaled up and saved as PNG to appear better in notifications.
 
-The NodeJS semantic version parser is used per
-https://github.com/npm/node-semver/blob/master/LICENSE.
-
 Dexie.js is used per
 https://github.com/dfahlander/Dexie.js/blob/master/LICENSE.
 

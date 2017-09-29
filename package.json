@@ -15,7 +15,6 @@
     "crisper": "^2.x",
     "dexie": "^1.x",
     "jasmine": "^2.x",
-    "semver": "^5.x",
     "vulcanize": "^1.x",
     "webpack": "^1.x",
   },

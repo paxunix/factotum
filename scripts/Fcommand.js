@@ -1,7 +1,6 @@
 "use strict";
 
 import GetOpt from "./GetOpt.js";
-import semver from "semver";
 import TransferObject from "./TransferObject.js";
 import Util from "./Util.js";
 import WrappErr from "./wrapperr-esm.js";
@@ -185,8 +184,8 @@ static _getDataValidator()
         },
         title: getNullChecker("title"),
         version: function (value) {
-            if (semver.valid(value) === null)
-                throw new Error(`Fcommand field 'version'='${value}' is not semver-compliant`);
+            if (!value)
+                throw new Error(`Fcommand field 'version'='${value}' is not a valid version string`);
         },
     };
 }   // Fcommand._getDataValidator

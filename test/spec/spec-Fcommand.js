@@ -124,7 +124,7 @@ describe("_validateData", function() {
             expect(e).toMatch(/Fcommand field 'guid' is required/);
             expect(e).toMatch(/Fcommand field 'keywords' must have at least one keyword/);
             expect(e).toMatch(/Fcommand field 'title' is required/);
-            expect(e).toMatch(/Fcommand field 'version'='null' is not semver-compliant/);
+            expect(e).toMatch(/Fcommand field 'version'='null' is not a valid version string/);
         }
     });
 }); // _validateData
@@ -359,7 +359,7 @@ describe("constructor", function() {
             expect(e).toMatch(/Fcommand field 'guid' is required/);
             expect(e).toMatch(/Fcommand field 'keywords' must have at least one keyword/);
             expect(e).toMatch(/Fcommand field 'title' is required/);
-            expect(e).toMatch(/Fcommand field 'version'='null' is not semver-compliant/);
+            expect(e).toMatch(/Fcommand field 'version'='null' is not a valid version string/);
         }
     });
 
