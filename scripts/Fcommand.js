@@ -4,7 +4,7 @@ import GetOpt from "./GetOpt.js";
 import semver from "semver";
 import TransferObject from "./TransferObject.js";
 import Util from "./Util.js";
-import WrappErr from "wrapperr";
+import WrappErr from "./wrapperr-esm.js";
 
 
 class Fcommand

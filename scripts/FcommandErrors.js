@@ -1,7 +1,7 @@
 "use strict";
 
 import ErrorCache from "./ErrorCache.js";
-import WrappErr from "wrapperr";
+import WrappErr from "./wrapperr-esm.js";
 
 
 // XXX: test all of me

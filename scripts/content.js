@@ -1,7 +1,7 @@
 "use strict";
 
 import ContentScript from "./ContentScript.js";
-import WrappErr from "wrapperr";
+import WrappErr from "./wrapperr-esm.js";
 
 
 /**

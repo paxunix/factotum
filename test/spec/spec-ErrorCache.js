@@ -1,7 +1,7 @@
 "use strict";
 
 import ErrorCache from "../../scripts/ErrorCache.js";
-import WrappErr from "wrapperr"
+import WrappErr from "../../scripts/wrapperr-esm.js";
 
 
 describe("ErrorCache", function () {
