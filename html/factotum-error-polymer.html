@@ -5,42 +5,43 @@
   <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
   <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
   <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-  <link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
-  <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+  <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+  <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+  <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 </head>
 
 <dom-module id="factotum-error">
 
-<style is="custom-style" include="iron-flex iron-flex-alignment iron-positioning">
-#errorList {
-    width: 100%;
-}
-
-.errorRow:nth-child(odd) {
-    background-color: #e9f5f0;
-}
-</style>
-
 <template>
-  <div class="fit">
-    <paper-header-panel mode="standard">
-      <paper-toolbar>
-        <div class="title">Factotum Errors</div>
+  <style is="custom-style" include="iron-flex iron-flex-alignment iron-positioning">
+  #errorList {
+      width: 100%;
+  }
+
+  .errorRow:nth-child(odd) {
+      background-color: #e9f5f0;
+  }
+  </style>
+
+  <app-header-layout fullbleed>
+    <app-header slot="header" fixed>
+      <app-toolbar>
+        <div main-title>Factotum Errors</div>
         <paper-icon-button id="deleteErrors" icon="icons:delete" on-click="deleteAction"></paper-icon-button>
-      </paper-toolbar>
+      </app-toolbar>
+    </app-header>
 
-      <table id="errorList">
-        <template is="dom-repeat" items="[[errorList]]">
-          <tr class="errorRow">
-            <td>
-              <pre>[[item.stack]]</pre>
-            </td>
-          </tr>
-        </template>
-      </table>
+    <table id="errorList">
+      <template is="dom-repeat" items="[[errorList]]">
+        <tr class="errorRow">
+          <td>
+            <pre>[[item.stack]]</pre>
+          </td>
+        </tr>
+      </template>
+    </table>
 
-    </paper-header-panel>
-  </div>
+  </app-header-layout>
 </template>
 
 <script>

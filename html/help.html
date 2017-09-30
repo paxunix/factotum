@@ -2,8 +2,9 @@
 
 <head>
   <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-  <link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
-  <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+  <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+  <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+  <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 
   <style is="custom-style" include="iron-flex iron-positioning"></style>
   <style is="custom-style">
@@ -15,13 +16,15 @@
 </head>
 
 <body class="fullbleed layout vertical">
-  <paper-header-panel mode="standard">
-    <paper-toolbar>
-      <div class="title">Factotum Command Help: <span id="fcommandName"></span></div>
-    </paper-toolbar>
+  <app-header-layout>
+    <app-header slot="header" fixed>
+      <app-toolbar>
+        <div class="title">Factotum Command Help: <span id="fcommandName"></span></div>
+      </app-toolbar>
+    </app-header>
     <div id="help-content" class="fit">
     </div>
-  </paper-header-panel>
+  </app-header-layout>
 
   <script>
     // Put help markup for this Fcommand into the dialog
