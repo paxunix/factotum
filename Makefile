@@ -1,9 +1,9 @@
+PACKAGE_NAME := factotum
 MAKEFLAGS := -j --output-sync
 SHELL := /bin/zsh
 .SHELLFLAGS := -f -c
 OUTDIR := build
-
-PACKAGE_NAME := factotum
+XFORM_HTML_ROOTNAMES := $(patsubst html/factotum-%-polymer.html,%,$(wildcard html/factotum-*-polymer.html))
 
 .PHONY: all
 all: bundle xform-html flat-copy non-flat-copy
@@ -17,10 +17,7 @@ bundle: \
 
 .PHONY: xform-html
 xform-html: \
-        $(OUTDIR)/help.html \
-        $(OUTDIR)/popup.html \
-        $(OUTDIR)/errors.html \
-        $(OUTDIR)/fcommands.html
+        $(addsuffix .html,$(addprefix $(OUTDIR)/,$(XFORM_HTML_ROOTNAMES)))
 	mkdir -p $(OUTDIR)
 
 .PHONY: flat-copy
@@ -37,13 +34,7 @@ non-flat-copy: \
 	mkdir -p $(OUTDIR)
 	rsync -Rav $^ $(OUTDIR)/
 
-$(OUTDIR)/pagespopup.html: html/factotum-popup-polymer.html
-
-$(OUTDIR)/errors.html: html/factotum-error-polymer.html
-
-$(OUTDIR)/fcommands.html: html/factotum-fcommands-polymer.html
-
-$(OUTDIR)/%.html: html/%.html
+$(OUTDIR)/%.html: html/%.html html/factotum-%-polymer.html
 	mkdir -p $(dir $@)
 	setopt pipefail; ./node_modules/vulcanize/bin/vulcanize $< | \
         ./node_modules/crisper/bin/crisper --html $@.tmp --js $(basename $@).js
