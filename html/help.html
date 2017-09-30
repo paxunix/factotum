@@ -1,55 +1,5 @@
 <!DOCTYPE html>
 
-<head>
-  <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-  <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
-  <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
-  <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="factotum-help-polymer.html">
 
-  <style is="custom-style" include="iron-flex iron-positioning"></style>
-  <style is="custom-style">
-    #help-content {
-      padding-left: 72px;  /* XXX: can be determined dynamically based on toolbar padding? */
-      padding-right: 72px;
-    }
-  </style>
-</head>
-
-<body class="fullbleed layout vertical">
-  <app-header-layout>
-    <app-header slot="header" fixed>
-      <app-toolbar>
-        <div class="title">Factotum Command Help: <span id="fcommandName"></span></div>
-      </app-toolbar>
-    </app-header>
-    <div id="help-content" class="fit">
-    </div>
-  </app-header-layout>
-
-  <script>
-    // Put help markup for this Fcommand into the dialog
-    chrome.runtime.getBackgroundPage(function (bgScope) {
-      // Extract Fcommand guid from "?guid=abcd" query string and use it to
-      // get the help markup for the Fcommand.
-      var guid = document.location.search.substr(6);
-
-      p_getFcommand = bgScope.g_fcommandManager.getByGuid(guid);
-      p_getFcommand.then(fcommand => {
-            document.querySelector("#help-content").innerHTML =
-                fcommand.extractedData.helpMarkup;
-
-            // XXX: it would be handy to use the same keyword that
-            // activated the help, rather than always using the first
-            // keyword for the Fcommand
-            let title = `Factotum Command Help: ${fcommand.extractedData.keywords[0]}`;
-            document.title = title;
-            document.querySelector("#fcommandName").innerText =
-                fcommand.extractedData.keywords[0];
-          }).catch(error => {
-              p_getFcommand.then(fcommand => {
-                bgScope.g_fcommandManager.getErrorManager().save(error, `Failed help display for '${fcommand.extractedData.title}'`);
-              });
-          });
-    });
-  </script>
-</body>
+<factotum-help></factotum-help>
