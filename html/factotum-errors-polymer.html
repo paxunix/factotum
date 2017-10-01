@@ -43,28 +43,39 @@
 <script>
 "use strict";
 
-Polymer({
-    is: "factotum-error",
+class ErrorsElement extends Polymer.Element
+{
+    static get is()
+    {
+        return "factotum-error";
+    }
 
 
-    properties: {
-        errorList: {
-            type: Array,
-            value: [],
-        },
-        deleteActionEnabled: {
-            type: Boolean,
-            observer: "_deleteActionEnabled",
-        },
-    },
+    static get properties()
+    {
+        return {
+            errorList: {
+                type: Array,
+                value: () => [],
+            },
+            deleteActionEnabled: {
+                type: Boolean,
+                observer: "_deleteActionEnabled",
+            }
+        };
+    }
 
 
-    _deleteActionEnabled: function (newValue, oldValue) {
+    _deleteActionEnabled(newValue, oldValue)
+    {
         this.$.deleteErrors.disabled = !newValue;
-    },
+    }
 
 
-    ready: function () {
+    ready()
+    {
+        super.ready();
+
         chrome.runtime.getBackgroundPage(bgScope => {
             let errorManager = bgScope.g_fcommandManager.getErrorManager();
             this.deleteActionEnabled = errorManager.length() != 0;
@@ -74,18 +85,20 @@ Polymer({
                 this.push("errorList", err);
             }
         });
-    },
+    }
 
 
-    deleteAction: function () {
+    deleteAction()
+    {
         chrome.runtime.getBackgroundPage(bgScope => {
             let errorManager = bgScope.g_fcommandManager.getErrorManager();
 
             errorManager.clear();
         });
-    },
-});
+    }
+}
 
+customElements.define(ErrorsElement.is, ErrorsElement);
 </script>
 
 </dom-module>
