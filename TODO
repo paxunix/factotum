@@ -1,3 +1,7 @@
+- how to reconnect the injected script to the extension after an extension
+  reload?  Currently, if the extension is reloaded, it is dead in all
+  existing tabs.
+
 - migrate to using polymer-cli instead of vulcanize+crisper
 
 - to check whether onFailure or onSuccess were called:
@@ -6,6 +10,7 @@
     - if, when the Fcommand has finished executing, neither of those have
       been called, then call onFailure() for them (regardless of anything,
       since they broke contract).
+        - what if they are called in the future from setTimeout?
     - callers then have to invoke the return value from either of those
       functions in order to finalize an Fcommand execution promise (if they
       don't, it's immediately rejected).
