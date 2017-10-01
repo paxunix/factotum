@@ -300,7 +300,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
 static responseHandler(response) {
     if (chrome.runtime.lastError)
     {
-        g_fcommandManager.getErrorManager().save(`Internal error: ${chrome.runtime.lastError}`);
+        g_fcommandManager.getErrorManager().save(`Internal error: ${chrome.runtime.lastError.message}`);
         return;
     }
 

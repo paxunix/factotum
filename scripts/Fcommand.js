@@ -472,7 +472,7 @@ createContextMenu(parentMenuId)
             }, function () {
                 if (chrome.runtime.lastError)
                 {
-                    reject(new Error(`Failed to create context menu for ${self.extractedData.title}: ${chrome.runtime.lastError}`));
+                    reject(new Error(`Failed to create context menu for ${self.extractedData.title}: ${chrome.runtime.lastError.message}`));
                     return;
                 }
 

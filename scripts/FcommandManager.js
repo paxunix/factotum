@@ -4,6 +4,7 @@ import Dexie from "../node_modules/dexie/dist/dexie.es.js";
 import Fcommand from "./Fcommand.js";
 import Util from "./Util.js";
 
+
 // XXX: test all of me
 
 class FcommandManager
@@ -249,7 +250,7 @@ createMainContextMenu()
         }, () => {
             if (chrome.runtime.lastError)
             {
-                reject(new Error(`Failed creating parent context menu item: ${chrome.runtime.lastError}`));
+                reject(new Error(`Failed creating parent context menu item: ${chrome.runtime.lastError.message}`));
 
                 return;
             }
