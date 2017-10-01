@@ -2,24 +2,20 @@
 
 <head>
   <link rel="import" href="../bower_components/polymer/polymer.html">
-  <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
   <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
   <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
   <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
   <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+  <link rel="import" href="factotum-shared-styles.html">
 </head>
 
 <dom-module id="factotum-error">
 
 <template>
-  <style include="iron-flex iron-flex-alignment iron-positioning">
+  <style include="factotum-shared-styles">
   #errorList {
       width: 100%;
-  }
-
-  .errorRow:nth-child(odd) {
-      background-color: #e9f5f0;
   }
   </style>
 
@@ -33,7 +29,7 @@
 
     <table id="errorList">
       <template is="dom-repeat" items="[[errorList]]">
-        <tr class="errorRow">
+        <tr class="stripeRow">
           <td>
             <pre>[[item.stack]]</pre>
           </td>
