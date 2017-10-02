@@ -307,8 +307,9 @@ static responseHandler(response) {
     {
         // XXX: should show guid and Fcommand description or something
         // (maybe the cmdline).  Would have to include that in the
-        // transferobject.
-        g_fcommandManager.getErrorManager().save(`Error from Fcommand: ${transferObj.get("_bg.errorMessage")}`);
+        // transferobject.  Otherwise  you can't clearly know which Fcommand
+        // returned the error.
+        g_fcommandManager.getErrorManager().save(transferObj.get("_bg.errorMessage"));
         return;
     }
 
