@@ -271,27 +271,25 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
             return fcommands[0];
         });
 
-    let p_fcommandHelp = p_gotFcommand.then(fcommand => {
-            if (internalOptions.help)
-            {
-                return fcommand.popupHelpWindow();
-            }
+    p_gotFcommand.then(fcommand => {
+        if (internalOptions.help)
+        {
+            return fcommand.popupHelpWindow();
+        }
 
-            return fcommand;
-        });
+        // Not requesting help, so execute command
+        transferObj.setCommandLine(
+            GetOpt.getOptions(fcommand.extractedData.optspec,
+                internalOptions._)
+        );
 
-    let p_runFcommand = p_fcommandHelp.then(fcommand => {
-            transferObj.setCommandLine(
-                GetOpt.getOptions(fcommand.extractedData.optspec,
-                    internalOptions._)
-            );
-
-            return fcommand.execute(transferObj);
-        }).catch(error => {
-            return p_gotFcommand.then(fcommand => {
-                g_fcommandManager.getErrorManager().save(error, `Failed to execute Fcommand '${fcommand.extractedData.title}'`);
+        return fcommand.execute(transferObj)
+            .catch(error => {
+                throw new Error(`Failed to execute Fcommand '${fcommand.extractedData.title}`);
             });
-        });
+    }).catch(error => {
+        g_fcommandManager.getErrorManager().save(error);
+    });
     // XXX: this really needs to be rewritten to be testable
 };  // FactotumBg.onOmniboxInputEntered
 
