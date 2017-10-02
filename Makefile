@@ -20,15 +20,15 @@ xform-html: \
         $(addsuffix .html,$(addprefix $(OUTDIR)/,$(XFORM_HTML_ROOTNAMES)))
 	mkdir -p $(OUTDIR)
 
-.PHONY: flat-copy
-flat-copy: \
+.PHONY: non-flat-copy
+non-flat-copy: \
+        icons \
         manifest.json
 	mkdir -p $(OUTDIR)
 	rsync -av $^ $(OUTDIR)/
 
-.PHONY: non-flat-copy
-non-flat-copy: \
-        icons/*.png \
+.PHONY: flat-copy
+flat-copy: \
         _locales/*/* \
         example/*
 	mkdir -p $(OUTDIR)
