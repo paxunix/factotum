@@ -39,6 +39,7 @@
     // allow the user to do anything, so it has to have permission to do
     // anything.
     "permissions": [
+        "<all_urls>",
         "activeTab",
         "alarms",
         "bookmarks",
