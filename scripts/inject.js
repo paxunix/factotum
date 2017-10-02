@@ -98,8 +98,5 @@ Factotum.runCommand = function (fcommandFunc)
         transferObj.set("_bg.errorMessage",
             (error instanceof Error) ?  error.stack : error);
         postMessage(transferObj, "*");
-
-        if (error instanceof Error)
-            throw error;
     });
 }   // Factotum.runCommand
