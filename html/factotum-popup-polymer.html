@@ -57,6 +57,10 @@
     <paper-icon-button id="loadUrl" icon="save" on-click="saveAction"></paper-icon-button>
   </paper-icon-item>
   <paper-listbox>
+    <paper-icon-item id="menu-fcommands" on-click="clickFcommands">
+      <iron-icon icon="icons:apps" item-icon></iron-icon>
+      Fcommands
+    </paper-icon-item>
     <paper-icon-item id="menu-settings" disabled>
       <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
       Settings
@@ -104,6 +108,14 @@ Polymer({
               });
         })
     },
+
+
+    clickFcommands: function () {
+        chrome.runtime.getBackgroundPage(bgScope => {
+            bgScope.g_fcommandManager.openFcommandsPage();
+        });
+    },
+
 
     clickErrors: function () {
         chrome.runtime.getBackgroundPage(bgScope => {

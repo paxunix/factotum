@@ -266,6 +266,17 @@ createMainContextMenu()
 }   // createMainContextMenu
 
 
+/**
+ * Open the Fcommand management page.
+ */
+openFcommandsPage()
+{
+    let fcommandsPageUrl = chrome.runtime.getURL("fcommands.html");
+
+    Util.openUrlTab(fcommandsPageUrl);
+}   // openFcommandsPage
+
+
 }   // class FcommandManager
 
 
