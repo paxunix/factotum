@@ -41,6 +41,50 @@ static getCurrentTab()
 }   // Util.getCurrentTab
 
 
+/**
+ * Return a promise that resolves to an existing tab for a URL (making it
+ * the current active window+tab), or opens a new tab for it in the current
+ * window.
+ * @return {Promise} - Promise resolved with Tab (@see chrome.runtime.tabs)
+ */
+static openUrlTab(url)
+{
+    return new Promise((resolve, reject) => {
+        chrome.tabs.query({ url: url }, tabs => {
+            if (chrome.runtime.lastError)
+                reject(chrome.runtime.lastError.message);
+
+            if (tabs.length === 0)
+            {
+                chrome.tabs.create({ url: url }, tab => {
+                    if (chrome.runtime.lastError)
+                        reject(chrome.runtime.lastError.message);
+
+                    resolve(tab);
+                });
+            }
+            else
+            {
+                chrome.windows.update(tabs[0].windowId,
+                    { focused: true, drawAttention: true },
+                    wnd => {
+                        if (chrome.runtime.lastError)
+                            reject(chrome.runtime.lastError.message);
+
+                        chrome.tabs.update(tabs[0].id,
+                            { active: true }, tab => {
+                                if (chrome.runtime.lastError)
+                                    reject(chrome.runtime.lastError.message);
+
+                                resolve(tab);
+                            });
+                    });
+            }
+        });
+    });
+}   // Util.openUrlTab
+
+
 }   // class Util
 
 

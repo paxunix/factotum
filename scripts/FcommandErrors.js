@@ -2,6 +2,7 @@
 
 import ErrorCache from "./ErrorCache.js";
 import WrappErr from "./wrapperr-esm.js";
+import Util from "./Util.js";
 
 
 // XXX: test all of me
@@ -55,25 +56,7 @@ _openErrorPage()
 {
     let errorPageUrl = chrome.runtime.getURL("errors.html");
 
-    // If tab already exists, switch to it; otherwise open it
-    chrome.tabs.query({ url: errorPageUrl },
-        tabs => {
-            if (tabs.length === 0)
-            {
-                chrome.tabs.create({ url: errorPageUrl }, () => { });
-            }
-            else
-            {
-                // Focus the window with the tab, then activate the tab
-                chrome.windows.update(tabs[0].windowId, { focused: true, drawAttention: true },
-                    wnd => {
-                        chrome.tabs.update(tabs[0].id,
-                            { active: true }, () => {});
-                    }
-                );
-            }
-        }
-    );
+    Util.openUrlTab(errorPageUrl);
 }
 
 
