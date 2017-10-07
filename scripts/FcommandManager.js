@@ -221,6 +221,9 @@ removeContextMenus()
 {
     return new Promise(function (resolve, reject) {
         chrome.contextMenus.removeAll(function() {
+            if (chrome.runtime.lastError)
+                reject(chrome.runtime.lastError.message);
+
             resolve();
         });
     });

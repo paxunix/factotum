@@ -35,6 +35,9 @@ static getCurrentTab()
 {
     return new Promise(function (resolve, reject) {
         chrome.tabs.query({ active: true }, function (tabs) {
+            if (chrome.runtime.lastError)
+                reject(chrome.runtime.lastError.message);
+
             resolve(tabs[0]);
         });
     });
