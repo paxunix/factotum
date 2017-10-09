@@ -46,51 +46,59 @@
 
 </style>
 
-<div id="list">
-  <paper-icon-item>
-    <!--
-    XXX: show and then fade out one of these icons when the Fcommand is saved successfully, or there is a problem.
-    <iron-icon class="error" icon="icons:error" item-icon></iron-icon>
-    <iron-icon class="success" icon="icons:check-circle" item-icon></iron-icon>
-    -->
-    <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}"></paper-input>
-    <paper-icon-button id="loadUrl" icon="save" on-click="saveAction"></paper-icon-button>
-  </paper-icon-item>
-  <paper-listbox>
+<div id="menu">
+    <paper-icon-item>
+      <!--
+      XXX: show and then fade out one of these icons when the Fcommand is saved successfully, or there is a problem.
+      <iron-icon class="error" icon="icons:error" item-icon></iron-icon>
+      <iron-icon class="success" icon="icons:check-circle" item-icon></iron-icon>
+      -->
+      <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}"></paper-input>
+      <paper-icon-button id="loadUrl" icon="save" on-click="saveAction"></paper-icon-button>
+    </paper-icon-item>
     <paper-icon-item id="menu-fcommands" on-click="clickFcommands">
-      <iron-icon icon="icons:apps" item-icon></iron-icon>
+      <iron-icon icon="apps" slot="item-icon"></iron-icon>
       Fcommands
     </paper-icon-item>
     <paper-icon-item id="menu-settings" disabled>
-      <iron-icon icon="icons:settings-applications" item-icon></iron-icon>
+      <iron-icon icon="settings-applications" slot="item-icon"></iron-icon>
       Settings
     </paper-icon-item>
     <paper-icon-item id="menu-errors" on-click="clickErrors">
-      <iron-icon icon="icons:error" item-icon></iron-icon>
+      <iron-icon icon="error" slot="item-icon"></iron-icon>
       Errors
     </paper-icon-item>
     <paper-icon-item id="menu-help" disabled>
-      <iron-icon icon="icons:help" item-icon></iron-icon>
+      <iron-icon icon="help" slot="item-icon"></iron-icon>
       Help
     </paper-icon-item>
-  </paper-listbox>
 </div>
 </template>
 
 <script>
 "use strict";
 
-Polymer({
-    is: "factotum-popup",
+class PopupElement extends Polymer.Element
+{
+    static get is()
+    {
+        return "factotum-popup";
+    }
 
-    properties: {
-        fcommandUrl: {
-            type: String,
-            value: "",
-        }
-    },
 
-    saveAction: function () {
+    static get properties()
+    {
+        return {
+            fcommandUrl: {
+                type: String,
+                value: "",
+            }
+        };
+    }
+
+
+    saveAction()
+    {
         let url = this.fcommandUrl.trim();
 
         if (url === "")
@@ -107,22 +115,32 @@ Polymer({
                   // XXX: should have some visual indication of failure (like backround of control fades from red to default)
               });
         })
-    },
+    }
 
 
-    clickFcommands: function () {
+    clickFcommands()
+    {
         chrome.runtime.getBackgroundPage(bgScope => {
             bgScope.g_fcommandManager.openFcommandsPage();
         });
-    },
+    }
 
 
-    clickErrors: function () {
+    clickErrors()
+    {
         chrome.runtime.getBackgroundPage(bgScope => {
             bgScope.g_fcommandManager.getErrorManager()._openErrorPage();
         });
-    },
-});
+    }
+
+
+    ready()
+    {
+        super.ready();
+    }
+}
+
+customElements.define(PopupElement.is, PopupElement);
 </script>
 
 </dom-module>
