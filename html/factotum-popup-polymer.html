@@ -13,35 +13,30 @@
 <dom-module id="factotum-popup">
 
 <template>
-<style>
-  #menu {
-    min-width: 25em;
-  }
 
+<style include="factotum-shared-styles">
   paper-icon-item {
     cursor: pointer;
   }
 
   paper-icon-item:hover {
-    background-color: #d8d8d8;
+    background: var(--light-secondary-color);
   }
 
-  /*
+  #quick-add {
+    --paper-input-container-input-color: var(--secondary-text-color);
+    width: 12em;
+    transition-property: width;
+    transition-duration: 0.3s;
+  }
+
+  #quick-add[focused] {
+      width: 40em;
+  }
+
   #loadUrl {
-    margin-top: 13px;
+      margin-top: 2ex;
   }
-
-  #quick-add input {
-    font-size: 13px;
-    min-width: 15em;
-    transition-property: min-width;
-    transition-duration: 0.2s;
-  }
-
-  #quick-add input:focus {
-    min-width: 23em;
-  }
-  */
 
   .error {
     color: red;
