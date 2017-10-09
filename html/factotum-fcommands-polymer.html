@@ -58,7 +58,7 @@
         </div>
       </app-drawer>
 
-      <paper-textarea id="editPane" label="Fcommand Markup" placeholder="Enter Fcommand markup here" rows="40" on-keydown="_onTabKey"></paper-textarea>
+      <paper-textarea id="editPane" label="Fcommand Content" placeholder="Enter Fcommand content here" rows="40" on-keydown="_onKeyDown"></paper-textarea>
 
     </app-drawer-layout>
     <div>
@@ -87,10 +87,24 @@ class FcommandsElement extends Polymer.Element
     }
 
 
-    _onTabKey(evt)
+    _onKeyDown(evt)
     {
         if (evt.key === "Tab")
-            console.log("TAB pressed", evt);
+        {
+            evt.preventDefault();
+
+            // Insert 4 spaces instead of a tab character
+            // XXX: this should be configurable (so should whether Tab
+            // does anything besides the usual movement between controls)
+            let tabReplacement = "    ";
+            let textAreaObj = this.$.editPane.$.input;
+            var sel = textAreaObj.selectionStart;
+            textAreaObj.value =
+                textAreaObj.value.substring(0, textAreaObj.selectionStart) +
+                tabReplacement +
+                textAreaObj.value.substring(textAreaObj.selectionEnd);
+            textAreaObj.selectionEnd = sel + tabReplacement.length;
+        }
     }
 
 
