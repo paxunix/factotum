@@ -6,14 +6,16 @@
 <link rel="import" href="../bower_components/paper-styles/color.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 
 <dom-module id="factotum-popup">
 
 <template>
 <style>
+  #menu {
+    min-width: 25em;
+  }
+
   paper-icon-item {
-    --paper-item-icon-width: 34px;
     cursor: pointer;
   }
 
@@ -21,6 +23,7 @@
     background-color: #d8d8d8;
   }
 
+  /*
   #loadUrl {
     margin-top: 13px;
   }
@@ -35,6 +38,7 @@
   #quick-add input:focus {
     min-width: 23em;
   }
+  */
 
   .error {
     color: red;
