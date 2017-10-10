@@ -200,10 +200,7 @@ fetchFcommandUrl(url)
     return Util.fetchDocument(url)
         .then(bodyText => new Fcommand(bodyText, navigator.language))
         .then(fcommand => this.save(fcommand))
-        .then(FcommandManager._reloadFcommandPages)
-        .catch(error => {
-            this.getErrorManager().save(error, `Fcommand fetch failure (${url})`)
-        });
+        .then(FcommandManager._reloadFcommandPages);
 }   // fetchFcommandUrl
 
 

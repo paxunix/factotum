@@ -123,6 +123,9 @@ class PopupElement extends Polymer.Element
                   // XXX: should have some visual indication of success (like backround of control fades from green to default)
                     this.fcommandUrl = "";
                 }).catch(() => {
+        .catch(error => {
+            this.getErrorManager().save(error, `Fcommand fetch failure (${url})`)
+        });
                 console.log(`Failed Fcommand fetch: ${url}`);
                   // XXX: should have some visual indication of failure (like backround of control fades from red to default)
                 });
