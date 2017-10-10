@@ -55,7 +55,7 @@
       <iron-icon class="error" icon="icons:error" item-icon></iron-icon>
       <iron-icon class="success" icon="icons:check-circle" item-icon></iron-icon>
       -->
-      <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}"></paper-input>
+      <paper-input id="quick-add" label="Quick Add" placeholder="Fcommand URL" value="{{fcommandUrl}}" on-change="_onChange"></paper-input>
       <paper-icon-button id="loadUrl" icon="save" on-click="saveAction"></paper-icon-button>
     </paper-icon-item>
     <paper-icon-item id="menu-fcommands" on-click="clickFcommands">
@@ -99,6 +99,12 @@ class PopupElement extends Polymer.Element
     }
 
 
+    _onChange(evt)
+    {
+        this.saveAction();
+    }
+
+
     saveAction()
     {
         let url = this.fcommandUrl.trim();
@@ -123,11 +129,8 @@ class PopupElement extends Polymer.Element
                   // XXX: should have some visual indication of success (like backround of control fades from green to default)
                     this.fcommandUrl = "";
                 }).catch(() => {
-        .catch(error => {
-            this.getErrorManager().save(error, `Fcommand fetch failure (${url})`)
-        });
-                console.log(`Failed Fcommand fetch: ${url}`);
-                  // XXX: should have some visual indication of failure (like backround of control fades from red to default)
+                      // XXX: should have some visual indication of failure (like backround of control fades from red to default)
+                    bgScope.g_fcommandManager.getErrorManager().save(error, `Failed to fetch Fcommand from URL '${url}'`)
                 });
         });
     }
