@@ -110,16 +110,23 @@ class PopupElement extends Polymer.Element
         }
 
         chrome.runtime.getBackgroundPage(bgScope => {
-            // XXX:  this can fail, and we should alert the user somehow
+            if (chrome.runtime.lastError)
+            {
+                bgScope.g_fcommandManager.getErrorManager().save(`Internal error: ${chrome.runtime.lastError.message}`);
+
+                return;
+            }
+
             bgScope.g_fcommandManager.fetchFcommandUrl(url)
-              .then(() => {
+                .then(() => {
                   // Clear the URL entry control
                   // XXX: should have some visual indication of success (like backround of control fades from green to default)
-                  this.fcommandUrl = "";
-              }).catch(() => {
+                    this.fcommandUrl = "";
+                }).catch(() => {
+                console.log(`Failed Fcommand fetch: ${url}`);
                   // XXX: should have some visual indication of failure (like backround of control fades from red to default)
-              });
-        })
+                });
+        });
     }
 
 

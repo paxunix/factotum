@@ -200,16 +200,10 @@ fetchFcommandUrl(url)
     return Util.fetchDocument(url)
         .then(bodyText => new Fcommand(bodyText, navigator.language))
         .then(fcommand => this.save(fcommand))
+        .then(FcommandManager._reloadFcommandPages)
         .catch(error => {
             this.getErrorManager().save(error, `Fcommand fetch failure (${url})`)
         });
-
-    //debugger; //XXX:  this part is fucked; the promise chain is fucked
-    //let p_saveFcommand = p_getFcommand.then(fcommand => this.save(fcommand));
-
-    //p_saveFcommand.catch(error => p_getFcommand.then(fcommand =>
-        //this.getErrorManager().save(error, `Fcommand load failure (${fcommand.extractedData.title} - ${fcommand.extractedData.guid})`))
-    //);
 }   // fetchFcommandUrl
 
 
@@ -275,6 +269,24 @@ openFcommandsPage()
 
     Util.openUrlTab(fcommandsPageUrl);
 }   // openFcommandsPage
+
+
+/**
+ * Reload any open Fcommand pages.
+ */
+static _reloadFcommandPages()
+{
+    let url = chrome.runtime.getURL("fcommands.html");
+
+    chrome.tabs.query({ url: url },
+        tabs => {
+            for (let tab of tabs)
+            {
+                chrome.tabs.reload(tab.id);
+            }
+        }
+    );
+}
 
 
 }   // class FcommandManager
