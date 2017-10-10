@@ -104,7 +104,10 @@ class PopupElement extends Polymer.Element
         let url = this.fcommandUrl.trim();
 
         if (url === "")
+        {
+            this.focus();
             return;
+        }
 
         chrome.runtime.getBackgroundPage(bgScope => {
             // XXX:  this can fail, and we should alert the user somehow
