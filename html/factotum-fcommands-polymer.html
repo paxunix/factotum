@@ -5,6 +5,7 @@
   <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
   <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
   <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+  <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
   <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
   <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
   <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
@@ -17,18 +18,34 @@
 
 <template>
   <style include="factotum-shared-styles">
+    :host {
+      --app-drawer-width: 33em;
+    }
+
     paper-icon-item {
       cursor: pointer;
     }
 
+    paper-icon-item.iron-selected {
+      background: var(--divider-color);
+    }
+
+    #drawer {
+      border-right: 1px solid var(--divider-color);
+    }
+
     /* Push the drawer content down so app-header toolbar doesn't cover it */
-    #drawer-content {
-      margin-top: 80px;
-      height: calc(100% - 80px);
+    #fcommandNameList {
+      --topSize: 80px;
+      margin-top: var(--topSize);
+      height: calc(100% - var(--topSize));
       overflow: auto;
+      --paper-listbox-background-color: var(--secondary-background-color);
+      --paper-listbox-color: var(--secondary-text-color);
     }
 
     #editPane {
+      padding-left: 1em;
       --paper-input-container-input-color: var(--secondary-text-color);
       --paper-input-container-input: {
           @apply --paper-font-common-code;
@@ -47,15 +64,15 @@
 
     <div>
     <app-drawer-layout>
-      <app-drawer slot="drawer">
-        <div id="drawer-content">
+      <app-drawer id="drawer" slot="drawer">
+        <paper-listbox id="fcommandNameList" on-selected-changed="_onSelected">
           <template is="dom-repeat" items="[[fcommandList]]">
-            <paper-icon-item>
+            <paper-icon-item guid="[[item.extractedData.guid]]">
               <iron-icon icon="settings" slot="item-icon"></iron-icon>
               [[item.extractedData.title]]
             </paper-icon-item>
           </template>
-        </div>
+        </paper-listbox>
       </app-drawer>
 
       <paper-textarea id="editPane" label="Fcommand Content" placeholder="[[placeholderText]]" rows="40" on-keydown="_onKeyDown"></paper-textarea>
@@ -97,7 +114,7 @@ class FcommandsElement extends Polymer.Element
 <!DOCTYPE html>
 <html>
 <head>
-  <title></title>
+  <title>Sample Fcommand</title>
   <meta charset="UTF-8">
   <meta name="author" content="your email here">
   <meta name="description" content="what does this Fcommand do">
@@ -131,6 +148,18 @@ Factotum.runCommand(someFunc);
     }
 
 
+    _onSelected(evt)
+    {
+        let selItem = this.$.fcommandNameList.selectedItem;
+
+        chrome.runtime.getBackgroundPage(bgScope => {
+            bgScope.g_fcommandManager.getByGuid(selItem.guid).then((fcommand) => {
+                this.$.editPane.$.input.value = fcommand.documentString;
+            });
+        });
+    }
+
+
     _onKeyDown(evt)
     {
         if (evt.key === "Tab")
@@ -152,9 +181,9 @@ Factotum.runCommand(someFunc);
     }
 
 
-    ready()
+    constructor()
     {
-        super.ready();
+        super();
 
         chrome.runtime.getBackgroundPage(bgScope => {
             bgScope.g_fcommandManager.getAll().then((fcommands) => {
