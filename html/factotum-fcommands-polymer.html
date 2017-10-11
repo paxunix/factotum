@@ -58,7 +58,7 @@
         </div>
       </app-drawer>
 
-      <paper-textarea id="editPane" label="Fcommand Content" placeholder="Enter Fcommand content here" rows="40" on-keydown="_onKeyDown"></paper-textarea>
+      <paper-textarea id="editPane" label="Fcommand Content" placeholder="[[placeholderText]]" rows="40" on-keydown="_onKeyDown"></paper-textarea>
 
     </app-drawer-layout>
     <div>
@@ -83,7 +83,51 @@ class FcommandsElement extends Polymer.Element
                 type: Array,
                 value: [],
             },
+            placeholderText: {
+                type: String,
+                value: FcommandsElement._getPlaceholderText()
+            },
         };
+    }
+
+
+    static _getPlaceholderText()
+    {
+        return `
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="UTF-8">
+  <meta name="author" content="your email here">
+  <meta name="description" content="what does this Fcommand do">
+  <meta name="guid" content="a unique identifier">
+  <meta name="keywords" content="key1,key2">
+  <meta name="version" content="1.2.3">
+  <meta name="context" content="page">
+  <meta name="menu" content="all">
+  <link rel="icon" type="image/png" href="http://example.com/favicon.png">
+</head>
+<body>
+<template id="help" lang="en">
+  help markup
+</template>
+
+<template id="getopt">
+</template>
+
+<script>
+Factotum.runCommand(someFunc);
+<\/script>
+
+<template id="bgCode">
+<script>
+<\/script>
+</template>
+
+</body>
+</html>
+`;
     }
 
 
