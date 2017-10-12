@@ -4,6 +4,7 @@
   <link rel="import" href="../bower_components/polymer/polymer.html">
   <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
   <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+  <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
   <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
   <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
@@ -66,9 +67,11 @@
     <app-drawer-layout>
       <app-drawer id="drawer" slot="drawer">
         <paper-listbox id="fcommandNameList" on-selected-changed="_onSelected">
+              <!-- XXX: should style title with --secondary-color or
+                --light-secondary-color if Fcommand is disabled -->
           <template is="dom-repeat" items="[[fcommandList]]">
             <paper-icon-item guid="[[item.extractedData.guid]]">
-              <iron-icon icon="settings" slot="item-icon"></iron-icon>
+              <paper-icon-button icon="delete" slot="item-icon" on-click="_onDeleteClick"></paper-icon-button>
               [[item.extractedData.title]]
             </paper-icon-item>
           </template>
@@ -155,6 +158,18 @@ Factotum.runCommand(someFunc);
         chrome.runtime.getBackgroundPage(bgScope => {
             bgScope.g_fcommandManager.getByGuid(selItem.guid).then((fcommand) => {
                 this.$.editPane.$.input.value = fcommand.documentString;
+            });
+        });
+    }
+
+
+    _onDeleteClick(evt)
+    {
+        let guid = evt.target.parentElement.guid;
+
+        chrome.runtime.getBackgroundPage(bgScope => {
+            bgScope.g_fcommandManager.deleteByGuid(guid).then(() => {
+              bgScope.g_fcommandManager.constructor._reloadFcommandPages();
             });
         });
     }
