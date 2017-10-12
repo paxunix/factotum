@@ -150,7 +150,7 @@ Factotum.runCommand(someFunc);
 
     _onSelected(evt)
     {
-        let selItem = this.$.fcommandNameList.selectedItem;
+        let selItem = evt.target.selectedItem;
 
         chrome.runtime.getBackgroundPage(bgScope => {
             bgScope.g_fcommandManager.getByGuid(selItem.guid).then((fcommand) => {
