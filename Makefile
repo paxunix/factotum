@@ -60,7 +60,7 @@ update:
 
 .PHONY: setup
 setup:
-	npm install
+	npm install --dev
 	./node_modules/bower/bin/bower install
 
 .PHONY: testserver
