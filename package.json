@@ -10,6 +10,7 @@
   "dependencies": {
     "dexie": "^2.0.1",
     "jasmine": "^2.8.0",
+    "webextension-polyfill": "^0.2.1"
   },
   "devDependencies": {
     "bower": "^1.x",
