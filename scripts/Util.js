@@ -1,5 +1,6 @@
 "use strict";
 
+let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
 
 class Util {
 
@@ -33,14 +34,16 @@ static fetchDocument(...args)
  */
 static getCurrentTab()
 {
-    return new Promise(function (resolve, reject) {
-        chrome.tabs.query({ active: true }, function (tabs) {
-            if (chrome.runtime.lastError)
-                reject(chrome.runtime.lastError.message);
-
-            resolve(tabs[0]);
+    return browser.tabs.query({ active: true })
+        .then(tabs => {
+            // query returns an array of tabs.  We presume we only ever want
+            // the first one in the list, since it should be the currently
+            // active one from which the Fcommand was run.  Since the
+            // omnibox API doesn't pass us the current tab, and this is
+            // running in the background page, we can't know the tab without
+            // looking it up.
+            return tabs[0];
         });
-    });
 }   // Util.getCurrentTab
 
 
@@ -50,41 +53,17 @@ static getCurrentTab()
  * window.
  * @return {Promise} - Promise resolved with Tab (@see chrome.runtime.tabs)
  */
-static openUrlTab(url)
+static async openUrlTab(url)
 {
-    return new Promise((resolve, reject) => {
-        chrome.tabs.query({ url: url }, tabs => {
-            if (chrome.runtime.lastError)
-                reject(chrome.runtime.lastError.message);
+    let tabs = await browser.tabs.query({ url: url });
+    if (tabs.length === 0)
+        return browser.tabs.create({ url: url });
 
-            if (tabs.length === 0)
-            {
-                chrome.tabs.create({ url: url }, tab => {
-                    if (chrome.runtime.lastError)
-                        reject(chrome.runtime.lastError.message);
+    // Bring active window with first matching tab to foreground
+    await browser.windows.update(tabs[0].windowId,
+        { focused: true, drawAttention: true });
 
-                    resolve(tab);
-                });
-            }
-            else
-            {
-                chrome.windows.update(tabs[0].windowId,
-                    { focused: true, drawAttention: true },
-                    wnd => {
-                        if (chrome.runtime.lastError)
-                            reject(chrome.runtime.lastError.message);
-
-                        chrome.tabs.update(tabs[0].id,
-                            { active: true }, tab => {
-                                if (chrome.runtime.lastError)
-                                    reject(chrome.runtime.lastError.message);
-
-                                resolve(tab);
-                            });
-                    });
-            }
-        });
-    });
+    return browser.tabs.update(tabs[0].id, { active: true });
 }   // Util.openUrlTab
 
 

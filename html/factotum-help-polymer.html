@@ -6,6 +6,7 @@
   <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
   <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
   <link rel="import" href="factotum-shared-styles.html">
+  <script type="text/javascript" src="../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
 </head>
 
 <dom-module id="factotum-help">
@@ -56,31 +57,32 @@ class HelpElement extends Polymer.Element
         super.ready();
 
         // Put help markup for this Fcommand into the dialog
-        chrome.runtime.getBackgroundPage(bgScope => {
-            // Extract Fcommand guid from "?guid=abcd" query string and use
-            // it to get the help markup for the Fcommand.
-            let guid = document.location.search.substr(6);
+        browser.runtime.getBackgroundPage()
+            .then(bgScope => {
+                // Extract Fcommand guid from "?guid=abcd" query string and use
+                // it to get the help markup for the Fcommand.
+                let guid = document.location.search.substr(6);
 
-            let p_getFcommand = bgScope.g_fcommandManager.getByGuid(guid);
-            p_getFcommand.then(fcommand => {
-                // XXX: it would be handy to use the same keyword that
-                // activated the help, rather than always using the first
-                // keyword for the Fcommand
-                this.fcommandName = fcommand.extractedData.keywords[0];
-                document.title = `Factotum Command Help: ${this.fcommandName}`;
-
-                // Can't use Polymer property assignment since it
-                // automatically escapes all markup, so set content directly.
-                // XXX: what about malicious help markup in an Fcommand?
-                // This opens an XSS vector.  Factotum already opens that up
-                // by its nature, so...
-                this.$["help-content"].innerHTML = fcommand.extractedData.helpMarkup;
-            }).catch(error => {
+                let p_getFcommand = bgScope.g_fcommandManager.getByGuid(guid);
                 p_getFcommand.then(fcommand => {
-                  bgScope.g_fcommandManager.getErrorManager().save(error, `Failed help display for '${fcommand.extractedData.title}'`);
+                    // XXX: it would be handy to use the same keyword that
+                    // activated the help, rather than always using the first
+                    // keyword for the Fcommand
+                    this.fcommandName = fcommand.extractedData.keywords[0];
+                    document.title = `Factotum Command Help: ${this.fcommandName}`;
+
+                    // Can't use Polymer property assignment since it
+                    // automatically escapes all markup, so set content directly.
+                    // XXX: what about malicious help markup in an Fcommand?
+                    // This opens an XSS vector.  Factotum already opens that up
+                    // by its nature, so...
+                    this.$["help-content"].innerHTML = fcommand.extractedData.helpMarkup;
+                }).catch(error => {
+                    p_getFcommand.then(fcommand => {
+                      bgScope.g_fcommandManager.getErrorManager().save(error, `Failed help display for '${fcommand.extractedData.title}'`);
+                    });
                 });
             });
-        });
     }
 }
 

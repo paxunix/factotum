@@ -2,6 +2,9 @@
 
 import TransferObject from "./TransferObject.js";
 
+let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
+
+
 class ContentScript
 {
 
@@ -105,7 +108,7 @@ static factotumListener(request)
 
     ContentScript.getLoadImportPromise(transferObj).
         catch(function (rejectWith) {
-            chrome.runtime.sendMessage(rejectWith);
+            browser.runtime.sendMessage(rejectWith);
         });
 
     // No response
@@ -126,7 +129,7 @@ static messageListener(evt)
             return;
 
     var transferObj = new TransferObject(evt.data);
-    chrome.runtime.sendMessage(transferObj);
+    browser.runtime.sendMessage(transferObj);
 }   // ContentScript.messageListener
 
 
@@ -136,7 +139,7 @@ static injectFactotumApi(document)
 {
     return new Promise(function (resolve, reject) {
         var s = document.createElement("script");
-        s.src = chrome.runtime.getURL("inject.bundle.js");
+        s.src = browser.runtime.getURL("inject.bundle.js");
         s.onload = function () {
             // No need to keep the script around once it has run
             s.parentNode.removeChild(s);

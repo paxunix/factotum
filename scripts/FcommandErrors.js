@@ -4,6 +4,8 @@ import ErrorCache from "./ErrorCache.js";
 import WrappErr from "./wrapperr-esm.js";
 import Util from "./Util.js";
 
+let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
+
 
 // XXX: test all of me
 
@@ -39,7 +41,7 @@ _update()
 
     // XXX: should badge show count of errors or count of known Fcommands or
     // be configurable for either (or none)?
-    chrome.browserAction.setBadgeText({
+    browser.browserAction.setBadgeText({
         text: numErrors > 0 ? numErrors.toString() : ""
     });
 
@@ -54,7 +56,7 @@ _update()
  */
 _openErrorPage()
 {
-    let errorPageUrl = chrome.runtime.getURL("errors.html");
+    let errorPageUrl = browser.runtime.getURL("errors.html");
 
     Util.openUrlTab(errorPageUrl);
 }
@@ -63,18 +65,21 @@ _openErrorPage()
 /**
  * Reload any open error pages.
  */
-_reloadErrorPages()
+async _reloadErrorPages()
 {
-    let errorPageUrl = chrome.runtime.getURL("errors.html");
+    let errorPageUrl = browser.runtime.getURL("errors.html");
 
-    chrome.tabs.query({ url: errorPageUrl },
-        tabs => {
-            for (let tab of tabs)
-            {
-                chrome.tabs.reload(tab.id);
-            }
+    let tabs = await browser.tabs.query({ url: errorPageUrl });
+
+    for (let tab of tabs)
+    {
+        try {
+            await chrome.tabs.reload(tab.id);
         }
-    );
+        catch (e) {
+            // failure to reload the tab is not considered fatal
+        }
+    }
 }
 
 

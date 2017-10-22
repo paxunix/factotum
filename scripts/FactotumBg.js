@@ -5,6 +5,7 @@ import ShellParse from "./ShellParse.js";
 import GetOpt from "./GetOpt.js";
 import TransferObject from "./TransferObject.js";
 
+let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
 
 let FCOMMAND_GUID_DELIM = "--guid=";
 
@@ -118,7 +119,7 @@ static reconstructCmdline(opts)
 static onOmniboxInputStarted() {
     var suggestion = FactotumBg.getOmniboxSuggestion("", {});
     delete suggestion.content;
-    chrome.omnibox.setDefaultSuggestion(suggestion);
+    browser.omnibox.setDefaultSuggestion(suggestion);
 };  // FactotumBg.onOmniboxInputStarted
 
 
@@ -145,7 +146,7 @@ static onOmniboxInputChanged(text, suggestFunc) {
                 // user via the default suggestion (which does nothing).
                 if (fcommands.length === 0)
                 {
-                    chrome.omnibox.setDefaultSuggestion({
+                    browser.omnibox.setDefaultSuggestion({
                         description: `Unknown Fcommand keyword prefix '${prefix}'...`
                     });
 
@@ -160,7 +161,7 @@ static onOmniboxInputChanged(text, suggestFunc) {
                         internalOptions
                     );
                 delete suggestion.content;
-                chrome.omnibox.setDefaultSuggestion(suggestion);
+                browser.omnibox.setDefaultSuggestion(suggestion);
 
                 // Since the default suggestion takes care of the first
                 // Fcommand, there is no need to duplicate it again in the

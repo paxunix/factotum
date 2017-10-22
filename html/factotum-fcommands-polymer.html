@@ -13,6 +13,7 @@
   <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
   <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
   <link rel="import" href="factotum-shared-styles.html">
+  <script type="text/javascript" src="../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
 </head>
 
 <dom-module id="factotum-fcommands">
@@ -85,6 +86,7 @@
   </app-header-layout>
 </template>
 
+<script type="text/javascript" src="../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
 <script>
 "use strict";
 
@@ -155,11 +157,11 @@ Factotum.runCommand(someFunc);
     {
         let selItem = evt.target.selectedItem;
 
-        chrome.runtime.getBackgroundPage(bgScope => {
-            bgScope.g_fcommandManager.getByGuid(selItem.guid).then((fcommand) => {
+        browser.runtime.getBackgroundPage()
+            .then(bgScope => bgScope.g_fcommandManager.getByGuid(selItem.guid))
+            .then(fcommand => {
                 this.$.editPane.$.input.value = fcommand.documentString;
             });
-        });
     }
 
 
@@ -167,11 +169,11 @@ Factotum.runCommand(someFunc);
     {
         let guid = evt.target.parentElement.guid;
 
-        chrome.runtime.getBackgroundPage(bgScope => {
-            bgScope.g_fcommandManager.deleteByGuid(guid).then(() => {
-              bgScope.g_fcommandManager.constructor._reloadFcommandPages();
+        browser.runtime.getBackgroundPage()
+            .then(bgScope => bgScope.g_fcommandManager.deleteByGuid(guid))
+            .then(() => {
+                bgScope.g_fcommandManager.constructor._reloadFcommandPages();
             });
-        });
     }
 
 
@@ -200,14 +202,14 @@ Factotum.runCommand(someFunc);
     {
         super();
 
-        chrome.runtime.getBackgroundPage(bgScope => {
-            bgScope.g_fcommandManager.getAll().then((fcommands) => {
+        browser.runtime.getBackgroundPage()
+            .then(bgScope => bgScope.g_fcommandManager.getAll())
+            .then(fcommands => {
                 for (let fcommand of fcommands)
                 {
                     this.push("fcommandList", fcommand);
                 }
             });
-        });
     }
 }
 

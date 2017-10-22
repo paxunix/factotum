@@ -108,6 +108,7 @@
     "offline_enabled": false,
 
     "web_accessible_resources": [
-        "inject.bundle.js"
+        "inject.bundle.js",
+        "webextension-polyfill/dist/browser-polyfill.min.js"
     ]
 }

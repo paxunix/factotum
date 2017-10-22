@@ -30,7 +30,8 @@ non-flat-copy: \
 .PHONY: flat-copy
 flat-copy: \
         _locales/*/* \
-        example/*
+        example/* \
+        node_modules/webextension-polyfill/dist/browser-polyfill.min.js
 	mkdir -p $(OUTDIR)
 	rsync -Rav $^ $(OUTDIR)/
 

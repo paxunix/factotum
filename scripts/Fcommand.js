@@ -5,6 +5,7 @@ import TransferObject from "./TransferObject.js";
 import Util from "./Util.js";
 import WrappErr from "./wrapperr-esm.js";
 
+let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
 
 class Fcommand
 {
@@ -364,11 +365,11 @@ runBgCode(transferObj)
 
     // Run the Fcommand's bgCode
     return new Promise(function (onSuccess, onFailure) {
-        let bgFunction = new Function("transferObj", "onSuccess", "onFailure",
+        let bgFunction = new Function("transferObj", "onSuccess", "onFailure", "browser",
             (transferObj.get("_content.internalCmdlineOptions").bgdebug ? "d\ebugger;\n" : "") +
                 self.extractedData.bgCodeString);
 
-        return bgFunction(cloneTransferObject, onSuccess, onFailure);
+        return bgFunction(cloneTransferObject, onSuccess, onFailure, browser);
     });
 }   // Fcommand.runBgCode
 
@@ -390,7 +391,7 @@ runPageCode(transferObj)
         throw new Error(`Fcommand '${transferObj.get("_content.title")}' cannot run on a browser page.`);
     }
 
-    chrome.tabs.sendMessage(tab.id, transferObj);
+    browser.tabs.sendMessage(tab.id, transferObj);
 }   // Fcommand.runPageCode
 
 
@@ -431,59 +432,48 @@ _getContextMenuId()
 
 /**
  * Return a promise to create a context menu item under the given parent.
- * @returns {Promise}
+ * @returns {Promise} -- no resolved value
  */
 createContextMenu(parentMenuId)
 {
     let self = this;
 
-    return new Promise(function (resolve, reject) {
-        if (self.extractedData.menu.length > 0)
-        {
-            chrome.contextMenus.create({
-                type: "normal",
-                id: self._getContextMenuId(),
-                parentId: parentMenuId,
-                title: self.extractedData.title,
-                contexts: self.extractedData.menu,
-                enabled: self.enabled,      // XXX: need to update this whenever the enabled state changes
-                onclick: function (contextMenuData, tab) {
-                    let transferObj = new TransferObject({
-                        // There are no internal command line options
-                        // because none could have been entered.
-                        "_content.internalCmdlineOptions": GetOpt.getOptions({},[]),
-                    });
-                    // The command line is only the Fcommand keyword.
-                    // This isn't strictly necessary, but mimics
-                    // invoking the Fcommand by entering its first
-                    // keyword in the omnibox with no parameters.
-                    transferObj.setCommandLine(GetOpt.getOptions(self.extractedData.optspec, [ self.extractedData.keywords[0] ]));
-                    transferObj.setContextClickData(contextMenuData);
-                    // Context menu action always implies current tab
-                    transferObj.setTabDisposition("currentTab");
+    if (self.extractedData.menu.length > 0)
+    {
+        return browser.contextMenus.create({
+            type: "normal",
+            id: self._getContextMenuId(),
+            parentId: parentMenuId,
+            title: self.extractedData.title,
+            contexts: self.extractedData.menu,
+            enabled: self.enabled,      // XXX: need to update this whenever the enabled state changes
+            onclick: function (contextMenuData, tab) {
+                let transferObj = new TransferObject({
+                    // There are no internal command line options
+                    // because none could have been entered.
+                    "_content.internalCmdlineOptions": GetOpt.getOptions({},[]),
+                });
+                // The command line is only the Fcommand keyword.
+                // This isn't strictly necessary, but mimics
+                // invoking the Fcommand by entering its first
+                // keyword in the omnibox with no parameters.
+                transferObj.setCommandLine(GetOpt.getOptions(self.extractedData.optspec, [ self.extractedData.keywords[0] ]));
+                transferObj.setContextClickData(contextMenuData);
+                // Context menu action always implies current tab
+                transferObj.setTabDisposition("currentTab");
 
-                    // XXX: the problem here is that there is no error trap;
-                    // an exception during execution will not surface to the
-                    // user because this happens after the onclick doesn't
-                    // happen as a result of a promise during regular
-                    // invocation.
-                    self.execute(transferObj);
-                },
-            }, function () {
-                if (chrome.runtime.lastError)
-                {
-                    reject(new Error(`Failed to create context menu for ${self.extractedData.title}: ${chrome.runtime.lastError.message}`));
-                    return;
-                }
+                // XXX: the problem here is that there is no error trap;
+                // an exception during execution will not surface to the
+                // user because this happens after the onclick doesn't
+                // happen as a result of a promise during regular
+                // invocation.
+                self.execute(transferObj);
+                // XXX: execute should return a promise
+            },
+        });
+    }
 
-                resolve(self);
-            });
-        }
-        else
-        {
-            resolve(self);
-        }
-    });
+    return Promise.resolve();
 }   // Fcommand.createContextMenu
 
 
@@ -512,11 +502,7 @@ popupHelpWindow()
 // Return a promise to get the focussed window; resolves to the Window
 // data object.
 function getFocussedWindow() {
-    return new Promise(function (resolve, reject) {
-        chrome.windows.getLastFocused(function (wnd) {
-            resolve(wnd);
-        });
-    });
+    return browser.windows.getLastFocused();
 }
 
 
@@ -524,11 +510,10 @@ function getFocussedWindow() {
 function createHelpWindow(fcommandGuid, wnd) {
     let width = Math.round(wnd.width * 0.40);
     let height = Math.round(wnd.height * 0.65);
-    let url = chrome.runtime.getURL("help.html") +
+    let url = browser.runtime.getURL("help.html") +
         `?guid=${fcommandGuid}`;
 
-    return new Promise(function (resolve, reject) {
-        chrome.windows.create({
+    return browser.windows.create({
             url: url,
             type: "popup",
             left: Math.round((wnd.width - width) / 2),
@@ -536,10 +521,7 @@ function createHelpWindow(fcommandGuid, wnd) {
             width: width,
             height: height,
             focused: true,
-        }, function (wnd) {
-            resolve(wnd);
         });
-    });
 }
 
 

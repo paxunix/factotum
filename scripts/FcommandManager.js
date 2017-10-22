@@ -4,6 +4,8 @@ import Dexie from "../node_modules/dexie/dist/dexie.es.js";
 import Fcommand from "./Fcommand.js";
 import Util from "./Util.js";
 
+let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
+
 
 // XXX: test all of me
 
@@ -195,12 +197,14 @@ getAll()
  * Promise to fetch an Fcommand by URL and save it.
  * @return {Promise} Resolves to saved Fcommand object; rejects with Error.
  */
-fetchFcommandUrl(url)
+async fetchFcommandUrl(url)
 {
-    return Util.fetchDocument(url)
-        .then(bodyText => new Fcommand(bodyText, navigator.language))
-        .then(fcommand => this.save(fcommand))
-        .then(FcommandManager._reloadFcommandPages);
+    let bodyText = await Util.fetchDocument(url);
+    let fcommand = new Fcommand(bodyText, navigator.language);
+
+    await this.save(fcommand);
+
+    return FcommandManager._reloadFcommandPages();
 }   // fetchFcommandUrl
 
 
@@ -208,16 +212,9 @@ fetchFcommandUrl(url)
  * Return a promise to remove all context menus.
  * @return {Promise}
  */
-removeContextMenus()
+async removeContextMenus()
 {
-    return new Promise(function (resolve, reject) {
-        chrome.contextMenus.removeAll(function() {
-            if (chrome.runtime.lastError)
-                reject(chrome.runtime.lastError.message);
-
-            resolve();
-        });
-    });
+    return browser.contextMenus.removeAll();
 }   // removeContextMenus
 
 
@@ -227,33 +224,22 @@ removeContextMenus()
  * @return {Promise} - promise to create the main context menu, resolve with
  * the main menu's ID
  */
-createMainContextMenu()
+async createMainContextMenu()
 {
-    return new Promise((resolve, reject) => {
-        if (this.mainMenuCreated)
-        {
-            resolve(FcommandManager.MAIN_MENU_ID);
-            return;
-        }
+    if (this.mainMenuCreated)
+    {
+        return FcommandManager.MAIN_MENU_ID;
+    }
 
-        chrome.contextMenus.create({
+    let id = await browser.contextMenus.create({
             type: "normal",
             id: FcommandManager.MAIN_MENU_ID,
             title: "Factotum",
             contexts: [ "all" ],
-        }, () => {
-            if (chrome.runtime.lastError)
-            {
-                reject(new Error(`Failed creating parent context menu item: ${chrome.runtime.lastError.message}`));
-
-                return;
-            }
-
-            this.mainMenuCreated = true;
-
-            resolve(FcommandManager.MAIN_MENU_ID);
         });
-    });
+
+    this.mainMenuCreated = true;
+    return id;
 }   // createMainContextMenu
 
 
@@ -262,7 +248,7 @@ createMainContextMenu()
  */
 openFcommandsPage()
 {
-    let fcommandsPageUrl = chrome.runtime.getURL("fcommands.html");
+    let fcommandsPageUrl = browser.runtime.getURL("fcommands.html");
 
     Util.openUrlTab(fcommandsPageUrl);
 }   // openFcommandsPage
@@ -271,18 +257,21 @@ openFcommandsPage()
 /**
  * Reload any open Fcommand pages.
  */
-static _reloadFcommandPages()
+static async _reloadFcommandPages()
 {
-    let url = chrome.runtime.getURL("fcommands.html");
+    let url = browser.runtime.getURL("fcommands.html");
+    let tabs = await browser.tabs.query({ url: url });
 
-    chrome.tabs.query({ url: url },
-        tabs => {
-            for (let tab of tabs)
-            {
-                chrome.tabs.reload(tab.id);
-            }
+    for (let tab of tabs)
+    {
+        try {
+            await browser.tabs.reload(tab.id);
         }
-    );
+
+        catch (e) {
+            // failure to reload the tab is not considered fatal
+        }
+    }
 }
 
 

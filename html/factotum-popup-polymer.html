@@ -8,6 +8,7 @@
   <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="../bower_components/paper-input/paper-input.html">
   <link rel="import" href="factotum-shared-styles.html">
+  <script type="text/javascript" src="../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
 </head>
 
 <dom-module id="factotum-popup">
@@ -77,6 +78,7 @@
 </div>
 </template>
 
+<script type="text/javascript" src="../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
 <script>
 "use strict";
 
@@ -115,40 +117,36 @@ class PopupElement extends Polymer.Element
             return;
         }
 
-        chrome.runtime.getBackgroundPage(bgScope => {
-            if (chrome.runtime.lastError)
-            {
-                bgScope.g_fcommandManager.getErrorManager().save(`Internal error: ${chrome.runtime.lastError.message}`);
-
-                return;
-            }
-
-            bgScope.g_fcommandManager.fetchFcommandUrl(url)
-                .then(() => {
-                  // Clear the URL entry control
-                  // XXX: should have some visual indication of success (like backround of control fades from green to default)
-                    this.fcommandUrl = "";
-                }).catch(() => {
-                      // XXX: should have some visual indication of failure (like backround of control fades from red to default)
-                    bgScope.g_fcommandManager.getErrorManager().save(error, `Failed to fetch Fcommand from URL '${url}'`)
-                });
-        });
+        browser.runtime.getBackgroundPage()
+            .then(bgScope => {
+                bgScope.g_fcommandManager.fetchFcommandUrl(url)
+                    .then(() => {
+                      // Clear the URL entry control
+                      // XXX: should have some visual indication of success (like backround of control fades from green to default)
+                        this.fcommandUrl = "";
+                    }).catch(() => {
+                          // XXX: should have some visual indication of failure (like backround of control fades from red to default)
+                        bgScope.g_fcommandManager.getErrorManager().save(error, `Failed to fetch Fcommand from URL '${url}'`)
+                    });
+            });
     }
 
 
     clickFcommands()
     {
-        chrome.runtime.getBackgroundPage(bgScope => {
-            bgScope.g_fcommandManager.openFcommandsPage();
-        });
+        browser.runtime.getBackgroundPage()
+            .then(bgScope => {
+                bgScope.g_fcommandManager.openFcommandsPage();
+            });
     }
 
 
     clickErrors()
     {
-        chrome.runtime.getBackgroundPage(bgScope => {
-            bgScope.g_fcommandManager.getErrorManager()._openErrorPage();
-        });
+        browser.runtime.getBackgroundPage()
+            .then(bgScope => {
+                bgScope.g_fcommandManager.getErrorManager()._openErrorPage();
+            });
     }
 
 

@@ -36,11 +36,9 @@
     throw opts.bgthrow;
   }
 
-  chrome.tabs.create({
+  browser.tabs.create({
       url: "https://www.google.com/"
-    }, function () {
-      onSuccess();    // must be called when your bg code has finished successfully
-  });
+    }).then(onSuccess);    // must be called when your bg code has finished successfully
 </script>
 </template>
 

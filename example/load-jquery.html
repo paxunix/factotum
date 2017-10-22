@@ -279,16 +279,15 @@ if (opts.bgthrow)
   throw error;      // in bgCode, throwing is the same as calling onFailure(error)
 }
 
-chrome.notifications.create(
+browser.notifications.create(
     "",
     {
         type: "basic",
-        iconUrl: chrome.runtime.getURL("icons/md/info.png"),
+        iconUrl: browser.runtime.getURL("icons/md/info.png"),
         title: "Loaded jQuery",
         message: "Version " + transferObj.getBgData().jqueryVersion,
-    },
-    function() { onSuccess(); }
-);
+        })
+  .then(onSuccess);
 </script>
 </template>
 

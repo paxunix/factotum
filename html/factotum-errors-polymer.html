@@ -8,6 +8,7 @@
   <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
   <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
   <link rel="import" href="factotum-shared-styles.html">
+  <script type="text/javascript" src="../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
 </head>
 
 <dom-module id="factotum-error">
@@ -40,6 +41,7 @@
   </app-header-layout>
 </template>
 
+<script type="text/javascript" src="../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
 <script>
 "use strict";
 
@@ -76,25 +78,27 @@ class ErrorsElement extends Polymer.Element
     {
         super.ready();
 
-        chrome.runtime.getBackgroundPage(bgScope => {
-            let errorManager = bgScope.g_fcommandManager.getErrorManager();
-            this.deleteActionEnabled = errorManager.length() != 0;
+        browser.runtime.getBackgroundPage()
+            .then(bgScope => {
+                let errorManager = bgScope.g_fcommandManager.getErrorManager();
+                this.deleteActionEnabled = errorManager.length() != 0;
 
-            for (let err of errorManager)
-            {
-                this.push("errorList", err);
-            }
-        });
-    }
+                for (let err of errorManager)
+                {
+                    this.push("errorList", err);
+                }
+            });
+      }
 
 
     deleteAction()
     {
-        chrome.runtime.getBackgroundPage(bgScope => {
-            let errorManager = bgScope.g_fcommandManager.getErrorManager();
+        browser.runtime.getBackgroundPage()
+            .then(bgScope => {
+                let errorManager = bgScope.g_fcommandManager.getErrorManager();
 
-            errorManager.clear();
-        });
+                errorManager.clear();
+            });
     }
 }
 
