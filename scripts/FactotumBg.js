@@ -296,14 +296,23 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
 
 
 // Called when each Fcommand has finished/failed executing.
-static responseHandler(response) {
+static responseHandler(response, sender) {
+    // XXX: not sure if this will ever have a value due to a message being
+    // dispatched to this handler.
     if (chrome.runtime.lastError)
     {
         g_fcommandManager.getErrorManager().save(`Internal error: ${chrome.runtime.lastError.message}`);
         return;
     }
 
+
     var transferObj = new TransferObject(response);
+    // XXX: there is probably other data in sender we should check.  Like
+    // verify the message came from our content script.
+    // XXX: not sure that this useful since this is just using data sent to
+    // us after the Fcommand has completed.
+    // transferObj.setCurrentTab(sender.tabs.Tab);
+
     if (transferObj.has("_bg.errorMessage"))
     {
         // XXX: should show guid and Fcommand description or something
