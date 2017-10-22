@@ -297,14 +297,8 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
 
 // Called when each Fcommand has finished/failed executing.
 static responseHandler(response, sender) {
-    // XXX: not sure if this will ever have a value due to a message being
-    // dispatched to this handler.
-    if (chrome.runtime.lastError)
-    {
-        g_fcommandManager.getErrorManager().save(`Internal error: ${chrome.runtime.lastError.message}`);
-        return;
-    }
-
+    if (sender.id !== chrome.runtime.id)
+        return Promise.resolve();
 
     var transferObj = new TransferObject(response);
     // XXX: there is probably other data in sender we should check.  Like
@@ -319,15 +313,14 @@ static responseHandler(response, sender) {
         // (maybe the cmdline).  Would have to include that in the
         // transferobject.  Otherwise  you can't clearly know which Fcommand
         // returned the error.
-        g_fcommandManager.getErrorManager().save(transferObj.get("_bg.errorMessage"));
-        return;
+        return g_fcommandManager.getErrorManager().save(transferObj.get("_bg.errorMessage"));
     }
 
     if (transferObj.has("_content.guid") && transferObj.hasBgData())
     {
         console.log("Fcommand responded:", transferObj);
 
-        g_fcommandManager.getByGuid(transferObj.get("_content.guid"))
+        return g_fcommandManager.getByGuid(transferObj.get("_content.guid"))
             .then(function (fcommand) {
                     return fcommand.runBgCode(transferObj)
                 })
@@ -335,6 +328,8 @@ static responseHandler(response, sender) {
                     g_fcommandManager.getErrorManager().save(error, "Fcommand bg code failed");
                 });
     }
+
+    return Promise.resolve();
 };  // FactotumBg.responseHandler
 
 
