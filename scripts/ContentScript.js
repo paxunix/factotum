@@ -102,8 +102,12 @@ static getLoadImportPromise(transferObj)
 // The rejection object is expected to contain an error property whose value
 // is either a string or an Error object.
 // The promise value is a TransferObject.
-static factotumListener(request)
+static factotumListener(request, sender)
 {
+    // Ignore any messages not from us
+    if (sender.id !== chrome.runtime.id)
+        return false;
+
     var transferObj = new TransferObject(request);
 
     ContentScript.getLoadImportPromise(transferObj).
