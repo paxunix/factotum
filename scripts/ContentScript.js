@@ -125,7 +125,8 @@ static messageListener(evt)
     // expectations.
     if (evt.source !== window ||
         typeof(evt.data) !== "object" ||
-        evt.data === null)
+        evt.data === null ||
+        typeof(evt.data.storage) !== "object")      // XXX: internals of TransferObject
             return;
 
     var transferObj = new TransferObject(evt.data);
