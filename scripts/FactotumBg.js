@@ -286,7 +286,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
 
         return fcommand.execute(transferObj)
             .catch(error => {
-                throw new Error(`Failed to execute Fcommand '${fcommand.extractedData.title}`);
+                throw new Error(`Failed to execute Fcommand '${fcommand.extractedData.title}'`);
             });
     }).catch(error => {
         g_fcommandManager.getErrorManager().save(error);
