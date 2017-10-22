@@ -37,11 +37,6 @@
           the injected code is no longer compatible with the extension
           code).
 
-- look into bluebird's coroutine, or using generators to yield promises and
-  using that to abstract multiple async actions into one function that looks
-  synchronous
-    - just pull in bluebird
-
 - help page
     - allow string substitution in the help content
       - {{keywordList}} expands to comma-separated list of keywords
@@ -172,6 +167,7 @@
       could execute regardless of whether it was bg or page context but the
       user happened to be on an internal page
     - Ubiquity used to be invoked this way (Ctrl-Space)
+    - This is possible now with the chrome.commands API
 
 - should Fcommands have an associated domain match on which they are
   available, and are otherwise suppressed?  It would be nice to have the
