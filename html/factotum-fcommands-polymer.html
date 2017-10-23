@@ -170,9 +170,11 @@ Factotum.runCommand(someFunc);
         let guid = evt.target.parentElement.guid;
 
         browser.runtime.getBackgroundPage()
-            .then(bgScope => bgScope.g_fcommandManager.deleteByGuid(guid))
-            .then(() => {
-                bgScope.g_fcommandManager.constructor._reloadFcommandPages();
+            .then(bgScope => {
+                bgScope.g_fcommandManager.deleteByGuid(guid)
+                    .then(() => {
+                      bgScope.g_fcommandManager.constructor._reloadFcommandPages();
+                    });
             });
     }
 
