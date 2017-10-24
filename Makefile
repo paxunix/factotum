@@ -45,6 +45,11 @@ $(OUTDIR)/%.bundle.js: scripts/%.js
 	mkdir -p $(dir $@)
 	./node_modules/webpack/bin/webpack.js -d $< $@
 
+.PHONY: tar
+tar: factotum.tar
+factotum.tar: all
+	tar -hcvf factotum.tar build/
+
 .PHONY: package
 package: manifest.json $(OUTDIR)/*.html $(OUTDIR)/*.js
 	mkdir -p $(PACKAGE_NAME)
