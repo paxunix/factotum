@@ -211,8 +211,8 @@ static onOmniboxInputChanged(text, suggestFunc) {
 // Return an object that has parsed for help or debug options in argv.
 static parseInternalOptions(argv) {
     var opts = GetOpt.getOptions({
-        "debug": { type: "boolean", aliases: [ "fg-debug", "fgdebug" ] },
-        "bgdebug": { type: "boolean", aliases: [ "bg-debug" ] },
+        "debug": { type: "boolean", aliases: [ "fg-debug", "fgdebug", "debugfg", "debug-fg" ] },
+        "bgdebug": { type: "boolean", aliases: [ "bg-debug", "debug-bg", "debugbg" ] },
         "help": { type: "boolean" },
     }, argv);
 
