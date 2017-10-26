@@ -197,12 +197,32 @@ Factotum.runCommand(someFunc);
                 textAreaObj.value.substring(textAreaObj.selectionEnd);
             textAreaObj.selectionEnd = sel + tabReplacement.length;
         }
+
+        if (++this.tempSaveConfig.currentKeyCount >= this.tempSaveConfig.saveAfterKeyCount)
+        {
+            this._saveToTempBuffer();
+            this.tempSaveConfig.currentKeyCount = 0;
+        }
+    }
+
+
+    // Persist the contents of the current buffer
+    _saveToTempBuffer()
+    {
+        localStorage.setItem("editorContent", this.$.editPane.$.input.value);
     }
 
 
     constructor()
     {
         super();
+
+        this.tempSaveConfig = {
+            saveAfterKeyCount: 20,   // XXX: should be configurable
+            saveAfterElapsedSec: 30,    // XXX: should be configurable
+            currentKeyCount: 0,
+            saveAtEpochTimeMSec: Date.now(),
+        };
 
         browser.runtime.getBackgroundPage()
             .then(bgScope => bgScope.g_fcommandManager.getAll())
