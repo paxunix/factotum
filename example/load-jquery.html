@@ -141,9 +141,6 @@ Factotum.runCommand().
   },
   "bgthrow": {
     "type": "value"
-  },
-  "fail": {
-    "type": "value"
   }
 }
 </script>
@@ -152,21 +149,16 @@ Factotum.runCommand().
 /*
    Inline script blocks are run on import of this document into the page.
    Invoke your Fcommand code here by passing it to Factotum.runCommand().
-   You _can_ run any code you want in a <script> block, but for it to
-   be treated like an Fcommand, it needs to be called via runCommand().
+   You _can_ run any code you want in a <script> block, but for it to be
+   treated like an Fcommand, it needs to be called via runCommand().
 
-   You must call onSuccess() once your Fcommand code has completed
-   successfully.  Any object you pass to it will be passed to the bg code
-   (if any) for this Fcommand when it is run in the background page after
-   onSuccess() is called.
+   Promise.resolve() is called on the value returned by your function.  If
+   the resolved value is defined, it is passed to the bg code (if any) for
+   this Fcommand.
 
-   Call onFailure() or throw an exception if you want to surface (and
-   record) the error via the Factotum extension.  The object you pass
-   it can be any Error object, or a string.  NOTE:  if calling onFailure(),
-   you need to return immediately after, since it does not prevent further
-   processing.
+   Any rejections/thrown exceptions will be recorded as errors.
 */
-function loadJquery(transferObj, onSuccess, onFailure) {
+function loadJquery(transferObj) {
 
   var opts = transferObj.getCommandLine();
 
@@ -178,56 +170,48 @@ function loadJquery(transferObj, onSuccess, onFailure) {
       throw new Error("Fcommand error: " + opts.throw);
   }
 
-  // For pretending failure
-  if (opts.fail)
-  {
-      onFailure(opts.fail);
-      return;
-  }
-
   var url = "https://code.jquery.com/jquery-" +
       opts.version +
       (opts.min ? ".min" : "") + ".js";
 
   opts.delay = opts.delay || 0;
 
-  var s = document.createElement("script");
-  s.src = url;
-  s.onload = function () {
-      // No need to keep the script around once it has run
-      s.parentNode.removeChild(s);
+  return new Promise((res, rej) => {
+    var s = document.createElement("script");
+    s.src = url;
+    s.onload = () => {
+        // No need to keep the script around once it has run
+        s.parentNode.removeChild(s);
 
-      // Demonstrate that you can call onSuccess() in the future.
-      // This Fcommand will not be allowed to re-run within its parent
-      // document until onSuccess() or onFailure() has been called (or an
-      // exception thrown).
-      window.setTimeout(function () {
-          console.log("calling onSuccess");
+        console.log(`Sleeping ${opts.delay} seconds before loading jQuery...`);
 
-          onSuccess({ jqueryVersion: jQuery.fn.jquery });
-        }, opts.delay * 1000);
+        // Demonstrate that future finish of Fcommand
+        window.setTimeout(function () {
+            console.log("resolving promise");
 
-      console.log(`Sleeping ${opts.delay} seconds before loading jQuery...`);
-  };
-  s.onerror = function (e) {
-      // No need to keep the script around once it has run
-      s.parentNode.removeChild(s);
+            res({ jqueryVersion: jQuery.fn.jquery });
+          }, opts.delay * 1000);
+    };
+    s.onerror = e => {
+        // No need to keep the script around once it has run
+        s.parentNode.removeChild(s);
 
-      // NOTE:  since this is in the error handler for the script element,
-      // throwing will not result in the failure being caught by
-      // runCommand() because that execution context is already torn down.
-      // Thus, you have to call onFailure() to allow Factotum to clean up
-      // this Fcommand.
-      var error = new Error("Failed to load jquery");
-      onFailure(error);
-  };
+        // NOTE:  since this is in the error handler for the script element,
+        // throwing will not result in the failure being caught by
+        // runCommand() because that execution context is already torn down.
+        // Thus, you have to reject the loading promise inestead to allow
+        // Factotum to clean up this Fcommand.
+        var error = new Error(`Failed to load jquery: ${e}`);
+        rej(error);
+    };
 
-  // NOTE:  this will NOT work if the page on which this Fcommand is running
-  // has a CSP that disallows the load from jquery.com (e.g. github.com).
-  // It might be an interesting exercise to see if that can be detected, and
-  // then the content instead loaded via bgCode and injected straight into
-  // the page.
-  (document.head || document.documentElement).appendChild(s);
+    // NOTE:  this will NOT work if the page on which this Fcommand is running
+    // has a CSP that disallows the load from jquery.com (e.g. github.com).
+    // It might be an interesting exercise to see if that can be detected, and
+    // then the content instead loaded via bgCode and injected straight into
+    // the page.
+    (document.head || document.documentElement).appendChild(s);
+  });
 } // loadJquery
 
 if (window.Factotum && Factotum.runCommand)
@@ -237,11 +221,9 @@ else
 </script>
 
 <!--
-This element contains Javascript that will be run in the background page
-if your Fcommand passed a non-null object to onSuccess().
-
-It is wrapped in a Function that takes a single object parameter (the
-one that your Fcommand passed to onSuccess()).
+This element contains Javascript that will be run in the background page,
+passed transferObject and browser.  transferObject.getBgData() will return
+the value returned by your Fcommand.
 
 It must be a <template> with an ID of "bgCode".
 -->
@@ -249,25 +231,21 @@ It must be a <template> with an ID of "bgCode".
   <!-- You can wrap it in a <script> tag to make your editor's highlighter
     happy.  The textContent of this node will be parsed as Javascript and
     comprise the body of the function executed in the background page when
-    the Fcommand calls onSuccess().
+    the Fcommand returns.
 
     !!!NOTE!!!:  this code runs with the full permissions of the Factotum
     extension.
 
     The code becomes the body of a function and is passed:  transferObject,
-    onSuccess, and onFailure.
+    and browser.
 
     transferObject is a TransferObject and contains (amongst other things) a
-    getBgData() method that returns the data passed to the Fcommand's
-    onSuccess callback.  XXX:  document WTF is a TransferObject.
+    getBgData() method that returns the data returned by the Fcommand.
+    XXX:  document WTF is a TransferObject.
 
-   You must call onSuccess() once your Fcommand bg code has completed
-   successfully.
+    browser is the WebExtension browser object.
 
-   Call onFailure() or throw an exception if you want to surface (and
-   record) an error from your bg code.  The object you pass it can be any
-   Error object, or a string.  NOTE:  if calling onFailure(), you need to
-   return immediately after, since it does not prevent further processing.
+    The value this code returns is promisified.
   -->
 <script>
 console.log("Running in bg with:", transferObj);
@@ -275,19 +253,18 @@ var opts = transferObj.getCommandLine();
 
 if (opts.bgthrow)
 {
-  let error = new Error("Fcommand bg error: " + opts.bgthrow);
-  throw error;      // in bgCode, throwing is the same as calling onFailure(error)
+  let error = new Error(`Fcommand bg error: ${opts.bgthrow}`);
+  throw error;
 }
 
-browser.notifications.create(
+return browser.notifications.create(
     "",
     {
         type: "basic",
         iconUrl: browser.runtime.getURL("icons/md/info.png"),
         title: "Loaded jQuery",
         message: "Version " + transferObj.getBgData().jqueryVersion,
-        })
-  .then(onSuccess);
+    });
 </script>
 </template>
 

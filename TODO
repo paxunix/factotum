@@ -4,28 +4,6 @@
 
 - migrate to using polymer-cli instead of vulcanize+crisper
 
-- to check whether onFailure or onSuccess were called:
-    - instead define two functions available to all Fcommands and bgcode:
-        getOnSuccessFn() and getOnFailureFn()
-    - if, when the Fcommand has finished executing, neither of those have
-      been called, then call onFailure() for them (regardless of anything,
-      since they broke contract).
-        - what if they are called in the future from setTimeout?
-    - callers then have to invoke the return value from either of those
-      functions in order to finalize an Fcommand execution promise (if they
-      don't, it's immediately rejected).
-    - this doesn't prevent people from doing:
-         new Promise((res, rej) => {
-            doSomething();
-            getOnSuccessFn()();
-         }
-      but we at least immediately reject the Fcommand promise
-      - could we somehow only allow getOnSuccessFn() to be called only from
-        within the Fcommand's direct scope?
-    - could we just make Fcommands be promises and the return value from
-      your Fcommand is immediately waited on?  And if it succeeds, then our
-      resolve() (i.e. onSuccess) is called, otherwise we reject?
-
 - need a linter for Fcommands that detects issues
     - bgCode and regular code but context is "bg" (so only bg code will run)
 

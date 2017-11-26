@@ -73,9 +73,7 @@ static getLoadImportPromise(transferObj)
         if (document.querySelector(`head link#fcommand-${transferObj.get("_content.guid")}[rel=import]`))
         {
             transferObj.set("_bg.errorMessage", `Fcommand '${transferObj.get("_content.title")}' (${transferObj.get("_content.guid")}) is still running in this tab.`);
-            reject(transferObj);
-
-            return;
+            throw transferObj;
         }
 
         var elem = ContentScript.createImportLink(document, transferObj);

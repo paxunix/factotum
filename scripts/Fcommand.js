@@ -364,12 +364,14 @@ runBgCode(transferObj)
     cloneTransferObject.delete("_content.documentString");
 
     // Run the Fcommand's bgCode
-    return new Promise(function (onSuccess, onFailure) {
-        let bgFunction = new Function("transferObj", "onSuccess", "onFailure", "browser",
+    return new Promise(function (res, rej) {
+        var AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+
+        let bgFunction = new AsyncFunction("transferObj", "browser",
             (transferObj.get("_content.internalCmdlineOptions").bgdebug ? "d\ebugger;\n" : "") +
                 self.extractedData.bgCodeString);
 
-        return bgFunction(cloneTransferObject, onSuccess, onFailure, browser);
+        return res(bgFunction(cloneTransferObject, browser));
     });
 }   // Fcommand.runBgCode
 

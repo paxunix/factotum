@@ -76,27 +76,26 @@ Factotum.runCommand = function (fcommandFunc)
     var clonedTransferObject = transferObj.clone().setImportDocument(importDoc);
     var isDebug = transferObj.get("_content.internalCmdlineOptions").debug;
 
-    var p = new Promise(function (resolve, reject) {
-        if (isDebug)
-            debugger;
+    var p = new Promise((res, rej) => {
+        if (isDebug) debugger;
 
-        // Call the Fcommand
-        fcommandFunc(clonedTransferObject, resolve, reject);
+        return res(fcommandFunc(clonedTransferObject));
     });
 
     p.then(function (bgData) {
-        Factotum._cleanup(document, guid);
-
-        transferObj.setBgData(bgData);
-        postMessage(transferObj, "*");
+        if (typeof bgData !== "undefined")
+        {
+            transferObj.setBgData(bgData);
+            postMessage(transferObj, "*");
+        }
     }).catch(function (error) {
-        Factotum._cleanup(document, guid);
-
         // If a thrown Error, its details will not be preserved when passed
         // to the background context, so pull out the stack and use it
         // as the error string.
         transferObj.set("_bg.errorMessage",
             (error instanceof Error) ?  error.stack : error);
         postMessage(transferObj, "*");
+    }).finally(() => {
+        Factotum._cleanup(document, guid);
     });
 }   // Factotum.runCommand
