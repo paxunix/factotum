@@ -199,7 +199,7 @@ function loadJquery(transferObj) {
         // NOTE:  since this is in the error handler for the script element,
         // throwing will not result in the failure being caught by
         // runCommand() because that execution context is already torn down.
-        // Thus, you have to reject the loading promise inestead to allow
+        // Thus, you have to reject the loading promise instead to allow
         // Factotum to clean up this Fcommand.
         var error = new Error(`Failed to load jquery: ${e}`);
         rej(error);
