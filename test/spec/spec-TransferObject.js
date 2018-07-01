@@ -1,7 +1,7 @@
 "use strict";
 
 
-import TransferObject from "../../scripts/TransferObject.js";
+import TransferObject from "./scripts/TransferObject.js";
 
 
 describe("TransferObject", function () {

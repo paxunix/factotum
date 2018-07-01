@@ -1,7 +1,7 @@
 "use strict";
 
-import TransferObject from "../../scripts/TransferObject.js";
-import ContentScript from "../../scripts/ContentScript.js";
+import TransferObject from "./scripts/TransferObject.js";
+import ContentScript from "./scripts/ContentScript.js";
 
 describe("inject", function() {
 

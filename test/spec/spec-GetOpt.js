@@ -1,6 +1,6 @@
 "use strict";
 
-import GetOpt from "../../scripts/GetOpt.js";
+import GetOpt from "./scripts/GetOpt.js";
 
 describe("GetOpt", function () {
 

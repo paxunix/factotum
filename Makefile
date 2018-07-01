@@ -2,6 +2,7 @@ MAKEFLAGS := -j
 SHELL := /bin/zsh
 .SHELLFLAGS := -f -c
 OUTDIR := build
+TESTDIR := test-build
 SCRIPTS_DIR := $(OUTDIR)/scripts
 HTML_DIR := $(OUTDIR)/html
 .DEFAULT := all
@@ -48,7 +49,7 @@ factotum.tar: all
 
 .PHONY: clean
 clean:
-	rm -fr $(OUTDIR)
+	rm -fr $(OUTDIR) $(TESTDIR)
 
 
 .PHONY: update
@@ -61,9 +62,16 @@ setup:
 	npm install --dev
 
 
+.PHONY: test-copy
+test-copy: all | $(TESTDIR)/.
+	cd $(TESTDIR) && ln -sf $(abspath $(OUTDIR))/* ./
+	cd $(TESTDIR) && ln -sf $(abspath node_modules/jasmine-core) ./node_modules/
+	rsync -av test/spec/* test/run-spec.html $(TESTDIR)/
+
+
 .PHONY: testserver
-testserver: all
-	cd test-build && python -m SimpleHTTPServer
+testserver: test-copy
+	cd $(TESTDIR) && python -m SimpleHTTPServer
 
 
 .PRECIOUS: %/.

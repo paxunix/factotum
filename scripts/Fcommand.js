@@ -347,8 +347,7 @@ static _extractBgCodeString(document, language)
  * Return a promise to run the bg code for this Fcommand, passing it the
  * given data (as 'transferObj').
  * @param {TransferObject} transferObj - Data passed to the Fcommand.
- * @return {Promise} - run the bg code, resolve to whatever the bg code
- * returns from calling onSuccess();
+ * @return {Promise} - run the bg code, resolve to what the bg code returns.
  */
 runBgCode(transferObj)
 {

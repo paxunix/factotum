@@ -1,7 +1,7 @@
 'use strict';
 
-import ContentScript from "../../scripts/ContentScript.js";
-import TransferObject from "../../scripts/TransferObject.js";
+import ContentScript from "./scripts/ContentScript.js";
+import TransferObject from "./scripts/TransferObject.js";
 
 describe("ContentScript", function() {
 
@@ -85,27 +85,23 @@ describe("getLoadImportPromise", function() {
         });
     });
 
-    xit("rejects if Fcommand hasn't finished yet", function(done) {
-        // XXX: can't do this wihout the Fcommand actually calling
-        // onFailure/onSuccess.
+    it("rejects if Fcommand hasn't finished yet", function(done) {
         var t = new TransferObject().set("_content.documentString", "test");
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
 
         p.then(function (obj) {
-            expect(obj).toBe({});
-
             // Fcommand has been loaded, so now try to load it again.
             var p2 = ContentScript.getLoadImportPromise(t);
             p2.then(function (obj2) {
                 done();
                 throw "Should not get here";
-                }).catch(function (obj2) {
-                    // Second load should fail
-                    expect(obj2.get("_bg.errorMessage")).toMatch(new RegExp("XXX: error string"));
-                    done();
-                });
+            }).catch(function (obj2) {
+                // Second load should fail
+                expect(obj2.get("_bg.errorMessage")).toMatch(new RegExp("Fcommand.*is still running in this tab"));
+                done();
+            });
         }).catch(function (obj) {
             done();
             throw "Should not get here";

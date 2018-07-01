@@ -3,6 +3,7 @@
 /bower_components
 /node_modules
 /build/*
+/test-build/*
 deps-*.files
 *.crx
 *.pem

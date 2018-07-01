@@ -1,7 +1,7 @@
 "use strict";
 
-import Fcommand from "../../scripts/Fcommand.js";
-import TransferObject from "../../scripts/TransferObject.js";
+import Fcommand from "./scripts/Fcommand.js";
+import TransferObject from "./scripts/TransferObject.js";
 
 describe("Fcommand", function () {
 
@@ -381,7 +381,7 @@ describe("runBgCode", function() {
         '<body>',
         '<template id="bgCode">',
         'window.fcommandBgSpy(transferObj);',
-        'onSuccess();',
+        'return 42;',
         '</template>',
         '</body>',
     ].join("\n");
@@ -399,7 +399,8 @@ describe("runBgCode", function() {
         // Always present on TransferObjects passed to runBgCode()
         obj.setCommandLine({});
 
-        fcommand.runBgCode(obj).then(function () {
+        fcommand.runBgCode(obj).then(ret => {
+            expect(ret).toBe(42);
             expect(window.fcommandBgSpy).toHaveBeenCalledWith(jasmine.any(TransferObject));
             expect(window.fcommandBgSpy.calls.first().args[0].get("_bg.fcommandDocument") instanceof HTMLDocument).toBe(true);
             done();
@@ -423,7 +424,7 @@ describe("runBgCode", function() {
             '<body>',
             '<template id="bgCode">',
             'window.fcommandBgSpy(arguments.callee.toString());',
-            'onSuccess();',
+            'return 42;',
             '</template>',
             '</body>',
         ].join("\n");
@@ -436,7 +437,8 @@ describe("runBgCode", function() {
         // Always present on TransferObjects passed to runBgCode()
         obj.setCommandLine({});
 
-        fcommand.runBgCode(obj).then(function () {
+        fcommand.runBgCode(obj).then(ret => {
+            expect(ret).toBe(42);
             expect(window.fcommandBgSpy.calls.first().args[0]).toMatch(/d\ebugger;/);
             done();
         });

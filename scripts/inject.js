@@ -68,8 +68,7 @@ Factotum.getFcommandId = function (document)
  * @param {Function} fcommandFunc - function that is the Fcommand.  Takes
  * these parameters:
  * @property {TransferObject} transferObj - contains command line options, tab disposition, etc.  @see {TransferObject}
- * @property {Function} onSuccess - called by the Fcommand code to indicate succesful completion.  Expects on Object (containing the data to be passed to the Fcommands bg code (if any)).
- * @property {Function} onFailure - called by the Fcommand code to indicate failure.  Expects one Object (either an Error object or a string).
+ * @property {Object} browser - WebExtension's browser object.  @see https://developer.mozilla.org/en-US/Add-ons/WebExtensions
  */
 Factotum.runCommand = function (fcommandFunc)
 {
