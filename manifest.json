@@ -27,12 +27,16 @@
         // content script will get the request from the bg page?
         // "all_frames": true,
         "js": [
-            "content.bundle.js"
+            "node_modules/webextension-polyfill/dist/browser-polyfill.js",
+            "scripts/content.js"
         ]
     }],
 
     "background": {
-        "scripts": [ "background.bundle.js" ]
+        "scripts": [
+            "node_modules/webextension-polyfill/dist/browser-polyfill.js",
+            "scripts/background.js"
+        ]
     },
 
     // Yes, ask for all permissions possible.  This extension exists to
@@ -79,6 +83,7 @@
         "topSites",
         "tts",
         "ttsEngine",
+        "unlimitedStorage",
         "webNavigation",
         "webRequest",
         "webRequestBlocking"
@@ -91,7 +96,7 @@
     "browser_action": {
         "default_icon": "icons/factotum-128.png",
         "default_title": "Factotum",
-        "default_popup": "popup.html"
+        "default_popup": "html/popup.html"
     },
 
     // "minimum_chrome_version": XXX,
@@ -99,7 +104,19 @@
     "offline_enabled": false,
 
     "web_accessible_resources": [
-        "inject.bundle.js",
-        "webextension-polyfill/dist/browser-polyfill.min.js"
+        "scripts/background.js",
+        "scripts/content.js",
+        "scripts/ContentScript.js",
+        "scripts/ErrorCache.js",
+        "scripts/FactotumBg.js",
+        "scripts/FcommandErrors.js",
+        "scripts/Fcommand.js",
+        "scripts/FcommandManager.js",
+        "scripts/GetOpt.js",
+        "scripts/inject.js",
+        "scripts/ShellParse.js",
+        "scripts/TransferObject.js",
+        "scripts/Util.js",
+        "scripts/wrapperr-esm.js"
     ]
 }

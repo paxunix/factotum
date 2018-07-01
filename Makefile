@@ -1,74 +1,79 @@
-PACKAGE_NAME := factotum
-MAKEFLAGS := -j --output-sync
+MAKEFLAGS := -j
 SHELL := /bin/zsh
 .SHELLFLAGS := -f -c
 OUTDIR := build
-XFORM_HTML_ROOTNAMES := $(patsubst html/factotum-%-polymer.html,%,$(wildcard html/factotum-*-polymer.html))
+SCRIPTS_DIR := $(OUTDIR)/scripts
+HTML_DIR := $(OUTDIR)/html
+.DEFAULT := all
+
 
 .PHONY: all
-all: bundle xform-html flat-copy non-flat-copy
-	ln -sf -t $(OUTDIR) ../bower_components
+all: \
+    script-copy \
+    html-copy \
+    relative-copy \
 
-.PHONY: bundle
-bundle: \
-        $(OUTDIR)/background.bundle.js \
-        $(OUTDIR)/content.bundle.js \
-        $(OUTDIR)/inject.bundle.js
 
-.PHONY: xform-html
-xform-html: \
-        $(addsuffix .html,$(addprefix $(OUTDIR)/,$(XFORM_HTML_ROOTNAMES)))
-	mkdir -p $(OUTDIR)
+.PHONY: script-copy
+script-copy: \
+        $(addprefix $(OUTDIR)/, \
+            $(wildcard scripts/*.js) \
+        )
 
-.PHONY: non-flat-copy
-non-flat-copy: \
-        icons \
-        manifest.json
-	mkdir -p $(OUTDIR)
-	rsync -av $^ $(OUTDIR)/
 
-.PHONY: flat-copy
-flat-copy: \
-        _locales/*/* \
+.PHONY: html-copy
+html-copy: \
+        $(addprefix $(OUTDIR)/, \
+            $(wildcard html/*.html) \
+        )
+
+
+.PHONY: relative-copy
+relative-copy: \
         example/* \
-        node_modules/webextension-polyfill/dist/browser-polyfill.min.js
-	mkdir -p $(OUTDIR)
+        icons \
+        _locales/*/* \
+        manifest.json \
+        node_modules/dexie/dist/dexie.es.js \
+        node_modules/webextension-polyfill/dist/browser-polyfill.js \
+        | $(OUTDIR)/.
 	rsync -Rav $^ $(OUTDIR)/
 
-$(OUTDIR)/%.html: html/%.html html/factotum-%-polymer.html
-	mkdir -p $(dir $@)
-	setopt pipefail; ./node_modules/vulcanize/bin/vulcanize $< | \
-        ./node_modules/crisper/bin/crisper --html $@.tmp --js $(basename $@).js
-	mv $@.tmp $@
-
-$(OUTDIR)/%.bundle.js: scripts/%.js
-	mkdir -p $(dir $@)
-	./node_modules/webpack/bin/webpack.js -d $< $@
 
 .PHONY: tar
 tar: factotum.tar
 factotum.tar: all
 	tar -hcvf factotum.tar build/
 
-.PHONY: package
-package: manifest.json $(OUTDIR)/*.html $(OUTDIR)/*.js
-	mkdir -p $(PACKAGE_NAME)
-	cp -prv $^ $(PACKAGE_NAME)/
 
 .PHONY: clean
 clean:
 	rm -fr $(OUTDIR)
 
+
 .PHONY: update
 update:
 	npm update
-	./node_modules/bower/bin/bower update
+
 
 .PHONY: setup
 setup:
 	npm install --dev
-	./node_modules/bower/bin/bower install
+
 
 .PHONY: testserver
-testserver:
-	-python -m SimpleHTTPServer
+testserver: all
+	cd test-build && python -m SimpleHTTPServer
+
+
+.PRECIOUS: %/.
+%/.:
+	mkdir -p $@
+
+
+$(SCRIPTS_DIR)/%.js: scripts/%.js | $(SCRIPTS_DIR)/.
+	rsync -av $< $(dir $@)
+
+
+$(HTML_DIR)/%.html: html/%.html | $(HTML_DIR)/.
+	rsync -av $< $(dir $@)

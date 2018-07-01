@@ -1,6 +1,5 @@
 "use strict";
 
-let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
 
 class Util {
 

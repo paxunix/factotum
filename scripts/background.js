@@ -1,11 +1,12 @@
+(async () => {
+
+
 "use strict";
 
-import FactotumBg from "./FactotumBg.js";
-import FcommandManager from "./FcommandManager.js";
-import Util from "./Util.js";
-import FcommandErrors from "./FcommandErrors.js";
-
-let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
+let FactotumBg = (await import("./FactotumBg.js")).default;
+let FcommandManager = (await import("./FcommandManager.js")).default;
+let Util = (await import("./Util.js")).default;
+let FcommandErrors = (await import("./FcommandErrors.js")).default;
 
 window.g_fcommandManager = new FcommandManager(new FcommandErrors());
 
@@ -31,3 +32,6 @@ for (let url of fetchUrls)
 {
     g_fcommandManager.fetchFcommandUrl(url);
 }
+
+
+})();   // async

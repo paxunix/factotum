@@ -4,8 +4,6 @@ import Dexie from "../node_modules/dexie/dist/dexie.es.js";
 import Fcommand from "./Fcommand.js";
 import Util from "./Util.js";
 
-let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
-
 
 // XXX: test all of me
 

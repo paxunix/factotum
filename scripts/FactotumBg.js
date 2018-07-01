@@ -5,8 +5,6 @@ import ShellParse from "./ShellParse.js";
 import GetOpt from "./GetOpt.js";
 import TransferObject from "./TransferObject.js";
 
-let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
-
 let FCOMMAND_GUID_DELIM = "--guid=";
 
 

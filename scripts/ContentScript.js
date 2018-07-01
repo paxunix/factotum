@@ -2,9 +2,6 @@
 
 import TransferObject from "./TransferObject.js";
 
-let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
-
-
 class ContentScript
 {
 
@@ -138,11 +135,13 @@ static messageListener(evt)
 
 // Return a promise to insert the Factotum API into the page, so in-page JS
 // has access to it.
+// It would have been nice to use browser.tabs.executeScript(), but that's
+// only available in background and popup contexts.
 static injectFactotumApi(document)
 {
     return new Promise(function (resolve, reject) {
         var s = document.createElement("script");
-        s.src = browser.runtime.getURL("inject.bundle.js");
+        s.src = browser.runtime.getURL("scripts/inject.js");
         s.onload = function () {
             // No need to keep the script around once it has run
             s.parentNode.removeChild(s);

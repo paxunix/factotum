@@ -5,8 +5,6 @@ import TransferObject from "./TransferObject.js";
 import Util from "./Util.js";
 import WrappErr from "./wrapperr-esm.js";
 
-let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
-
 class Fcommand
 {
 

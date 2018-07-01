@@ -1,9 +1,10 @@
+(async () => {
+
+
 "use strict";
 
-import ContentScript from "./ContentScript.js";
-import WrappErr from "./wrapperr-esm.js";
+let ContentScript = (await import(browser.runtime.getURL("scripts/ContentScript.js"))).default;
 
-let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
 
 /**
  * Contains code that should only run via load by the extension.
@@ -17,4 +18,8 @@ let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfi
 
     // Listener for communication from page (injected Factotum)
     window.addEventListener("message", ContentScript.messageListener, false);
+
 })();
+
+
+})();   // async

@@ -1,6 +1,10 @@
+(async () => {
+
+
 "use strict";
 
-import TransferObject from "./TransferObject.js";
+let TransferObject = (await import("./TransferObject.js")).default;
+
 
 // XXX: make me a class
 /**
@@ -99,3 +103,6 @@ Factotum.runCommand = function (fcommandFunc)
         Factotum._cleanup(document, guid);
     });
 }   // Factotum.runCommand
+
+
+})();   // async

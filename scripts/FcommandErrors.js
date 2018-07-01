@@ -4,8 +4,6 @@ import ErrorCache from "./ErrorCache.js";
 import WrappErr from "./wrapperr-esm.js";
 import Util from "./Util.js";
 
-let browser = require("../node_modules/webextension-polyfill/dist/browser-polyfill.js");
-
 
 // XXX: test all of me
 
