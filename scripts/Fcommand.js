@@ -509,7 +509,7 @@ function getFocussedWindow() {
 function createHelpWindow(fcommandGuid, wnd) {
     let width = Math.round(wnd.width * 0.40);
     let height = Math.round(wnd.height * 0.65);
-    let url = browser.runtime.getURL("help.html") +
+    let url = browser.runtime.getURL("html/help.html") +
         `?guid=${fcommandGuid}`;
 
     return browser.windows.create({

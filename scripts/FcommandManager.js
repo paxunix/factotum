@@ -246,7 +246,7 @@ async createMainContextMenu()
  */
 openFcommandsPage()
 {
-    let fcommandsPageUrl = browser.runtime.getURL("fcommands.html");
+    let fcommandsPageUrl = browser.runtime.getURL("html/fcommands.html");
 
     Util.openUrlTab(fcommandsPageUrl);
 }   // openFcommandsPage
@@ -257,7 +257,7 @@ openFcommandsPage()
  */
 static async _reloadFcommandPages()
 {
-    let url = browser.runtime.getURL("fcommands.html");
+    let url = browser.runtime.getURL("html/fcommands.html");
     let tabs = await browser.tabs.query({ url: url });
 
     for (let tab of tabs)

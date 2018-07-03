@@ -1,12 +1,7 @@
-<!DOCTYPE html>
+const $_documentContainer = document.createElement('template');
+$_documentContainer.setAttribute('style', 'display: none;');
 
-<head>
-  <link rel="import" href="../bower_components/polymer/polymer.html">
-  <link rel="import" href="../bower_components/paper-styles/color.html">
-  <link rel="import" href="../bower_components/paper-styles/typography.html">
-</head>
-
-<dom-module id="factotum-shared-styles">
+$_documentContainer.innerHTML = `<dom-module id="factotum-shared-styles">
   <template>
     <style>
       :host {
@@ -41,4 +36,6 @@
       }
     </style>
   </template>
-</dom-module>
+</dom-module>`;
+
+document.head.appendChild($_documentContainer.content);

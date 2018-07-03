@@ -54,7 +54,7 @@ _update()
  */
 _openErrorPage()
 {
-    let errorPageUrl = browser.runtime.getURL("errors.html");
+    let errorPageUrl = browser.runtime.getURL("html/errors.html");
 
     Util.openUrlTab(errorPageUrl);
 }
