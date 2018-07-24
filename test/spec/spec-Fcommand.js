@@ -65,7 +65,7 @@ describe("_extractData", function() {
         expect(Fcommand._extractData("", lang)).toEqual({
             author: null,
             bgCodeString: null,
-            context: null,
+            context: "page",
             description: null,
             downloadUrl: null,
             guid: null,

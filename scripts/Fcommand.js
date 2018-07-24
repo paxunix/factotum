@@ -97,7 +97,7 @@ static _getDataExtractor(document, lang)
     return {
         author: getMetaFieldExtractor("author"),
         bgCodeString: Fcommand._extractBgCodeString,
-        context: getMetaFieldExtractor("context"),
+        context: getMetaFieldExtractor("context", "page"),
         description: getMetaFieldExtractor("description"),
         downloadUrl: getMetaFieldExtractor("downloadUrl"),
         guid: getMetaFieldExtractor("guid"),
