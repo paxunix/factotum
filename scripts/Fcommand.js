@@ -82,10 +82,15 @@ static _getSelectorContent(selector, document, lang)
  */
 static _getDataExtractor(document, lang)
 {
-    function getMetaFieldExtractor(field)
+    function getMetaFieldExtractor(field, defaultV = null)
     {
         return function (document, lang) {
-            return Fcommand._getMetadataFieldString(field, document, lang);
+            let value = Fcommand._getMetadataFieldString(field, document, lang);
+            value = (value === null && defaultV !== null) ?
+                defaultV :
+                value;
+
+            return value;
         };
     }
 
