@@ -50,7 +50,7 @@ static _getMetadataFieldString(field, document, lang)
     let value = Fcommand._getSelectorContent(`head meta[name='${field}']`, document, lang);
 
     if (value !== null)
-        value = value.replace(/^\s+/, "").replace(/\s+$/, "");
+        value = value.trim();
 
     return value;
 }   // Fcommand._getMetadataFieldString
