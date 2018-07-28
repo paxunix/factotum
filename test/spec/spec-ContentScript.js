@@ -29,6 +29,12 @@ describe("createImportLink", function() {
 
 describe("getLoadImportPromise", function() {
 
+    // Remove all Fcommand import documents before each spec (since some
+    // tests may actually add one)
+    beforeEach(async () => {
+        document.head.querySelectorAll('link[rel="import"][id^="fcommand-"]').forEach(el => el.remove());
+    });
+
     it("appends a link import element to the document's head", function(done) {
         // Fake the call to add the link element to the document (this is
         // needed so that the import promise is resolved)
