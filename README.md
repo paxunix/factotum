@@ -40,10 +40,8 @@ who gave you a free gun full of free bullets.**
 ## Setting up a local package
 
 1. Install [Node.js](http://nodejs.org/download/) if you don't already have
-   it.  You'll need node and npm.
-1. Run `make setup`.  It will install the necessary node and bower packages.
-1. Apply dirty hack to your local Dexie copy as indicated in:
-   https://github.com/webpack/webpack/issues/138#issuecomment-123313230
+   it.  You'll need NodeJS and npm.
+1. Run `make setup`.  It will install the necessary npm packages.
 1. Run `make`.
 1. Enable developer mode in `chrome://extensions/`.
 1. Click on the *Load unpacked extension...* button and select the directory
