@@ -3,8 +3,10 @@
 /bower_components
 /node_modules
 /build/*
+/release/*
 /test-build/*
 deps-*.files
 *.crx
 *.pem
 factotum/
+polymer-build/
