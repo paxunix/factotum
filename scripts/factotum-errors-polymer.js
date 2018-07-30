@@ -1,6 +1,13 @@
 import './factotum-shared-styles.js';
 import {PolymerElement, html} from '../node_modules/@polymer/polymer/polymer-element.js';
 
+import '../node_modules/@polymer/iron-icons/iron-icons.js';
+import '../node_modules/@polymer/paper-icon-button/paper-icon-button.js';
+import '../node_modules/@polymer/app-layout/app-header-layout/app-header-layout.js';
+import '../node_modules/@polymer/app-layout/app-header/app-header.js';
+import '../node_modules/@polymer/app-layout/app-toolbar/app-toolbar.js';
+
+
 class ErrorsElement extends PolymerElement
 {
   static get template() {

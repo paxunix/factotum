@@ -1,6 +1,13 @@
 import './factotum-shared-styles.js';
 import {PolymerElement, html} from '../node_modules/@polymer/polymer/polymer-element.js';
 
+import '../node_modules/@polymer/iron-icons/iron-icons.js';
+import '../node_modules/@polymer/paper-item/paper-icon-item.js';
+import '../node_modules/@polymer/paper-styles/color.js';
+import '../node_modules/@polymer/paper-icon-button/paper-icon-button.js';
+import '../node_modules/@polymer/paper-input/paper-input.js';
+
+
 class PopupElement extends PolymerElement
 {
   static get template() {
