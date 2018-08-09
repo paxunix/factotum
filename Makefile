@@ -45,7 +45,7 @@ relative-copy: \
 .PHONY: tar
 tar: factotum.tar
 factotum.tar: all
-	tar -hcvf factotum.tar build/
+	tar -hcvf factotum.tar $(OUTDIR)/
 
 
 .PHONY: clean
