@@ -199,21 +199,28 @@ class ConfigDialog
 
     show()
     {
-        // XXX: Save current state so it can be restored on cancel
+        let currentState = this.getDialogState();
 
         return new Promise((res, rej) => {
             this.onOkay = () => {
-                // XXX: return current data state
-                return res();
+                return res(this.getDialogState());
             };
 
             this.onCancel = () => {
-                // XXX: restore saved state
+                this.setDialogState(currentState);
+
                 return rej();
             };
 
             this.dialog.showModal();
         });
+    }
+
+
+    getDialogState()
+    {
+        // XXX
+
     }
 
 
