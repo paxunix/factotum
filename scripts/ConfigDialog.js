@@ -3,6 +3,7 @@
 
 const OKAY_TEXT = "Ok";
 const CANCEL_TEXT = "Cancel";
+const STYLE_ID = "ConfigDialog_style";
 
 
 class ConfigDialog
@@ -14,6 +15,7 @@ class ConfigDialog
 
         this.dialog = doc.createElement("dialog");
         this.dialog.id = `configDialog_${ConfigDialog._getUuid()}`;
+        this.dialog.classList.add(STYLE_ID);
         this.dialog.innerHTML = this.getMarkup();
         this.dialog.style = "text-align: left;";
 
@@ -29,6 +31,11 @@ class ConfigDialog
 
             return this.onCancel();
         });
+
+        // Only add style to document head if it's not already there (same
+        // styling is shared by all ConfigDialogs).
+        if (!doc.head.querySelector(`style#${STYLE_ID}`))
+            doc.head.appendChild(this.getCssStyleNode(doc));
 
         doc.body.appendChild(this.dialog);
     }
@@ -172,6 +179,21 @@ class ConfigDialog
   ]
 }
 */
+    getCssStyleNode(doc)
+    {
+        let style = doc.createElement("style");
+
+        style.id = STYLE_ID;
+        style.textContent = `
+dialog.${STYLE_ID}::backdrop {
+    background: #114865eb;
+}
+`;
+
+        return style;
+    }
+
+
     getMarkup()
     {
         let markup = [
