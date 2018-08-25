@@ -106,7 +106,7 @@ class ConfigDialog
 
     static renderCheckbox(option, state)
     {
-        let id = ConfigDialog.htmlEscape(ConfigDialog.makeId(option.name));
+        let id = ConfigDialog.htmlEscape(ConfigDialog.makeId(option.key));
         let displayName = ConfigDialog.htmlEscape(option.name);
 
         return `<label><input type="checkbox" id="${id}" ${state[option.key] ? "checked" : ""}/>${displayName}</label>`;
@@ -115,7 +115,7 @@ class ConfigDialog
 
     static renderInput(option, state)
     {
-        let id = ConfigDialog.htmlEscape(ConfigDialog.makeId(option.name));
+        let id = ConfigDialog.htmlEscape(ConfigDialog.makeId(option.key));
         let displayName = ConfigDialog.htmlEscape(option.name);
 
         return `<label>${displayName} <input type="text" id="${id}" value="${ConfigDialog.htmlEscape(state[option.key])}"}/></label>`;
