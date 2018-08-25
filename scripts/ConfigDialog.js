@@ -104,45 +104,45 @@ class ConfigDialog
     }
 
 
-    static renderCheckbox(option)
+    static renderCheckbox(option, state)
     {
         let id = ConfigDialog.htmlEscape(ConfigDialog.makeId(option.name));
         let displayName = ConfigDialog.htmlEscape(option.name);
 
-        return `<label><input type="checkbox" id="${id}" ${option.value ? "checked" : ""}/>${displayName}</label>`;
+        return `<label><input type="checkbox" id="${id}" ${state[option.key] ? "checked" : ""}/>${displayName}</label>`;
     }
 
 
-    static renderInput(option)
+    static renderInput(option, state)
     {
         let id = ConfigDialog.htmlEscape(ConfigDialog.makeId(option.name));
         let displayName = ConfigDialog.htmlEscape(option.name);
 
-        return `<label>${displayName} <input type="text" id="${id}" value="${ConfigDialog.htmlEscape(option.value)}"}/></label>`;
+        return `<label>${displayName} <input type="text" id="${id}" value="${ConfigDialog.htmlEscape(state[option.key])}"}/></label>`;
     }
 
 
-    static renderOption(option)
+    static renderOption(option, state)
     {
-        switch (typeof(option.value))
+        switch (typeof(state[option.key]))
         {
             case "boolean":
-                return ConfigDialog.renderCheckbox(option);
+                return ConfigDialog.renderCheckbox(option, state);
 
             default:
-                return ConfigDialog.renderInput(option);
+                return ConfigDialog.renderInput(option, state);
         }
     }
 
 
-    static renderSection(sectionData)
+    static renderSection(sectionData, state)
     {
         let displayName = ConfigDialog.htmlEscape(sectionData.name);
         let markup = [ `<fieldset style="margin-bottom: 1.5ex;"><legend>${displayName}</legend>` ];
 
         for (let opt of sectionData.options)
         {
-            markup.push(`<div style="margin-bottom: 1ex;">${ConfigDialog.renderOption(opt)}</div>`);
+            markup.push(`<div style="margin-bottom: 1ex;">${ConfigDialog.renderOption(opt, state)}</div>`);
         }
 
         markup.push("</fieldset>");
@@ -163,11 +163,11 @@ class ConfigDialog
   sections: [
        { name: "Section 1",
          options: [
-           { name: "Option 1", value: true },
-           { name: "Opt 2", value: "testing" },
+           { name: "Option 1", key: "opt1" },
+           { name: "Opt 2", key: "opt2" },
          ]
        },
-       { name: "Section 2", options: [ { name: "Opt 2.1", value: false } ] },
+       { name: "Section 2", options: [ { name: "Opt 2.1", key: "opt3" } ] },
      // ...
   ]
 }
@@ -182,7 +182,7 @@ class ConfigDialog
 
         for (let sect of this.config.sections)
         {
-            markup.push(ConfigDialog.renderSection(sect));
+            markup.push(ConfigDialog.renderSection(sect, this.state));
         }
 
         markup.push(`
@@ -229,10 +229,15 @@ d = new ConfigDialog({
   sections: [
        { name: "Section 1",
          options: [
-           { name: "Option 1", key: "opt1", value: true },
-           { name: "Opt 2", key: "opt2", value: "testing" },
+           { name: "Option 1", key: "opt1" },
+           { name: "Opt 2", key: "opt2" },
          ]
        },
-       { name: "Sec 2", options: [ { name: "Opt 2.1", key: "opt2.1", value: false } ] },
+       { name: "Sec 2", options: [ { name: "Opt 2.1", key: "opt2.1" } ] },
   ]
-}, document);
+}, {
+    opt1: true,
+    opt2: "some text",
+    "opt2.1": false,
+},
+document);
