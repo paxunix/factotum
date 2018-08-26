@@ -109,7 +109,7 @@ class ConfigDialog
     static renderCheckbox(option, state)
     {
         let key = ConfigDialog.htmlEscape(option.key);
-        let displayName = ConfigDialog.htmlEscape(option.name);
+        let displayName = ConfigDialog.htmlEscape(option.display);
 
         return `<label><input class="${OPT_CLASS}" type="checkbox" name="${key}" ${state[option.key] ? "checked" : ""}/>${displayName}</label>`;
     }
@@ -118,7 +118,7 @@ class ConfigDialog
     static renderInput(option, state)
     {
         let key = ConfigDialog.htmlEscape(option.key);
-        let displayName = ConfigDialog.htmlEscape(option.name);
+        let displayName = ConfigDialog.htmlEscape(option.display);
 
         return `<label>${displayName} <input class="${OPT_CLASS}" type="text" name="${key}" value="${ConfigDialog.htmlEscape(state[option.key])}"}/></label>`;
     }
@@ -139,7 +139,7 @@ class ConfigDialog
 
     static renderSection(sectionData, state)
     {
-        let displayName = ConfigDialog.htmlEscape(sectionData.name);
+        let displayName = ConfigDialog.htmlEscape(sectionData.display);
         let markup = [ `<fieldset style="margin-bottom: 1.5ex;"><legend>${displayName}</legend>` ];
 
         for (let opt of sectionData.options)
