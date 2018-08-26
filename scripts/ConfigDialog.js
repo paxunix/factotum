@@ -153,7 +153,7 @@ class ConfigDialog
     static renderSection(sectionData, state)
     {
         let displayName = ConfigDialog.htmlEscape(sectionData.display);
-        let markup = [ `<fieldset style="margin-bottom: 1.5ex;"><legend>${displayName}</legend>` ];
+        let markup = [ `<fieldset style="margin-bottom: 1.5ex;">${displayName !== "" ? `<legend>${displayName}</legend>` : ""}` ];
 
         for (let opt of sectionData.options)
         {
