@@ -105,6 +105,7 @@
 
     "web_accessible_resources": [
         "scripts/background.js",
+        "scripts/ConfigDialog.js",
         "scripts/content.js",
         "scripts/ContentScript.js",
         "scripts/ErrorCache.js",
