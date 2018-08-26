@@ -1,4 +1,4 @@
-//XXX:"use strict";
+"use strict";
 
 
 /*
@@ -312,3 +312,5 @@ dialog.${STYLE_ID}::backdrop {
         this.dialog.innerHTML = this.getMarkup(newState);
     }
 };
+
+export default ConfigDialog;
