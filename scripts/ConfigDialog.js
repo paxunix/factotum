@@ -4,20 +4,21 @@
 const OKAY_TEXT = "Ok";
 const CANCEL_TEXT = "Cancel";
 const STYLE_ID = "ConfigDialog_style";
+const OPT_CLASS = "opt";
 
 
 class ConfigDialog
 {
-    constructor(config, state, doc)
+    constructor(config, initialState, doc)
     {
-        this.config = Object.assign({}, config);
-        this.state = Object.assign({}, state);
+        this.config = config;
 
         this.dialog = doc.createElement("dialog");
         this.dialog.id = `configDialog_${ConfigDialog._getUuid()}`;
         this.dialog.classList.add(STYLE_ID);
-        this.dialog.innerHTML = this.getMarkup();
         this.dialog.style = "text-align: left;";
+
+        this.setDialogState(initialState);
 
         // Set in show()
         this.onOkay = null;
@@ -105,27 +106,21 @@ class ConfigDialog
     }
 
 
-    static makeId(s)
-    {
-        return ConfigDialog._stripSpaces(s);
-    }
-
-
     static renderCheckbox(option, state)
     {
-        let id = ConfigDialog.htmlEscape(ConfigDialog.makeId(option.key));
+        let key = ConfigDialog.htmlEscape(option.key);
         let displayName = ConfigDialog.htmlEscape(option.name);
 
-        return `<label><input type="checkbox" id="${id}" ${state[option.key] ? "checked" : ""}/>${displayName}</label>`;
+        return `<label><input class="${OPT_CLASS}" type="checkbox" name="${key}" ${state[option.key] ? "checked" : ""}/>${displayName}</label>`;
     }
 
 
     static renderInput(option, state)
     {
-        let id = ConfigDialog.htmlEscape(ConfigDialog.makeId(option.key));
+        let key = ConfigDialog.htmlEscape(option.key);
         let displayName = ConfigDialog.htmlEscape(option.name);
 
-        return `<label>${displayName} <input type="text" id="${id}" value="${ConfigDialog.htmlEscape(state[option.key])}"}/></label>`;
+        return `<label>${displayName} <input class="${OPT_CLASS}" type="text" name="${key}" value="${ConfigDialog.htmlEscape(state[option.key])}"}/></label>`;
     }
 
 
@@ -194,7 +189,7 @@ dialog.${STYLE_ID}::backdrop {
     }
 
 
-    getMarkup()
+    getMarkup(newState)
     {
         let markup = [
             "<div>",
@@ -204,7 +199,7 @@ dialog.${STYLE_ID}::backdrop {
 
         for (let sect of this.config.sections)
         {
-            markup.push(ConfigDialog.renderSection(sect, this.state));
+            markup.push(ConfigDialog.renderSection(sect, newState));
         }
 
         markup.push(`
@@ -221,7 +216,7 @@ dialog.${STYLE_ID}::backdrop {
 
     show()
     {
-        let currentState = this.getDialogState();
+        let oldState = this.getDialogState();
 
         return new Promise((res, rej) => {
             this.onOkay = () => {
@@ -229,9 +224,8 @@ dialog.${STYLE_ID}::backdrop {
             };
 
             this.onCancel = () => {
-                this.setDialogState(currentState);
-
-                return rej();
+                this.setDialogState(oldState);
+                rej();
             };
 
             this.dialog.showModal();
@@ -241,14 +235,29 @@ dialog.${STYLE_ID}::backdrop {
 
     getDialogState()
     {
-        // XXX
+        let state = {};
 
+        for (let el of this.dialog.querySelectorAll(`.${OPT_CLASS}`))
+        {
+            switch (el.type)
+            {
+                case "checkbox":
+                    state[el.name] = el.checked;
+                    break;
+
+                case "text":
+                    state[el.name] = el.value;
+                    break;
+            }
+        }
+
+        return state;
     }
 
 
-    setDialogState()
+    setDialogState(newState)
     {
-        ///XXX
+        this.dialog.innerHTML = this.getMarkup(newState);
     }
 };
 
