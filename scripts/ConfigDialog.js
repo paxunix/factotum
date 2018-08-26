@@ -159,21 +159,6 @@ class ConfigDialog
     }
 
 
-/*
-{
-  title: "The Dialog Title",
-  sections: [
-       { name: "Section 1",
-         options: [
-           { name: "Option 1", key: "opt1" },
-           { name: "Opt 2", key: "opt2" },
-         ]
-       },
-       { name: "Section 2", options: [ { name: "Opt 2.1", key: "opt3" } ] },
-     // ...
-  ]
-}
-*/
     getCssStyleNode(doc)
     {
         let style = doc.createElement("style");
