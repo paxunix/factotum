@@ -83,6 +83,9 @@
 
 - should each Fcommand have its own config data?  Some Fcommands might want
   to allow the user to save a setting that controls Fcommand behaviour.
+    - part of the transferobject, so is sent to fcommand on invocation and
+      back to bg after completion
+    - bg persists the data based on the fcommand guid
 
 - can use chrome.alarms to schedule Fcommand update checks
 
