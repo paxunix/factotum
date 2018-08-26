@@ -104,4 +104,6 @@ Factotum.runCommand = function (fcommandFunc)
 }   // Factotum.runCommand
 
 
+Factotum.ConfigDialog = (await import("./ConfigDialog.js")).default;
+
 })();   // async
