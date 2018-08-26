@@ -68,7 +68,6 @@ class ConfigDialog
         this.config = config;
 
         this.dialog = doc.createElement("dialog");
-        this.dialog.id = `configDialog_${ConfigDialog._getUuid()}`;
         this.dialog.classList.add(STYLE_ID);
         this.dialog.style = "text-align: left;";
 
@@ -93,19 +92,6 @@ class ConfigDialog
             doc.head.appendChild(this.getCssStyleNode(doc));
 
         doc.body.appendChild(this.dialog);
-    }
-
-
-    static _stripSpaces(s)
-    {
-        return s.replace(/\s+/g, "");
-    }
-
-
-    static _getUuid()
-    {
-        // from https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
     }
 
 
