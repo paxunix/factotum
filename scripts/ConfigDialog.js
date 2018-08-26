@@ -160,7 +160,7 @@ class ConfigDialog
         let key = ConfigDialog.htmlEscape(option.key);
         let displayName = ConfigDialog.htmlEscape(option.display);
 
-        return `<label>${displayName} <input class="${OPT_CLASS}" type="text" name="${key}" value="${ConfigDialog.htmlEscape(state[option.key])}"}/></label>`;
+        return `<label>${displayName} <input class="${OPT_CLASS}" type="text" name="${key}" value="${ConfigDialog.htmlEscape(state[option.key] || "")}"}/></label>`;
     }
 
 
