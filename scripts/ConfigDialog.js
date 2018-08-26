@@ -124,16 +124,29 @@ class ConfigDialog
     }
 
 
+    static renderRadio(option, state)
+    {
+        let key = ConfigDialog.htmlEscape(option.key);
+        let displayName = ConfigDialog.htmlEscape(option.display);
+
+        return `<label><input class="${OPT_CLASS}" type="radio" name="${key}" ${state[option.key] === option.value ? "checked" : ""} value="${ConfigDialog.htmlEscape(option.value)}"/>${displayName}</label>`;
+    }
+
+
     static renderOption(option, state)
     {
-        switch (typeof(state[option.key]))
-        {
-            case "boolean":
-                return ConfigDialog.renderCheckbox(option, state);
+        // Note that the state's data (not the rendering input) determines
+        // the option type.
+        let keyType = typeof(state[option.key]);
+        let hasValue = option.hasOwnProperty("value");
 
-            default:
-                return ConfigDialog.renderInput(option, state);
-        }
+        if (hasValue)
+            return ConfigDialog.renderRadio(option, state);
+
+        if (keyType === "boolean")
+            return ConfigDialog.renderCheckbox(option, state);
+
+        return ConfigDialog.renderInput(option, state);
     }
 
 
@@ -233,6 +246,15 @@ dialog.${STYLE_ID}::backdrop {
                 case "text":
                     state[el.name] = el.value;
                     break;
+
+                case "radio":
+                    if (el.checked)
+                        state[el.name] = el.value;
+
+                    break;
+
+                default:
+                    break;
             }
         }
 
@@ -248,19 +270,38 @@ dialog.${STYLE_ID}::backdrop {
 
 
 d = new ConfigDialog({
-  title: "The Dialog Title",
-  sections: [
-       { name: "Section 1",
-         options: [
-           { name: "Option 1", key: "opt1" },
-           { name: "Opt 2", key: "opt2" },
-         ]
-       },
-       { name: "Sec 2", options: [ { name: "Opt 2.1", key: "opt2.1" } ] },
-  ]
-}, {
-    opt1: true,
-    opt2: "some text",
-    "opt2.1": false,
-},
-document);
+    title: "The Dialog Title",
+    sections: [ // rendering data
+        {
+            display: "Section 1",
+            options: [
+                { display: "Option 1", key: "opt1" },
+                { display: "Opt 2", key: "opt2" },
+            ]
+        },
+        {
+            display: "Sec 2",
+            options: [
+                { display: "Opt 2.1", key: "opt2.1" }
+            ]
+        },
+        {
+            display: "Radio Section",
+            options: [
+                // If an option has a value, it will be rendered as a radio
+                // button.  You will want the key for each radio button to
+                // be the same for that given grouping (which does not
+                // strictly have to be contained within a single section).
+                { display: "Rad 1", key: "optradio", value: "r1" },
+                { display: "Rad 2", key: "optradio", value: "r2" },
+                { display: "Rad 3", key: "optradio", value: "r3" },
+            ]
+        },
+    ]},
+    {   // initial data
+        opt1: true,
+        opt2: "some text",
+        "opt2.1": false,
+        "optradio": "r2",
+    },
+    document);
