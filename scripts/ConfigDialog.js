@@ -221,7 +221,7 @@ class ConfigDialog
         style.id = STYLE_ID;
         style.textContent = `
 dialog.${STYLE_ID}::backdrop {
-    background: #114865eb;
+    background: linear-gradient(45deg, rgba(6,33,47,0.82), rgba(84,157,195,0.82));
 }
 `;
 
