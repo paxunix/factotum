@@ -128,7 +128,7 @@ static messageListener(evt)
         typeof(evt.data.storage) !== "object")      // XXX: internals of TransferObject
             return;
 
-    var transferObj = new TransferObject(evt.data);
+    var transferObj = new TransferObject(evt.data); // XXX: this could throw if there were bad data (unsupported properties)
     browser.runtime.sendMessage(transferObj);
 }   // ContentScript.messageListener
 

@@ -79,6 +79,9 @@ Factotum.runCommand = function (fcommandFunc)
     var clonedTransferObject = transferObj.clone().setImportDocument(importDoc);
     var isDebug = transferObj.get("_content.internalCmdlineOptions").debug;
 
+    // It is important that the Fcommand function receive a cloned transfer
+    // object so we maintain our own copy of it in this call frame
+    // independently of whatever the Fcommand does to it.
     var p = new Promise((res, rej) => {
         if (isDebug) debugger;
 
