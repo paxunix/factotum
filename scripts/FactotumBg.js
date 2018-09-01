@@ -250,8 +250,8 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
     // that as the actual command line.
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
-    var transferObj = new TransferObject()
-        .set("_content.internalCmdlineOptions", internalOptions)
+    var transferObj = TransferObject.build()
+        .set("_content_internalCmdlineOptions", internalOptions)
         .setTabDisposition(tabDisposition);
 
     let prefix = internalOptions._[0];
@@ -298,27 +298,27 @@ static responseHandler(response, sender) {
     if (sender.id !== chrome.runtime.id)
         return Promise.resolve();
 
-    var transferObj = new TransferObject(response);
+    var transferObj = TransferObject.deserialize(response);
     // XXX: there is probably other data in sender we should check.  Like
     // verify the message came from our content script.
     // XXX: not sure that this useful since this is just using data sent to
     // us after the Fcommand has completed.
     // transferObj.setCurrentTab(sender.tabs.Tab);
 
-    if (transferObj.has("_bg.errorMessage"))
+    if (transferObj.has("_bg_errorMessage"))
     {
         // XXX: should show guid and Fcommand description or something
         // (maybe the cmdline).  Would have to include that in the
         // transferobject.  Otherwise  you can't clearly know which Fcommand
         // returned the error.
-        return g_fcommandManager.getErrorManager().save(transferObj.get("_bg.errorMessage"));
+        return g_fcommandManager.getErrorManager().save(transferObj.get("_bg_errorMessage"));
     }
 
-    if (transferObj.has("_content.guid") && transferObj.hasBgData())
+    if (transferObj.has("_content_guid") && transferObj.hasBgData())
     {
         console.log("Fcommand responded:", transferObj);
 
-        return g_fcommandManager.getByGuid(transferObj.get("_content.guid"))
+        return g_fcommandManager.getByGuid(transferObj.get("_content_guid"))
             .then(function (fcommand) {
                     return fcommand.runBgCode(transferObj)
                 })

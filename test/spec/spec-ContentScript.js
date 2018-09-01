@@ -9,17 +9,17 @@ describe("ContentScript", function() {
 describe("createImportLink", function() {
 
     it("creates a link from documentString", function() {
-        var t = new TransferObject()
+        var t = TransferObject.build()
             .setCommandLine({ a: 1, b: [ 2, 3 ], c: { d: "four" } })
-            .set("_content.internalCmdlineOptions", { a: 1, b: [ 2, { c: "3" } ] })
-            .set("_content.guid", "1234")
-            .set("_content.documentString", "docstring");
+            .set("_content_internalCmdlineOptions", { a: 1, b: [ 2, { c: "3" } ] })
+            .set("_content_guid", "1234")
+            .set("_content_documentString", "docstring");
         var link = ContentScript.createImportLink(document, t);
 
         expect(link instanceof HTMLLinkElement).toBe(true);
         expect(link.rel).toEqual("import");
-        expect(link.id).toEqual(ContentScript.getFcommandImportId(t.get("_content.guid")));
-        delete t.storage["_content.documentString"];     // XXX: ugly hack
+        expect(link.id).toEqual(ContentScript.getFcommandImportId(t.get("_content_guid")));
+        delete t._content_documentString;     // XXX: ugly hack to remove internals
         expect(link.dataset.transferObj).toEqual(JSON.stringify(t));
         URL.revokeObjectURL(link.href);
     });
@@ -40,16 +40,17 @@ describe("getLoadImportPromise", function() {
         // needed so that the import promise is resolved)
         var addToHead = spyOn(ContentScript, "appendNodeToDocumentHead").
             and.callFake(function (obj) {
-                obj.onload({});
+                obj.onload("{}");
             });
-        var t = new TransferObject().set("_content.documentString", "test");
+        var t = TransferObject.build().set("_content_documentString", "test");
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
 
         p.then(function (obj) {
             expect(addToHead).toHaveBeenCalled();
-            expect(obj.get("_content.documentString")).toEqual(t.get("_content.documentString"));
+            obj = TransferObject.deserialize(obj);
+            expect(obj.get("_content_documentString")).toEqual(t.get("_content_documentString"));
             done();
         }).catch(function (obj) {
             // this is a little funky; if the promise was rejected, the test
@@ -58,7 +59,7 @@ describe("getLoadImportPromise", function() {
             // requirement, then tell the runner the async part is done,
             // then throw so the test fails.
             expect(obj).toBe({});
-            done();
+            done(obj);
             throw obj;
         });
     });
@@ -70,7 +71,7 @@ describe("getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onerror({ statusText: err });
             });
-        var t = new TransferObject().set("_content.documentString", "test");
+        var t = TransferObject.build().set("_content_documentString", "test");
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
@@ -84,15 +85,16 @@ describe("getLoadImportPromise", function() {
             done();
             throw obj;
         }).catch(function (obj) {
+            obj = TransferObject.deserialize(obj);
             expect(addToHead).toHaveBeenCalled();
-            expect(obj.get("_content.documentString")).toEqual(t.get("_content.documentString"));
-            expect(obj.get("_bg.errorMessage")).toMatch(new RegExp(err));
+            expect(obj.get("_content_documentString")).toEqual(t.get("_content_documentString"));
+            expect(obj.get("_bg_errorMessage")).toMatch(new RegExp(err));
             done();
         });
     });
 
     it("rejects if Fcommand hasn't finished yet", function(done) {
-        var t = new TransferObject().set("_content.documentString", "test");
+        var t = TransferObject.build().set("_content_documentString", "test");
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
@@ -105,7 +107,7 @@ describe("getLoadImportPromise", function() {
                 throw "Should not get here";
             }).catch(function (obj2) {
                 // Second load should fail
-                expect(obj2.get("_bg.errorMessage")).toMatch(new RegExp("Fcommand.*is still running in this tab"));
+                expect(obj2.get("_bg_errorMessage")).toMatch(new RegExp("Fcommand.*is still running in this tab"));
                 done();
             });
         }).catch(function (obj) {

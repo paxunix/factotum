@@ -358,19 +358,19 @@ runBgCode(transferObj)
 {
     let self = this;
 
-    let cloneTransferObject = transferObj.clone();
-    cloneTransferObject.set("_bg.fcommandDocument",
+    let cloneTransferObject = TransferObject.clone(transferObj)
+    cloneTransferObject.set("_bg_fcommandDocument",
         Fcommand._parseDomFromString(self.documentString));
     // No need to pass the document string since we already extracted it for
     // our use.
-    cloneTransferObject.delete("_content.documentString");
+    cloneTransferObject.delete("_content_documentString");
 
     // Run the Fcommand's bgCode
     return new Promise(function (res, rej) {
         var AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 
         let bgFunction = new AsyncFunction("transferObj", "browser",
-            (transferObj.get("_content.internalCmdlineOptions").bgdebug ? "d\ebugger;\n" : "") +
+            (transferObj.get("_content_internalCmdlineOptions").bgdebug ? "d\ebugger;\n" : "") +
                 self.extractedData.bgCodeString);
 
         return res(bgFunction(cloneTransferObject, browser));
@@ -392,10 +392,10 @@ runPageCode(transferObj)
     // Fcommand.
     if (tab.url.search(/^(chrome|about)[-\w]*:/i) !== -1)
     {
-        throw new Error(`Fcommand '${transferObj.get("_content.title")}' cannot run on a browser page.`);
+        throw new Error(`Fcommand '${transferObj.get("_content_title")}' cannot run on a browser page.`);
     }
 
-    browser.tabs.sendMessage(tab.id, transferObj);
+    browser.tabs.sendMessage(tab.id, TransferObject.serialize(transferObj));
 }   // Fcommand.runPageCode
 
 
@@ -411,9 +411,9 @@ execute(transferObj)
 
     return Util.getCurrentTab().then(function (tab) {
         transferObj.setCurrentTab(tab)
-            .set("_content.documentString", self.documentString)
-            .set("_content.title", self.extractedData.title)
-            .set("_content.guid", self.extractedData.guid);
+            .set("_content_documentString", self.documentString)
+            .set("_content_title", self.extractedData.title)
+            .set("_content_guid", self.extractedData.guid);
 
         // If the Fcommand is bg-only, invoke it now.
         if (self.extractedData.context.toLowerCase() === "bg")
@@ -452,10 +452,10 @@ createContextMenu(parentMenuId)
             contexts: self.extractedData.menu,
             enabled: self.enabled,      // XXX: need to update this whenever the enabled state changes
             onclick: function (contextMenuData, tab) {
-                let transferObj = new TransferObject({
+                let transferObj = TransferObject.build({
                     // There are no internal command line options
                     // because none could have been entered.
-                    "_content.internalCmdlineOptions": GetOpt.getOptions({},[]),
+                    "_content_internalCmdlineOptions": GetOpt.getOptions({},[]),
                 });
                 // The command line is only the Fcommand keyword.
                 // This isn't strictly necessary, but mimics

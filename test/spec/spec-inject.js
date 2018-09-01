@@ -8,19 +8,19 @@ describe("inject", function() {
 describe("_getDataAttribute", function() {
 
     it("retrieves transfer object from an Fcommand's import link data attribute", function(done) {
-        var t = new TransferObject()
+        var t = TransferObject.build()
             .setCommandLine({ a: 1, b: [ { c: 2 } ] })
-            .set("_content.internalCmdlineOptions", { debug: false })
-            .set("_content.guid", "guid")
-            .set("_content.documentString", "testing");
+            .set("_content_internalCmdlineOptions", { debug: false })
+            .set("_content_guid", "guid")
+            .set("_content_documentString", "testing");
 
         var el = ContentScript.createImportLink(document, t);
 
         el.onload = function onload() {
             URL.revokeObjectURL(el.href);
 
-            t.delete("_content.documentString");
-            expect(JSON.stringify(Factotum._getDataAttribute(document, t.get("_content.guid"), "transferObj"))).toEqual(JSON.stringify(t));
+            t.delete("_content_documentString");
+            expect(JSON.stringify(Factotum._getDataAttribute(document, t.get("_content_guid"), "transferObj"))).toEqual(JSON.stringify(t));
             el.remove();
             done();
         };
@@ -33,18 +33,18 @@ describe("_getDataAttribute", function() {
 describe("getFcommandId", function() {
 
     it("retrieves guid from an Fcommand's import document metadata", function(done) {
-        var t = new TransferObject()
+        var t = TransferObject.build()
             .setCommandLine({})
-            .set("_content.internalCmdlineOptions", {})
-            .set("_content.guid", "guid")
-            .set("_content.documentString", '<head><meta name="guid" content="guid">');
+            .set("_content_internalCmdlineOptions", {})
+            .set("_content_guid", "guid")
+            .set("_content_documentString", '<head><meta name="guid" content="guid">');
 
         var el = ContentScript.createImportLink(document, t);
 
         el.onload = function onload() {
             URL.revokeObjectURL(el.href);
 
-            expect(Factotum.getFcommandId(el.import)).toEqual(t.get("_content.guid"));
+            expect(Factotum.getFcommandId(el.import)).toEqual(t.get("_content_guid"));
             el.remove();
             done();
         };

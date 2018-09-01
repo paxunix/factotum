@@ -25,14 +25,14 @@ static getFcommandImportId(guid)
  */
 static createImportLink(parentDocument, transferObj)
 {
-    var blob = new Blob([transferObj.get("_content.documentString")], { type: "text/html" });
+    var blob = new Blob([transferObj.get("_content_documentString")], { type: "text/html" });
     var link = parentDocument.createElement("link");
     link.rel = "import";
-    link.id = ContentScript.getFcommandImportId(transferObj.get("_content.guid"));
+    link.id = ContentScript.getFcommandImportId(transferObj.get("_content_guid"));
 
     // No need to pass the document string since we already extracted it for
     // our use.
-    transferObj.delete("_content.documentString");
+    transferObj.delete("_content_documentString");
 
     // Content script needs access to all the transferred data
     link.dataset.transferObj = JSON.stringify(transferObj);
@@ -67,23 +67,23 @@ static getLoadImportPromise(transferObj)
         // Fcommand has not completed yet.
         // XXX: this is the same code as in inject.js.  Would be nice to put
         // it in one place.
-        if (document.querySelector(`head link#fcommand-${transferObj.get("_content.guid")}[rel=import]`))
+        if (document.querySelector(`head link#fcommand-${transferObj.get("_content_guid")}[rel=import]`))
         {
-            transferObj.set("_bg.errorMessage", `Fcommand '${transferObj.get("_content.title")}' (${transferObj.get("_content.guid")}) is still running in this tab.`);
+            transferObj.set("_bg_errorMessage", `Fcommand '${transferObj.get("_content_title")}' (${transferObj.get("_content_guid")}) is still running in this tab.`);
             throw transferObj;
         }
 
         var elem = ContentScript.createImportLink(document, transferObj);
 
         elem.onload = function onload() {
-            resolve(transferObj);
+            resolve(TransferObject.serialize(transferObj));
         };
 
         elem.onerror = function onerror(evt) {
             // XXX:  should support error obj (like we used to) as well as
             // just error message???
-            transferObj.set("_bg.errorMessage", evt.statusText);
-            reject(transferObj);
+            transferObj.set("_bg_errorMessage", evt.statusText);
+            reject(TransferObject.serialize(transferObj));
         };
 
         ContentScript.appendNodeToDocumentHead(elem);
@@ -103,11 +103,9 @@ static factotumListener(request, sender)
     if (sender.id !== chrome.runtime.id)
         return false;
 
-    var transferObj = new TransferObject(request);
-
-    ContentScript.getLoadImportPromise(transferObj).
-        catch(function (rejectWith) {
-            browser.runtime.sendMessage(rejectWith);
+    ContentScript.getLoadImportPromise(TransferObject.deserialize(request)).
+        catch(function (rejectTransferObjStr) {
+            browser.runtime.sendMessage(rejectTransferObjStr);
         });
 
     // No response
@@ -123,13 +121,12 @@ static messageListener(evt)
     // Only accept messages from same frame and that conform to our
     // expectations.
     if (evt.source !== window ||
-        typeof(evt.data) !== "object" ||
-        evt.data === null ||
-        typeof(evt.data.storage) !== "object")      // XXX: internals of TransferObject
+        typeof(evt.data) !== "string"
+        )      // XXX: how can check that evt.data is from a built TransferObject?
             return;
 
-    var transferObj = new TransferObject(evt.data); // XXX: this could throw if there were bad data (unsupported properties)
-    browser.runtime.sendMessage(transferObj);
+    var transferObj = TransferObject.deserialize(evt.data); // XXX: this could throw if there were bad data (unsupported properties).  What to do with the error, since we're in a listener with no catch in the call stack.
+    browser.runtime.sendMessage(TransferObject.serialize(transferObj));
 }   // ContentScript.messageListener
 
 
@@ -147,8 +144,8 @@ static injectFactotumApi(document)
             s.parentNode.removeChild(s);
             resolve();
         };
-        s.onerror = function () {
-            reject();
+        s.onerror = function (evt) {
+            reject(evt.error.message);
         };
 
         (document.head || document.documentElement).appendChild(s);

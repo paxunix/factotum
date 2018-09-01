@@ -393,16 +393,15 @@ describe("runBgCode", function() {
     });
 
     it("includes Fcommand DOM in transfer object", function (done) {
-        var obj = new TransferObject({
-            "_content.internalCmdlineOptions": {},       // always present on TransferObjects passed to runBgCode()
+        var obj = TransferObject.build({
+            "_content_internalCmdlineOptions": {},       // always present on TransferObjects passed to runBgCode()
         });
         // Always present on TransferObjects passed to runBgCode()
         obj.setCommandLine({});
 
         fcommand.runBgCode(obj).then(ret => {
             expect(ret).toBe(42);
-            expect(window.fcommandBgSpy).toHaveBeenCalledWith(jasmine.any(TransferObject));
-            expect(window.fcommandBgSpy.calls.first().args[0].get("_bg.fcommandDocument") instanceof HTMLDocument).toBe(true);
+            expect(window.fcommandBgSpy.calls.first().args[0].get("_bg_fcommandDocument") instanceof HTMLDocument).toBe(true);
             done();
         });
     });
@@ -431,8 +430,8 @@ describe("runBgCode", function() {
 
         var fcommand = new Fcommand(doc, lang);
 
-        var obj = new TransferObject({
-            "_content.internalCmdlineOptions": { bgdebug: true},
+        var obj = TransferObject.build({
+            "_content_internalCmdlineOptions": { bgdebug: true},
         });
         // Always present on TransferObjects passed to runBgCode()
         obj.setCommandLine({});
