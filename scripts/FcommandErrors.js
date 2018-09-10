@@ -65,7 +65,7 @@ _openErrorPage()
  */
 async _reloadErrorPages()
 {
-    let errorPageUrl = browser.runtime.getURL("errors.html");
+    let errorPageUrl = browser.runtime.getURL("html/errors.html");
 
     let tabs = await browser.tabs.query({ url: errorPageUrl });
 
