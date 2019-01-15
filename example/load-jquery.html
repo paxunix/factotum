@@ -220,7 +220,7 @@ else
 
 <!--
 This element contains Javascript that will be run in the background page,
-passed transferObject and browser.  transferObject.getBgData() will return
+passed transferObj and browser.  transferObj.getBgData() will return
 the value returned by your Fcommand.
 
 It must be a <template> with an ID of "bgCode".
@@ -234,10 +234,10 @@ It must be a <template> with an ID of "bgCode".
     !!!NOTE!!!:  this code runs with the full permissions of the Factotum
     extension.
 
-    The code becomes the body of a function and is passed:  transferObject,
+    The code becomes the body of a function and is passed:  transferObj,
     and browser.
 
-    transferObject is a TransferObject and contains (amongst other things) a
+    transferObj is a TransferObject and contains (amongst other things) a
     getBgData() method that returns the data returned by the Fcommand.
     XXX:  document WTF is a TransferObject.
 
