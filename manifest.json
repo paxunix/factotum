@@ -104,20 +104,9 @@
     "offline_enabled": false,
 
     "web_accessible_resources": [
-        "scripts/background.js",
         "scripts/ConfigDialog.js",
-        "scripts/content.js",
         "scripts/ContentScript.js",
-        "scripts/ErrorCache.js",
-        "scripts/FactotumBg.js",
-        "scripts/FcommandErrors.js",
-        "scripts/Fcommand.js",
-        "scripts/FcommandManager.js",
-        "scripts/GetOpt.js",
         "scripts/inject.js",
-        "scripts/ShellParse.js",
-        "scripts/TransferObject.js",
-        "scripts/Util.js",
-        "scripts/wrapperr-esm.js"
+        "scripts/TransferObject.js"
     ]
 }
