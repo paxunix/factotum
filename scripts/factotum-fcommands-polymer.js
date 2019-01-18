@@ -12,6 +12,8 @@ import '../node_modules/@polymer/app-layout/app-toolbar/app-toolbar.js';
 import '../node_modules/@polymer/app-layout/app-drawer-layout/app-drawer-layout.js';
 import '../node_modules/@polymer/app-layout/app-drawer/app-drawer.js';
 
+import '../node_modules/@granite-elements/ace-widget/ace-widget.js';
+
 
 class FcommandsElement extends PolymerElement
 {
@@ -46,12 +48,6 @@ class FcommandsElement extends PolymerElement
 
     #editPane {
       padding-left: 1em;
-      --paper-input-container-input-color: var(--secondary-text-color);
-      --paper-input-container-input: {
-          @apply --paper-font-common-code;
-          font-size: 10pt;
-          line-height: default;
-      };
     }
   </style>
 
@@ -77,12 +73,19 @@ class FcommandsElement extends PolymerElement
         </paper-listbox>
       </app-drawer>
 
-      <paper-textarea id="editPane" label="Fcommand Content" placeholder="[[placeholderText]]" rows="40" on-keydown="_onKeyDown"></paper-textarea>
+    <ace-widget id="editPane"
+        placeholder="[[placeholderText]]"
+        maxlines="40"
+        minlines="40"
+        mode="html"
+        initial-focus
+        on-editor-ready="_onEditorReady">
+    </ace-widget>
 
     </app-drawer-layout>
-    <div>
+    </div>
 
-</div></div></app-header-layout>
+</app-header-layout>
 `;
   }
 
@@ -154,7 +157,7 @@ Factotum.runCommand(someFunc);
       browser.runtime.getBackgroundPage()
           .then(bgScope => bgScope.g_fcommandManager.getByGuid(selItem.guid))
           .then(fcommand => {
-              this.$.editPane.$.input.value = fcommand.documentString;
+              this.$.editPane.editor.setValue(fcommand.documentString);
           });
   }
 
@@ -173,50 +176,15 @@ Factotum.runCommand(someFunc);
   }
 
 
-  _onKeyDown(evt)
+  _onEditorReady(evt)
   {
-      if (evt.key === "Tab")
-      {
-          evt.preventDefault();
-
-          // Insert 4 spaces instead of a tab character
-          // XXX: this should be configurable (so should whether Tab
-          // does anything besides the usual movement between controls)
-          let tabReplacement = "    ";
-          let textAreaObj = this.$.editPane.$.input;
-          var sel = textAreaObj.selectionStart;
-          textAreaObj.value =
-              textAreaObj.value.substring(0, textAreaObj.selectionStart) +
-              tabReplacement +
-              textAreaObj.value.substring(textAreaObj.selectionEnd);
-          textAreaObj.selectionEnd = sel + tabReplacement.length;
-      }
-
-      if (++this.tempSaveConfig.currentKeyCount >= this.tempSaveConfig.saveAfterKeyCount)
-      {
-          this._saveToTempBuffer();
-          this.tempSaveConfig.currentKeyCount = 0;
-      }
-  }
-
-
-  // Persist the contents of the current buffer
-  _saveToTempBuffer()
-  {
-      localStorage.setItem("editorContent", this.$.editPane.$.input.value);
+      this.$.editPane.editor.getSession().setNewLineMode("unix");
   }
 
 
   constructor()
   {
       super();
-
-      this.tempSaveConfig = {
-          saveAfterKeyCount: 20,   // XXX: should be configurable
-          saveAfterElapsedSec: 30,    // XXX: should be configurable
-          currentKeyCount: 0,
-          saveAtEpochTimeMSec: Date.now(),
-      };
 
       browser.runtime.getBackgroundPage()
           .then(bgScope => bgScope.g_fcommandManager.getAll())
