@@ -74,7 +74,7 @@ class FcommandsElement extends PolymerElement
       </app-drawer>
 
     <ace-widget id="editPane"
-        placeholder="[[placeholderText]]"
+        placeholder="Enter your Fcommand here"
         maxlines="40"
         minlines="40"
         mode="html"
@@ -102,51 +102,7 @@ class FcommandsElement extends PolymerElement
               type: Array,
               value: [],
           },
-          placeholderText: {
-              type: String,
-              value: FcommandsElement._getPlaceholderText()
-          },
       };
-  }
-
-
-  static _getPlaceholderText()
-  {
-      return `
-<!DOCTYPE html>
-<html>
-<head>
-<title>Sample Fcommand</title>
-<meta charset="UTF-8">
-<meta name="author" content="your email here">
-<meta name="description" content="what does this Fcommand do">
-<meta name="guid" content="a unique identifier">
-<meta name="keywords" content="key1,key2">
-<meta name="version" content="1.2.3">
-<meta name="context" content="page">
-<meta name="menu" content="all">
-<link rel="icon" type="image/png" href="http://example.com/favicon.png">
-</head>
-<body>
-<template id="help" lang="en">
-help markup
-</template>
-
-<template id="getopt">
-</template>
-
-<script>
-Factotum.runCommand(someFunc);
-<\/script>
-
-<template id="bgCode">
-<script>
-<\/script>
-</template>
-
-</body>
-</html>
-`;
   }
 
 
