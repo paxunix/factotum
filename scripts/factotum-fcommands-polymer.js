@@ -78,6 +78,8 @@ class FcommandsElement extends PolymerElement
         maxlines="40"
         minlines="40"
         mode="html"
+        tab-size="4"
+        softtabs="true"
         initial-focus
         on-editor-ready="_onEditorReady">
     </ace-widget>
