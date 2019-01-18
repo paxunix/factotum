@@ -14,6 +14,8 @@ import '../node_modules/@polymer/app-layout/app-drawer/app-drawer.js';
 
 import '../node_modules/@granite-elements/ace-widget/ace-widget.js';
 
+import Fcommand from './Fcommand.js';
+
 
 class FcommandsElement extends PolymerElement
 {
@@ -73,6 +75,12 @@ class FcommandsElement extends PolymerElement
         </paper-listbox>
       </app-drawer>
 
+    <app-toolbar>
+      <paper-icon-item>
+        <paper-icon-button id="save" icon="save" on-click="_saveFcommand" disabled></paper-icon-button>
+      </paper-icon-item>
+    </app-toolbar>
+
     <ace-widget id="editPane"
         placeholder="Enter your Fcommand here"
         maxlines="40"
@@ -104,6 +112,10 @@ class FcommandsElement extends PolymerElement
               type: Array,
               value: [],
           },
+          saveActionEnabled: {
+              type: Boolean,
+              observer: "_saveActionEnabled",
+          }
       };
   }
 
@@ -116,6 +128,7 @@ class FcommandsElement extends PolymerElement
           .then(bgScope => bgScope.g_fcommandManager.getByGuid(selItem.guid))
           .then(fcommand => {
               this.$.editPane.editor.setValue(fcommand.documentString);
+              this.saveActionEnabled = true;
           });
   }
 
@@ -131,6 +144,40 @@ class FcommandsElement extends PolymerElement
                     bgScope.g_fcommandManager.constructor._reloadFcommandPages();
                   });
           });
+  }
+
+
+  _saveFcommand(evt)
+  {
+      let document = this.$.editPane.editor.getValue();
+
+      try
+      {
+          let newFcommand = new Fcommand(document, navigator.language);
+
+          // XXX:  should delete the old one if the new guid is different?
+          // Or just leave it and the user can delete the one under edit if
+          // desired.
+          // It's all keyed on guid.
+          // After save, just refresh the page.  XXX: that's too jarring
+          // (loses cursor position, current fcommand being edited, etc),
+          // but it ensures clean state for now.
+          browser.runtime.getBackgroundPage()
+              .then(bgScope => bgScope.g_fcommandManager.save(newFcommand))
+              .then(() => window.location.reload());
+      }
+
+      catch (e)
+      {
+          console.log(`Save error: ${e}`);
+          //XXX:  this.showError(e);
+      }
+  }
+
+
+  _saveActionEnabled(newValue, oldValue)
+  {
+      this.$.save.disabled = !newValue;
   }
 
 
