@@ -251,6 +251,16 @@ class FcommandsElement extends PolymerElement
   }
 
 
+  _addFcommand(evt)
+  {
+      let tempUuid = Fcommand._getUuid();
+      let newFcommandDoc = fillTemplate(fcommandTemplateString,
+          {tempUuid: tempUuid });
+
+      this.$.editPane.editor.getSession().setDocument(new AceDocument(newFcommandDoc));
+  }
+
+
   _saveActionEnabled(newValue, oldValue)
   {
       this.$.save.disabled = !newValue;
