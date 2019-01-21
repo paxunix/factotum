@@ -85,7 +85,7 @@ class FcommandsElement extends PolymerElement
         placeholder="Enter your Fcommand here"
         maxlines="40"
         minlines="40"
-        mode="html"
+        mode="ace/mode/html"
         tab-size="4"
         softtabs="true"
         initial-focus

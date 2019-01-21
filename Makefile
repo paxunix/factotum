@@ -38,6 +38,7 @@ relative-copy: \
         manifest.json \
         node_modules/dexie/dist/dexie.es.js \
         node_modules/webextension-polyfill/dist/browser-polyfill.js \
+        node_modules/ace-builds/src-min-noconflict \
         | html-copy $(OUTDIR)/.
 	rsync -Rav $^ $(OUTDIR)/
 
