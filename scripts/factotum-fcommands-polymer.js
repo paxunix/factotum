@@ -17,6 +17,84 @@ import '../node_modules/@granite-elements/ace-widget/ace-widget.js';
 import Fcommand from './Fcommand.js';
 
 
+let AceDocument = ace.require("ace/document").Document;
+
+// Basic template to pre-fill the editor for new Fcommands.
+let fcommandTemplateString = `<html>
+
+<head>
+
+<title>New Fcommand \${tempUuid}</title>
+
+<meta charset="UTF-8">
+<meta name="author" content="YOUR_EMAIL_HERE@example.com">
+<meta name="description" content="Describe what your Fcommand does">
+<meta name="guid" content="\${tempUuid}">
+<meta name="keywords" content="Comma-separated list of keywords to run your Fcommand">
+<meta name="version" content="1">
+<meta name="context" content="page">
+<!--
+If you want your Fcommand to run from the context menu, uncomment the next
+<meta> line and choose a context type from
+https://developer.chrome.com/apps/contextMenus#type-ContextType to indicate
+when your Fcommand should appear in the context menu.  -->
+<!--
+<meta name="menu" content="all">
+-->
+
+</head>
+
+<body>
+<template id="getopt">
+<!-- If your Fcommand has no options of its own, you can remove this entire
+     <template>.  This is strict JSON, so watch your trailing commas! -->
+<script>
+{
+    "test-option": {
+        "type": "boolean",
+        "default": false
+    }
+}
+</script>
+</template>
+
+<template id="help" lang="en">
+  <h2>YOUR FCOMMAND'S HELP MARKUP</h2>
+  blah<p>
+  blah
+</template>
+
+<template id="bgCode">
+<script>
+console.log("Whatever javascript should run with the result of your Fcommand's page code.  If unneeded, you can remove this entire <template>.");
+<\/script>
+</template>
+
+<script>
+function YOUR_FCOMMAND(transferObj) {
+
+let opts = transferObj.getCommandLine();
+console.log("opts: ", opts);
+
+}
+
+if (window.Factotum && Factotum.runCommand)
+    Factotum.runCommand(YOUR_FCOMMAND_FUNCTION_NAME);
+else
+    throw new Error("Factotum not enabled");
+<\/script>
+
+</body>
+</html>
+`;
+
+
+let fillTemplate = (templateString, templateVars) => {
+    let f = new Function(...Object.keys(templateVars), "return `" + templateString + "`")
+    return f(...Object.values(templateVars));
+};
+
+
 class FcommandsElement extends PolymerElement
 {
   static get template() {
@@ -137,11 +215,10 @@ class FcommandsElement extends PolymerElement
       let guid = evt.target.parentElement.guid;
 
       browser.runtime.getBackgroundPage()
-          .then(bgScope => {
-              bgScope.g_fcommandManager.deleteByGuid(guid)
-                  .then(() => {
-                    bgScope.g_fcommandManager.constructor._reloadFcommandPages();
-                  });
+          .then(bgScope => bgScope.g_fcommandManager.deleteByGuid(guid))
+          .then(() => {
+              this.refreshFcommandList();
+              this._setDocument("");
           });
   }
 

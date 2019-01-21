@@ -348,6 +348,14 @@ static _extractBgCodeString(document, language)
 }   // Fcommand._extractBgCodeString
 
 
+static _getUuid()
+{
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,
+            c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+}
+
+
 /**
  * Return a promise to run the bg code for this Fcommand, passing it the
  * given data (as 'transferObj').
