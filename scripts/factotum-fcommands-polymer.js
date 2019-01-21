@@ -76,9 +76,8 @@ class FcommandsElement extends PolymerElement
       </app-drawer>
 
     <app-toolbar>
-      <paper-icon-item>
-        <paper-icon-button id="save" icon="save" on-click="_saveFcommand" disabled></paper-icon-button>
-      </paper-icon-item>
+      <paper-icon-button id="save" icon="save" on-click="_saveFcommand" disabled></paper-icon-button>
+      <paper-icon-button id="add" icon="add" on-click="_addFcommand"></paper-icon-button>
     </app-toolbar>
 
     <ace-widget id="editPane"
