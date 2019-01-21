@@ -204,7 +204,7 @@ class FcommandsElement extends PolymerElement
       browser.runtime.getBackgroundPage()
           .then(bgScope => bgScope.g_fcommandManager.getByGuid(selItem.guid))
           .then(fcommand => {
-              this.$.editPane.editor.getSession().setValue(fcommand.documentString);
+              this.$.editPane.editor.getSession().setDocument(new AceDocument(fcommand.documentString));
               this.saveActionEnabled = true;
           });
   }
