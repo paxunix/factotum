@@ -148,11 +148,11 @@ class FcommandsElement extends PolymerElement
 
   _saveFcommand(evt)
   {
-      let document = this.$.editPane.editor.getValue();
+      let docString = this.$.editPane.editor.getValue();
 
       try
       {
-          let newFcommand = new Fcommand(document, navigator.language);
+          let newFcommand = new Fcommand(docString, navigator.language);
 
           // XXX:  should delete the old one if the new guid is different?
           // Or just leave it and the user can delete the one under edit if
