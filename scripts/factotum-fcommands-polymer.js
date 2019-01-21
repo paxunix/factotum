@@ -17,8 +17,6 @@ import '../node_modules/@granite-elements/ace-widget/ace-widget.js';
 import Fcommand from './Fcommand.js';
 
 
-let AceDocument = ace.require("ace/document").Document;
-
 // Basic template to pre-fill the editor for new Fcommands.
 let fcommandTemplateString = `<html>
 
@@ -204,7 +202,7 @@ class FcommandsElement extends PolymerElement
       browser.runtime.getBackgroundPage()
           .then(bgScope => bgScope.g_fcommandManager.getByGuid(selItem.guid))
           .then(fcommand => {
-              this.$.editPane.editor.getSession().setDocument(new AceDocument(fcommand.documentString));
+              this._setDocument(fcommand.documentString);
               this.saveActionEnabled = true;
           });
   }
@@ -234,13 +232,11 @@ class FcommandsElement extends PolymerElement
           // XXX:  should delete the old one if the new guid is different?
           // Or just leave it and the user can delete the one under edit if
           // desired.
-          // It's all keyed on guid.
-          // After save, just refresh the page.  XXX: that's too jarring
-          // (loses cursor position, current fcommand being edited, etc),
-          // but it ensures clean state for now.
+          // XXX: have to set the correct one (new one) as selected after
+          // the save
           browser.runtime.getBackgroundPage()
               .then(bgScope => bgScope.g_fcommandManager.save(newFcommand))
-              .then(() => window.location.reload());
+              .then(() => this.refreshFcommandList());
       }
 
       catch (e)
@@ -257,7 +253,7 @@ class FcommandsElement extends PolymerElement
       let newFcommandDoc = fillTemplate(fcommandTemplateString,
           {tempUuid: tempUuid });
 
-      this.$.editPane.editor.getSession().setDocument(new AceDocument(newFcommandDoc));
+      this._setDocument(newFcommandDoc);
   }
 
 
@@ -273,18 +269,31 @@ class FcommandsElement extends PolymerElement
   }
 
 
+  _setDocument(docString)
+  {
+      // XXX: should this actually create a new Document instead?
+      this.$.editPane.editor.getSession().setValue(docString);
+
+      if (docString === "")
+          this.saveActionEnabled = false;
+  }
+
+
+  refreshFcommandList()
+  {
+      browser.runtime.getBackgroundPage()
+          .then(bgScope => bgScope.g_fcommandManager.getAll())
+          .then(fcommands => {
+              this.splice("fcommandList", 0, this.fcommandList.length, ...fcommands);
+          });
+  }
+
+
   constructor()
   {
       super();
 
-      browser.runtime.getBackgroundPage()
-          .then(bgScope => bgScope.g_fcommandManager.getAll())
-          .then(fcommands => {
-              for (let fcommand of fcommands)
-              {
-                  this.push("fcommandList", fcommand);
-              }
-          });
+      this.refreshFcommandList();
   }
 }
 
