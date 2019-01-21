@@ -1,3 +1,5 @@
+- consider Web Locks API for whether an fcommand is already running:  https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API
+
 - a way to run the script in top frame or in every frame?
     - probably need a new metadata toggle for that
     - need a way for only one instance of the script to run, if desired
@@ -23,6 +25,7 @@
       - {{keywordList}} expands to comma-separated list of keywords
       - {{keyword}} expands to first keyword
       - {{title}} expands to Fcommand's title
+    - maybe just do templating with a custom global scope
 
 - factotum URL entry
     - should it clear on failure?
