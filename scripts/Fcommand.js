@@ -308,7 +308,7 @@ static _extractOptSpec(document, lang)
 
     catch (e)
     {
-        throw new WrappErr(e, `Failed parsing ${sel}`);
+        throw new WrappErr(e, `Failed parsing ${sel}: ${template.content.textContent}`);
     }
 }   // Fcommand._extractOptSpec
 
