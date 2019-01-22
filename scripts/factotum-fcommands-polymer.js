@@ -12,8 +12,6 @@ import '../node_modules/@polymer/app-layout/app-toolbar/app-toolbar.js';
 import '../node_modules/@polymer/app-layout/app-drawer-layout/app-drawer-layout.js';
 import '../node_modules/@polymer/app-layout/app-drawer/app-drawer.js';
 
-import '../node_modules/@granite-elements/ace-widget/ace-widget.js';
-
 import Fcommand from './Fcommand.js';
 
 
@@ -124,8 +122,23 @@ class FcommandsElement extends PolymerElement
       --paper-listbox-color: var(--secondary-text-color);
     }
 
+    #editorContainer {
+      height: 85vh;
+      width: 100%;
+      position: relative;
+    }
+
     #editPane {
+      border: 1px solid #e3e3e3;
       padding-left: 1em;
+      padding-right: 1em;
+      margin-right: 1em;
+      margin-top: 0px;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
     }
   </style>
 
@@ -151,21 +164,16 @@ class FcommandsElement extends PolymerElement
         </paper-listbox>
       </app-drawer>
 
-    <app-toolbar>
-      <paper-icon-button id="save" icon="save" on-click="_saveFcommand" disabled></paper-icon-button>
-      <paper-icon-button id="add" icon="add" on-click="_addFcommand"></paper-icon-button>
-    </app-toolbar>
+    <div>
+      <app-toolbar>
+        <paper-icon-button id="save" icon="save" on-click="_saveFcommand" disabled></paper-icon-button>
+        <paper-icon-button id="add" icon="add" on-click="_addFcommand"></paper-icon-button>
+      </app-toolbar>
 
-    <ace-widget id="editPane"
-        placeholder="Enter your Fcommand here"
-        maxlines="40"
-        minlines="40"
-        mode="ace/mode/html"
-        tab-size="4"
-        softtabs="true"
-        initial-focus
-        on-editor-ready="_onEditorReady">
-    </ace-widget>
+      <div id="editorContainer">
+        <div id="editPane"></div>
+      </div>
+    </div>
 
     </app-drawer-layout>
     </div>
@@ -223,7 +231,7 @@ class FcommandsElement extends PolymerElement
 
   _saveFcommand(evt)
   {
-      let docString = this.$.editPane.editor.getValue();
+      let docString = this.editor.getValue();
 
       try
       {
@@ -263,19 +271,15 @@ class FcommandsElement extends PolymerElement
   }
 
 
-  _onEditorReady(evt)
-  {
-      this.$.editPane.editor.getSession().setNewLineMode("unix");
-  }
-
-
   _setDocument(docString)
   {
       // XXX: should this actually create a new Document instead?
-      this.$.editPane.editor.getSession().setValue(docString);
+      this.editor.getSession().setValue(docString);
 
       if (docString === "")
           this.saveActionEnabled = false;
+
+      this.editor.focus();
   }
 
 
@@ -289,6 +293,44 @@ class FcommandsElement extends PolymerElement
   }
 
 
+  async connectedCallback()
+  {
+      super.connectedCallback();
+
+      let baseUrl = `${this.rootPath}../node_modules/ace-builds/src-min-noconflict`;
+
+      await import("../node_modules/ace-builds/src-min-noconflict/ace.js");
+      await import(`${baseUrl}/ext-language_tools.js`);
+
+      // ace is now in global scope, so set up editor
+      ace.config.set("basePath", baseUrl);
+      ace.config.set("modePath", baseUrl);
+      ace.config.set("themePath", baseUrl);
+      ace.config.set("workerPath", baseUrl);
+
+      this.editor = ace.edit(this.$.editPane);
+      this.editor.setOptions({
+          cursorStyle: "wide",
+          fontSize: "10pt",
+          mergeUndoDeltas: "always",
+          mode: "ace/mode/html",
+          newLineMode: "unix",
+          tabSize: 4,       // XXX: should be configurable
+          theme: "ace/theme/eclipse",
+          useSoftTabs: true,
+      });
+
+      // The styles needed for the editor pane were loaded into the main
+      // document but we need them in this component's shadow root, so
+      // move them there.
+      let styleNode = this.getRootNode().querySelector("#ace_editor\\.css");
+      this.shadowRoot.appendChild(styleNode.parentNode.removeChild(styleNode));
+
+      this.editor.focus();
+      this.editor.resize();
+  }
+
+
   constructor()
   {
       super();
@@ -296,5 +338,6 @@ class FcommandsElement extends PolymerElement
       this.refreshFcommandList();
   }
 }
+
 
 customElements.define(FcommandsElement.is, FcommandsElement);
