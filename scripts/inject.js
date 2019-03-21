@@ -109,4 +109,7 @@ Factotum.runCommand = function (fcommandFunc)
 
 Factotum.ConfigDialog = (await import("./ConfigDialog.js")).default;
 
+// Inject the html import polyfill
+await import("../node_modules/@webcomponents/html-imports/html-imports.min.js");
+
 })();   // async

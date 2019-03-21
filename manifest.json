@@ -107,6 +107,7 @@
         "scripts/ConfigDialog.js",
         "scripts/ContentScript.js",
         "scripts/inject.js",
-        "scripts/TransferObject.js"
+        "scripts/TransferObject.js",
+        "node_modules/@webcomponents/html-imports/html-imports.min.js"
     ]
 }
