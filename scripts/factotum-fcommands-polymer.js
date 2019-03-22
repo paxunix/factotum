@@ -159,7 +159,7 @@ class FcommandsElement extends PolymerElement
     <div>
     <app-drawer-layout>
       <app-drawer id="drawer" slot="drawer">
-        <paper-listbox id="fcommandNameList" on-selected-changed="_onSelected">
+        <paper-listbox id="fcommandNameList" on-selected-changed="_onSelected" attr-for-selected="guid">
               <!-- XXX: should style title with --secondary-color or
                 --light-secondary-color if Fcommand is disabled -->
           <template is="dom-repeat" items="[[fcommandList]]">
@@ -219,7 +219,6 @@ class FcommandsElement extends PolymerElement
           .then(bgScope => bgScope.g_fcommandManager.getByGuid(selItem.guid))
           .then(fcommand => {
               this._setDocument(fcommand.documentString);
-              this.saveActionEnabled = true;
           });
   }
 
@@ -233,6 +232,7 @@ class FcommandsElement extends PolymerElement
           .then(() => {
               this.refreshFcommandList();
               this._setDocument("");
+              // XXX: Reset editor?  should clear all state?
           });
   }
 
@@ -265,11 +265,16 @@ class FcommandsElement extends PolymerElement
 
   _addFcommand(evt)
   {
+      // XXX: reset editor view to 1,1
       let tempUuid = Fcommand._getUuid();
       let newFcommandDoc = fillTemplate(fcommandTemplateString,
           {tempUuid: tempUuid });
 
       this._setDocument(newFcommandDoc);
+
+      // Clear the selection.  This throws because there is no guid, but
+      // does clear the selection.
+      try { this.$.fcommandNameList.selectIndex(-1); } catch (e) { ; }
   }
 
 
@@ -321,8 +326,8 @@ class FcommandsElement extends PolymerElement
       ace.config.set("themePath", baseUrl);
       ace.config.set("workerPath", baseUrl);
 
-      this.editor = ace.edit(this.$.editPane);
-      this.editor.setOptions({
+      let editor = ace.edit(this.$.editPane);
+      editor.setOptions({
           cursorStyle: "wide",
           fontSize: "10pt",
           mergeUndoDeltas: "always",
@@ -339,8 +344,15 @@ class FcommandsElement extends PolymerElement
       let styleNode = this.getRootNode().querySelector("#ace_editor\\.css");
       this.shadowRoot.appendChild(styleNode.parentNode.removeChild(styleNode));
 
-      this.editor.focus();
-      this.editor.resize();
+      editor.focus();
+      editor.resize();
+
+      editor.getSession().on("change", () => {
+          if (editor.curOp && editor.curOp.command.name)  // user-initiated action: from https://github.com/ajaxorg/ace/issues/503
+              this.saveActionEnabled = true
+      });
+
+      this.editor = editor;
   }
 
 
