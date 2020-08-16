@@ -97,10 +97,11 @@ class FcommandsElement extends PolymerElement
     return html`
   <style include="factotum-shared-styles">
     :host {
-      --app-drawer-width: 33em;
+      --app-drawer-width: 45em;
     }
 
     paper-icon-item {
+      align-items: baseline;
       cursor: pointer;
     }
 
@@ -120,6 +121,12 @@ class FcommandsElement extends PolymerElement
       overflow: auto;
       --paper-listbox-background-color: var(--secondary-background-color);
       --paper-listbox-color: var(--secondary-text-color);
+      align: baseline;
+    }
+
+    .fcommandNameListKeywords {
+        font-size: 80%;
+        min-width: 20%;
     }
 
     #editorContainer {
@@ -158,7 +165,8 @@ class FcommandsElement extends PolymerElement
           <template is="dom-repeat" items="[[fcommandList]]">
             <paper-icon-item guid="[[item.extractedData.guid]]">
               <paper-icon-button icon="delete" slot="item-icon" on-click="_onDeleteClick"></paper-icon-button>
-              [[item.extractedData.title]]
+              <div class="fcommandNameListKeywords">[[item.displayKeywordList]]</div>
+              <div class="fcommandNameListTitle">[[item.extractedData.title]]</div>
             </paper-icon-item>
           </template>
         </paper-listbox>
@@ -288,6 +296,11 @@ class FcommandsElement extends PolymerElement
       browser.runtime.getBackgroundPage()
           .then(bgScope => bgScope.g_fcommandManager.getAll())
           .then(fcommands => {
+              // XXX:  this seems hacky, creating the displayable list of
+              // keywords the way we want
+              fcommands.forEach(fcommand => {
+                  fcommand.displayKeywordList = fcommand.extractedData.keywords.join(", ");
+              });
               this.splice("fcommandList", 0, this.fcommandList.length, ...fcommands);
           });
   }
