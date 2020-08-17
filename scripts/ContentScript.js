@@ -121,7 +121,8 @@ static messageListener(evt)
     // Only accept messages from same frame and that conform to our
     // expectations.
     if (evt.source !== window ||
-        typeof(evt.data) !== "string"
+        typeof(evt.data) !== "string" ||
+        evt.data === ""
         )      // XXX: how can check that evt.data is from a built TransferObject?
             return;
 
