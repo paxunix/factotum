@@ -1,71 +1,19 @@
 "use strict";
 
 
-/*
-
-// Simple class to popup a modal HTML5 dialog with configurable options.
-// Supports radio button groups, boolean checkboxes, and single-line text
-// input.
-
-d = new ConfigDialog({
-    title: "The Dialog Title",      // title is optional
-    sections: [ // rendering data
-        {
-            display: "Section 1",   // section display names are optional
-            options: [
-                { display: "Option 1", key: "opt1" },
-                { display: "Opt 2", key: "opt2" },
-            ]
-        },
-        {
-            display: "Sec 2",
-            options: [
-                { display: "Opt 2.1", key: "opt2.1" }
-            ]
-        },
-        {
-            display: "Radio Section",
-            options: [
-                // If an option has a value, it will be rendered as a radio
-                // button.  You will want the key for each radio button to
-                // be the same for that given grouping (which does not
-                // strictly have to be contained within a single section).
-                { display: "Rad 1", key: "optradio", value: "r1" },
-                { display: "Rad 2", key: "optradio", value: "r2" },
-                { display: "Rad 3", key: "optradio", value: "r3" },
-            ]
-        },
-    ]},
-    {   // initial data
-        opt1: true,
-        opt2: "some text",
-        "opt2.1": false,
-        "optradio": "r2",
-    },
-    document);
-
-d.show()
-    .then(data => { console.log("d data: ", data); })
-    .catch(() => { console.log("d cancelled/aborted"); });
-
-d2 = new ConfigDialog({ title: "Some Title", sections: [ { options: [ { display: "Thing 1", key: "thingval" } ] } ] }, {}, document);
-
-d2.show()
-    .then(data => { console.log("d2 data: ", data); })
-    .catch();
-*/
-
-const OKAY_TEXT = "Ok";
-const CANCEL_TEXT = "Cancel";
+const localization_en_US = {
+    OKAY_TEXT: "Ok",
+    CANCEL_TEXT: "Cancel",
+};
 const STYLE_ID = "ConfigDialog_style";
-const OPT_CLASS = "opt";
 
 
 class ConfigDialog
 {
-    constructor(config, initialState, doc)
+    constructor(config, initialState, doc, localization = localization_en_US)
     {
         this.config = config;
+        this.localization = localization;
 
         this.dialog = doc.createElement("dialog");
         this.dialog.classList.add(STYLE_ID);
@@ -80,7 +28,7 @@ class ConfigDialog
         // Called regardless of how the dialog was closed, so no need for
         // separate cancel event handler.
         this.dialog.addEventListener("close", evt => {
-            if (this.dialog.returnValue === OKAY_TEXT)
+            if (this.dialog.returnValue === localization.OKAY_TEXT)
                 return this.onOkay();
 
             return this.onCancel();
@@ -107,99 +55,117 @@ class ConfigDialog
     }
 
 
-    static html(literalSections, ...substs)
+    static renderCheckbox(item, state)
     {
-        // Use raw literal sections: we don’t want
-        // backslashes (\n etc.) to be interpreted
-        let raw = literalSections.raw;
+        let key = ConfigDialog.htmlEscape(item.key);
+        let displayName = ConfigDialog.htmlEscape(item.display);
 
-        let result = '';
-
-        substs.forEach((subst, i) => {
-            // Retrieve the literal section preceding
-            // the current substitution
-            let lit = raw[i];
-
-            // In the example, map() returns an array:
-            // If substitution is an array (and not a string),
-            // we turn it into a string
-            if (Array.isArray(subst)) {
-                subst = subst.join('');
-            }
-
-            // If the substitution is preceded by a dollar sign,
-            // we escape special characters in it
-            if (lit.endsWith('$')) {
-                subst = htmlEscape(subst);
-                lit = lit.slice(0, -1);
-            }
-            result += lit;
-            result += subst;
-        });
-
-        // Take care of last literal section
-        // (Never fails, because an empty template string
-        // produces one literal section, an empty string)
-        result += raw[raw.length-1]; // (A)
-
-        return result;
+        return `<label><input type="checkbox" name="${key}" ${state[item.key] ? "checked" : ""}/>${displayName}</label>`;
     }
 
 
-    static renderCheckbox(option, state)
+    static renderEscMarkup(item, state)
     {
-        let key = ConfigDialog.htmlEscape(option.key);
-        let displayName = ConfigDialog.htmlEscape(option.display);
-
-        return `<label><input class="${OPT_CLASS}" type="checkbox" name="${key}" ${state[option.key] ? "checked" : ""}/>${displayName}</label>`;
+        return `<p>${ConfigDialog.htmlEscape(item.content)}</p>`;
     }
 
 
-    static renderInput(option, state)
+    static renderMarkup(item, state)
     {
-        let key = ConfigDialog.htmlEscape(option.key);
-        let displayName = ConfigDialog.htmlEscape(option.display);
-
-        return `<label>${displayName} <input class="${OPT_CLASS}" type="text" name="${key}" value="${ConfigDialog.htmlEscape(state[option.key] || "")}"}/></label>`;
+        return `<p>${item.content}</p>`;
     }
 
 
-    static renderRadio(option, state)
+    static renderInput(item, state)
     {
-        let key = ConfigDialog.htmlEscape(option.key);
-        let displayName = ConfigDialog.htmlEscape(option.display);
+        let key = ConfigDialog.htmlEscape(item.key);
+        let displayName = ConfigDialog.htmlEscape(item.display);
 
-        return `<label><input class="${OPT_CLASS}" type="radio" name="${key}" ${state[option.key] === option.value ? "checked" : ""} value="${ConfigDialog.htmlEscape(option.value)}"/>${displayName}</label>`;
+        return `<label>${displayName} <input type="text" name="${key}" value="${ConfigDialog.htmlEscape(state[item.key] || "")}"}/></label>`;
     }
 
 
-    static renderOption(option, state)
+    static renderRadioGroup(item, state)
     {
-        // Note that the state's data (not the rendering input) determines
-        // the option type.
-        let keyType = typeof(state[option.key]);
-        let hasValue = option.hasOwnProperty("value");
+        let key = ConfigDialog.htmlEscape(item.key);
+        let markup = [ ];
 
-        if (hasValue)
-            return ConfigDialog.renderRadio(option, state);
+        for (let i of item.items)
+        {
+            let displayName = ConfigDialog.htmlEscape(i.display);
 
-        if (keyType === "boolean")
-            return ConfigDialog.renderCheckbox(option, state);
+            markup.push(`<label><input style="display: block;" type="radio" name="${key}" ${state[key] === i.value ? "checked" : ""} value="${ConfigDialog.htmlEscape(i.value)}"/>${displayName}</label>`);
+        }
 
-        return ConfigDialog.renderInput(option, state);
+        return markup.join("\n");
+    }
+
+
+    static renderSelect(item, state)
+    {
+        let key = ConfigDialog.htmlEscape(item.key);
+        let markup = [ `<select style="width: 100%;" name=${key}>` ];
+
+        for (let i of item.items)
+        {
+            let displayName = ConfigDialog.htmlEscape(i.display);
+            markup.push(`<label><option ${state[key] === i.value ? "selected" : ""} value="${ConfigDialog.htmlEscape(i.value)}"/>${displayName}</label>`);
+        }
+
+        markup.push("</select>");
+
+        return markup.join("\n");
+    }
+
+
+    static renderItem(item, state)
+    {
+        let renderFunc;
+
+        switch (item.type)
+        {
+            case "escmarkup":
+                renderFunc = ConfigDialog.renderEscMarkup;
+                break;
+
+            case "markup":
+                renderFunc = ConfigDialog.renderMarkup;
+                break;
+
+            case "text":
+                renderFunc = ConfigDialog.renderInput;
+                break;
+
+            case "pulldown":
+                renderFunc = ConfigDialog.renderSelect;
+                break;
+
+            case "checkbox":
+                renderFunc = ConfigDialog.renderCheckbox;
+                break;
+
+            case "radiogroup":
+                renderFunc = ConfigDialog.renderRadioGroup;
+                break;
+
+            default:
+                throw new Error(`Unknown item type ${item.type}`);
+        }
+
+        return renderFunc(item, state);
     }
 
 
     static renderSection(sectionData, state)
     {
-        let displayName = sectionData.display ?
-            `<legend>${ConfigDialog.htmlEscape(sectionData.display)}</legend>` :
+        let displayName = sectionData.section ?
+            `<legend>${ConfigDialog.htmlEscape(sectionData.section)}</legend>` :
             "";
         let markup = [ `<fieldset style="margin-bottom: 1.5ex;">${displayName}` ];
 
-        for (let opt of sectionData.options)
+        for (let i of sectionData.items)
         {
-            markup.push(`<div style="margin-bottom: 1ex;">${ConfigDialog.renderOption(opt, state)}</div>`);
+            markup.push(`<div style="margin-bottom: 1ex;">${ConfigDialog.renderItem(i, state)}</div>`);
         }
 
         markup.push("</fieldset>");
@@ -244,8 +210,8 @@ dialog.${STYLE_ID}::backdrop {
 
         markup.push(`
 <div style="display: flex; justify-content: space-evenly;">
-<input type="submit" style="width: 5em;" value="${OKAY_TEXT}" />
-<input type="submit" style="width: 5em;" value="${CANCEL_TEXT}" />
+<input type="submit" style="width: 5em;" value="${this.localization.OKAY_TEXT}" />
+<input type="submit" style="width: 5em;" value="${this.localization.CANCEL_TEXT}" />
 </div>
 `);
         markup.push("</form>", "</div>");
@@ -279,28 +245,16 @@ dialog.${STYLE_ID}::backdrop {
     getDialogState()
     {
         let state = {};
+        let form = this.dialog.querySelector("form");
+        let formData = new FormData(form);
 
-        for (let el of this.dialog.querySelectorAll(`.${OPT_CLASS}`))
+        for (let d of formData.entries())
         {
-            switch (el.type)
-            {
-                case "checkbox":
-                    state[el.name] = el.checked;
-                    break;
-
-                case "text":
-                    state[el.name] = el.value;
-                    break;
-
-                case "radio":
-                    if (el.checked)
-                        state[el.name] = el.value;
-
-                    break;
-
-                default:
-                    break;
-            }
+            let [key, value] = d;
+            if (form.elements[key].type === "checkbox")
+                state[key] = value === "on";
+            else
+                state[key] = value;
         }
 
         return state;
