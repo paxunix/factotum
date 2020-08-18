@@ -1,6 +1,6 @@
 "use strict";
 
-import Dexie from "../node_modules/dexie/dist/dexie.es.js";
+import Dexie from "../node_modules/dexie/dist/dexie.mjs";
 import Fcommand from "./Fcommand.js";
 import Util from "./Util.js";
 

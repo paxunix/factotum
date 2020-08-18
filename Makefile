@@ -36,7 +36,7 @@ relative-copy: \
         icons \
         _locales/*/* \
         manifest.json \
-        node_modules/dexie/dist/dexie.es.js \
+        node_modules/dexie/dist/dexie.mjs \
         node_modules/webextension-polyfill/dist/browser-polyfill.js \
         node_modules/ace-builds/src-min-noconflict \
         node_modules/@webcomponents/html-imports/html-imports.min.js \
