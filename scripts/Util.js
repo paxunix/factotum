@@ -33,7 +33,7 @@ static fetchDocument(...args)
  */
 static getCurrentTab()
 {
-    return browser.tabs.query({ active: true })
+    return browser.tabs.query({ active: true, currentWindow: true })
         .then(tabs => {
             // query returns an array of tabs.  We presume we only ever want
             // the first one in the list, since it should be the currently
