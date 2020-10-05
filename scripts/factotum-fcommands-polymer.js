@@ -214,11 +214,14 @@ class FcommandsElement extends PolymerElement
   _onSelected(evt)
   {
       let selItem = evt.target.selectedItem;
+      // XXX: what if item is no longer selected?  this happens I think on
+      // first load?
 
       browser.runtime.getBackgroundPage()
           .then(bgScope => bgScope.g_fcommandManager.getByGuid(selItem.guid))
           .then(fcommand => {
               this._setDocument(fcommand.documentString);
+              this.editor.getSession().setScrollTop(0);
           });
   }
 
