@@ -256,6 +256,8 @@ class FcommandsElement extends PolymerElement
           browser.runtime.getBackgroundPage()
               .then(bgScope => bgScope.g_fcommandManager.save(newFcommand))
               .then(() => this.refreshFcommandList());
+
+          this.saveActionEnabled = false;
       }
 
       catch (e)
