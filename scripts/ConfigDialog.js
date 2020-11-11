@@ -22,16 +22,19 @@ class ConfigDialog
         this.setDialogState(initialState);
 
         // Set in show()
-        this.onOkay = null;
-        this.onCancel = null;
+        this.resolveOkay = null;
+        this.rejectCancel = null;
 
         // Called regardless of how the dialog was closed, so no need for
         // separate cancel event handler.
         this.dialog.addEventListener("close", evt => {
             if (this.dialog.returnValue === localization.OKAY_TEXT)
-                return this.onOkay();
+            {
+                this.resolveOkay();
+                return;
+            }
 
-            return this.onCancel();
+            this.rejectCancel();
         });
 
         // Only add style to document head if it's not already there (same
@@ -46,7 +49,7 @@ class ConfigDialog
     // from http://2ality.com/2015/01/template-strings-html.html
     static htmlEscape(str)
     {
-        return str.replace(/&/g, '&amp;') // first!
+        return String(str).replace(/&/g, '&amp;') // first!
               .replace(/>/g, '&gt;')
               .replace(/</g, '&lt;')
               .replace(/"/g, '&quot;')
@@ -188,6 +191,13 @@ class ConfigDialog
         style.textContent = `
 dialog.${STYLE_ID}::backdrop {
     background: linear-gradient(45deg, rgba(6,33,47,0.82), rgba(84,157,195,0.82));
+
+dialog.${STYLE_ID} .okayButton {
+    width: 5em;
+}
+
+dialog.${STYLE_ID} .cancelButton {
+    width: 5em;
 }
 `;
 
@@ -210,8 +220,8 @@ dialog.${STYLE_ID}::backdrop {
 
         markup.push(`
 <div style="display: flex; justify-content: space-evenly;">
-<input type="submit" style="width: 5em;" value="${this.localization.OKAY_TEXT}" />
-<input type="submit" style="width: 5em;" value="${this.localization.CANCEL_TEXT}" />
+<input type="button" class="okayButton" value="${ConfigDialog.htmlEscape(this.localization.OKAY_TEXT)}" />
+<input type="button" class="cancelButton" value="${ConfigDialog.htmlEscape(this.localization.CANCEL_TEXT)}" />
 </div>
 `);
         markup.push("</form>", "</div>");
@@ -225,18 +235,18 @@ dialog.${STYLE_ID}::backdrop {
         let oldState = this.getDialogState();
 
         return new Promise((res, rej) => {
-            this.onOkay = () => {
-                return res(this.getDialogState());
+            this.resolveOkay = () => {
+                res(this.getDialogState());
             };
 
-            this.onCancel = () => {
+            this.rejectCancel = () => {
                 this.setDialogState(oldState);
-                rej();
+                rej({});
             };
 
             // Ensure state is cleared before displaying, since this is set
             // by canceling the dialog with Esc or via form interactions.
-            this.dialog.returnValue = undefined;
+            this.dialog.returnValue = "";
             this.dialog.showModal();
         });
     }
@@ -264,6 +274,17 @@ dialog.${STYLE_ID}::backdrop {
     setDialogState(newState)
     {
         this.dialog.innerHTML = this.getMarkup(newState);
+
+        // Mirror default behaviour of HTML5 dialogs if the Okay button were
+        // to submit and the Cancel button were to reset.
+        this.dialog.querySelector(".okayButton").addEventListener("click", () => {
+            this.dialog.returnValue = this.localization.OKAY_TEXT;
+            this.dialog.close();
+        });
+        this.dialog.querySelector(".cancelButton").addEventListener("click", () => {
+            this.dialog.returnValue = this.localization.CANCEL_TEXT;
+            this.dialog.close();
+        });
     }
 };
 
