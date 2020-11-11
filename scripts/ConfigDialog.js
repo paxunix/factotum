@@ -262,10 +262,16 @@ dialog.${STYLE_ID} .cancelButton {
         {
             let [key, value] = d;
             if (form.elements[key].type === "checkbox")
-                state[key] = value === "on";
-            else
-                state[key] = value;
+                continue;       // checkboxes handled specially below
+
+            state[key] = value;
         }
+
+        // Checkboxes that are not checked will not have an entry in
+        // FormData.  Since we prefer to have an explicit true/false for
+        // every checkbox, we look these up separately to set their value.
+        for (let checkbox of form.querySelectorAll("input[type=checkbox]"))
+            state[checkbox.name] = !!checkbox.checked;
 
         return state;
     }
