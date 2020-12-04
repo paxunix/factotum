@@ -126,8 +126,9 @@ static messageListener(evt)
         )      // XXX: how can check that evt.data is from a built TransferObject?
             return;
 
-    var transferObj = TransferObject.deserialize(evt.data); // XXX: this could throw if there were bad data (unsupported properties).  What to do with the error, since we're in a listener with no catch in the call stack.
-    browser.runtime.sendMessage(TransferObject.serialize(transferObj));
+    let transferObj = TransferObject.deserialize(evt.data);
+    if (transferObj !== null)
+        browser.runtime.sendMessage(TransferObject.serialize(transferObj));
 }   // ContentScript.messageListener
 
 

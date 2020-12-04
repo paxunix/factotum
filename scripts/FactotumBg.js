@@ -299,6 +299,11 @@ static responseHandler(response, sender) {
         return Promise.resolve();
 
     var transferObj = TransferObject.deserialize(response);
+    if (transferObj === null)
+    {
+        return g_fcommandManager.getErrorManager().save(`Failed TransferObject creation from response: ${JSON.stringify(response)}`);
+    }
+
     // XXX: there is probably other data in sender we should check.  Like
     // verify the message came from our content script.
     // XXX: not sure that this useful since this is just using data sent to

@@ -205,7 +205,13 @@ class TransferObject
 
     static deserialize(str)
     {
-        return TransferObject.build(JSON.parse(str));
+        try {
+            return TransferObject.build(JSON.parse(str));
+        }
+
+        catch (e) { ; }
+
+        return null;
     }
 }   // class TransferObject
 
