@@ -3,7 +3,7 @@
 
     // XXX: "homepage_url": "",
 
-    "version": "0.0.1",
+    "version": "{{VERSION}}",
 
     "manifest_version": 2,
 

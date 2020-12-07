@@ -6,6 +6,9 @@ TESTDIR := test-build
 SCRIPTS_DIR := $(OUTDIR)/scripts
 HTML_DIR := $(OUTDIR)/html
 POLYMER_BUILD := polymer-build
+
+VERSION := $(shell git --no-pager log -1 --date=format:"%Y.%m.%d.%H%M" --format="%ad")
+
 .DEFAULT := all
 
 
@@ -13,7 +16,8 @@ POLYMER_BUILD := polymer-build
 all: \
     html-copy \
     script-copy \
-    relative-copy \
+    relative-copy
+	sed -r -i -e 's/\{\{VERSION\}\}/$(VERSION)/' $(OUTDIR)/manifest.json
 
 
 .PHONY: script-copy
