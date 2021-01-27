@@ -333,7 +333,10 @@ class FcommandsElement extends PolymerElement
 
       let editor = ace.edit(this.$.editPane);
       editor.setOptions({
+          behavioursEnabled: false,
           cursorStyle: "wide",
+          enableBasicAutocompletion: false,
+          enableLiveAutocompletion: false,
           fontSize: "10pt",
           mergeUndoDeltas: "always",
           mode: "ace/mode/html",
