@@ -108,7 +108,7 @@ class ConfigDialog
     {
         let key = ConfigDialog.htmlEscape(item.key);
         let displayName = ConfigDialog.htmlEscape(item.display);
-        let markup = [ `<label>${displayName} <select style="width: 100%;" name=${key}>` ];
+        let markup = [ `<label>${displayName} <select name=${key}>` ];
 
         for (let i of item.items)
         {
