@@ -107,7 +107,8 @@ class ConfigDialog
     static renderSelect(item, state)
     {
         let key = ConfigDialog.htmlEscape(item.key);
-        let markup = [ `<select style="width: 100%;" name=${key}>` ];
+        let displayName = ConfigDialog.htmlEscape(item.display);
+        let markup = [ `<label>${displayName} <select style="width: 100%;" name=${key}>` ];
 
         for (let i of item.items)
         {
@@ -115,7 +116,7 @@ class ConfigDialog
             markup.push(`<label><option ${state[key] === i.value ? "selected" : ""} value="${ConfigDialog.htmlEscape(i.value)}"/>${displayName}</label>`);
         }
 
-        markup.push("</select>");
+        markup.push("</select></label>");
 
         return markup.join("\n");
     }
