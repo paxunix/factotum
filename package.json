@@ -26,14 +26,15 @@
     "@polymer/paper-item": "^3.0.1",
     "@polymer/paper-listbox": "^3.0.1",
     "@polymer/polymer": "^3.4.1",
-    "@webcomponents/html-imports": "^1.2.5",
+    "@webcomponents/html-imports": "^1.2.6",
     "ace-builds": "^1.4.12",
-    "dexie": "^3.0.2",
+    "dexie": "^3.0.3",
     "polymer-cli": "^1.9.11",
-    "webextension-polyfill": "^0.6.0"
+    "webextension-polyfill": "^0.6.0",
+    "yarn": "^1.22.10"
   },
   "devDependencies": {
-    "jasmine": "^3.6.1"
+    "jasmine": "^3.6.4"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
