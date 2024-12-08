@@ -1,7 +1,7 @@
 "use strict";
 
-import FactotumBg from "./scripts/FactotumBg.js";
-import Fcommand from "./scripts/Fcommand.js";
+import FactotumBg from "../../release/scripts/FactotumBg.js";
+import Fcommand from "../../release/scripts/Fcommand.js";
 
 describe("FactotumBg", function () {
 

@@ -1,7 +1,7 @@
 "use strict";
 
-import Fcommand from "./scripts/Fcommand.js";
-import TransferObject from "./scripts/TransferObject.js";
+import Fcommand from "../../release/scripts/Fcommand.js";
+import TransferObject from "../../release/scripts/TransferObject.js";
 
 describe("Fcommand", function () {
 

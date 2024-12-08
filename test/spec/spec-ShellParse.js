@@ -1,6 +1,6 @@
 "use strict";
 
-import ShellParse from "./scripts/ShellParse.js";
+import ShellParse from "../../release/scripts/ShellParse.js";
 
 
 describe("ShellParse", function() {

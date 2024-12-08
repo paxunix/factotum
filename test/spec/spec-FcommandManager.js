@@ -1,6 +1,6 @@
 "use strict";
 
-import FcommandManager from "./scripts/FcommandManager.js";
+import FcommandManager from "../../release/scripts/FcommandManager.js";
 
 describe("FcommandManager", function() {
 
