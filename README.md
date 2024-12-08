@@ -40,7 +40,7 @@ who gave you a free gun full of free bullets.**
 ## Setting up a local package
 
 1. Install [Node.js](http://nodejs.org/download/) if you don't already have
-   it.  You'll need NodeJS and npm.
+   it.  You'll need NodeJS and npm and npx.
 1. Run `make setup`.  It will install the necessary npm packages.
 1. Run `make`.
 1. Enable developer mode in `chrome://extensions/`.
