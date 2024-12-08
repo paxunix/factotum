@@ -158,7 +158,7 @@ Factotum.runCommand().
 */
 function loadJquery(transferObj) {
 
-  var opts = transferObj.getCommandLine();
+  var opts = transferObj.get("cmdlineOptions");
 
   console.log("transferObj: ", transferObj);
 
@@ -220,7 +220,7 @@ else
 
 <!--
 This element contains Javascript that will be run in the background page,
-passed transferObj and browser.  transferObj.getBgData() will return
+passed transferObj and browser.  transferObj.get("bgData") will return
 the value returned by your Fcommand.
 
 It must be a <template> with an ID of "bgCode".
@@ -238,7 +238,7 @@ It must be a <template> with an ID of "bgCode".
     and browser.
 
     transferObj is a TransferObject and contains (amongst other things) a
-    getBgData() method that returns the data returned by the Fcommand.
+    get("bgData") method that returns the data returned by the Fcommand.
     XXX:  document WTF is a TransferObject.
 
     browser is the WebExtension browser object.
@@ -247,7 +247,7 @@ It must be a <template> with an ID of "bgCode".
   -->
 <script>
 console.log("Running in bg with:", transferObj);
-var opts = transferObj.getCommandLine();
+var opts = transferObj.get("cmdlineOptions");
 
 if (opts.bgthrow)
 {
@@ -261,7 +261,7 @@ return browser.notifications.create(
         type: "basic",
         iconUrl: browser.runtime.getURL("icons/md/info.png"),
         title: "Loaded jQuery",
-        message: "Version " + transferObj.getBgData().jqueryVersion,
+        message: "Version " + transferObj.get("bgData").jqueryVersion,
     });
 </script>
 </template>

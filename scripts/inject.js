@@ -76,7 +76,7 @@ Factotum.runCommand = function (fcommandFunc)
     var importDoc = document.currentScript.ownerDocument;
     var guid = Factotum.getFcommandId(importDoc);
     var transferObj = TransferObject.build(Factotum._getDataAttribute(document, guid, "transferObj"));
-    var clonedTransferObject = TransferObject.clone(transferObj).setImportDocument(importDoc);
+    var clonedTransferObject = TransferObject.clone(transferObj).set("importDocument", importDoc);
     var isDebug = transferObj.get("_content_internalCmdlineOptions").debug;
 
     // It is important that the Fcommand function receive a cloned transfer
@@ -91,7 +91,7 @@ Factotum.runCommand = function (fcommandFunc)
     p.then(function (bgData) {
         if (typeof bgData !== "undefined")
         {
-            transferObj.setBgData(bgData);
+            transferObj.set("bgData", bgData);
             postMessage(TransferObject.serialize(transferObj), "*");
         }
     }).catch(function (error) {

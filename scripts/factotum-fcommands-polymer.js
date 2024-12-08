@@ -69,7 +69,7 @@ console.log("Whatever javascript should run with the result of your Fcommand's p
 <script>
 function YOUR_FCOMMAND(transferObj) {
 
-let opts = transferObj.getCommandLine();
+let opts = transferObj.get("cmdlineOptions");
 console.log("opts: ", opts);
 
 }

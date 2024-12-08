@@ -252,7 +252,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
 
     var transferObj = TransferObject.build()
         .set("_content_internalCmdlineOptions", internalOptions)
-        .setTabDisposition(tabDisposition);
+        .set("tabDisposition", tabDisposition);
 
     let prefix = internalOptions._[0];
     var p_lookupFcommand = guidFromCmdline !== null ?
@@ -277,7 +277,7 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
         }
 
         // Not requesting help, so execute command
-        transferObj.setCommandLine(
+        transferObj.set("cmdlineOptions",
             GetOpt.getOptions(fcommand.extractedData.optspec,
                 internalOptions._)
         );
@@ -308,7 +308,7 @@ static responseHandler(response, sender) {
     // verify the message came from our content script.
     // XXX: not sure that this useful since this is just using data sent to
     // us after the Fcommand has completed.
-    // transferObj.setCurrentTab(sender.tabs.Tab);
+    // transferObj.set("currentTab", sender.tabs.Tab);
 
     if (transferObj.has("_bg_errorMessage"))
     {
@@ -319,7 +319,7 @@ static responseHandler(response, sender) {
         return g_fcommandManager.getErrorManager().save(transferObj.get("_bg_errorMessage"));
     }
 
-    if (transferObj.has("_content_guid") && transferObj.hasBgData())
+    if (transferObj.has("_content_guid") && transferObj.has("bgData"))
     {
         console.log("Fcommand responded:", transferObj);
 

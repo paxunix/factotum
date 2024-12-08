@@ -137,7 +137,7 @@ describe("_extractOptSpec", function() {
         expect(function () {
             Fcommand._extractOptSpec(null, lang);
         }).toThrowError(TypeError,
-            "Cannot read property 'querySelectorAll' of null");
+            "Cannot read properties of null (reading 'querySelectorAll')");
     });
 
 
@@ -157,7 +157,7 @@ describe("_extractOptSpec", function() {
 
         catch (e)
         {
-            expect(e.message).toMatch(/^Failed parsing template#getopt: Unexpected token X/);
+            expect(e.message).toMatch(/^Failed parsing template#getopt:.*Unexpected token 'X'/);
         }
     });
 
@@ -188,7 +188,7 @@ describe("_extractBgCodeString", function() {
         expect(function () {
             Fcommand._extractBgCodeString(null, lang);
         }).toThrowError(TypeError,
-            "Cannot read property 'querySelectorAll' of null");
+            "Cannot read properties of null (reading 'querySelectorAll')");
     });
 
 
@@ -397,7 +397,7 @@ describe("runBgCode", function() {
             "_content_internalCmdlineOptions": {},       // always present on TransferObjects passed to runBgCode()
         });
         // Always present on TransferObjects passed to runBgCode()
-        obj.setCommandLine({});
+        obj.set("cmdlineOptions", {});
 
         fcommand.runBgCode(obj).then(ret => {
             expect(ret).toBe(42);
@@ -434,7 +434,7 @@ describe("runBgCode", function() {
             "_content_internalCmdlineOptions": { bgdebug: true},
         });
         // Always present on TransferObjects passed to runBgCode()
-        obj.setCommandLine({});
+        obj.set("cmdlineOptions", {});
 
         fcommand.runBgCode(obj).then(ret => {
             expect(ret).toBe(42);

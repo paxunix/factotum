@@ -394,7 +394,7 @@ runBgCode(transferObj)
  */
 runPageCode(transferObj)
 {
-    let tab = transferObj.getCurrentTab();
+    let tab = transferObj.get("currentTab");
 
     // If the current page is internal, it can't run a "page" context
     // Fcommand.
@@ -418,7 +418,7 @@ execute(transferObj)
     let self = this;
 
     return Util.getCurrentTab().then(function (tab) {
-        transferObj.setCurrentTab(tab)
+        transferObj.set("currentTab", tab)
             .set("_content_documentString", self.documentString)
             .set("_content_title", self.extractedData.title)
             .set("_content_guid", self.extractedData.guid);
@@ -469,10 +469,10 @@ createContextMenu(parentMenuId)
                 // This isn't strictly necessary, but mimics
                 // invoking the Fcommand by entering its first
                 // keyword in the omnibox with no parameters.
-                transferObj.setCommandLine(GetOpt.getOptions(self.extractedData.optspec, [ self.extractedData.keywords[0] ]));
-                transferObj.setContextClickData(contextMenuData);
+                transferObj.set("cmdlineOptions", GetOpt.getOptions(self.extractedData.optspec, [ self.extractedData.keywords[0] ]));
+                transferObj.set("contextClickData", contextMenuData);
                 // Context menu action always implies current tab
-                transferObj.setTabDisposition("currentTab");
+                transferObj.set("tabDisposition", "currentTab");
 
                 // XXX: the problem here is that there is no error trap;
                 // an exception during execution will not surface to the

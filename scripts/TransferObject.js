@@ -29,13 +29,6 @@ let supportedKeys = [
 // function-based API and the new property-based proxy API.  DO NOT MODIFY
 // THIS STRUCTURE.  IF ADDING KEYS, THEY GO IN supportedKeys.
 let oldFunc2Key = {
-    CommandLine: "cmdlineOptions",
-    CurrentTab: "currentTab",
-    ContextClickData: "contextClickData",
-    TabDisposition: "tabDisposition",
-    ImportDocument: "importDocument",
-    BgData: "bgData",
-
 };
 
 
@@ -51,7 +44,7 @@ let handler = {
             else
                 return true;
 
-        throw new ReferenceError(`Unsupported property '${prop}'`);
+        throw new ReferenceError(`Unsupported property for 'delete' '${prop}'`);
     },
 
 
@@ -78,7 +71,6 @@ let handler = {
                         }
                         else
                         {
-                            console.log(`Migrate TransferObject.has(${args[0]})`, (new Error()).stack);
                             ref = args[0];
                         }
 
@@ -95,7 +87,6 @@ let handler = {
                         }
                         else
                         {
-                            console.log(`Migrate TransferObject.get(${args[0]})`, (new Error()).stack);
                             ref = args[0];
                         }
 
@@ -113,7 +104,6 @@ let handler = {
                         }
                         else
                         {
-                            console.log(`Migrate TransferObject.set(${args[0]}, )`, (new Error()).stack);
                             ref = args[0];
                             this[ref] = args[1];
                         }
@@ -134,7 +124,6 @@ let handler = {
                         }
                         else
                         {
-                            console.log(`Migrate TransferObject.delete(${args[0]}, )`, (new Error()).stack);
                             ref = args[0];
                             delete this[ref];
 
@@ -147,7 +136,7 @@ let handler = {
         if (supportedKeys.indexOf(prop) !== -1)
             return obj[prop];
 
-        throw new ReferenceError(`Unsupported property '${prop}'`);
+        throw new ReferenceError(`Unsupported property for 'get' '${prop}'`);
     },
 
 
@@ -156,7 +145,7 @@ let handler = {
         if (supportedKeys.indexOf(prop) !== -1)
             return prop in obj;
 
-        throw new ReferenceError(`Unsupported property '${prop}'`);
+        throw new ReferenceError(`Unsupported property for 'has' '${prop}'`);
     },
 
 
@@ -168,7 +157,7 @@ let handler = {
             return true;
         }
 
-        throw new ReferenceError(`Unsupported property '${prop}'`);
+        throw new ReferenceError(`Unsupported property for 'set' '${prop}'`);
     },
 };
 
