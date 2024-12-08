@@ -11,79 +11,92 @@ VERSION := $(shell git --no-pager log -1 --date=format:"%Y.%m.%d.%H%M" --format=
 .DEFAULT := all
 
 
-.PHONY: all
 all: \
+    manifest.json \
     html-copy \
     script-copy \
     relative-copy
+	# $@
+	rsync -av ./manifest.json $(OUTDIR)/
 	sed -r -i -e 's/\{\{VERSION\}\}/$(VERSION)/' $(OUTDIR)/manifest.json
+	touch $@
 
 
-.PHONY: script-copy
 script-copy: html-copy \
         $(addprefix $(OUTDIR)/, \
             $(wildcard scripts/*.js) \
         )
+	# $@
+	touch $@
 
 
-.PHONY: html-copy
 html-copy: \
         $(addprefix $(OUTDIR)/, \
             $(wildcard html/*.html) \
         )
+	# $@
+	touch $@
 
 
-.PHONY: relative-copy
 relative-copy: \
         example/* \
         icons \
         _locales/*/* \
-        manifest.json \
         node_modules/dexie/dist/dexie.mjs \
         node_modules/webextension-polyfill/dist/browser-polyfill.js \
         node_modules/ace-builds/src-min-noconflict \
         node_modules/@webcomponents/html-imports/html-imports.min.js \
         | html-copy $(OUTDIR)/.
+	# $@
 	rsync -Rav $^ $(OUTDIR)/
+	touch $@
 
 
-.PHONY: tar
 tar: factotum.tar
 factotum.tar: all
+	# $@
 	tar -hcvf factotum.tar $(OUTDIR)/
+	touch $@
 
 
 .PHONY: clean
 clean:
-	rm -fr $(OUTDIR) $(POLYMER_BUILD)
+	# $@
+	rm -fr $(OUTDIR) $(POLYMER_BUILD) all script-copy html-copy relative-copy tar factotum.tar
 
 
 .PHONY: update
 update:
+	# $@
 	npm update
 
 
 .PHONY: setup
 setup:
+	# $@
 	npm install --include=dev
 
 
 .PHONY: testserver
-testserver:
+testserver: all
+	# $@
 	npx jasmine-browser-runner serve
 
 
 .PHONY: test
-test:
+test: all
+	# $@
 	npx jasmine-browser-runner runSpecs
 
 
 .PRECIOUS: %/.
 %/.:
+	# $@
 	mkdir -p $@
 
 
 $(SCRIPTS_DIR)/%.js: scripts/%.js | $(SCRIPTS_DIR)/.
+	# $@
 	rsync -av $< $(dir $@)
 
 
@@ -95,6 +108,7 @@ $(SCRIPTS_DIR)/%.js: scripts/%.js | $(SCRIPTS_DIR)/.
 # artifacts into the actual build directory once all polymer builds are
 # done.
 $(HTML_DIR)/%.html: html/%.html scripts/factotum-%-polymer.js | $(OUTDIR)/.
+	# $@
 	rm -fr $(POLYMER_BUILD)
 	node_modules/.bin/polymer build --entrypoint $< --name ../$(POLYMER_BUILD)/.
 	rsync -av $(POLYMER_BUILD)/* $(OUTDIR)/.
