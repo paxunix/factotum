@@ -2,7 +2,6 @@ MAKEFLAGS := -j1		# polymer build can't run separate entrypoints in parallel
 SHELL := /bin/zsh
 .SHELLFLAGS := -f -c
 OUTDIR := release
-TESTDIR := test-build
 SCRIPTS_DIR := $(OUTDIR)/scripts
 HTML_DIR := $(OUTDIR)/html
 POLYMER_BUILD := polymer-build
@@ -56,7 +55,7 @@ factotum.tar: all
 
 .PHONY: clean
 clean:
-	rm -fr $(OUTDIR) $(TESTDIR) $(POLYMER_BUILD)
+	rm -fr $(OUTDIR) $(POLYMER_BUILD)
 
 
 .PHONY: update
@@ -66,19 +65,17 @@ update:
 
 .PHONY: setup
 setup:
-	npm install --dev
-
-
-.PHONY: test-copy
-test-copy: all | $(TESTDIR)/.
-	cd $(TESTDIR) && ln -sf $(abspath $(OUTDIR))/* ./
-	cd $(TESTDIR) && ln -sf $(abspath node_modules/jasmine-core) ./node_modules/
-	rsync -av test/spec/* test/run-spec.html $(TESTDIR)/
+	npm install --include=dev
 
 
 .PHONY: testserver
-testserver: test-copy
-	cd $(TESTDIR) && python -m SimpleHTTPServer
+testserver:
+	npx jasmine-browser-runner serve
+
+
+.PHONY: test
+test:
+	npx jasmine-browser-runner runSpecs
 
 
 .PRECIOUS: %/.
