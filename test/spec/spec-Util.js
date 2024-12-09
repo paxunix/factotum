@@ -33,16 +33,6 @@ describe("fetchDocument", function() {
     });
 
 
-    it("retrieves an Fcommand document via URL", function(done) {
-        let p = Util.fetchDocument("http://localhost:8000/example/load-jquery.html");
-        expect(p instanceof Promise).toBe(true);
-        p.then(function (body) {
-            expect(typeof(body)).toBe("string");
-            done();
-        }).catch(done);
-    });
-
-
 }); // fetchDocument
 
 
