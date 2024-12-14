@@ -25,13 +25,6 @@ let supportedKeys = [
 ];
 
 
-// This is for use only to bridge between the old (get, set, has)
-// function-based API and the new property-based proxy API.  DO NOT MODIFY
-// THIS STRUCTURE.  IF ADDING KEYS, THEY GO IN supportedKeys.
-let oldFunc2Key = {
-};
-
-
 let handler = {
     deleteProperty: function(obj, prop)
     {
@@ -53,85 +46,6 @@ let handler = {
         // Have to allow serialization into JSON
         if (prop == "toJSON")
             return JSON.stringify(obj);
-
-        // Detect if bridging from old function-based API
-        let matched = prop.match(/^(?<prefix>has|get|set|delete)(?<func>.*)/);
-        if (matched && matched.groups.prefix)
-        {
-            switch (matched.groups.prefix)
-            {
-                case "has":
-                    return function (...args) {
-                        let ref;
-
-                        if (oldFunc2Key[matched.groups.func])
-                        {
-                            console.log(`Migrate TransferObject.has${matched.groups.func}()`, (new Error()).stack);
-                            ref = oldFunc2Key[matched.groups.func];
-                        }
-                        else
-                        {
-                            ref = args[0];
-                        }
-
-                        return ref in this;
-                    }
-
-                case "get":
-                    return function (...args) {
-                        let ref;
-                        if (oldFunc2Key[matched.groups.func])
-                        {
-                            console.log(`Migrate TransferObject.get${matched.groups.func}()`, (new Error()).stack);
-                            ref = oldFunc2Key[matched.groups.func];
-                        }
-                        else
-                        {
-                            ref = args[0];
-                        }
-
-                        return this[ref];
-                    }
-
-                case "set":
-                    return function (...args) {
-                        let ref;
-                        if (oldFunc2Key[matched.groups.func])
-                        {
-                            console.log(`Migrate TransferObject.set${matched.groups.func}()`, (new Error()).stack);
-                            ref = oldFunc2Key[matched.groups.func];
-                            this[ref] = args[0];
-                        }
-                        else
-                        {
-                            ref = args[0];
-                            this[ref] = args[1];
-                        }
-
-                        return this;
-                    }
-
-                case "delete":
-                    return function (...args) {
-                        let ref;
-                        if (oldFunc2Key[matched.groups.func])
-                        {
-                            console.log(`Migrate TransferObject.delete{matched.groups.func}()`, (new Error()).stack);
-                            ref = oldFunc2Key[matched.groups.func];
-                            delete this[ref];
-
-                            return this;
-                        }
-                        else
-                        {
-                            ref = args[0];
-                            delete this[ref];
-
-                            return this;
-                        }
-                    }
-            }
-        }
 
         if (supportedKeys.indexOf(prop) !== -1)
             return obj[prop];
