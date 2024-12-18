@@ -367,18 +367,18 @@ runBgCode(transferObj)
     let self = this;
 
     let cloneTransferObject = TransferObject.clone(transferObj)
-    cloneTransferObject.set("_bg_fcommandDocument",
-        Fcommand._parseDomFromString(self.documentString));
+    cloneTransferObject._bg_fcommandDocument =
+        Fcommand._parseDomFromString(self.documentString);
     // No need to pass the document string since we already extracted it for
     // our use.
-    cloneTransferObject.delete("_content_documentString");
+    delete cloneTransferObject._content_documentString;
 
     // Run the Fcommand's bgCode
     return new Promise(function (res, rej) {
         var AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 
         let bgFunction = new AsyncFunction("transferObj", "browser",
-            (transferObj.get("_content_internalCmdlineOptions").bgdebug ? "d\ebugger;\n" : "") +
+            (transferObj._content_internalCmdlineOptions.bgdebug ? "d\ebugger;\n" : "") +
                 self.extractedData.bgCodeString);
 
         return res(bgFunction(cloneTransferObject, browser));
@@ -394,13 +394,13 @@ runBgCode(transferObj)
  */
 runPageCode(transferObj)
 {
-    let tab = transferObj.get("currentTab");
+    let tab = transferObj.currentTab;
 
     // If the current page is internal, it can't run a "page" context
     // Fcommand.
     if (tab.url.search(/^(chrome|about)[-\w]*:/i) !== -1)
     {
-        throw new Error(`Fcommand '${transferObj.get("_content_title")}' cannot run on a browser page.`);
+        throw new Error(`Fcommand '${transferObj._content_title}' cannot run on a browser page.`);
     }
 
     browser.tabs.sendMessage(tab.id, TransferObject.serialize(transferObj));
@@ -418,10 +418,10 @@ execute(transferObj)
     let self = this;
 
     return Util.getCurrentTab().then(function (tab) {
-        transferObj.set("currentTab", tab)
-            .set("_content_documentString", self.documentString)
-            .set("_content_title", self.extractedData.title)
-            .set("_content_guid", self.extractedData.guid);
+        transferObj.currentTab = tab;
+        transferObj._content_documentString = self.documentString;
+        transferObj._content_title = self.extractedData.title;
+        transferObj._content_guid = self.extractedData.guid;
 
         // If the Fcommand is bg-only, invoke it now.
         if (self.extractedData.context.toLowerCase() === "bg")
@@ -469,10 +469,10 @@ createContextMenu(parentMenuId)
                 // This isn't strictly necessary, but mimics
                 // invoking the Fcommand by entering its first
                 // keyword in the omnibox with no parameters.
-                transferObj.set("cmdlineOptions", GetOpt.getOptions(self.extractedData.optspec, [ self.extractedData.keywords[0] ]));
-                transferObj.set("contextClickData", contextMenuData);
+                transferObj.cmdlineOptions = GetOpt.getOptions(self.extractedData.optspec, [ self.extractedData.keywords[0] ]);
+                transferObj.contextClickData = contextMenuData;
                 // Context menu action always implies current tab
-                transferObj.set("tabDisposition", "currentTab");
+                transferObj.tabDisposition = "currentTab";
 
                 // XXX: the problem here is that there is no error trap;
                 // an exception during execution will not surface to the

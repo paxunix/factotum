@@ -397,11 +397,11 @@ describe("runBgCode", function() {
             "_content_internalCmdlineOptions": {},       // always present on TransferObjects passed to runBgCode()
         });
         // Always present on TransferObjects passed to runBgCode()
-        obj.set("cmdlineOptions", {});
+        obj.cmdlineOptions = {};
 
         fcommand.runBgCode(obj).then(ret => {
             expect(ret).toBe(42);
-            expect(window.fcommandBgSpy.calls.first().args[0].get("_bg_fcommandDocument") instanceof HTMLDocument).toBe(true);
+            expect(window.fcommandBgSpy.calls.first().args[0]._bg_fcommandDocument instanceof HTMLDocument).toBe(true);
             done();
         });
     });
@@ -434,7 +434,7 @@ describe("runBgCode", function() {
             "_content_internalCmdlineOptions": { bgdebug: true},
         });
         // Always present on TransferObjects passed to runBgCode()
-        obj.set("cmdlineOptions", {});
+        obj.cmdlineOptions = {};
 
         fcommand.runBgCode(obj).then(ret => {
             expect(ret).toBe(42);

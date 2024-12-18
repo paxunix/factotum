@@ -250,9 +250,9 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
     // that as the actual command line.
     var internalOptions = FactotumBg.parseCommandLine(cmdline);
 
-    var transferObj = TransferObject.build()
-        .set("_content_internalCmdlineOptions", internalOptions)
-        .set("tabDisposition", tabDisposition);
+    var transferObj = TransferObject.build();
+    transferObj._content_internalCmdlineOptions = internalOptions;
+    transferObj.tabDisposition = tabDisposition;
 
     let prefix = internalOptions._[0];
     var p_lookupFcommand = guidFromCmdline !== null ?
@@ -277,10 +277,9 @@ static onOmniboxInputEntered(cmdline, tabDisposition) {
         }
 
         // Not requesting help, so execute command
-        transferObj.set("cmdlineOptions",
+        transferObj.cmdlineOptions =
             GetOpt.getOptions(fcommand.extractedData.optspec,
-                internalOptions._)
-        );
+                internalOptions._);
 
         return fcommand.execute(transferObj)
             .catch(error => {
@@ -310,20 +309,20 @@ static responseHandler(response, sender) {
     // us after the Fcommand has completed.
     // transferObj.set("currentTab", sender.tabs.Tab);
 
-    if (transferObj.has("_bg_errorMessage"))
+    if ("_bg_errorMessage" in transferObj)
     {
         // XXX: should show guid and Fcommand description or something
         // (maybe the cmdline).  Would have to include that in the
         // transferobject.  Otherwise  you can't clearly know which Fcommand
         // returned the error.
-        return g_fcommandManager.getErrorManager().save(transferObj.get("_bg_errorMessage"));
+        return g_fcommandManager.getErrorManager().save(transferObj._bg_errorMessage);
     }
 
-    if (transferObj.has("_content_guid") && transferObj.has("bgData"))
+    if ("_content_guid" in transferObj && "bgData" in transferObj)
     {
         console.log("Fcommand responded:", transferObj);
 
-        return g_fcommandManager.getByGuid(transferObj.get("_content_guid"))
+        return g_fcommandManager.getByGuid(transferObj._content_guid)
             .then(function (fcommand) {
                     return fcommand.runBgCode(transferObj)
                 })

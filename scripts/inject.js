@@ -76,8 +76,9 @@ Factotum.runCommand = function (fcommandFunc)
     var importDoc = document.currentScript.ownerDocument;
     var guid = Factotum.getFcommandId(importDoc);
     var transferObj = TransferObject.build(Factotum._getDataAttribute(document, guid, "transferObj"));
-    var clonedTransferObject = TransferObject.clone(transferObj).set("importDocument", importDoc);
-    var isDebug = transferObj.get("_content_internalCmdlineOptions").debug;
+    var clonedTransferObject = TransferObject.clone(transferObj);
+    clonedTransferObject.importDocument = importDoc;
+    var isDebug = transferObj._content_internalCmdlineOptions.debug;
 
     // It is important that the Fcommand function receive a cloned transfer
     // object so we maintain our own copy of it in this call frame
@@ -91,15 +92,15 @@ Factotum.runCommand = function (fcommandFunc)
     p.then(function (bgData) {
         if (typeof bgData !== "undefined")
         {
-            transferObj.set("bgData", bgData);
+            transferObj.bgData = bgData;
             postMessage(TransferObject.serialize(transferObj), "*");
         }
     }).catch(function (error) {
         // If a thrown Error, its details will not be preserved when passed
         // to the background context, so pull out the stack and use it
         // as the error string.
-        transferObj.set("_bg_errorMessage",
-            (error instanceof Error) ?  error.stack : error);
+        transferObj._bg_errorMessage =
+            (error instanceof Error) ? error.stack : error;
         postMessage(TransferObject.serialize(transferObj), "*");
     }).finally(() => {
         Factotum._cleanup(document, guid);

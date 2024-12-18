@@ -1,5 +1,7 @@
 "use strict";
 
+// XXX: why is this import needed here since TransferObject isn't used in
+// this module?
 import TransferObject from "../../release/scripts/TransferObject.js";
 import Util from "../../release/scripts/Util.js";
 

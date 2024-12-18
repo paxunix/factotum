@@ -25,14 +25,14 @@ static getFcommandImportId(guid)
  */
 static createImportLink(parentDocument, transferObj)
 {
-    var blob = new Blob([transferObj.get("_content_documentString")], { type: "text/html" });
+    var blob = new Blob([transferObj._content_documentString], { type: "text/html" });
     var link = parentDocument.createElement("link");
     link.rel = "import";
-    link.id = ContentScript.getFcommandImportId(transferObj.get("_content_guid"));
+    link.id = ContentScript.getFcommandImportId(transferObj._content_guid);
 
     // No need to pass the document string since we already extracted it for
     // our use.
-    transferObj.delete("_content_documentString");
+    delete transferObj._content_documentString;
 
     // Content script needs access to all the transferred data
     link.dataset.transferObj = JSON.stringify(transferObj);
@@ -67,9 +67,9 @@ static getLoadImportPromise(transferObj)
         // Fcommand has not completed yet.
         // XXX: this is the same code as in inject.js.  Would be nice to put
         // it in one place.
-        if (document.querySelector(`head link#fcommand-${transferObj.get("_content_guid")}[rel=import]`))
+        if (document.querySelector(`head link#fcommand-${transferObj._content_guid}[rel=import]`))
         {
-            transferObj.set("_bg_errorMessage", `Fcommand '${transferObj.get("_content_title")}' (${transferObj.get("_content_guid")}) is still running in this tab.`);
+            transferObj._bg_errorMessage = `Fcommand '${transferObj._content_title}' (${transferObj._content_guid}) is still running in this tab.`;
             throw transferObj;
         }
 
@@ -82,7 +82,7 @@ static getLoadImportPromise(transferObj)
         elem.onerror = function onerror(evt) {
             // XXX:  should support error obj (like we used to) as well as
             // just error message???
-            transferObj.set("_bg_errorMessage", evt.statusText);
+            transferObj._bg_errorMessage = evt.statusText;
             reject(TransferObject.serialize(transferObj));
         };
 

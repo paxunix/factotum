@@ -9,16 +9,16 @@ describe("ContentScript", function() {
 describe("createImportLink", function() {
 
     it("creates a link from documentString", function() {
-        var t = TransferObject.build()
-            .set("cmdlineOptions", { a: 1, b: [ 2, 3 ], c: { d: "four" } })
-            .set("_content_internalCmdlineOptions", { a: 1, b: [ 2, { c: "3" } ] })
-            .set("_content_guid", "1234")
-            .set("_content_documentString", "docstring");
+        var t = TransferObject.build();
+        t.cmdlineOptions = { a: 1, b: [ 2, 3 ], c: { d: "four" } };
+        t._content_internalCmdlineOptions = { a: 1, b: [ 2, { c: "3" } ] };
+        t._content_guid = "1234";
+        t._content_documentString = "docstring";
         var link = ContentScript.createImportLink(document, t);
 
         expect(link instanceof HTMLLinkElement).toBe(true);
         expect(link.rel).toEqual("import");
-        expect(link.id).toEqual(ContentScript.getFcommandImportId(t.get("_content_guid")));
+        expect(link.id).toEqual(ContentScript.getFcommandImportId(t._content_guid));
         delete t._content_documentString;     // XXX: ugly hack to remove internals
         expect(link.dataset.transferObj).toEqual(JSON.stringify(t));
         URL.revokeObjectURL(link.href);
@@ -42,7 +42,8 @@ describe("getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onload("{}");
             });
-        var t = TransferObject.build().set("_content_documentString", "test");
+        var t = TransferObject.build();
+        t._content_documentString = "test";
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
@@ -50,7 +51,7 @@ describe("getLoadImportPromise", function() {
         p.then(function (obj) {
             expect(addToHead).toHaveBeenCalled();
             obj = TransferObject.deserialize(obj);
-            expect(obj.get("_content_documentString")).toEqual(t.get("_content_documentString"));
+            expect(obj._content_documentString).toEqual(t._content_documentString);
             done();
         }).catch(function (obj) {
             // this is a little funky; if the promise was rejected, the test
@@ -71,7 +72,8 @@ describe("getLoadImportPromise", function() {
             and.callFake(function (obj) {
                 obj.onerror({ statusText: err });
             });
-        var t = TransferObject.build().set("_content_documentString", "test");
+        var t = TransferObject.build();
+        t._content_documentString = "test";
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
@@ -87,14 +89,15 @@ describe("getLoadImportPromise", function() {
         }).catch(function (obj) {
             obj = TransferObject.deserialize(obj);
             expect(addToHead).toHaveBeenCalled();
-            expect(obj.get("_content_documentString")).toEqual(t.get("_content_documentString"));
-            expect(obj.get("_bg_errorMessage")).toMatch(new RegExp(err));
+            expect(obj._content_documentString).toEqual(t._content_documentString);
+            expect(obj._bg_errorMessage).toMatch(new RegExp(err));
             done();
         });
     });
 
     it("rejects if Fcommand hasn't finished yet", function(done) {
-        var t = TransferObject.build().set("_content_documentString", "test");
+        var t = TransferObject.build();
+        t._content_documentString = "test";
         var p = ContentScript.getLoadImportPromise(t);
 
         expect(p instanceof Promise).toBe(true);
@@ -107,7 +110,7 @@ describe("getLoadImportPromise", function() {
                 throw "Should not get here";
             }).catch(function (obj2) {
                 // Second load should fail
-                expect(obj2.get("_bg_errorMessage")).toMatch(new RegExp("Fcommand.*is still running in this tab"));
+                expect(obj2._bg_errorMessage).toMatch(new RegExp("Fcommand.*is still running in this tab"));
                 done();
             });
         }).catch(function (obj) {
