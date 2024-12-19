@@ -6,7 +6,10 @@ SCRIPTS_DIR := $(OUTDIR)/scripts
 HTML_DIR := $(OUTDIR)/html
 POLYMER_BUILD := polymer-build
 
-VERSION := $(shell git --no-pager log -1 --date=format:"%Y.%m.%d.%H%M" --format="%ad")
+# If no changes in working dir, consider it a release build and use the
+# hour+minute as the version suffix.  If changes, consider it a dev build in
+# progress and use 9999 as the version suffix.
+VERSION := $(shell set -x;if git status --porcelain | perl -nle '$$r = $$r || m{^m}i || m{^.m}i;' -e 'END { exit $$r }'; then git --no-pager log -1 --date=format:"%Y.%m.%d.%H%M" --format="%ad"; else git --no-pager log -1 --date=format:"%Y.%m.%d" --format="%ad.9999"; fi)
 
 .DEFAULT := all
 
