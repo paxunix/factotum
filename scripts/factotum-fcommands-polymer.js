@@ -346,6 +346,15 @@ class FcommandsElement extends PolymerElement
           useSoftTabs: true,
       });
 
+      // bind Ctrl-S to trigger editor save
+      window.addEventListener("keydown", evt => {
+          if ((evt.ctrlKey || evt.metaKey) && evt.key === 's')
+          {
+              evt.preventDefault();
+              this._saveFcommand();
+          }
+      });
+
       // The styles needed for the editor pane were loaded into the main
       // document but we need them in this component's shadow root, so
       // move them there.
