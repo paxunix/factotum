@@ -70,15 +70,17 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 - `fcmd:cmd:<name>@<id>` → full command record
 
 ### Index record (schemaVersion 1)
-`commands[]` entries contain: `{ name, id, description?, world, mruAt?, updatedAt }`
+`commands[]` entries contain: `{ name, id, description?, world, disabled?, mruAt?, updatedAt }`
 
 ### Command record (schemaVersion 1)
 Fields:
 - `schemaVersion: 1`
 - `name`, `id`
 - `world: "main" | "isolated"`
+- `disabled?: boolean` (default false; disabled commands are excluded from resolution)
 - `code: string`
 - `requires: RequireEntry[]` (optional)
+- `optionsSpec?: OptionsSpec` (optional; used to generate help tokens)
 - `helpHtmlTemplate?: HelpTemplate` (raw HTML template)
 - `helpHtmlStrings?: HelpStrings` (localized token values)
 - `description?: LocalizedText`
@@ -90,6 +92,18 @@ RequireEntry:
 - `world?: "main" | "isolated"` (default main; isolated allowed only if kind=module)
 
 Duplicates of `(name,id)` allowed; warn on import/install. UI may suffix duplicates for display.
+
+OptionsSpec:
+- `name?: string` (display name for usage; defaults to command name)
+- `args?: string` (positional args usage string, e.g. `<input> [output]`)
+- `options?: OptionSpec[]`
+
+OptionSpec:
+- `flags: string[]` (e.g., `["-f", "--force"]`)
+- `value?: "string" | "number" | "boolean"`
+- `description?: LocalizedText`
+- `required?: boolean`
+- `default?: string | number | boolean`
 
 ### 3.1 Localization data model (command‑authored)
 
@@ -175,6 +189,16 @@ Recommended default tokens for consistency (not required):
 
 Commands that want automated help generation should provide an options spec and rely on the runtime to supply `usage/options/args` tokens, while author‑provided localized tokens cover the remaining content.
 
+### 3.4 Options spec → help tokens (recommended)
+
+If `optionsSpec` is present, the runtime should generate the following tokens (when not already supplied):
+
+- `usage`: command name + option synopsis + args (e.g., `pick [--force] <input>`)
+- `options`: HTML fragment listing flags and descriptions
+- `args`: HTML fragment for positional args, if `args` is provided
+
+If authors provide localized `description` for options, those should be used when generating the `options` token.
+
 ---
 
 ## 4) Omnibox parsing and resolution
@@ -192,6 +216,7 @@ Commands that want automated help generation should provide an options spec and 
    - run exact match; if duplicates, select MRU-first among duplicates
 4) If cmdToken is bare `name`:
    - select MRU-first among commands with that name
+   - skip commands with `disabled: true`
 5) If no match:
    - show omnibox suggestion “No such command: …”
    - on execute: overlay error
@@ -199,6 +224,10 @@ Commands that want automated help generation should provide an options spec and 
 ### 4.3 MRU update
 - MRU updates on invocation start (regardless of success/failure), consistent with shell history.
 - MRU stored in `fcmd:index` entry for that `(name,id)`.
+
+### 4.4 Disabled commands
+- Commands marked `disabled: true` are excluded from omnibox resolution.
+- Disabled status does not delete data; it only prevents invocation.
 
 ---
 
@@ -376,6 +405,7 @@ Localization:
 * `description` may be `LocalizedText`.
 * `helpHtmlTemplate` + `helpHtmlStrings` may be present for templated help HTML.
 * Export preserves localization data as-is.
+* `optionsSpec` may be present; export preserves it as-is.
 
 ---
 
@@ -404,6 +434,11 @@ Recommended entrypoints:
 * SW: `src/sw/sw.js` → `dist/sw/sw.js`
 * Injected: `overlay.js`, `runner_isolated.js`, `runner_main.js`, `main_host.js`
 * UI pages: `manager.js`, `editor.js` (ACE bundled), `log.js`
+
+UI access:
+
+* Provide a full-size manager/editor UI via extension pages (recommended for editing code/help).
+* Popup (browser action) may act as a lightweight launcher that opens manager/log pages.
 
 ---
 

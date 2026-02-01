@@ -62,6 +62,15 @@ Each test lists: **Setup → Action → Expected**.
   * Second invocation runs `jsonview@B` (MRU-first)
   * MRU updates on invocation start
 
+#### T3b: Disabled commands are excluded
+
+* Setup: mark `jsonview@B` as disabled.
+* Action: run `f jsonview`
+* Expected:
+
+  * Disabled command is skipped.
+  * Next MRU-enabled command is selected, or “No such command” if none.
+
 #### T4: No such command suggestion + overlay error
 
 * Action: `f nosuchcmd`
@@ -123,6 +132,15 @@ Each test lists: **Setup → Action → Expected**.
 
   * Help overlay shows the localized HTML.
   * Fallback to `en-US` if no matching locale is present.
+
+#### T7c: Options spec generates help tokens
+
+* Setup: command provides `optionsSpec` with at least one option and args.
+* Action: run `f cmd --help`
+* Expected:
+
+  * Help overlay includes generated `usage`/`options`/`args` content.
+  * Author-provided tokens remain localized.
 
 #### T8: Cancel button cancels a running command
 
@@ -673,4 +691,3 @@ Reset should:
   * allow arbitrary method execution bypassing the normal invocation pipeline
 
 ---
-

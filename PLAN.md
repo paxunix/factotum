@@ -20,6 +20,8 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - Support `description` as `LocalizedText` (strings treated as `en-US`).
 - Support `helpHtmlTemplate` + `helpHtmlStrings` for templated help HTML.
 - Implement locale resolution utility (exact, primary, `en-US`, first available) for command‑authored strings.
+- Support `disabled` flag for commands; exclude disabled from resolution.
+- Support `optionsSpec` for help token generation.
 
 **Files (expected)**
 - `src/sw/storage.js` (index/alias/command CRUD + import/export)
@@ -39,6 +41,7 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - Tokenize input using POSIX sh (`shell-quote`).
 - Parse options via `mri` default semantics (short/long, combined shorts, `--` end‑of‑options, `--flag=value`).
 - Resolve: alias exact match → `name@id` exact → bare `name` MRU‑first.
+- Skip disabled commands during resolution.
 - On no match: omnibox suggestion “No such command: …”, overlay error on execute.
 
 **Files (expected)**
@@ -83,6 +86,7 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - `--help` shows rendered help HTML (template + localized strings), skips requires + main, ends after display.
 - Use Shoelace components where appropriate (button, alert, spinner), bundled locally.
 - Render help HTML from `helpHtmlTemplate` + localized `helpHtmlStrings` using locale resolution order; fallback `en-US`.
+- Generate help tokens (`usage/options/args`) from `optionsSpec` when present.
 
 **Files (expected)**
 - `src/overlay/overlay.js`
@@ -105,6 +109,20 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - Use Shoelace components where appropriate (table, buttons, dialogs), bundled locally.
 - Log entries accept `{ l10n: LocalizedText, data?: any }` for localized display in UI.
 - Extension UI labels for the log must use `chrome.i18n.getMessage`.
+
+## 5.1 Manager/Editor UI (dashboard)
+**Spec sections:** 3, 10, 11, 12
+
+**Tasks**
+- Provide a manager page listing installed commands (name/id/world/updated, disabled state).
+- Support enable/disable toggle (updates `disabled` flag).
+- Provide structured editing for command fields (no raw JSON editor).
+- Separate editors for code and help template/strings.
+- Provide editing for `optionsSpec` (flags, descriptions, defaults) used for help generation.
+- Manage aliases (add/remove alias keys for a command).
+- Import bundle with per-command selection + warnings for duplicates/alias collisions.
+- Export all to bundleSchemaVersion 1.
+- Provide “new command” flow with sensible defaults.
 
 **Files (expected)**
 - `src/sw/logs.js`

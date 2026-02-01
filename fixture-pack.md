@@ -24,6 +24,16 @@ This is a normal import/export bundle:
       "helpHtmlStrings": {
         "en-US": { "title": "pick@fixture.A", "body": "Used for MRU resolution tests." }
       },
+      "optionsSpec": {
+        "args": "<input>",
+        "options": [
+          {
+            "flags": ["-f", "--force"],
+            "value": "boolean",
+            "description": { "en-US": "Force selection" }
+          }
+        ]
+      },
       "description": { "en-US": "MRU test A" },
       "createdAt": 1760000000000,
       "updatedAt": 1760000000000
