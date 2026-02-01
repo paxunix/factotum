@@ -1,0 +1,296 @@
+# PLAN.md — Factotum v1 Implementation Plan (Spec‑Aligned)
+
+This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Don’t Drift” checklist. It is strictly constrained to v1 semantics and avoids non‑spec changes.
+
+## 0) Scope guard (read first)
+- Implement **only** v1 features described in `FACTOTUM_V1_HANDOFF.md`.
+- If a change is not explicitly allowed by v1, **do not implement**; ask first.
+- Preserve non‑negotiable semantics (omnibox resolution, execution model, worlds, requires, bridge, RPC, logging).
+
+---
+
+## 1) Storage Layer (chrome.storage.local)
+**Spec sections:** 3, 12, 20.4
+
+**Tasks**
+- Create helpers for `fcmd:index`, `fcmd:aliases`, `fcmd:cmd:<name>@<id>` (schemaVersion 1).
+- Enforce regex validation for `name` and `id` on insert/update.
+- Implement MRU fields (`mruAt`) and update on invocation start only.
+- Add import/export support for bundleSchemaVersion 1 with warnings for duplicates/alias collisions.
+
+**Files (expected)**
+- `src/sw/storage.js` (index/alias/command CRUD + import/export)
+- `src/sw/validation.js` (regex validation helpers)
+
+**Manual tests**
+- Import/export bundle schema version behavior.
+- Duplicate `(name,id)` warning is surfaced.
+- MRU update on invocation start (not completion).
+
+---
+
+## 2) Omnibox Parsing + Resolution
+**Spec sections:** 4, 20.4
+
+**Tasks**
+- Tokenize input using POSIX sh (`shell-quote`).
+- Parse options via `mri` (support `--` end‑of‑options).
+- Resolve: alias exact match → `name@id` exact → bare `name` MRU‑first.
+- On no match: omnibox suggestion “No such command: …”, overlay error on execute.
+
+**Files (expected)**
+- `src/sw/omnibox.js` (tokenize, parse, resolve)
+- `src/sw/dispatch.js` (start invocation, update MRU)
+
+**Manual tests**
+- Alias precedence, fully‑qualified token, MRU‑first, no‑such‑command behavior.
+
+---
+
+## 3) Injection Pipeline + Busy Guard
+**Spec sections:** 5, 20.1, 20.6
+
+**Tasks**
+- Enforce tab‑bound, top‑frame‑only execution; refuse non‑injectable pages.
+- Guard against re‑entrancy (one invocation per tab).
+- Start sequence: create `invocationId` + `nonce`, update MRU, inject overlay (ISOLATED), ensure MAIN host, inject runner in command world.
+- End sequence: teardown overlay, clear busy state, drop MH handlers, reject further RPC.
+
+**Files (expected)**
+- `src/sw/inject.js`
+- `src/sw/invocations.js`
+- `src/overlay/overlay.js`
+- `src/runner/runner_main.js`
+- `src/runner/runner_isolated.js`
+- `src/bridge/main_host.js`
+
+**Manual tests**
+- Non‑injectable page hard error.
+- Busy tab refusal.
+- Overlay state transitions and teardown.
+
+---
+
+## 4) Overlay UI (ISOLATED only)
+**Spec sections:** 10, 20.6
+
+**Tasks**
+- Build ISOLATED shadow‑DOM overlay showing `name@id`, status, cancel.
+- Implement status states: RUNNING, DONE, ERROR, CANCELED, BUSY, HELP.
+- `--help` shows raw `helpHtml`, skips requires + main, ends after display.
+
+**Files (expected)**
+- `src/overlay/overlay.js`
+- `src/overlay/overlay.css`
+
+**Manual tests**
+- Overlay appears in top frame only.
+- `--help` path shows raw HTML and ends invocation.
+
+---
+
+## 5) Session Log Sink + Log UI
+**Spec sections:** 11
+
+**Tasks**
+- Single session‑only log sink shared by runtime + commands.
+- Cap at 1000 entries; drop oldest on overflow.
+- Safe JSON stringify with circular replacer; include stack traces for Error logs.
+- Log UI page: oldest→newest, remove entry, clear all.
+
+**Files (expected)**
+- `src/sw/logs.js`
+- `src/ui/log.js`
+- `src/ui/log.html`
+
+**Manual tests**
+- Order preserved, delete entry, clear all.
+- Cap behavior drops oldest past 1000.
+
+---
+
+## 6) RPC Core (`ctx.chrome`)
+**Spec sections:** 9, 20.7
+
+**Tasks**
+- Proxy mapping `ctx.chrome.ns.method(...)` → SW RPC `ns.method`.
+- Promisify callback APIs with `chrome.runtime.lastError`.
+- Denylist namespaces: debugger, management.
+- Block events + ports (listeners/connect), reject unsupported shapes.
+- Enforce invocationId validity + tab binding + canceled/ended rejection.
+
+**Files (expected)**
+- `src/sw/rpc.js`
+- `src/runner/ctx_chrome.js`
+
+**Manual tests**
+- Basic RPC calls succeed.
+- Denylisted namespace rejection.
+- Events/ports rejected.
+- Uncloneable result handled.
+
+---
+
+## 7) MAIN Bridge Host + Protocol
+**Spec sections:** 8, 20.2
+
+**Tasks**
+- Implement `ctx.main.define(name, fn)` and `ctx.main.call(name, args)`.
+- Use `window.postMessage` with `invocationId`, `nonce`, and `callId`.
+- Maintain per‑invocation handler map; reply `{ok,result}` / `{ok:false,error}`.
+- Surface `BRIDGE_FAILED` on failure; log error.
+
+**Files (expected)**
+- `src/bridge/main_host.js`
+- `src/runner/ctx_main.js`
+
+**Manual tests**
+- Define/call works in MAIN; spoofed nonce rejected.
+
+---
+
+## 8) Requires Loader
+**Spec sections:** 7, 20.5
+
+**Tasks**
+- Sequential, side‑effect only; `data:` URLs disallowed.
+- Default world MAIN regardless of command world.
+- MAIN script: `<script src>` + load/error.
+- MAIN module: `await import(url)` via MAIN host.
+- ISOLATED module best‑effort: `await import(url)` in CR with clear failure.
+- Require failure aborts invocation with `REQUIRES_FAILED` + logs.
+
+**Files (expected)**
+- `src/runner/requires.js`
+- `src/bridge/main_host.js` (IMPORT, SCRIPT_LOAD ops)
+
+**Manual tests**
+- Sequential order enforced.
+- `data:` rejected.
+- MAIN and ISOLATED module behaviors.
+
+---
+
+## 9) Cancellation
+**Spec sections:** 6
+
+**Tasks**
+- Cancel triggers: overlay, tab close, top‑level navigation commit.
+- Cooperative abort: set `ctx.signal.aborted`, reject future RPC with `CANCELED`.
+- Ensure teardown and busy state cleared on cancel.
+
+**Files (expected)**
+- `src/sw/cancel.js`
+- `src/runner/ctx_signal.js`
+
+**Manual tests**
+- Cancel button works.
+- Cancel on tab close + navigation commit.
+
+---
+
+## 10) Dev Harness API (dev‑only)
+**Spec sections:** 17
+
+**Tasks**
+- Implement SW dev messages: START, GET_LOGS, CLEAR_LOGS, GET_STATE, CANCEL.
+- START bypasses omnibox; uses input string.
+- Enforce dev‑mode gating.
+
+**Files (expected)**
+- `src/sw/harness.js`
+- `src/ui/harness.html`
+
+**Harness tests (A1–A5)**
+- START, GET_LOGS, CLEAR_LOGS, GET_STATE, CANCEL behaviors.
+
+---
+
+## 11) Fixtures + Harness Tests
+**Spec sections:** 18
+
+**Tasks**
+- Import canonical `fixtures-v1.json` bundle.
+- Ensure fixtures: pick@fixture.A/B (MRU), alias cmd1 → pick@fixture.B, longrun cancel, badreq requires fail, bridge, denylisted, events unsupported.
+
+**Files (expected)**
+- `fixtures/fixtures-v1.json`
+- `src/ui/harness.html`
+
+**Harness tests**
+- MRU ordering via fixtures.
+- Cancel tests via longrun fixture.
+- Requires failure path.
+- Bridge and denylist tests.
+
+---
+
+## 12) Permissions + Manifest
+**Spec sections:** 13
+
+**Tasks**
+- Ensure `<all_urls>` host permissions.
+- Broad extension permissions for `chrome.*` usage.
+- Keep denylisted namespaces blocked (debugger/management).
+
+**Files (expected)**
+- `manifest.json`
+
+**Manual tests**
+- Inspect manifest matches spec and does not add extra permissions beyond v1.
+
+---
+
+## 13) Build/Packaging
+**Spec sections:** 14
+
+**Tasks**
+- esbuild bundles JS to `dist/`.
+- Copy static HTML/CSS/assets without bundling.
+- No framework, no hot reload, no CDN runtime deps.
+
+**Files (expected)**
+- `scripts/build.js` or `esbuild.config.js`
+- `dist/` outputs
+
+---
+
+## 14) Drift Prevention Checks (hard requirements)
+**Spec sections:** 20
+
+**Tasks**
+- All cross‑context messages include `invocationId`.
+- Bridge messages include `invocationId` + `nonce`.
+- Fatal wrapper failures log at least one error entry.
+- Overlay always ISOLATED top frame.
+- No events/ports; denylist debugger/management.
+- MRU updates on invocation start only.
+
+---
+
+# Test Plan (Manual + Harness)
+
+## Manual Smoke Suite (required)
+- Alias wins; `name@id`; bare name MRU‑first; no‑such‑command behavior.
+- Non‑injectable page hard error.
+- Overlay appears and status transitions.
+- Cancel button; cancel‑on‑navigation; cancel‑on‑tab‑close.
+- Requires sequential ordering; `data:` rejection; MAIN import; ISOLATED import best‑effort.
+- Bridge define/call and nonce spoof prevention.
+- RPC: basic calls, denylist block, event block, clone failures.
+- Logging: order, delete entry, clear all, cap 1000 drops oldest.
+
+## Harness Automation (A1–A5)
+- A1: START invocation path.
+- A2: GET_LOGS returns session sink.
+- A3: CLEAR_LOGS clears sink.
+- A4: GET_STATE returns minimal invocation map.
+- A5: CANCEL terminates invocation.
+
+---
+
+# Next Steps (operator checklist)
+1) Confirm any missing files/structure in repo before implementation.
+2) Implement tasks in order of the spec milestone plan (section 19).
+3) Run manual smoke suite items relevant to each change.
+4) Execute harness A1–A5 after dev‑hooks are implemented.
