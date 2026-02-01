@@ -1,6 +1,6 @@
 # PLAN.md — Factotum v1 Implementation Plan (Spec‑Aligned)
 
-This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Don’t Drift” checklist. It is strictly constrained to v1 semantics and avoids non‑spec changes.
+This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Don’t Drift” checklist. It is strictly constrained to v1 semantics and avoids non‑spec changes. UI should use Shoelace web components as much as possible, bundled locally (no CDN runtime deps).
 
 ## 0) Scope guard (read first)
 - Implement **only** v1 features described in `FACTOTUM_V1_HANDOFF.md`.
@@ -78,6 +78,7 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - Build ISOLATED shadow‑DOM overlay showing `name@id`, status, cancel.
 - Implement status states: RUNNING, DONE, ERROR, CANCELED, BUSY, HELP.
 - `--help` shows raw `helpHtml`, skips requires + main, ends after display.
+- Use Shoelace components where appropriate (button, alert, spinner), bundled locally.
 
 **Files (expected)**
 - `src/overlay/overlay.js`
@@ -97,6 +98,7 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - Cap at 1000 entries; drop oldest on overflow.
 - Safe JSON stringify with circular replacer; include stack traces for Error logs.
 - Log UI page: oldest→newest, remove entry, clear all.
+- Use Shoelace components where appropriate (table, buttons, dialogs), bundled locally.
 
 **Files (expected)**
 - `src/sw/logs.js`
@@ -248,6 +250,7 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - esbuild bundles JS to `dist/`.
 - Copy static HTML/CSS/assets without bundling.
 - No framework, no hot reload, no CDN runtime deps.
+- Bundle Shoelace assets locally (no CDN runtime deps); ensure CSS/theme is shipped with UI pages.
 
 **Files (expected)**
 - `scripts/build.js` or `esbuild.config.js`
