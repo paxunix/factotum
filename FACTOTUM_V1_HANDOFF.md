@@ -1,0 +1,435 @@
+# FACTOTUM_V1_HANDOFF.md — Factotum v1 Handoff (Authoritative)
+
+This document is the authoritative v1 specification for the Factotum Chrome MV3 extension.
+It consolidates: runtime semantics, protocols, storage schema, build approach, testing/harness, and fixtures.
+
+---
+
+## 0) Goals and non-goals
+
+### Goals
+- Omnibox keyword provides a CLI-like interface to run user-installed “Fcommands”.
+- Fcommand runs tab-bound in either MAIN or ISOLATED world.
+- Privileged APIs (`chrome.*`) are available to commands via promise-based RPC (`ctx.chrome`).
+- Commands may load dependencies via sequential `requires` (side-effect only).
+- Commands can bridge between ISOLATED and MAIN via named entrypoints (`ctx.main.define/call`).
+- Minimal overlay UI (progress + cancel + status) always in ISOLATED.
+- Session-only log viewer stores all logs (runtime and command) in one sink (max 1000 entries).
+
+### Non-goals (v1)
+- No re-entrancy (one invocation per tab).
+- No background continuation beyond tab close/navigation.
+- No event bridging or ports.
+- No UI helper toolkit beyond overlay/progress/cancel.
+- No persistent run history (logs are session-only).
+
+---
+
+## 1) Terminology
+
+- Fcommand: user-installed command definition (metadata + JS).
+- name: single token command word.
+- id: canonical disambiguator.
+- Fully-qualified token: `name@id`.
+- Alias: user-defined mapping from token → `{name,id}` (no args).
+- SW: MV3 service worker.
+- OR: overlay runner (ISOLATED, top frame).
+- CR: command runner (MAIN or ISOLATED, top frame).
+- MH: MAIN bridge host (MAIN, top frame).
+- Invocation: one command run, identified by `invocationId`.
+
+---
+
+## 2) Identifier constraints
+
+### 2.1 Command name
+- Regex: `^[A-Za-z0-9_-]+$`
+- Case-sensitive (v1)
+
+### 2.2 Command id
+- Regex: `^[A-Za-z0-9._\\-/:]+$`
+- Must not contain `@` or whitespace
+
+### 2.3 Alias key
+- Regex: `^[A-Za-z0-9_-]+$`
+- Alias wins over command names on exact match
+
+### 2.4 Fully-qualified parsing
+- Split on first `@` only.
+
+---
+
+## 3) Storage model (chrome.storage.local)
+
+### Keys
+- `fcmd:index` → lightweight metadata list + MRU fields
+- `fcmd:aliases` → alias map
+- `fcmd:cmd:<name>@<id>` → full command record
+
+### Index record (schemaVersion 1)
+`commands[]` entries contain: `{ name, id, description?, world, mruAt?, updatedAt }`
+
+### Command record (schemaVersion 1)
+Fields:
+- `schemaVersion: 1`
+- `name`, `id`
+- `world: "main" | "isolated"`
+- `code: string`
+- `requires: RequireEntry[]` (optional)
+- `helpHtml?: string` (raw HTML)
+- `description?: string`
+- `createdAt`, `updatedAt` (epoch ms)
+
+RequireEntry:
+- `url: string` (https only; `data:` disallowed)
+- `kind: "script" | "module"`
+- `world?: "main" | "isolated"` (default main; isolated allowed only if kind=module)
+
+Duplicates of `(name,id)` allowed; warn on import/install. UI may suffix duplicates for display.
+
+---
+
+## 4) Omnibox parsing and resolution
+
+### 4.1 Tokenization + option parsing
+- Tokenize input using POSIX sh-like rules (`shell-quote`).
+- Parse flags with `mri` (short/long, `--` end-of-options).
+- Pass to command: raw argv tokens + parsed opts.
+
+### 4.2 Resolution algorithm
+1) cmdToken = first token; argvTokens = rest
+2) If cmdToken matches alias key exactly → replace with `name@id`
+3) If cmdToken is `name@id`:
+   - run exact match; if duplicates, select MRU-first among duplicates
+4) If cmdToken is bare `name`:
+   - select MRU-first among commands with that name
+5) If no match:
+   - show omnibox suggestion “No such command: …”
+   - on execute: overlay error
+
+### 4.3 MRU update
+- MRU updates on invocation start (regardless of success/failure), consistent with shell history.
+- MRU stored in `fcmd:index` entry for that `(name,id)`.
+
+---
+
+## 5) Execution lifecycle
+
+### 5.1 Constraints
+- Tab-bound: unsupported to continue after spawning tab closes/navigates.
+- Non-reentrant: one invocation per tab.
+- Top-frame only.
+- Hard error if tab is non-injectable. No RPC-only fallback.
+
+### 5.2 Start sequence
+1) Resolve command.
+2) If tab not injectable: hard error “Cannot run on this page.”
+3) If tab busy: refuse with overlay message “busy”.
+4) Create invocation: `invocationId`, per-invocation `nonce`.
+5) Update MRU immediately.
+6) Inject OR (ISOLATED overlay) in top frame.
+7) Ensure MH exists in top frame MAIN.
+8) Inject CR in command’s selected world (MAIN or ISOLATED) top frame.
+9) Load requires sequentially (side-effect only).
+10) Execute `await main(argvTokens, ctx)`.
+
+### 5.3 End conditions
+Invocation ends when:
+- main resolves (DONE)
+- main rejects/throws (ERROR)
+- cancel occurs (CANCELED)
+- injection/require/bridge failure occurs (ERROR)
+
+After end:
+- reject further RPC for invocationId
+- tear down MH handlers
+- remove overlay
+- clear busy state
+
+### 5.4 No timeouts
+If main never settles, overlay stays “Running” indefinitely; cancel remains available; navigation cancels.
+
+---
+
+## 6) Cancellation
+
+Cancel triggers:
+- overlay cancel button
+- tab close
+- top-level navigation commit to new document
+
+Cancel is cooperative:
+- set `ctx.signal.aborted = true` (AbortSignal-like)
+- SW rejects future RPC for invocationId with `CANCELED`
+- helpers stop promptly
+- arbitrary JS cannot be forcibly interrupted; commands should check `ctx.signal.aborted`
+
+---
+
+## 7) Requires loader (dependencies)
+
+- Sequential only; strict order.
+- Side-effect only (no handles returned).
+- `data:` disallowed.
+- Default require world: MAIN, regardless of command world.
+- `world:"isolated"` only permitted for `kind:"module"` (best-effort).
+
+Loading rules:
+- MAIN script: inject `<script src=...>` await onload/onerror.
+- MAIN module: MH performs `await import(url)`.
+- ISOLATED module (best-effort): CR performs `await import(url)`; fail clearly if blocked.
+
+Any require failure aborts invocation (ERROR) and is logged.
+
+---
+
+## 8) MAIN bridging (Option C)
+
+Expose to commands:
+- `await ctx.main.define(name: string, fn: Function)`
+- `await ctx.main.call(name: string, args?: any[]): Promise<any>`
+Optional: `undef`, `list`.
+
+Mechanism:
+- MH injected in MAIN top frame.
+- Communication via `window.postMessage` using:
+  - `invocationId`
+  - per-invocation `nonce`
+  - `callId` for correlation
+- MH maintains per-invocation handler map `{name -> function}`.
+- MH replies `{ok,result}` or `{ok:false,error}`.
+
+Bridge may fail on restrictive pages (CSP/Trusted Types); failure is surfaced and logged.
+
+---
+
+## 9) Privileged APIs via RPC (`ctx.chrome`)
+
+### 9.1 Author-facing
+`ctx.chrome` is a Proxy mapping `ctx.chrome.ns.method(...args)` → SW RPC `method = "ns.method"` with Promise result.
+
+### 9.2 Exposure policy
+Expose all callable one-shot RPC-friendly methods EXCEPT:
+- denylisted namespaces: `chrome.debugger`, `chrome.management`
+- events (addListener/removeListener/hasListener)
+- ports / long-lived channels (connect/connectNative etc.)
+- non-cloneable results
+
+### 9.3 Promisification
+SW promisifies callback-style APIs using `chrome.runtime.lastError`.
+
+### 9.4 Invocation binding
+SW rejects RPC if:
+- invocationId unknown (`INVALID_INVOCATION`)
+- tabId mismatch
+- invocation ended/canceled (`CANCELED`)
+
+---
+
+## 10) Overlay UI (minimal)
+
+- Always in ISOLATED top frame (shadow DOM).
+- Shows: `name@id`, running/progress, cancel button, status done/error/canceled.
+- `--help` shows raw `helpHtml` in overlay; skips requires and main execution; invocation ends after help display.
+
+No other UI helpers.
+
+---
+
+## 11) Session log (single sink)
+
+Commands get:
+- `ctx.log`, `ctx.warn`, `ctx.error`
+
+All logs (runtime and command) go into one session-only sink:
+- Max 1000 entries; drop oldest on overflow
+- Display oldest→newest
+- Remove entry (no undo), clear all
+
+Serialization:
+- Safe JSON stringify with circular replacer
+- No truncation
+- Capture stack traces when logging Error objects; runtime may attach a stack for error-string logs when useful.
+
+UI: a simple Log page for current session.
+
+---
+
+## 12) Import/export
+
+Bundle format:
+```json
+{
+  "bundleSchemaVersion": 1,
+  "exportedAt": 1760000000000,
+  "commands": [ ... ],
+  "aliases": { ... }
+}
+````
+
+Import:
+
+* Reject if bundleSchemaVersion != 1 (no auto migration)
+* Duplicate `(name,id)` allowed + warn
+* Alias collisions default: skip + warn (unless UI chooses overwrite)
+
+---
+
+## 13) Permissions baseline (permissive)
+
+* Host permissions: `<all_urls>`
+* Broad extension permissions to support wide `chrome.*` availability.
+* Exclusions: do not request or expose `chrome.debugger` and `chrome.management` (denylist).
+
+---
+
+## 14) Build approach (plain JS, no framework)
+
+* Plain JS + HTML + CSS
+* Multi-page UI is allowed
+* Tiny build: esbuild bundles JS dependencies into `dist/`
+* Copy static HTML/CSS/assets to `dist/` without bundling
+* No hot reload required
+
+Recommended entrypoints:
+
+* SW: `src/sw/sw.js` → `dist/sw/sw.js`
+* Injected: `overlay.js`, `runner_isolated.js`, `runner_main.js`, `main_host.js`
+* UI pages: `manager.js`, `editor.js` (ACE bundled), `log.js`
+
+---
+
+## 15) Protocol constants
+
+Control ops (SW → runners):
+
+* INIT_OVERLAY
+* INIT_COMMAND
+* SET_STATUS
+* CANCEL
+* TEARDOWN
+
+Overlay states:
+
+* RUNNING
+* DONE
+* ERROR
+* CANCELED
+* BUSY
+* HELP
+
+Message types:
+
+* fcmd_control
+* fcmd_rpc
+* fcmd_rpc_result
+* fcmd_log
+
+MAIN bridge ops (postMessage):
+
+* DEFINE
+* CALL
+* UNDEF (optional)
+* LIST (optional)
+* IMPORT
+* SCRIPT_LOAD
+* PING (optional)
+
+Error codes:
+
+* NO_SUCH_COMMAND
+* CANNOT_INJECT
+* TAB_BUSY
+* CANCELED
+* INVALID_INVOCATION
+* NO_SUCH_METHOD
+* UNSUPPORTED_MEMBER
+* UNSUPPORTED_API_SHAPE
+* UNCLONEABLE_RESULT
+* REQUIRES_FAILED
+* BRIDGE_FAILED
+* RPC_FAILED
+
+---
+
+## 16) Test plan (manual + harness)
+
+### Manual smoke suite (must-pass)
+
+Covers:
+
+* alias wins, fully qualified, bare name MRU-first, no-such-command behavior
+* non-injectable page hard error
+* overlay appears and status transitions
+* cancel button, cancel-on-navigation, cancel-on-tab-close
+* requires sequential ordering, data: rejection, MAIN import, isolated import best-effort
+* bridge define/call and nonce spoof prevention
+* RPC: basic calls, denylist block, event block, clone failures
+* logging: order, delete entry, clear all, cap 1000 drops oldest
+
+### Harness automation (A1–A5)
+
+Harness page `harness.html`:
+
+* installs fixtures by importing bundle
+* opens test tab
+* triggers invocations via SW dev hook START (bypassing omnibox UI)
+* queries session logs and minimal invocation state via GET_LOGS / GET_STATE
+
+---
+
+## 17) Harness API (dev-only)
+
+Messages:
+
+* START {tabId, input} → returns invocationId
+* GET_LOGS
+* CLEAR_LOGS
+* GET_STATE (minimal invocation map)
+* CANCEL {invocationId}
+
+Dev-mode gating required.
+
+---
+
+## 18) Fixture pack (bundleSchemaVersion 1)
+
+Use a normal import bundle named `fixtures-v1.json` with:
+
+* [pick@fixture.A](mailto:pick@fixture.A) and [pick@fixture.B](mailto:pick@fixture.B) (MRU tests)
+* alias cmd1 → [pick@fixture.B](mailto:pick@fixture.B)
+* [longrun@fixture.cancel.nav](mailto:longrun@fixture.cancel.nav) (cancel tests)
+* [badreq@fixture.requires.fail](mailto:badreq@fixture.requires.fail) (requires failure)
+* [bridge@fixture.main.bridge](mailto:bridge@fixture.main.bridge) (bridge test)
+* [deny@fixture.denylisted](mailto:deny@fixture.denylisted) (denylisted namespace call)
+* [events@fixture.events.unsupported](mailto:events@fixture.events.unsupported) (event usage rejection)
+
+(See the fixture JSON from the design conversation; it is treated as the canonical fixture pack for v1.)
+
+---
+
+## 19) Implementation milestone plan (recommended)
+
+1. Storage layer (index + per-command keys + aliases + import/export)
+2. Omnibox resolution + MRU update on start
+3. Injection pipeline (overlay + runner(s) + MH) and busy-tab guard
+4. Session log sink + log UI (cap/delete/clear)
+5. RPC core (dispatch + promisify + denylist + clone errors)
+6. MAIN bridge host + define/call protocol + nonce scoping + MAIN import/script_load ops
+7. Requires loader (sequential; MAIN script inject; MAIN import; isolated import best-effort)
+8. Cancel-on-tab-close + cancel-on-navigation commit
+9. `--help` and `--debug`
+
+---
+
+## 20) Drift prevention rules (hard requirements)
+
+1. All cross-context messages include invocationId.
+2. MAIN bridge messages must include invocationId + nonce.
+3. Fatal wrapper failures must produce at least one error log entry in the single sink.
+4. MRU updates on invocation start only.
+5. Requires are sequential and side-effect-only.
+6. Overlay always in ISOLATED top frame.
+7. No events/ports; denylist debugger/management namespaces.
+
+---
