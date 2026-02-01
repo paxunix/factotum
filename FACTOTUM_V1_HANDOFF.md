@@ -181,7 +181,8 @@ Commands that want automated help generation should provide an options spec and 
 
 ### 4.1 Tokenization + option parsing
 - Tokenize input using POSIX sh-like rules (`shell-quote`).
-- Parse flags with `mri` (short/long, `--` end-of-options).
+- Parse flags with `mri` using its default semantics (short/long, combined shorts, `--` end-of-options, `--flag=value` support).
+- The v1 expectation is “mri default behavior” for options parsing; if mri changes, pin a version or update the spec.
 - Pass to command: raw argv tokens + parsed opts.
 
 ### 4.2 Resolution algorithm

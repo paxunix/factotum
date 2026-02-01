@@ -37,7 +37,7 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 
 **Tasks**
 - Tokenize input using POSIX sh (`shell-quote`).
-- Parse options via `mri` (support `--` end‑of‑options).
+- Parse options via `mri` default semantics (short/long, combined shorts, `--` end‑of‑options, `--flag=value`).
 - Resolve: alias exact match → `name@id` exact → bare `name` MRU‑first.
 - On no match: omnibox suggestion “No such command: …”, overlay error on execute.
 
