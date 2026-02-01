@@ -1,6 +1,6 @@
 # PLAN.md — Factotum v1 Implementation Plan (Spec‑Aligned)
 
-This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Don’t Drift” checklist. It is strictly constrained to v1 semantics and avoids non‑spec changes. UI should use Shoelace web components as much as possible, bundled locally (no CDN runtime deps).
+This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Don’t Drift” checklist. It is strictly constrained to v1 semantics and avoids non‑spec changes. UI should use Shoelace web components as much as possible, bundled locally (no CDN runtime deps). All extension UI strings must use `chrome.i18n.getMessage` with `en-US` fallback; command metadata/help uses author‑provided localization.
 
 ## 0) Scope guard (read first)
 - Implement **only** v1 features described in `FACTOTUM_V1_HANDOFF.md`.
@@ -17,6 +17,9 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - Enforce regex validation for `name` and `id` on insert/update.
 - Implement MRU fields (`mruAt`) and update on invocation start only.
 - Add import/export support for bundleSchemaVersion 1 with warnings for duplicates/alias collisions.
+- Support `description` as `LocalizedText` (strings treated as `en-US`).
+- Support `helpHtmlTemplate` + `helpHtmlStrings` for templated help HTML.
+- Implement locale resolution utility (exact, primary, `en-US`, first available) for command‑authored strings.
 
 **Files (expected)**
 - `src/sw/storage.js` (index/alias/command CRUD + import/export)
@@ -77,8 +80,9 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 **Tasks**
 - Build ISOLATED shadow‑DOM overlay showing `name@id`, status, cancel.
 - Implement status states: RUNNING, DONE, ERROR, CANCELED, BUSY, HELP.
-- `--help` shows raw `helpHtml`, skips requires + main, ends after display.
+- `--help` shows rendered help HTML (template + localized strings), skips requires + main, ends after display.
 - Use Shoelace components where appropriate (button, alert, spinner), bundled locally.
+- Render help HTML from `helpHtmlTemplate` + localized `helpHtmlStrings` using locale resolution order; fallback `en-US`.
 
 **Files (expected)**
 - `src/overlay/overlay.js`
@@ -99,6 +103,8 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - Safe JSON stringify with circular replacer; include stack traces for Error logs.
 - Log UI page: oldest→newest, remove entry, clear all.
 - Use Shoelace components where appropriate (table, buttons, dialogs), bundled locally.
+- Log entries accept `{ l10n: LocalizedText, data?: any }` for localized display in UI.
+- Extension UI labels for the log must use `chrome.i18n.getMessage`.
 
 **Files (expected)**
 - `src/sw/logs.js`
@@ -251,6 +257,8 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - Copy static HTML/CSS/assets without bundling.
 - No framework, no hot reload, no CDN runtime deps.
 - Bundle Shoelace assets locally (no CDN runtime deps); ensure CSS/theme is shipped with UI pages.
+- UI strings sourced from `_locales` via `chrome.i18n.getMessage` with `en-US` fallback; use `Intl` for dates/localizable data.
+- Ensure `manifest.json` sets `default_locale` when `_locales/` is present; allow `__MSG_key__` use where appropriate.
 
 **Files (expected)**
 - `scripts/build.js` or `esbuild.config.js`
@@ -282,6 +290,7 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - Bridge define/call and nonce spoof prevention.
 - RPC: basic calls, denylist block, event block, clone failures.
 - Logging: order, delete entry, clear all, cap 1000 drops oldest.
+- Localization: description and help template render in preferred UI language; log `l10n` entries display localized text; dates shown in UI locale with `en-US` fallback; extension UI labels are from `chrome.i18n`.
 
 ## Harness Automation (A1–A5)
 - A1: START invocation path.

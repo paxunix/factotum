@@ -37,6 +37,9 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 - CR: command runner (MAIN or ISOLATED, top frame).
 - MH: MAIN bridge host (MAIN, top frame).
 - Invocation: one command run, identified by `invocationId`.
+- LocalizedText: map of BCP‑47 language tag → string, with `en-US` fallback.
+- HelpTemplate: shared HTML template string with `{{token}}` placeholders.
+- HelpStrings: map of BCP‑47 language tag → `{ token: string }` values for `HelpTemplate`.
 
 ---
 
@@ -76,8 +79,9 @@ Fields:
 - `world: "main" | "isolated"`
 - `code: string`
 - `requires: RequireEntry[]` (optional)
-- `helpHtml?: string` (raw HTML)
-- `description?: string`
+- `helpHtmlTemplate?: HelpTemplate` (raw HTML template)
+- `helpHtmlStrings?: HelpStrings` (localized token values)
+- `description?: LocalizedText`
 - `createdAt`, `updatedAt` (epoch ms)
 
 RequireEntry:
@@ -86,6 +90,90 @@ RequireEntry:
 - `world?: "main" | "isolated"` (default main; isolated allowed only if kind=module)
 
 Duplicates of `(name,id)` allowed; warn on import/install. UI may suffix duplicates for display.
+
+### 3.1 Localization data model (command‑authored)
+
+`LocalizedText` is a plain object whose keys are BCP‑47 language tags and whose values are strings.
+Example:
+
+```json
+{
+  "en-US": "Clean bookmarks",
+  "fr": "Nettoyer les favoris"
+}
+```
+
+Resolution order (case‑insensitive tag match):
+
+1) Exact match (e.g., `fr-CA`)
+2) Primary language fallback (e.g., `fr`)
+3) `en-US`
+4) First available key (stable iteration order)
+
+If `description` is a string, it is treated as `en-US`.
+
+### 3.2 Help HTML templating (recommended)
+
+Commands should use a shared HTML template plus localized token values:
+
+- `helpHtmlTemplate`: HTML string with `{{token}}` placeholders.
+- `helpHtmlStrings`: map of locale → `{ token: string }`.
+
+Example:
+
+```json
+{
+  "helpHtmlTemplate": "<h1>{{title}}</h1><section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section>",
+  "helpHtmlStrings": {
+    "en-US": { "title": "Pick", "usageTitle": "Usage", "usage": "pick [--flag] <arg>" },
+    "fr": { "title": "Choisir", "usageTitle": "Utilisation", "usage": "pick [--flag] <arg>" }
+  }
+}
+```
+
+Example command record (excerpt):
+
+```json
+{
+  "schemaVersion": 1,
+  "name": "pick",
+  "id": "demo.pick",
+  "world": "isolated",
+  "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{summary}}</p><section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section>",
+  "helpHtmlStrings": {
+    "en-US": { "title": "Pick", "summary": "Selects an item.", "usageTitle": "Usage" },
+    "fr": { "title": "Choisir", "summary": "Sélectionne un élément.", "usageTitle": "Utilisation" }
+  },
+  "description": { "en-US": "Pick an item", "fr": "Choisir un élément" }
+}
+```
+
+Resolution order for `helpHtmlStrings` is the same as `LocalizedText` (§3.1).
+
+Commands may generate some tokens at runtime (e.g., `usage` from an options spec) and merge them with localized author‑provided tokens before rendering.
+
+### 3.3 Help rendering algorithm (required)
+
+When `--help` is invoked:
+
+1) Select a locale for the UI (use `navigator.language` or equivalent).
+2) Resolve `helpHtmlStrings` for that locale using the same fallback order as `LocalizedText` (§3.1).
+3) Build a token map:
+   - Start with the resolved locale token map (author‑provided).
+   - Overlay runtime‑generated tokens (e.g., `usage`, `options`, `args`) so generated content wins when provided.
+4) Render `helpHtmlTemplate` by replacing `{{token}}` placeholders with the final token values.
+5) Display the rendered HTML as‑is (raw HTML, no sanitization).
+
+Recommended default tokens for consistency (not required):
+
+- `title`
+- `synopsis`
+- `usage`
+- `options`
+- `args`
+- `examples`
+
+Commands that want automated help generation should provide an options spec and rely on the runtime to supply `usage/options/args` tokens, while author‑provided localized tokens cover the remaining content.
 
 ---
 
@@ -230,7 +318,8 @@ SW rejects RPC if:
 
 - Always in ISOLATED top frame (shadow DOM).
 - Shows: `name@id`, running/progress, cancel button, status done/error/canceled.
-- `--help` shows raw `helpHtml` in overlay; skips requires and main execution; invocation ends after help display.
+- `--help` shows raw rendered help HTML in overlay; skips requires and main execution; invocation ends after help display.
+- Help HTML is rendered from `helpHtmlTemplate` + localized `helpHtmlStrings` per §3.2.
 
 No other UI helpers.
 
@@ -245,6 +334,14 @@ All logs (runtime and command) go into one session-only sink:
 - Max 1000 entries; drop oldest on overflow
 - Display oldest→newest
 - Remove entry (no undo), clear all
+
+Localization support (command‑authored):
+
+- `ctx.log/warn/error` accept either:
+  - a regular value (string/object/etc.), or
+  - an object `{ l10n: LocalizedText, data?: any }`
+- When `l10n` is present, the UI displays the localized string using §3.1.
+- `data` (optional) is displayed in the log detail view (stringified) for debugging.
 
 Serialization:
 - Safe JSON stringify with circular replacer
@@ -273,6 +370,12 @@ Import:
 * Duplicate `(name,id)` allowed + warn
 * Alias collisions default: skip + warn (unless UI chooses overwrite)
 
+Localization:
+
+* `description` may be `LocalizedText`.
+* `helpHtmlTemplate` + `helpHtmlStrings` may be present for templated help HTML.
+* Export preserves localization data as-is.
+
 ---
 
 ## 13) Permissions baseline (permissive)
@@ -290,6 +393,10 @@ Import:
 * Tiny build: esbuild bundles JS dependencies into `dist/`
 * Copy static HTML/CSS/assets to `dist/` without bundling
 * No hot reload required
+* UI strings must use extension localization (`_locales`) via `chrome.i18n.getMessage`, with `en-US` fallback.
+* `manifest.json` must set `default_locale` when `_locales/` is present; UI strings live in `_locales/<locale>/messages.json`.
+* Manifest/CSS may reference localized strings via `__MSG_key__` as supported by Chrome.
+* Dates and other localizable data in UI should use `Intl` with UI language preference.
 
 Recommended entrypoints:
 
