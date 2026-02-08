@@ -4,6 +4,12 @@ Below is a **Test Plan v1** that mixes a small, reliable **manual smoke suite** 
 
 # Test Plan v1
 
+## Related docs (when to consult)
+- `FACTOTUM_V1_HANDOFF.md`: Source of truth for behaviors under test; use to resolve ambiguities.
+- `PLAN.md`: Maps milestones to which tests must pass.
+- `fixture-pack.md`: Canonical fixtures bundle used in harness/manual checks.
+- `DEVELOPING.md`: RPC/bridge/requires details and troubleshooting guidance.
+
 ## 0) Test environments
 
 ### Required environments

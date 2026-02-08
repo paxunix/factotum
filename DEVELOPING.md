@@ -15,6 +15,12 @@ Fcommands access privileged APIs through `ctx.chrome`, a Proxy that forwards cal
 
 This document explains how to add/maintain RPC exposure safely.
 
+## Related docs (when to consult)
+- `FACTOTUM_V1_HANDOFF.md`: Authoritative RPC policy and error codes; defer to it on conflicts.
+- `AGENTS.md`: Mandatory guardrails for any change; read before editing.
+- `TEST.md`: Required RPC/bridge/requires tests (T17–T20, T15–T16, T11–T14) after changes.
+- `PLAN.md`: Milestone scope for RPC, bridge, requires, and logging work.
+
 ---
 
 # UI dependency note (v1 steering)

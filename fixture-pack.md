@@ -4,6 +4,11 @@ Below is a **fixture pack specification** you can use as a single JSON bundle. I
 
 # Fixture Pack Spec (v1)
 
+## Related docs (when to consult)
+- `FACTOTUM_V1_HANDOFF.md`: Canonical fixture requirements and bundle schema.
+- `TEST.md`: Manual/harness assertions that reference these fixtures.
+- `PLAN.md`: M6 milestone for fixtures and harness integration.
+
 ## File: `fixtures-v1.json`
 
 This is a normal import/export bundle:

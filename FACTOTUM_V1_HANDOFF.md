@@ -4,6 +4,14 @@ This document is the authoritative v1 specification for the Factotum Chrome MV3 
 It consolidates: runtime semantics, protocols, storage schema, build approach, testing/harness, and fixtures.
 
 ---
+## Related docs (when to consult)
+- `AGENTS.md`: Mandatory guardrails for any automated change; consult before edits.
+- `PLAN.md`: Implementation sequencing aligned to this spec; consult for milestone scope and file targets.
+- `TEST.md`: Manual smoke suite + harness tests; consult when planning or verifying changes.
+- `DEVELOPING.md`: RPC exposure guidance and troubleshooting; consult when touching `ctx.chrome` or RPC plumbing.
+- `fixture-pack.md`: Fixture bundle definition; consult when adding/importing test fixtures.
+
+---
 
 ## 0) Goals and non-goals
 

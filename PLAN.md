@@ -2,6 +2,13 @@
 
 This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Don’t Drift” checklist. It is strictly constrained to v1 semantics and avoids non‑spec changes. UI should use Shoelace web components as much as possible, bundled locally (no CDN runtime deps). All extension UI strings must use `chrome.i18n.getMessage` with `en-US` fallback; command metadata/help uses author‑provided localization.
 
+## Related docs (when to consult)
+- `FACTOTUM_V1_HANDOFF.md`: Authoritative spec; defer to it on any conflict.
+- `AGENTS.md`: Guardrails and stop conditions for changes.
+- `TEST.md`: Manual/harness tests tied to each milestone.
+- `fixture-pack.md`: Fixture bundle for harness/milestone validation.
+- `DEVELOPING.md`: RPC exposure specifics and troubleshooting when working in M3.
+
 ## 0) Scope guard (read first)
 - Implement **only** v1 features described in `FACTOTUM_V1_HANDOFF.md`.
 - If a change is not explicitly allowed by v1, **do not implement**; ask first.

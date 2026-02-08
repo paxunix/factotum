@@ -3,6 +3,13 @@
 This repo implements the **Factotum v1** spec. When using Codex/agents, the #1 risk is spec drift.
 This checklist is the contract for all automated changes.
 
+## Related docs (when to consult)
+- `FACTOTUM_V1_HANDOFF.md`: Source of truth for all behavior and schema; always read before implementing.
+- `PLAN.md`: Use for sequencing work and mapping to spec sections/tests.
+- `TEST.md`: Use to select manual smoke tests and harness checks for your change.
+- `DEVELOPING.md`: Use when modifying RPC exposure or debugging RPC/bridge/requires behavior.
+- `fixture-pack.md`: Use when installing or validating fixtures for tests.
+
 ## 0) Golden rule
 **If a change is not explicitly allowed by the v1 spec, do not implement it.**
 Ask before changing semantics.
