@@ -9,6 +9,76 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 
 ---
 
+## Milestone Plan (user‑testable increments)
+
+Each milestone should end with a runnable subset and the matching manual tests from `TEST.md`.
+
+### M1 — Storage + Omnibox Resolution (no execution)
+**Ready:** install/import commands, resolve tokens, list in UI skeleton.
+
+**Include**
+- Storage layer CRUD (index/aliases/command keys), import/export.
+- Validation for name/id; `disabled` support in storage.
+- Omnibox resolution with MRU + disabled filtering; no‑such‑command handling.
+
+**Manual tests**
+- T1–T4, T3b (disabled), T4b (localized description in UI list).
+
+### M2 — Injection + Overlay + Cancellation (core execution)
+**Ready:** execute commands with overlay and cancel behavior.
+
+**Include**
+- Injection pipeline (overlay + runner + MH), busy tab guard, non‑injectable error.
+- Cancel on overlay/tab close/navigation commit.
+- Basic runner lifecycle and status transitions.
+
+**Manual tests**
+- T5–T10, T7 (overlay), T8 (cancel).
+
+### M3 — Requires + Bridge + RPC
+**Ready:** dependency loading, MAIN bridge, privileged API access.
+
+**Include**
+- Requires loader (MAIN script/module, ISOLATED module best‑effort).
+- MAIN bridge define/call with nonce enforcement.
+- RPC core (`ctx.chrome`) with denylist, events/ports rejection.
+
+**Manual tests**
+- T11–T20.
+
+### M4 — Help/OptionsSpec + Logging UI
+**Ready:** help rendering, auto‑generated usage, session log viewer.
+
+**Include**
+- Help HTML templating + localized strings; optionsSpec → tokens.
+- Log sink (cap/delete/clear) + log UI.
+
+**Manual tests**
+- T7b–T7c, T21–T24.
+
+### M5 — Manager/Editor UI + Import UX
+**Ready:** full authoring UX + selective import.
+
+**Include**
+- Manager/editor page with structured editing (code/help/optionsSpec), aliases, enable/disable.
+- Import bundle with per‑command selection + warnings; export all.
+- New command defaults flow.
+
+**Manual tests**
+- T4b, T21c, plus import/export checks from `TEST.md` and `fixture-pack.md`.
+
+### M6 — Dev Harness + Fixtures
+**Ready:** dev automation hooks + fixture pack import.
+
+**Include**
+- Dev‑mode harness API + harness page.
+- Fixture pack (`fixtures-v1.json`) import and validation.
+
+**Manual tests**
+- A1–A5 from `TEST.md`.
+
+---
+
 ## 1) Storage Layer (chrome.storage.local)
 **Spec sections:** 3, 12, 20.4
 
