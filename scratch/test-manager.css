@@ -1,0 +1,135 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f5f5;
+  color: #1f1f1d;
+}
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #ffffff;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 16px;
+  padding: 20px 24px 32px;
+}
+
+.load-status {
+  grid-column: 1 / -1;
+  background: #fff3cd;
+  color: #7a5d00;
+  border: 1px solid #ffe69c;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.load-status.is-loaded {
+  background: #e7f6ef;
+  color: #1f6c43;
+  border-color: #b6e2c6;
+}
+
+.load-status.is-error {
+  background: #fdecea;
+  color: #7d1f1f;
+  border-color: #f5c2c0;
+}
+
+.pane {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 70vh;
+  gap: 12px;
+}
+
+.pane.is-hidden {
+  display: none;
+}
+
+.pane-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pane h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.sub {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.tab-stack {
+  flex: 1;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.editor-code {
+  margin-top: 8px;
+  display: grid;
+  gap: 12px;
+}
+
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.code-box {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #111827;
+  color: #f9fafb;
+  padding: 12px;
+  min-height: 200px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  overflow: auto;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pane {
+    min-height: auto;
+  }
+}
