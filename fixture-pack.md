@@ -140,6 +140,21 @@ This is a normal import/export bundle:
       "description": { "en-US": "Events unsupported fixture" },
       "createdAt": 1760000000000,
       "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "workflow",
+      "id": "fixture.sw.roundtrip",
+      "world": "isolated",
+      "code": "export async function main(argv, ctx) { const title = document.title; ctx.log('title', title); const [tab] = await ctx.chrome.tabs.query({ active: true, currentWindow: true }); ctx.log('tab', { title: tab?.title, url: tab?.url }); const banner = document.createElement('div'); banner.textContent = `Active tab is ${tab?.title || 'unknown'}`; banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#111;color:#fff;padding:8px;z-index:999999;'; document.documentElement.appendChild(banner); const bookmarks = await ctx.chrome.bookmarks.search({ title }); ctx.log('bookmarks', { count: bookmarks?.length || 0 }); banner.textContent += bookmarks?.length ? ` (bookmarked x${bookmarks.length})` : ' (not bookmarked)'; }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "workflow", "body": "Round-trip workflow between page and service worker." }
+      },
+      "description": { "en-US": "SW round-trip workflow fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
     }
   ],
   "aliases": {
@@ -157,6 +172,7 @@ This is a normal import/export bundle:
 * `bridge` tests `ctx.main.define/call`.
 * `deny` tests denylisted namespace handling.
 * `events` tests event API rejection.
+* `workflow` exercises a multi-step page ↔ SW round-trip using `ctx.chrome`.
 * Help content uses `helpHtmlTemplate` + `helpHtmlStrings` to match the localized help spec.
 
 ---
@@ -203,5 +219,10 @@ This ensures your import logic and storage layout are tested indirectly.
 
 * Run `deny` → must fail with `UNSUPPORTED_MEMBER` (or your chosen code).
 * Run `events` → must fail with `UNSUPPORTED_API_SHAPE`.
+
+### SW round-trip workflow
+
+* Run `workflow` → logs should show title, tab info, and bookmark count.
+* Banner text should update after the second RPC completes.
 
 ---
