@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="256"
+   height="256"
+   viewBox="0 0 256 256"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   sodipodi:docname="icon-256.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <title
+     id="title1">Factotum Icon</title>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="false"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     showborder="false"
+     inkscape:zoom="2.9430245"
+     inkscape:cx="73.223992"
+     inkscape:cy="112.46933"
+     inkscape:window-width="2560"
+     inkscape:window-height="1372"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2" />
+  <defs
+     id="defs1">
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter10"
+       x="-0.040731621"
+       y="-0.040912518"
+       width="1.0814632"
+       height="1.081825">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.8807629"
+         id="feGaussianBlur10" />
+    </filter>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <ellipse
+       style="mix-blend-mode:normal;fill:#f2f2f2;fill-opacity:1;stroke:#2a7fff;stroke-width:10.8671;stroke-dasharray:none;stroke-opacity:1"
+       id="path1-9"
+       cx="156.62688"
+       cy="89.985413"
+       transform="rotate(15.000001)"
+       rx="122.58001"
+       ry="122.038" />
+    <ellipse
+       style="mix-blend-mode:normal;fill:none;stroke:#2a7fff;stroke-width:10.0054;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter10)"
+       id="path1"
+       cx="121.73961"
+       cy="120.29609"
+       rx="116.81994"
+       ry="116.30341"
+       transform="matrix(1.0133287,0,0,1.0133287,4.4935267,5.5577768)" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="text">
+    <text
+       xml:space="preserve"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:192px;line-height:125%;font-family:FreeSerif;-inkscape-font-specification:'FreeSerif Italic';font-variant-ligatures:none;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:0.88832831"
+       x="66.943848"
+       y="190.68799"
+       id="text10"><tspan
+         id="tspan10"
+         x="66.943848"
+         y="190.68799"
+         sodipodi:role="line">F</tspan></text>
+  </g>
+  <metadata
+     id="metadata1">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Factotum Icon</dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>paxunix@gmail.com</dc:title>
+          </cc:Agent>
+        </dc:creator>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>

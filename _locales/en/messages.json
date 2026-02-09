@@ -1,0 +1,14 @@
+{
+  "appName": {
+    "message": "Factotum",
+    "description": "Extension name"
+  },
+  "appDescription": {
+    "message": "User-defined function CLI",
+    "description": "Extension description"
+  },
+  "actionTitle": {
+    "message": "Factotum",
+    "description": "Toolbar action title"
+  }
+}

@@ -1,0 +1,21 @@
+:root {
+  color-scheme: light;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f6f5f2;
+  color: #1d1d1b;
+}
+
+.page {
+  max-width: 720px;
+  margin: 48px auto;
+  padding: 0 24px;
+}
+
+.hint {
+  margin-top: 16px;
+  color: #6b6b63;
+}
