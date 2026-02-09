@@ -91,6 +91,7 @@ Must be preserved exactly:
 - Multi-page UI allowed
 - esbuild-based tiny build (no heavy toolchain)
 - No CDN runtime dependencies for extension code (bundle deps)
+- **MUST:** All extension UI strings must use `chrome.i18n.getMessage` with `en` fallback; do not hard-code user-visible text in HTML/JS/CSS.
 
 ## 5) Required deliverables for non-trivial PRs
 For any non-trivial change, agent must:

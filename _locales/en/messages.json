@@ -10,5 +10,45 @@
   "actionTitle": {
     "message": "Factotum",
     "description": "Toolbar action title"
+  },
+  "managerTitle": {
+    "message": "Factotum",
+    "description": "Manager page title"
+  },
+  "managerHint": {
+    "message": "UI skeleton. Wire up manager in v1 milestones.",
+    "description": "Manager page hint"
+  },
+  "logsTitle": {
+    "message": "Factotum Logs",
+    "description": "Logs page title"
+  },
+  "logsHint": {
+    "message": "Log UI skeleton.",
+    "description": "Logs page hint"
+  },
+  "popupTitle": {
+    "message": "Factotum",
+    "description": "Popup title"
+  },
+  "popupHint": {
+    "message": "Popup provides quick access to full pages.",
+    "description": "Popup hint"
+  },
+  "navManager": {
+    "message": "Manager",
+    "description": "Nav label for manager"
+  },
+  "navLogs": {
+    "message": "Logs",
+    "description": "Nav label for logs"
+  },
+  "menuManager": {
+    "message": "Open Manager",
+    "description": "Popup menu item to open manager"
+  },
+  "menuLogs": {
+    "message": "Open Logs",
+    "description": "Popup menu item to open logs"
   }
 }

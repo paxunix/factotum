@@ -4,6 +4,17 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
 
 setBasePath(chrome.runtime.getURL('vendor/shoelace'));
 
+const title = chrome.i18n.getMessage('popupTitle');
+const hint = chrome.i18n.getMessage('popupHint');
+const menuManager = chrome.i18n.getMessage('menuManager');
+const menuLogs = chrome.i18n.getMessage('menuLogs');
+
+document.title = title;
+document.getElementById('popup-title').textContent = title;
+document.getElementById('popup-hint').textContent = hint;
+document.getElementById('menu-manager').textContent = menuManager;
+document.getElementById('menu-logs').textContent = menuLogs;
+
 console.log('[factotum] popup loaded');
 
 const menu = document.getElementById('quick-nav');
