@@ -5,13 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Factotum</title>
     <link rel="stylesheet" href="../vendor/shoelace/themes/light.css" />
+    <link rel="stylesheet" href="page.css" />
     <link rel="stylesheet" href="manager.css" />
   </head>
   <body>
     <main class="page">
-      <h1>Factotum</h1>
-      <sl-button variant="primary">Manager</sl-button>
-      <p class="hint">UI skeleton. Wire up manager in v1 milestones.</p>
+      <div class="hero">
+        <h1>Factotum</h1>
+        <p class="hint">UI skeleton. Wire up manager in v1 milestones.</p>
+      </div>
+      <nav class="nav">
+        <sl-button variant="primary" href="manager.html">Manager</sl-button>
+        <sl-button variant="default" href="log.html">Logs</sl-button>
+      </nav>
     </main>
     <script src="manager.js"></script>
   </body>

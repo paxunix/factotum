@@ -112,7 +112,7 @@ async function build() {
       'src/bridge/main_host.js',
       'src/ui/manager.js',
       'src/ui/log.js',
-      'src/ui/editor.js'
+      'src/ui/popup.js'
     ],
     outdir: 'dist',
     outbase: 'src',
