@@ -1,8 +1,8 @@
-import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
-import '@shoelace-style/shoelace/dist/components/button/button.js';
+import { setBasePath } from '@awesome.me/webawesome/dist/webawesome.js';
+import '@awesome.me/webawesome/dist/components/button/button.js';
 
-// Ensure Shoelace assets resolve inside the extension bundle.
-setBasePath(chrome.runtime.getURL('vendor/shoelace'));
+// Ensure Web Awesome assets resolve inside the extension bundle.
+setBasePath(chrome.runtime.getURL('vendor/webawesome'));
 
 const title = chrome.i18n.getMessage('managerTitle');
 const hint = chrome.i18n.getMessage('managerHint');

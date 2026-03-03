@@ -1,6 +1,6 @@
 # PLAN.md — Factotum v1 Implementation Plan (Spec‑Aligned)
 
-This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Don’t Drift” checklist. It is strictly constrained to v1 semantics and avoids non‑spec changes. UI should use Shoelace web components as much as possible, bundled locally (no CDN runtime deps). All extension UI strings must use `chrome.i18n.getMessage` with `en-US` fallback; command metadata/help uses author‑provided localization.
+This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Don’t Drift” checklist. It is strictly constrained to v1 semantics and avoids non‑spec changes. UI should use Web Awesome web components as much as possible, bundled locally (no CDN runtime deps). All extension UI strings must use `chrome.i18n.getMessage` with `en-US` fallback; command metadata/help uses author‑provided localization.
 
 ## Related docs (when to consult)
 - `FACTOTUM_V1_HANDOFF.md`: Authoritative spec; defer to it on any conflict.
@@ -161,7 +161,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Build ISOLATED shadow‑DOM overlay showing `name@id`, status, cancel.
 - Implement status states: RUNNING, DONE, ERROR, CANCELED, BUSY, HELP.
 - `--help` shows rendered help HTML (template + localized strings), skips requires + main, ends after display.
-- Use Shoelace components where appropriate (button, alert, spinner), bundled locally.
+- Use Web Awesome components where appropriate (button, alert, spinner), bundled locally.
 - Render help HTML from `helpHtmlTemplate` + localized `helpHtmlStrings` using locale resolution order; fallback `en-US`.
 - Generate help tokens (`usage/options/args`) from `optionsSpec` when present.
 
@@ -183,7 +183,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Cap at 1000 entries; drop oldest on overflow.
 - Safe JSON stringify with circular replacer; include stack traces for Error logs.
 - Log UI page: oldest→newest, remove entry, clear all.
-- Use Shoelace components where appropriate (table, buttons, dialogs), bundled locally.
+- Use Web Awesome components where appropriate (table, buttons, dialogs), bundled locally.
 - Log entries accept `{ l10n: LocalizedText, data?: any }` for localized display in UI.
 - Extension UI labels for the log must use `chrome.i18n.getMessage`.
 
@@ -351,7 +351,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - esbuild bundles JS to `dist/`.
 - Copy static HTML/CSS/assets without bundling.
 - No framework, no hot reload, no CDN runtime deps.
-- Bundle Shoelace assets locally (no CDN runtime deps); ensure CSS/theme is shipped with UI pages.
+- Bundle Web Awesome assets locally (no CDN runtime deps); ensure CSS/theme is shipped with UI pages.
 - UI strings sourced from `_locales` via `chrome.i18n.getMessage` with `en-US` fallback; use `Intl` for dates/localizable data.
 - Ensure `manifest.json` sets `default_locale` when `_locales/` is present; allow `__MSG_key__` use where appropriate.
 

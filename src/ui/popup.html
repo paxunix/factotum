@@ -4,17 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title></title>
-    <link rel="stylesheet" href="../vendor/shoelace/themes/light.css" />
+    <link rel="stylesheet" href="../vendor/webawesome/styles/themes/default.css" />
     <link rel="stylesheet" href="page.css" />
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <main class="page">
       <h1 id="popup-title"></h1>
-      <sl-menu class="menu" id="quick-nav">
-        <sl-menu-item value="manager" id="menu-manager"></sl-menu-item>
-        <sl-menu-item value="logs" id="menu-logs"></sl-menu-item>
-      </sl-menu>
+      <div class="quick-actions" id="quick-nav">
+        <wa-button variant="brand" id="nav-manager"></wa-button>
+        <wa-button variant="neutral" id="nav-logs"></wa-button>
+      </div>
       <p class="hint" id="popup-hint"></p>
     </main>
     <script src="popup.js"></script>

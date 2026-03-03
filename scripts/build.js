@@ -40,11 +40,11 @@ function copyStaticFiles() {
   walk(srcDir);
 }
 
-function copyShoelaceAssets() {
-  const shoelaceDist = path.join(root, 'node_modules', '@shoelace-style', 'shoelace', 'dist');
-  const out = path.join(outDir, 'vendor', 'shoelace');
-  if (!fs.existsSync(shoelaceDist)) {
-    console.warn('Shoelace dist not found. Run npm install before build.');
+function copyWebAwesomeAssets() {
+  const webAwesomeDist = path.join(root, 'node_modules', '@awesome.me', 'webawesome', 'dist');
+  const out = path.join(outDir, 'vendor', 'webawesome');
+  if (!fs.existsSync(webAwesomeDist)) {
+    console.warn('Web Awesome dist not found. Run npm install before build.');
     return;
   }
 
@@ -56,14 +56,14 @@ function copyShoelaceAssets() {
         continue;
       }
       if (entry.isFile()) {
-        const rel = path.relative(shoelaceDist, full);
+        const rel = path.relative(webAwesomeDist, full);
         const dest = path.join(out, rel);
         copyFile(full, dest);
       }
     }
   };
 
-  walk(shoelaceDist);
+  walk(webAwesomeDist);
 }
 
 function copyRootAssets() {
@@ -100,11 +100,11 @@ function copyRootAssets() {
   }
 }
 
-function copyShoelaceAssetsTo(targetDir) {
-  const shoelaceDist = path.join(root, 'node_modules', '@shoelace-style', 'shoelace', 'dist');
-  const out = path.join(targetDir, 'vendor', 'shoelace');
-  if (!fs.existsSync(shoelaceDist)) {
-    console.warn('Shoelace dist not found. Run npm install before build.');
+function copyWebAwesomeAssetsTo(targetDir) {
+  const webAwesomeDist = path.join(root, 'node_modules', '@awesome.me', 'webawesome', 'dist');
+  const out = path.join(targetDir, 'vendor', 'webawesome');
+  if (!fs.existsSync(webAwesomeDist)) {
+    console.warn('Web Awesome dist not found. Run npm install before build.');
     return;
   }
 
@@ -116,14 +116,14 @@ function copyShoelaceAssetsTo(targetDir) {
         continue;
       }
       if (entry.isFile()) {
-        const rel = path.relative(shoelaceDist, full);
+        const rel = path.relative(webAwesomeDist, full);
         const dest = path.join(out, rel);
         copyFile(full, dest);
       }
     }
   };
 
-  walk(shoelaceDist);
+  walk(webAwesomeDist);
 }
 
 async function buildMain() {
@@ -151,7 +151,7 @@ async function buildMain() {
 
   copyStaticFiles();
   copyRootAssets();
-  copyShoelaceAssets();
+  copyWebAwesomeAssets();
 }
 
 async function buildScratch() {
@@ -169,7 +169,7 @@ async function buildScratch() {
 
   copyFile('scratch/test-manager.html', 'scratch-test/test-manager.html');
   copyFile('scratch/test-manager.css', 'scratch-test/test-manager.css');
-  copyShoelaceAssetsTo(scratchOutDir);
+  copyWebAwesomeAssetsTo(scratchOutDir);
 }
 
 const target = process.argv[2] || 'main';

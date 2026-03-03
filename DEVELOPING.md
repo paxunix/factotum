@@ -25,7 +25,7 @@ This document explains how to add/maintain RPC exposure safely.
 
 # UI dependency note (v1 steering)
 
-UI pages should use Shoelace web components as much as possible. Shoelace must be bundled locally (no CDN runtime dependencies) to comply with v1 build constraints.
+UI pages should use Web Awesome web components as much as possible. Web Awesome must be bundled locally (no CDN runtime dependencies) to comply with v1 build constraints.
 
 ---
 

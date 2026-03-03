@@ -4,14 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Manager Layout Scratch</title>
-    <link rel="stylesheet" href="./vendor/shoelace/themes/light.css" />
+    <link rel="stylesheet" href="./vendor/webawesome/styles/themes/default.css" />
     <link rel="stylesheet" href="test-manager.css" />
   </head>
   <body>
     <div class="shell">
       <header class="topbar">
         <h1>Manager Layout Experiment</h1>
-        <sl-tag variant="neutral" size="small">Scratch</sl-tag>
+        <wa-tag variant="neutral" size="small">Scratch</wa-tag>
       </header>
 
       <section class="grid">
@@ -19,35 +19,35 @@
         <aside class="pane pane-left">
           <div class="pane-head">
             <h2>Fcommands</h2>
-            <sl-input size="small" placeholder="Filter commands"></sl-input>
+            <wa-input size="small" placeholder="Filter commands"></wa-input>
           </div>
-          <sl-tab-group placement="start" class="tab-stack" id="cmd-tabs">
-            <sl-tab slot="nav" panel="cmd-1">clip.clean</sl-tab>
-            <sl-tab slot="nav" panel="cmd-2">bmk.clean</sl-tab>
-            <sl-tab slot="nav" panel="cmd-3">json.view</sl-tab>
+          <wa-tab-group placement="start" class="tab-stack" id="cmd-tabs">
+            <wa-tab slot="nav" panel="cmd-1">clip.clean</wa-tab>
+            <wa-tab slot="nav" panel="cmd-2">bmk.clean</wa-tab>
+            <wa-tab slot="nav" panel="cmd-3">json.view</wa-tab>
 
-            <sl-tab-panel name="cmd-1">
-              <sl-card>
+            <wa-tab-panel name="cmd-1">
+              <wa-card>
                 <h3 slot="header">clip.clean@demo.a</h3>
                 <p>Normalize clipboard text into a cleaned snippet.</p>
-                <sl-tag size="small" variant="success">enabled</sl-tag>
-              </sl-card>
-            </sl-tab-panel>
-            <sl-tab-panel name="cmd-2">
-              <sl-card>
+                <wa-tag size="small" variant="success">enabled</wa-tag>
+              </wa-card>
+            </wa-tab-panel>
+            <wa-tab-panel name="cmd-2">
+              <wa-card>
                 <h3 slot="header">bmk.clean@demo.b</h3>
                 <p>Remove stale bookmarks by URL pattern.</p>
-                <sl-tag size="small" variant="neutral">disabled</sl-tag>
-              </sl-card>
-            </sl-tab-panel>
-            <sl-tab-panel name="cmd-3">
-              <sl-card>
+                <wa-tag size="small" variant="neutral">disabled</wa-tag>
+              </wa-card>
+            </wa-tab-panel>
+            <wa-tab-panel name="cmd-3">
+              <wa-card>
                 <h3 slot="header">json.view@demo.c</h3>
                 <p>Render JSON with a focus on large payloads.</p>
-                <sl-tag size="small" variant="success">enabled</sl-tag>
-              </sl-card>
-            </sl-tab-panel>
-          </sl-tab-group>
+                <wa-tag size="small" variant="success">enabled</wa-tag>
+              </wa-card>
+            </wa-tab-panel>
+          </wa-tab-group>
         </aside>
 
         <aside class="pane pane-middle">
@@ -55,33 +55,33 @@
             <h2>Command Actions</h2>
             <p class="sub">Selected: <span id="action-selected-name">clip.clean</span></p>
           </div>
-          <sl-tab-group placement="start" class="tab-stack" id="action-tabs">
-            <sl-tab slot="nav" panel="action-enable">Enable</sl-tab>
-            <sl-tab slot="nav" panel="action-edit">Edit</sl-tab>
-            <sl-tab slot="nav" panel="action-delete">Delete</sl-tab>
+          <wa-tab-group placement="start" class="tab-stack" id="action-tabs">
+            <wa-tab slot="nav" panel="action-enable">Enable</wa-tab>
+            <wa-tab slot="nav" panel="action-edit">Edit</wa-tab>
+            <wa-tab slot="nav" panel="action-delete">Delete</wa-tab>
 
-            <sl-tab-panel name="action-enable">
-              <sl-card>
+            <wa-tab-panel name="action-enable">
+              <wa-card>
                 <h3 slot="header">Enabled</h3>
                 <p>Toggle <strong id="action-enable-name">clip.clean</strong> on or off.</p>
-                <sl-switch checked id="action-enable-toggle">Command is enabled</sl-switch>
-              </sl-card>
-            </sl-tab-panel>
-            <sl-tab-panel name="action-edit">
-              <sl-card>
+                <wa-switch checked id="action-enable-toggle">Command is enabled</wa-switch>
+              </wa-card>
+            </wa-tab-panel>
+            <wa-tab-panel name="action-edit">
+              <wa-card>
                 <h3 slot="header">Edit Metadata</h3>
                 <p>Edit fields for <strong id="action-edit-name">clip.clean</strong>.</p>
-                <sl-button variant="primary">Open editor pane</sl-button>
-              </sl-card>
-            </sl-tab-panel>
-            <sl-tab-panel name="action-delete">
-              <sl-card class="danger">
+                <wa-button variant="brand">Open editor pane</wa-button>
+              </wa-card>
+            </wa-tab-panel>
+            <wa-tab-panel name="action-delete">
+              <wa-card class="danger">
                 <h3 slot="header">Delete Command</h3>
                 <p>Delete <strong id="action-delete-name">clip.clean</strong>? This cannot be undone.</p>
-                <sl-button variant="danger">Delete</sl-button>
-              </sl-card>
-            </sl-tab-panel>
-          </sl-tab-group>
+                <wa-button variant="danger">Delete</wa-button>
+              </wa-card>
+            </wa-tab-panel>
+          </wa-tab-group>
         </aside>
 
         <section class="pane pane-right is-hidden" id="editor-pane">
@@ -90,24 +90,24 @@
             <p class="sub">Editing: <span id="editor-selected-name">clip.clean</span></p>
           </div>
           <div class="editor-grid">
-            <sl-input label="Name" value="clip.clean"></sl-input>
-            <sl-input label="Id" value="demo.clip.clean"></sl-input>
-            <sl-select label="World" value="isolated">
-              <sl-option value="isolated">isolated</sl-option>
-              <sl-option value="main">main</sl-option>
-            </sl-select>
-            <sl-textarea label="Description" rows="3">
+            <wa-input label="Name" value="clip.clean"></wa-input>
+            <wa-input label="Id" value="demo.clip.clean"></wa-input>
+            <wa-select label="World" value="isolated">
+              <wa-option value="isolated">isolated</wa-option>
+              <wa-option value="main">main</wa-option>
+            </wa-select>
+            <wa-textarea label="Description" rows="3">
               Normalize clipboard text into a cleaned snippet.
-            </sl-textarea>
-            <sl-textarea label="Help HTML" rows="4">
+            </wa-textarea>
+            <wa-textarea label="Help HTML" rows="4">
               &lt;h1&gt;clip.clean&lt;/h1&gt;
               &lt;p&gt;Clean clipboard text.&lt;/p&gt;
-            </sl-textarea>
+            </wa-textarea>
           </div>
           <div class="editor-code">
             <div class="code-head">
               <h3>Script (ACE placeholder)</h3>
-              <sl-button variant="default">Format</sl-button>
+              <wa-button variant="neutral">Format</wa-button>
             </div>
             <div class="code-box">
               <pre>// editor placeholder

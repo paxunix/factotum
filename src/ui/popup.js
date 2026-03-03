@@ -1,8 +1,7 @@
-import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
-import '@shoelace-style/shoelace/dist/components/menu/menu.js';
-import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
+import { setBasePath } from '@awesome.me/webawesome/dist/webawesome.js';
+import '@awesome.me/webawesome/dist/components/button/button.js';
 
-setBasePath(chrome.runtime.getURL('vendor/shoelace'));
+setBasePath(chrome.runtime.getURL('vendor/webawesome'));
 
 const title = chrome.i18n.getMessage('popupTitle');
 const hint = chrome.i18n.getMessage('popupHint');
@@ -12,17 +11,18 @@ const menuLogs = chrome.i18n.getMessage('menuLogs');
 document.title = title;
 document.getElementById('popup-title').textContent = title;
 document.getElementById('popup-hint').textContent = hint;
-document.getElementById('menu-manager').textContent = menuManager;
-document.getElementById('menu-logs').textContent = menuLogs;
+document.getElementById('nav-manager').textContent = menuManager;
+document.getElementById('nav-logs').textContent = menuLogs;
 
 console.log('[factotum] popup loaded');
 
-const menu = document.getElementById('quick-nav');
-menu.addEventListener('sl-select', (event) => {
-  const { value } = event.detail.item;
+const openPage = (page) => {
   const target =
-    value === 'manager'
+    page === 'manager'
       ? chrome.runtime.getURL('ui/manager.html')
       : chrome.runtime.getURL('ui/log.html');
   chrome.tabs.create({ url: target });
-});
+};
+
+document.getElementById('nav-manager').addEventListener('click', () => openPage('manager'));
+document.getElementById('nav-logs').addEventListener('click', () => openPage('logs'));

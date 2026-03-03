@@ -1,19 +1,17 @@
-import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
-import '@shoelace-style/shoelace/dist/components/button/button.js';
-import '@shoelace-style/shoelace/dist/components/card/card.js';
-import '@shoelace-style/shoelace/dist/components/input/input.js';
-import '@shoelace-style/shoelace/dist/components/menu/menu.js';
-import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js';
-import '@shoelace-style/shoelace/dist/components/option/option.js';
-import '@shoelace-style/shoelace/dist/components/select/select.js';
-import '@shoelace-style/shoelace/dist/components/switch/switch.js';
-import '@shoelace-style/shoelace/dist/components/tab/tab.js';
-import '@shoelace-style/shoelace/dist/components/tab-group/tab-group.js';
-import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.js';
-import '@shoelace-style/shoelace/dist/components/tag/tag.js';
-import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
+import { setBasePath } from '@awesome.me/webawesome/dist/webawesome.js';
+import '@awesome.me/webawesome/dist/components/button/button.js';
+import '@awesome.me/webawesome/dist/components/card/card.js';
+import '@awesome.me/webawesome/dist/components/input/input.js';
+import '@awesome.me/webawesome/dist/components/option/option.js';
+import '@awesome.me/webawesome/dist/components/select/select.js';
+import '@awesome.me/webawesome/dist/components/switch/switch.js';
+import '@awesome.me/webawesome/dist/components/tab/tab.js';
+import '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
+import '@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js';
+import '@awesome.me/webawesome/dist/components/tag/tag.js';
+import '@awesome.me/webawesome/dist/components/textarea/textarea.js';
 
-setBasePath('./vendor/shoelace');
+setBasePath('./vendor/webawesome');
 
 const loadStatus = document.getElementById('load-status');
 if (loadStatus) {
@@ -52,11 +50,11 @@ const commands = {
 };
 
 const editorPane = document.getElementById('editor-pane');
-const nameInput = document.querySelector('sl-input[label="Name"]');
-const idInput = document.querySelector('sl-input[label="Id"]');
-const worldSelect = document.querySelector('sl-select[label="World"]');
-const descArea = document.querySelector('sl-textarea[label="Description"]');
-const helpArea = document.querySelector('sl-textarea[label="Help HTML"]');
+const nameInput = document.querySelector('wa-input[label="Name"]');
+const idInput = document.querySelector('wa-input[label="Id"]');
+const worldSelect = document.querySelector('wa-select[label="World"]');
+const descArea = document.querySelector('wa-textarea[label="Description"]');
+const helpArea = document.querySelector('wa-textarea[label="Help HTML"]');
 const codeBox = document.querySelector('.code-box pre');
 const actionSelectedName = document.getElementById('action-selected-name');
 const actionEnableName = document.getElementById('action-enable-name');
@@ -85,7 +83,7 @@ const applyCommand = (key) => {
 applyCommand('cmd-1');
 
 const cmdTabs = document.getElementById('cmd-tabs');
-cmdTabs.addEventListener('sl-tab-show', (event) => {
+cmdTabs.addEventListener('wa-tab-show', (event) => {
   applyCommand(event.detail.name);
 });
 
@@ -97,6 +95,6 @@ const syncEditorVisibility = (panelName) => {
 
 syncEditorVisibility('action-enable');
 
-actionTabs.addEventListener('sl-tab-show', (event) => {
+actionTabs.addEventListener('wa-tab-show', (event) => {
   syncEditorVisibility(event.detail.name);
 });

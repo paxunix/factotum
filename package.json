@@ -7,7 +7,7 @@
     "build:scratch": "node scripts/build.js scratch"
   },
   "dependencies": {
-    "@shoelace-style/shoelace": "^2.15.0",
+    "@awesome.me/webawesome": "^3.0.0",
     "npm": "^11.9.0"
   },
   "devDependencies": {
