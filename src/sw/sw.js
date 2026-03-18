@@ -1,4 +1,10 @@
-import { getOmniboxSuggestions, preloadOmniboxSession, startInvocation } from './dispatch.js';
+import { getOmniboxSuggestions, preloadOmniboxSession } from './dispatch.js';
+import {
+  cancelForNavigation,
+  cancelForTabClose,
+  executeOmniboxInput,
+  handleRuntimeControlMessage
+} from './inject.js';
 
 console.log('[factotum] service worker starting');
 
@@ -22,23 +28,30 @@ chrome.omnibox.onInputStarted.addListener(() => {
 });
 
 chrome.omnibox.onInputEntered.addListener((text) => {
-  startInvocation(text)
-    .then((result) => {
-      if (!result.ok) {
-        console.error('[factotum] invocation failed', result.code, result.message);
-        return;
-      }
+  executeOmniboxInput(text).catch((error) => {
+    console.error('[factotum] invocation error', error);
+  });
+});
 
-      console.log('[factotum] resolved invocation', {
-        command: `${result.command.name}@${result.command.id}`,
-        world: result.command.world,
-        argvTokens: result.argvTokens,
-        parsedOpts: result.parsedOpts,
-        resolutionType: result.resolutionType,
-        mruAt: result.mruAt
-      });
-    })
-    .catch((error) => {
-      console.error('[factotum] invocation error', error);
-    });
+chrome.runtime.onMessage.addListener((message, sender) => {
+  handleRuntimeControlMessage(message, sender).catch((error) => {
+    console.error('[factotum] runtime control error', error);
+  });
+  return false;
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  cancelForTabClose(tabId).catch((error) => {
+    console.error('[factotum] tab close cancel error', error);
+  });
+});
+
+chrome.webNavigation.onCommitted.addListener((details) => {
+  if (details.frameId !== 0) {
+    return;
+  }
+
+  cancelForNavigation(details.tabId).catch((error) => {
+    console.error('[factotum] navigation cancel error', error);
+  });
 });

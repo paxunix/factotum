@@ -159,6 +159,12 @@ export async function startInvocation(text) {
   };
 }
 
+export async function markInvocationStart(command) {
+  const mruAt = Date.now();
+  await updateCommandMru(command.name, command.id, mruAt);
+  return mruAt;
+}
+
 export async function getOmniboxSuggestions(text) {
   const trimmed = String(text || '').trim();
   if (!trimmed) {

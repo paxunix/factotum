@@ -75,6 +75,38 @@
     "message": "Disabled",
     "description": "Label for disabled command status"
   },
+  "overlayCancel": {
+    "message": "Cancel",
+    "description": "Overlay cancel button label"
+  },
+  "overlayRunning": {
+    "message": "Running...",
+    "description": "Overlay running state label"
+  },
+  "overlayDone": {
+    "message": "Done.",
+    "description": "Overlay done state label"
+  },
+  "overlayError": {
+    "message": "Error.",
+    "description": "Overlay error state label"
+  },
+  "overlayCanceled": {
+    "message": "Canceled.",
+    "description": "Overlay canceled state label"
+  },
+  "overlayBusy": {
+    "message": "Tab is busy.",
+    "description": "Overlay busy state label"
+  },
+  "overlayHelp": {
+    "message": "Help",
+    "description": "Overlay help state label"
+  },
+  "overlayCannotInject": {
+    "message": "Cannot run on this page.",
+    "description": "Overlay error message for non-injectable pages"
+  },
   "logsTitle": {
     "message": "Factotum Logs",
     "description": "Logs page title"

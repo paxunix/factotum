@@ -23,7 +23,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 ## Current status
 - M1 is complete.
 - Manual checks passed for T1, T2, T3, T3b, and T4b using the manager bundle import flow.
-- The next active milestone is M2.
+- M2 is active but currently blocked on a CSP-safe command execution strategy.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -42,6 +42,10 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 ### M2 — Injection + Overlay + Cancellation (core execution)
 **Ready:** execute commands with overlay and cancel behavior.
+
+**Current blocker**
+- The first M2 scaffold used `new Function(...)` inside injected runners and failed under MV3/content-script CSP.
+- Before M2 can be completed, runner execution must be rewritten to evaluate stored command code without `unsafe-eval`.
 
 **Include**
 - Injection pipeline (overlay + runner + MH), busy tab guard, non‑injectable error.

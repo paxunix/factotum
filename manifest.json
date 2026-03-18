@@ -55,6 +55,7 @@
     "proxy",
     "sessions",
     "storage",
+    "scripting",
     "system.cpu",
     "system.display",
     "system.memory",

@@ -13,13 +13,18 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 
 ### Bugs
 - Omnibox prefix suggestions currently collapse commands that share the same `name`; if more than one command matches a typed prefix, only one appears in the suggestion list.
+- Command execution currently uses `new Function(...)` in the injected runners, which violates MV3/content-script CSP (`unsafe-eval` blocked). Replace the execution strategy with a CSP-safe approach before continuing M2/M3 work.
 
 ### Omnibox / UX
 - Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.
 - Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
+- If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
 
 ### M2 follow-up
 - Implement overlay/error feedback so `NO_SUCH_COMMAND`, busy-tab, and successful invocation states are visible outside the service worker console.
+- Rework runner execution so stored command code can run without `eval`/`new Function`, while preserving explicit MAIN vs ISOLATED worlds.
+- Move the overlay from the upper-right corner to the upper-left corner.
+- Revisit overlay dismissal UX and decide whether commands should be able to specify auto-dismiss behavior on completion/cancellation, or whether dismissal policy should remain runtime-controlled.
 
 ### M4 follow-up
 - Add real `helpHtmlTemplate`/`optionsSpec` fixtures so the `--help` omnibox suggestion path can be exercised end to end.
