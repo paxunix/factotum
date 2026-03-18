@@ -30,7 +30,7 @@ export function validateAliasKey(alias) {
 }
 
 export function validateWorld(world) {
-  assert(world === 'main' || world === 'isolated', `Invalid world: ${String(world)}`, 'INVALID_WORLD');
+  assert(world === 'main' || world === 'user_script', `Invalid world: ${String(world)}`, 'INVALID_WORLD');
   return world;
 }
 
@@ -61,7 +61,7 @@ function normalizeRequireEntry(entry) {
   assert(entry.kind === 'script' || entry.kind === 'module', 'Require kind must be script or module', 'INVALID_REQUIRE');
 
   const world = entry.world == null ? undefined : validateWorld(entry.world);
-  assert(!(world === 'isolated' && entry.kind !== 'module'), 'Isolated requires are allowed only for modules', 'INVALID_REQUIRE');
+  assert(!(world === 'user_script' && entry.kind !== 'module'), 'User script requires are allowed only for modules', 'INVALID_REQUIRE');
 
   return {
     url: entry.url,

@@ -2,14 +2,23 @@ import { getOmniboxSuggestions, preloadOmniboxSession } from './dispatch.js';
 import {
   cancelForNavigation,
   cancelForTabClose,
+  configureUserScriptWorld,
   executeOmniboxInput,
-  handleRuntimeControlMessage
+  handleRuntimeControlMessage,
+  handleUserScriptConnect
 } from './inject.js';
 
 console.log('[factotum] service worker starting');
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('[factotum] installed');
+  configureUserScriptWorld().catch((error) => {
+    console.error('[factotum] configure user script world on install failed', error);
+  });
+});
+
+configureUserScriptWorld().catch((error) => {
+  console.error('[factotum] configure user script world failed', error);
 });
 
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
@@ -38,6 +47,10 @@ chrome.runtime.onMessage.addListener((message, sender) => {
     console.error('[factotum] runtime control error', error);
   });
   return false;
+});
+
+chrome.runtime.onUserScriptConnect.addListener((port) => {
+  handleUserScriptConnect(port);
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {

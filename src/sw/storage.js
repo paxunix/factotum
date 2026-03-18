@@ -91,7 +91,7 @@ export async function getIndexRecord() {
     commands: index.commands.map((entry) => ({
       name: validateCommandName(entry.name),
       id: validateCommandId(entry.id),
-      world: entry.world === 'main' || entry.world === 'isolated' ? entry.world : 'isolated',
+      world: entry.world === 'main' || entry.world === 'user_script' ? entry.world : 'user_script',
       updatedAt: entry.updatedAt,
       ...(entry.description ? { description: normalizeLocalizedText(entry.description) } : {}),
       ...(entry.disabled != null ? { disabled: Boolean(entry.disabled) } : {}),

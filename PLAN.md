@@ -143,7 +143,6 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - `src/sw/inject.js`
 - `src/sw/invocations.js`
 - `src/overlay/overlay.js`
-- `src/runner/runner_main.js`
 - `src/bridge/main_host.js`
 
 **Manual tests**

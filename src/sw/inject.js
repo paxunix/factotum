@@ -6,12 +6,12 @@ import {
   finishInvocation,
   getInvocationById,
   getInvocationByTabId,
-  isTabBusy,
-  updateInvocationStatus
+  isTabBusy
 } from './invocations.js';
 
 const CONTROL_TYPE = 'fcmd_control';
 const teardownTimers = new Map();
+const invocationPorts = new Map();
 
 function getMessage(key, fallback) {
   return chrome.i18n.getMessage(key) || fallback;
@@ -32,6 +32,15 @@ function serializeError(error, fallbackCode = 'ERROR') {
 
 function isInjectableUrl(url) {
   return typeof url === 'string' && /^(https?|file):/i.test(url);
+}
+
+async function isUserScriptsAvailable() {
+  try {
+    await chrome.userScripts.getScripts();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function getActiveTab() {
@@ -95,6 +104,8 @@ function scheduleTeardown(invocation, delayMs = 1200) {
 
   const timeoutId = setTimeout(async () => {
     teardownTimers.delete(invocation.invocationId);
+    invocationPorts.get(invocation.invocationId)?.disconnect();
+    invocationPorts.delete(invocation.invocationId);
     await teardownOverlay(invocation.tabId, invocation.invocationId);
     clearInvocation(invocation.invocationId);
   }, delayMs);
@@ -106,30 +117,81 @@ async function injectMainHost(tabId) {
   await injectScript(tabId, 'bridge/main_host.js', 'MAIN');
 }
 
-async function injectRunner(invocation) {
-  const runnerFile = invocation.command.world === 'main'
-    ? 'runner/runner_main.js'
-    : 'runner/runner_isolated.js';
-  const runnerWorld = invocation.command.world === 'main' ? 'MAIN' : 'ISOLATED';
-
-  await injectScript(invocation.tabId, runnerFile, runnerWorld);
-  await sendControlMessage(invocation.tabId, {
-    op: 'INIT_COMMAND',
+function buildExecuteCode(invocation) {
+  const meta = JSON.stringify({
     invocationId: invocation.invocationId,
-    world: invocation.command.world,
-    command: invocation.command,
-    argvTokens: invocation.argvTokens,
-    parsedOpts: invocation.parsedOpts
+    argvTokens: invocation.argvTokens
   });
+
+  return `
+    (async () => {
+      const __factotumMeta = ${meta};
+      const __factotumState = { aborted: false };
+      const __factotumPort = chrome.runtime.connect({ name: __factotumMeta.invocationId });
+      __factotumPort.onMessage.addListener((message) => {
+        if (message && message.op === 'CANCEL') {
+          __factotumState.aborted = true;
+        }
+      });
+
+      const ctx = {
+        signal: {
+          get aborted() {
+            return __factotumState.aborted;
+          }
+        },
+        chrome: new Proxy({}, {
+          get() {
+            throw new Error('ctx.chrome is not implemented yet.');
+          }
+        }),
+        main: {
+          define() {
+            throw new Error('ctx.main.define is not implemented yet.');
+          },
+          call() {
+            throw new Error('ctx.main.call is not implemented yet.');
+          }
+        },
+        log(...args) {
+          console.log('[factotum command]', ...args);
+        },
+        warn(...args) {
+          console.warn('[factotum command]', ...args);
+        },
+        error(...args) {
+          console.error('[factotum command]', ...args);
+        }
+      };
+
+      try {
+        const __factotumMain = (() => {
+          ${invocation.command.code}
+          return typeof main === 'function' ? main : undefined;
+        })();
+        if (typeof __factotumMain !== 'function') {
+          return undefined;
+        }
+        return await __factotumMain(__factotumMeta.argvTokens, ctx);
+      } finally {
+        __factotumPort.disconnect();
+      }
+    })();
+  `;
 }
 
-async function showTerminalOverlay(tabId, commandRef, state, message) {
-  const invocation = {
-    invocationId: `transient-${Date.now()}`,
-    command: { name: commandRef, id: '' }
-  };
-  await ensureOverlay(tabId, invocation, state, message);
-  await teardownOverlay(tabId, invocation.invocationId);
+async function executeUserScript(invocation) {
+  const world = invocation.command.world === 'main' ? 'MAIN' : 'USER_SCRIPT';
+  const results = await chrome.userScripts.execute({
+    target: {
+      tabId: invocation.tabId,
+      frameIds: [0]
+    },
+    js: [{ code: buildExecuteCode(invocation) }],
+    world
+  });
+
+  return Array.isArray(results) ? results[0] : null;
 }
 
 async function handleResolutionFailure(tab, resolution) {
@@ -160,6 +222,37 @@ async function handleBusyTab(tabId) {
   }, 1000);
 }
 
+async function finalizeInvocationSuccess(invocation, result) {
+  const current = getInvocationById(invocation.invocationId);
+  if (!current) {
+    return { ok: false, code: 'INVALID_INVOCATION', message: 'Invocation ended unexpectedly.' };
+  }
+
+  if (current.canceled) {
+    await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', getMessage('overlayCanceled', 'Canceled.'));
+    scheduleTeardown(current, 2500);
+    return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
+  }
+
+  finishInvocation(current.invocationId, 'DONE', { result });
+  await setOverlayStatus(current.tabId, current.invocationId, 'DONE', getMessage('overlayDone', 'Done.'));
+  scheduleTeardown(current, 1200);
+  return { ok: true, invocation: current, result };
+}
+
+async function finalizeInvocationError(invocation, error) {
+  const current = getInvocationById(invocation.invocationId);
+  if (!current) {
+    return { ok: false, code: 'INVALID_INVOCATION', message: 'Invocation ended unexpectedly.' };
+  }
+
+  const serialized = serializeError(error, 'ERROR');
+  finishInvocation(current.invocationId, 'ERROR', { error: serialized });
+  await setOverlayStatus(current.tabId, current.invocationId, 'ERROR', serialized.message);
+  scheduleTeardown(current, 5000);
+  return { ok: false, code: serialized.code, message: serialized.message };
+}
+
 async function executeResolvedInvocation(tab, resolution) {
   if (!isInjectableUrl(tab.url)) {
     console.error('[factotum] cannot inject into tab', tab.url);
@@ -167,6 +260,14 @@ async function executeResolvedInvocation(tab, resolution) {
       ok: false,
       code: 'CANNOT_INJECT',
       message: getMessage('overlayCannotInject', 'Cannot run on this page.')
+    };
+  }
+
+  if (!await isUserScriptsAvailable()) {
+    return {
+      ok: false,
+      code: 'USER_SCRIPTS_UNAVAILABLE',
+      message: getMessage('overlayUserScriptsUnavailable', 'User Scripts is not enabled for this extension.')
     };
   }
 
@@ -193,15 +294,27 @@ async function executeResolvedInvocation(tab, resolution) {
   await injectMainHost(tab.id);
 
   try {
-    await injectRunner(invocation);
-    return { ok: true, invocation };
+    const injectionResult = await executeUserScript(invocation);
+    if (injectionResult?.error) {
+      throw Object.assign(new Error(injectionResult.error), { code: 'ERROR' });
+    }
+
+    return finalizeInvocationSuccess(invocation, injectionResult?.result);
   } catch (error) {
-    const serialized = serializeError(error, 'ERROR');
-    finishInvocation(invocation.invocationId, 'ERROR', { error: serialized });
-    await setOverlayStatus(tab.id, invocation.invocationId, 'ERROR', serialized.message);
-    scheduleTeardown(invocation, 5000);
-    return { ok: false, code: serialized.code, message: serialized.message };
+    return finalizeInvocationError(invocation, error);
   }
+}
+
+export async function configureUserScriptWorld() {
+  if (!await isUserScriptsAvailable()) {
+    return false;
+  }
+
+  await chrome.userScripts.configureWorld({
+    messaging: true,
+    csp: "script-src 'self'"
+  });
+  return true;
 }
 
 export async function executeOmniboxInput(text) {
@@ -219,11 +332,10 @@ export async function executeOmniboxInput(text) {
 
   const result = await executeResolvedInvocation(tab, resolution);
   if (result.ok) {
-    console.log('[factotum] invocation started', {
+    console.log('[factotum] invocation finished', {
       invocationId: result.invocation.invocationId,
       command: `${result.invocation.command.name}@${result.invocation.command.id}`,
-      world: result.invocation.command.world,
-      argvTokens: result.invocation.argvTokens
+      world: result.invocation.command.world
     });
     return result;
   }
@@ -232,7 +344,7 @@ export async function executeOmniboxInput(text) {
   return result;
 }
 
-export async function handleRuntimeControlMessage(message, sender) {
+export async function handleRuntimeControlMessage(message) {
   if (!message || message.type !== CONTROL_TYPE) {
     return undefined;
   }
@@ -242,29 +354,29 @@ export async function handleRuntimeControlMessage(message, sender) {
     if (invocation) {
       await requestCancel(invocation, 'CANCELED');
     }
-    return undefined;
-  }
-
-  if (message.op === 'COMMAND_RESULT') {
-    const invocation = finishInvocation(message.invocationId, 'DONE');
-    if (invocation) {
-      await setOverlayStatus(invocation.tabId, invocation.invocationId, 'DONE', getMessage('overlayDone', 'Done.'));
-      scheduleTeardown(invocation, 1200);
-    }
-    return undefined;
-  }
-
-  if (message.op === 'COMMAND_ERROR') {
-    const invocation = finishInvocation(message.invocationId, 'ERROR', {
-      error: message.error
-    });
-    if (invocation) {
-      await setOverlayStatus(invocation.tabId, invocation.invocationId, 'ERROR', message.error?.message || getMessage('overlayError', 'Command failed.'));
-      scheduleTeardown(invocation, 5000);
-    }
   }
 
   return undefined;
+}
+
+export function handleUserScriptConnect(port) {
+  const invocation = getInvocationById(port.name);
+  if (!invocation) {
+    port.disconnect();
+    return;
+  }
+
+  invocationPorts.set(invocation.invocationId, port);
+
+  if (invocation.canceled) {
+    port.postMessage({ op: 'CANCEL' });
+  }
+
+  port.onDisconnect.addListener(() => {
+    if (invocationPorts.get(invocation.invocationId) === port) {
+      invocationPorts.delete(invocation.invocationId);
+    }
+  });
 }
 
 export async function requestCancel(invocation, reason = 'CANCELED') {
@@ -274,10 +386,7 @@ export async function requestCancel(invocation, reason = 'CANCELED') {
   }
 
   cancelInvocation(current.invocationId, reason);
-  await sendControlMessage(current.tabId, {
-    op: 'CANCEL',
-    invocationId: current.invocationId
-  });
+  invocationPorts.get(current.invocationId)?.postMessage({ op: 'CANCEL' });
   await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', getMessage('overlayCanceled', 'Canceled.'));
   scheduleTeardown(current, 2500);
 }
@@ -288,6 +397,8 @@ export async function cancelForTabClose(tabId) {
     return;
   }
 
+  invocationPorts.get(invocation.invocationId)?.disconnect();
+  invocationPorts.delete(invocation.invocationId);
   cancelInvocation(invocation.invocationId, 'CANCELED');
   clearInvocation(invocation.invocationId);
 }

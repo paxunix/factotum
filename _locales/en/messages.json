@@ -107,6 +107,10 @@
     "message": "Cannot run on this page.",
     "description": "Overlay error message for non-injectable pages"
   },
+  "overlayUserScriptsUnavailable": {
+    "message": "User Scripts is not enabled for this extension.",
+    "description": "Overlay error message when the userScripts API is unavailable"
+  },
   "logsTitle": {
     "message": "Factotum Logs",
     "description": "Logs page title"

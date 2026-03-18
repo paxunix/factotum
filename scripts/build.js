@@ -134,8 +134,6 @@ async function buildMain() {
     entryPoints: [
       'src/sw/sw.js',
       'src/overlay/overlay.js',
-      'src/runner/runner_main.js',
-      'src/runner/runner_isolated.js',
       'src/bridge/main_host.js',
       'src/ui/manager.js',
       'src/ui/log.js',

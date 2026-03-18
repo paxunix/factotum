@@ -14,6 +14,10 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 ### Bugs
 - Omnibox prefix suggestions currently collapse commands that share the same `name`; if more than one command matches a typed prefix, only one appears in the suggestion list.
 - Command execution currently uses `new Function(...)` in the injected runners, which violates MV3/content-script CSP (`unsafe-eval` blocked). Replace the execution strategy with a CSP-safe approach before continuing M2/M3 work.
+- Overlay status UI appears to render duplicate terminal states for a single invocation (for example `Done` showing twice), likely because the overlay script/message listener is injected repeatedly per invocation.
+- Cancel terminal state also appears duplicated (`Canceled.` shown twice), which is likely the same overlay/listener duplication bug.
+- Cancel-on-navigation is currently broken: the overlay can remain stuck in `Running...`, the invocation can survive navigation visually, and Chrome may close the message channel when the page enters back/forward cache.
+- MAIN-world command execution likely has a remaining issue or observability gap: the SW reports completion, but expected page-console output from a `world: "main"` smoke command did not appear.
 
 ### Omnibox / UX
 - Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.
@@ -25,6 +29,8 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 - Rework runner execution so stored command code can run without `eval`/`new Function`, while preserving explicit MAIN vs USER_SCRIPT worlds.
 - Move the overlay from the upper-right corner to the upper-left corner.
 - Revisit overlay dismissal UX and decide whether commands should be able to specify auto-dismiss behavior on completion/cancellation, or whether dismissal policy should remain runtime-controlled.
+- Refactor the generated user-script wrapper so future `--debug` support has an obvious, stable boundary immediately before `main(argvTokens, ctx)` and makes it clear to the user where their command code starts and what to inspect next.
+- Reconsider whether the per-tab busy guard should exist at all; possible alternatives include allowing concurrency generally or only blocking re-entry for the same fcommand in the same tab.
 
 ### M4 follow-up
 - Add real `helpHtmlTemplate`/`optionsSpec` fixtures so the `--help` omnibox suggestion path can be exercised end to end.

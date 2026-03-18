@@ -472,7 +472,6 @@ UI access:
 Control ops (SW → runners):
 
 * INIT_OVERLAY
-* INIT_COMMAND
 * SET_STATUS
 * CANCEL
 * TEARDOWN
