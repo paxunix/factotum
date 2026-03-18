@@ -17,7 +17,7 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 
 ### Goals
 - Omnibox keyword provides a CLI-like interface to run user-installed “Fcommands”.
-- Fcommand runs tab-bound in either MAIN or USER_SCRIPT world.
+- Fcommand runtime runs tab-bound in USER_SCRIPT world.
 - Privileged APIs (`chrome.*`) are available to commands via promise-based RPC (`ctx.chrome`).
 - Commands may load dependencies via sequential `requires` (side-effect only).
 - Commands can bridge between USER_SCRIPT and MAIN via named entrypoints (`ctx.main.define/call`).
@@ -42,7 +42,7 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 - Alias: user-defined mapping from token → `{name,id}` (no args).
 - SW: MV3 service worker.
 - OR: overlay runner (ISOLATED, top frame).
-- USR: command runtime executed via `chrome.userScripts` in MAIN or USER_SCRIPT world.
+- USR: command runtime executed via `chrome.userScripts` in USER_SCRIPT world.
 - MH: MAIN bridge host (MAIN, top frame).
 - Invocation: one command run, identified by `invocationId`.
 - LocalizedText: map of BCP‑47 language tag → string, with `en-US` fallback.
@@ -84,7 +84,7 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 Fields:
 - `schemaVersion: 1`
 - `name`, `id`
-- `world: "main" | "user_script"`
+- `world: "user_script"`
 - `disabled?: boolean` (default false; disabled commands are excluded from resolution)
 - `code: string`
 - `requires: RequireEntry[]` (optional)
@@ -262,6 +262,8 @@ If authors provide localized `description` for options, those should be used whe
 - Non-reentrant: one invocation per tab.
 - Top-frame only.
 - Hard error if tab is non-injectable. No RPC-only fallback.
+- Command runtime executes in USER_SCRIPT world.
+- MAIN is accessed through the explicit bridge (`ctx.main`), not as a symmetric top-level command runtime.
 
 ### 5.2 Start sequence
 1) Resolve command.
@@ -271,7 +273,7 @@ If authors provide localized `description` for options, those should be used whe
 5) Update MRU immediately.
 6) Inject OR (ISOLATED overlay) in top frame.
 7) Ensure MH exists in top frame MAIN when bridge support is needed.
-8) Execute command code in the selected world (MAIN or USER_SCRIPT) using `chrome.userScripts.execute()` targeted to the top frame.
+8) Execute command code in USER_SCRIPT world using `chrome.userScripts.execute()` targeted to the top frame.
 9) Load requires sequentially (side-effect only).
 10) Execute `await main(argvTokens, ctx)`.
 
@@ -457,7 +459,7 @@ Recommended entrypoints:
 
 * SW: `src/sw/sw.js` → `dist/sw/sw.js`
 * Injected: `overlay.js`, `main_host.js`
-* User-script execution: command code dispatched via `chrome.userScripts.execute()`
+* User-script execution: command code dispatched via `chrome.userScripts.execute()` in USER_SCRIPT world
 * UI pages: `manager.js`, `editor.js` (ACE bundled), `log.js`
 
 UI access:
@@ -579,7 +581,7 @@ Use a normal import bundle named `fixtures-v1.json` with:
 
 1. Storage layer (index + per-command keys + aliases + import/export)
 2. Omnibox resolution + MRU update on start
-3. Injection pipeline (overlay + runner(s) + MH) and busy-tab guard
+3. Injection pipeline (overlay + USER_SCRIPT runtime + MH) and busy-tab guard
 4. Session log sink + log UI (cap/delete/clear)
 5. RPC core (dispatch + promisify + denylist + clone errors)
 6. MAIN bridge host + define/call protocol + nonce scoping + MAIN import/script_load ops
@@ -597,6 +599,7 @@ Use a normal import bundle named `fixtures-v1.json` with:
 4. MRU updates on invocation start only.
 5. Requires are sequential and side-effect-only.
 6. Overlay always in ISOLATED top frame.
-7. No events/ports; denylist debugger/management namespaces.
+7. Command runtime lives in USER_SCRIPT; MAIN is entered only through the bridge.
+8. No events/ports; denylist debugger/management namespaces.
 
 ---

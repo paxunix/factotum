@@ -56,7 +56,7 @@ Must be preserved exactly:
 - Top frame only
 
 ### Worlds and UI
-- Command world is explicit: MAIN or USER_SCRIPT
+- Command runtime is USER_SCRIPT; MAIN is accessed only through the explicit bridge
 - Overlay ALWAYS in ISOLATED (shadow DOM), top frame only
 - Help HTML is raw (no sanitization)
 

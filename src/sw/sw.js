@@ -5,6 +5,7 @@ import {
   configureUserScriptWorld,
   executeOmniboxInput,
   handleRuntimeControlMessage,
+  handleUserScriptMessage,
   handleUserScriptConnect
 } from './inject.js';
 
@@ -51,6 +52,12 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 
 chrome.runtime.onUserScriptConnect.addListener((port) => {
   handleUserScriptConnect(port);
+});
+
+chrome.runtime.onUserScriptMessage.addListener((message) => {
+  handleUserScriptMessage(message).catch((error) => {
+    console.error('[factotum] user script message error', error);
+  });
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {

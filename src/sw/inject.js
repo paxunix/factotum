@@ -124,7 +124,9 @@ async function injectMainHost(tabId) {
 function buildExecuteCode(invocation) {
   const meta = JSON.stringify({
     invocationId: invocation.invocationId,
-    argvTokens: invocation.argvTokens
+    argvTokens: invocation.argvTokens,
+    world: invocation.command.world,
+    commandRef: `${invocation.command.name}@${invocation.command.id}`
   });
 
   return `
@@ -169,14 +171,48 @@ function buildExecuteCode(invocation) {
       };
 
       try {
+        chrome.runtime.sendMessage({
+          type: CONTROL_TYPE,
+          op: 'COMMAND_EVENT',
+          invocationId: __factotumMeta.invocationId,
+          event: 'started',
+          detail: {
+            commandRef: __factotumMeta.commandRef,
+            world: __factotumMeta.world
+          }
+        });
+
+        console.info('[factotum execute]', __factotumMeta.commandRef, __factotumMeta.world);
         const __factotumMain = (() => {
           ${invocation.command.code}
           return typeof main === 'function' ? main : undefined;
         })();
         if (typeof __factotumMain !== 'function') {
+          chrome.runtime.sendMessage({
+            type: CONTROL_TYPE,
+            op: 'COMMAND_EVENT',
+            invocationId: __factotumMeta.invocationId,
+            event: 'no_main',
+            detail: {
+              commandRef: __factotumMeta.commandRef,
+              world: __factotumMeta.world
+            }
+          });
           return undefined;
         }
-        return await __factotumMain(__factotumMeta.argvTokens, ctx);
+        const __factotumResult = await __factotumMain(__factotumMeta.argvTokens, ctx);
+        chrome.runtime.sendMessage({
+          type: CONTROL_TYPE,
+          op: 'COMMAND_EVENT',
+          invocationId: __factotumMeta.invocationId,
+          event: 'completed',
+          detail: {
+            commandRef: __factotumMeta.commandRef,
+            world: __factotumMeta.world,
+            mainDefined: true
+          }
+        });
+        return __factotumResult;
       } finally {
         __factotumPort.disconnect();
       }
@@ -305,7 +341,7 @@ async function executeResolvedInvocation(tab, resolution) {
       throw Object.assign(new Error(injectionResult.error), { code: 'ERROR' });
     }
 
-    return finalizeInvocationSuccess(invocation, injectionResult?.result);
+    return finalizeInvocationSuccess(invocation, injectionResult?.result ?? injectionResult);
   } catch (error) {
     return finalizeInvocationError(invocation, error);
   }
@@ -341,7 +377,8 @@ export async function executeOmniboxInput(text) {
     console.log('[factotum] invocation finished', {
       invocationId: result.invocation.invocationId,
       command: `${result.invocation.command.name}@${result.invocation.command.id}`,
-      world: result.invocation.command.world
+      world: result.invocation.command.world,
+      execution: result.invocation.execution || null
     });
     return result;
   }
@@ -350,8 +387,24 @@ export async function executeOmniboxInput(text) {
   return result;
 }
 
+function handleCommandEvent(message) {
+  const invocation = getInvocationById(message.invocationId);
+  if (invocation) {
+    invocation.execution = {
+      ...(invocation.execution || {}),
+      lastEvent: message.event,
+      detail: message.detail || null
+    };
+  }
+}
+
 export async function handleRuntimeControlMessage(message) {
   if (!message || message.type !== CONTROL_TYPE) {
+    return undefined;
+  }
+
+  if (message.op === 'COMMAND_EVENT') {
+    handleCommandEvent(message);
     return undefined;
   }
 
@@ -360,6 +413,18 @@ export async function handleRuntimeControlMessage(message) {
     if (invocation) {
       await requestCancel(invocation, 'CANCELED');
     }
+  }
+
+  return undefined;
+}
+
+export async function handleUserScriptMessage(message) {
+  if (!message || message.type !== CONTROL_TYPE) {
+    return undefined;
+  }
+
+  if (message.op === 'COMMAND_EVENT') {
+    handleCommandEvent(message);
   }
 
   return undefined;

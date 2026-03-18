@@ -15,6 +15,14 @@ Fcommands access privileged APIs through `ctx.chrome`, a Proxy that forwards cal
 
 This document explains how to add/maintain RPC exposure safely.
 
+## Current execution direction
+
+Command runtime now lives in `USER_SCRIPT` via `chrome.userScripts`. `MAIN` should be treated as a page bridge target reached through `ctx.main`, not as a symmetric top-level runtime. When making RPC or bridge changes, optimize for:
+
+* USER_SCRIPT as the durable command runtime
+* SW as the privileged/RPC control plane
+* MAIN only for explicit page-context access
+
 ## Related docs (when to consult)
 - `FACTOTUM_V1_HANDOFF.md`: Authoritative RPC policy and error codes; defer to it on conflicts.
 - `AGENTS.md`: Mandatory guardrails for any change; read before editing.

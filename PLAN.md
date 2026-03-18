@@ -23,7 +23,8 @@ Each milestone should end with a runnable subset and the matching manual tests f
 ## Current status
 - M1 is complete.
 - Manual checks passed for T1, T2, T3, T3b, and T4b using the manager bundle import flow.
-- M2 is active but currently blocked on a CSP-safe command execution strategy.
+- M2 is active under the `chrome.userScripts` architecture.
+- Current design learning: USER_SCRIPT is the viable command runtime; MAIN should be treated as a bridge target rather than a symmetric top-level runtime.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -43,14 +44,14 @@ Each milestone should end with a runnable subset and the matching manual tests f
 ### M2 — Injection + Overlay + Cancellation (core execution)
 **Ready:** execute commands with overlay and cancel behavior.
 
-**Current blocker**
-- The first M2 scaffold used `new Function(...)` inside injected runners and failed under MV3/content-script CSP.
-- Before M2 can be completed, runner execution must be rewritten to evaluate stored command code without `unsafe-eval`.
+**Direction**
+- Execute command code in USER_SCRIPT via `chrome.userScripts.execute()`.
+- Treat MAIN access as explicit bridge work through `ctx.main`.
 
 **Include**
-- Injection pipeline (overlay + runner + MH), busy tab guard, non‑injectable error.
+- Injection pipeline (overlay + USER_SCRIPT runtime + MH), busy tab guard, non‑injectable error.
 - Cancel on overlay/tab close/navigation commit.
-- Basic runner lifecycle and status transitions.
+- Basic USER_SCRIPT runtime lifecycle and status transitions.
 
 **Manual tests**
 - T5–T10, T7 (overlay), T8 (cancel).
@@ -136,7 +137,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Tasks**
 - Enforce tab‑bound, top‑frame‑only execution; refuse non‑injectable pages.
 - Guard against re‑entrancy (one invocation per tab).
-- Start sequence: create `invocationId` + `nonce`, update MRU, inject overlay (ISOLATED), ensure MAIN host when needed, execute command via `chrome.userScripts.execute()` in the selected world.
+- Start sequence: create `invocationId` + `nonce`, update MRU, inject overlay (ISOLATED), ensure MAIN host when needed, execute command via `chrome.userScripts.execute()` in USER_SCRIPT world.
 - End sequence: teardown overlay, clear busy state, drop MH handlers, reject further RPC.
 
 **Files (expected)**
@@ -236,6 +237,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Spec sections:** 8, 20.2
 
 **Tasks**
+- Treat MAIN as a bridge target rather than a top-level command runtime.
 - Implement `ctx.main.define(name, fn)` and `ctx.main.call(name, args)`.
 - Use `window.postMessage` with `invocationId`, `nonce`, and `callId`.
 - Maintain per‑invocation handler map; reply `{ok,result}` / `{ok:false,error}`.
