@@ -1,4 +1,5 @@
 const CONTROL_TYPE = 'fcmd_control';
+const CONTROLLER_KEY = '__factotumOverlayController';
 const STYLE_TEXT = `
   :host {
     all: initial;
@@ -69,101 +70,112 @@ const stateLabels = {
   HELP: getMessage('overlayHelp', 'Help')
 };
 
-let overlayRoot = null;
-let shadowRootRef = null;
-let currentInvocationId = null;
+function teardownController(controller) {
+  controller.currentInvocationId = null;
+  controller.overlayRoot?.remove();
+  controller.overlayRoot = null;
+  controller.shadowRootRef = null;
+}
 
-function ensureOverlay() {
-  if (window.top !== window) {
-    return null;
+if (window.top === window && !globalThis[CONTROLLER_KEY]) {
+  const controller = {
+    overlayRoot: null,
+    shadowRootRef: null,
+    currentInvocationId: null
+  };
+
+  function ensureOverlay() {
+    if (controller.overlayRoot) {
+      return controller.overlayRoot;
+    }
+
+    controller.overlayRoot = document.createElement('div');
+    controller.overlayRoot.id = 'factotum-overlay-root';
+    controller.shadowRootRef = controller.overlayRoot.attachShadow({ mode: 'open' });
+
+    const style = document.createElement('style');
+    style.textContent = STYLE_TEXT;
+
+    const shell = document.createElement('section');
+    shell.className = 'factotum-shell';
+    shell.innerHTML = `
+      <h1 class="factotum-title" id="factotum-title"></h1>
+      <p class="factotum-status" id="factotum-status"></p>
+      <p class="factotum-message" id="factotum-message"></p>
+      <div class="factotum-actions">
+        <button class="factotum-button" id="factotum-cancel"></button>
+      </div>
+    `;
+
+    controller.shadowRootRef.append(style, shell);
+    document.documentElement.append(controller.overlayRoot);
+
+    controller.shadowRootRef.getElementById('factotum-cancel').textContent = getMessage('overlayCancel', 'Cancel');
+    controller.shadowRootRef.getElementById('factotum-cancel').addEventListener('click', () => {
+      if (!controller.currentInvocationId) {
+        return;
+      }
+      chrome.runtime.sendMessage({
+        type: CONTROL_TYPE,
+        op: 'CANCEL_REQUEST',
+        invocationId: controller.currentInvocationId
+      });
+    });
+
+    return controller.overlayRoot;
   }
 
-  if (overlayRoot) {
-    return overlayRoot;
-  }
-
-  overlayRoot = document.createElement('div');
-  overlayRoot.id = 'factotum-overlay-root';
-  shadowRootRef = overlayRoot.attachShadow({ mode: 'open' });
-
-  const style = document.createElement('style');
-  style.textContent = STYLE_TEXT;
-
-  const shell = document.createElement('section');
-  shell.className = 'factotum-shell';
-  shell.innerHTML = `
-    <h1 class="factotum-title" id="factotum-title"></h1>
-    <p class="factotum-status" id="factotum-status"></p>
-    <p class="factotum-message" id="factotum-message"></p>
-    <div class="factotum-actions">
-      <button class="factotum-button" id="factotum-cancel"></button>
-    </div>
-  `;
-
-  shadowRootRef.append(style, shell);
-  document.documentElement.append(overlayRoot);
-
-  shadowRootRef.getElementById('factotum-cancel').textContent = getMessage('overlayCancel', 'Cancel');
-  shadowRootRef.getElementById('factotum-cancel').addEventListener('click', () => {
-    if (!currentInvocationId) {
+  function renderOverlay({ commandRef, state, message }) {
+    if (!ensureOverlay()) {
       return;
     }
-    chrome.runtime.sendMessage({
-      type: CONTROL_TYPE,
-      op: 'CANCEL_REQUEST',
-      invocationId: currentInvocationId
-    });
+
+    controller.shadowRootRef.getElementById('factotum-title').textContent = commandRef;
+    controller.shadowRootRef.getElementById('factotum-status').textContent = stateLabels[state] || state;
+    controller.shadowRootRef.getElementById('factotum-message').textContent = message || '';
+    controller.shadowRootRef.getElementById('factotum-cancel').hidden = state !== 'RUNNING';
+  }
+
+  function teardownOverlay(invocationId) {
+    if (controller.currentInvocationId && invocationId !== controller.currentInvocationId) {
+      return;
+    }
+    teardownController(controller);
+  }
+
+  chrome.runtime.onMessage.addListener((message) => {
+    if (!message || message.type !== CONTROL_TYPE) {
+      return undefined;
+    }
+
+    if (message.op === 'INIT_OVERLAY') {
+      controller.currentInvocationId = message.invocationId;
+      renderOverlay({
+        commandRef: message.commandRef,
+        state: message.state || 'RUNNING',
+        message: message.message || ''
+      });
+    }
+
+    if (message.op === 'SET_STATUS' && message.invocationId === controller.currentInvocationId) {
+      renderOverlay({
+        commandRef: controller.shadowRootRef?.getElementById('factotum-title')?.textContent || '',
+        state: message.state,
+        message: message.message || ''
+      });
+    }
+
+    if (message.op === 'TEARDOWN') {
+      teardownOverlay(message.invocationId);
+    }
+
+    return undefined;
   });
 
-  return overlayRoot;
+  // Clear overlay on page lifecycle transitions so stale UI does not survive BFCache/history restores.
+  window.addEventListener('pagehide', () => {
+    teardownController(controller);
+  });
+
+  globalThis[CONTROLLER_KEY] = controller;
 }
-
-function renderOverlay({ commandRef, state, message }) {
-  if (!ensureOverlay()) {
-    return;
-  }
-
-  shadowRootRef.getElementById('factotum-title').textContent = commandRef;
-  shadowRootRef.getElementById('factotum-status').textContent = stateLabels[state] || state;
-  shadowRootRef.getElementById('factotum-message').textContent = message || '';
-  shadowRootRef.getElementById('factotum-cancel').hidden = state !== 'RUNNING';
-}
-
-function teardownOverlay(invocationId) {
-  if (currentInvocationId && invocationId !== currentInvocationId) {
-    return;
-  }
-  currentInvocationId = null;
-  overlayRoot?.remove();
-  overlayRoot = null;
-  shadowRootRef = null;
-}
-
-chrome.runtime.onMessage.addListener((message) => {
-  if (!message || message.type !== CONTROL_TYPE) {
-    return undefined;
-  }
-
-  if (message.op === 'INIT_OVERLAY') {
-    currentInvocationId = message.invocationId;
-    renderOverlay({
-      commandRef: message.commandRef,
-      state: message.state || 'RUNNING',
-      message: message.message || ''
-    });
-  }
-
-  if (message.op === 'SET_STATUS' && message.invocationId === currentInvocationId) {
-    renderOverlay({
-      commandRef: shadowRootRef?.getElementById('factotum-title')?.textContent || '',
-      state: message.state,
-      message: message.message || ''
-    });
-  }
-
-  if (message.op === 'TEARDOWN') {
-    teardownOverlay(message.invocationId);
-  }
-
-  return undefined;
-});

@@ -55,7 +55,8 @@ async function sendControlMessage(tabId, message) {
       ...message
     });
   } catch (error) {
-    if (!String(error.message || error).includes('Receiving end does not exist')) {
+    const text = String(error.message || error);
+    if (!text.includes('Receiving end does not exist') && !text.includes('message channel is closed')) {
       throw error;
     }
   }
@@ -106,8 +107,11 @@ function scheduleTeardown(invocation, delayMs = 1200) {
     teardownTimers.delete(invocation.invocationId);
     invocationPorts.get(invocation.invocationId)?.disconnect();
     invocationPorts.delete(invocation.invocationId);
-    await teardownOverlay(invocation.tabId, invocation.invocationId);
-    clearInvocation(invocation.invocationId);
+    try {
+      await teardownOverlay(invocation.tabId, invocation.invocationId);
+    } finally {
+      clearInvocation(invocation.invocationId);
+    }
   }, delayMs);
 
   teardownTimers.set(invocation.invocationId, timeoutId);
@@ -229,7 +233,9 @@ async function finalizeInvocationSuccess(invocation, result) {
   }
 
   if (current.canceled) {
-    await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', getMessage('overlayCanceled', 'Canceled.'));
+    try {
+      await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', getMessage('overlayCanceled', 'Canceled.'));
+    } catch {}
     scheduleTeardown(current, 2500);
     return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
   }
@@ -386,8 +392,12 @@ export async function requestCancel(invocation, reason = 'CANCELED') {
   }
 
   cancelInvocation(current.invocationId, reason);
-  invocationPorts.get(current.invocationId)?.postMessage({ op: 'CANCEL' });
-  await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', getMessage('overlayCanceled', 'Canceled.'));
+  try {
+    invocationPorts.get(current.invocationId)?.postMessage({ op: 'CANCEL' });
+  } catch {}
+  try {
+    await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', getMessage('overlayCanceled', 'Canceled.'));
+  } catch {}
   scheduleTeardown(current, 2500);
 }
 
@@ -409,5 +419,11 @@ export async function cancelForNavigation(tabId) {
     return;
   }
 
-  await requestCancel(invocation, 'CANCELED');
+  cancelInvocation(invocation.invocationId, 'CANCELED');
+  try {
+    invocationPorts.get(invocation.invocationId)?.postMessage({ op: 'CANCEL' });
+  } catch {}
+  invocationPorts.get(invocation.invocationId)?.disconnect();
+  invocationPorts.delete(invocation.invocationId);
+  clearInvocation(invocation.invocationId);
 }
