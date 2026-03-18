@@ -1,4 +1,4 @@
-import { getOmniboxSuggestions, startInvocation } from './dispatch.js';
+import { getOmniboxSuggestions, preloadOmniboxSession, startInvocation } from './dispatch.js';
 
 console.log('[factotum] service worker starting');
 
@@ -13,6 +13,12 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
       console.error('[factotum] omnibox suggestion error', error);
       suggest([]);
     });
+});
+
+chrome.omnibox.onInputStarted.addListener(() => {
+  preloadOmniboxSession().catch((error) => {
+    console.error('[factotum] omnibox preload error', error);
+  });
 });
 
 chrome.omnibox.onInputEntered.addListener((text) => {

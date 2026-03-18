@@ -20,16 +20,25 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 
 Each milestone should end with a runnable subset and the matching manual tests from `TEST.md`.
 
+## Current status
+- M1 is complete.
+- Manual checks passed for T1, T2, T3, T3b, and T4b using the manager bundle import flow.
+- The next active milestone is M2.
+
 ### M1 — Storage + Omnibox Resolution (no execution)
-**Ready:** install/import commands, resolve tokens, list in UI skeleton.
+**Status:** complete
+**Delivered:** install/import commands, resolve tokens, and list commands in the manager UI.
 
-**Include**
-- Storage layer CRUD (index/aliases/command keys), import/export.
-- Validation for name/id; `disabled` support in storage.
-- Omnibox resolution with MRU + disabled filtering; no‑such‑command handling.
+**Delivered**
+- Storage layer CRUD (`fcmd:index`, `fcmd:aliases`, `fcmd:cmd:<name>@<id>`) with import/export.
+- Validation for name/id and `disabled` support in storage.
+- Omnibox resolution with MRU + disabled filtering and no‑such‑command handling.
+- Omnibox suggestion UX for exact-resolution previews and prefix-matched command-name suggestions.
+- Manager bundle import/export and enable/disable controls to make M1 manually testable.
 
-**Manual tests**
-- T1–T4, T3b (disabled), T4b (localized description in UI list).
+**Verified**
+- T1, T2, T3, T3b, T4b
+- T4 resolution path returns `NO_SUCH_COMMAND`; overlay verification remains an M2 concern because M1 has no execution/overlay path.
 
 ### M2 — Injection + Overlay + Cancellation (core execution)
 **Ready:** execute commands with overlay and cancel behavior.
@@ -89,44 +98,31 @@ Each milestone should end with a runnable subset and the matching manual tests f
 ## 1) Storage Layer (chrome.storage.local)
 **Spec sections:** 3, 12, 20.4
 
-**Tasks**
-- Create helpers for `fcmd:index`, `fcmd:aliases`, `fcmd:cmd:<name>@<id>` (schemaVersion 1).
-- Enforce regex validation for `name` and `id` on insert/update.
-- Implement MRU fields (`mruAt`) and update on invocation start only.
-- Add import/export support for bundleSchemaVersion 1 with warnings for duplicates/alias collisions.
-- Support `description` as `LocalizedText` (strings treated as `en-US`).
-- Support `helpHtmlTemplate` + `helpHtmlStrings` for templated help HTML.
-- Implement locale resolution utility (exact, primary, `en-US`, first available) for command‑authored strings.
-- Support `disabled` flag for commands; exclude disabled from resolution.
-- Support `optionsSpec` for help token generation.
+**Status:** complete
 
 **Files (expected)**
 - `src/sw/storage.js` (index/alias/command CRUD + import/export)
 - `src/sw/validation.js` (regex validation helpers)
 
-**Manual tests**
-- Import/export bundle schema version behavior.
-- Duplicate `(name,id)` warning is surfaced.
-- MRU update on invocation start (not completion).
+**Notes**
+- Import/export warnings for duplicate commands and alias collisions are implemented.
+- Locale resolution follows exact match, primary-language fallback, `en-US`, then first available key.
 
 ---
 
 ## 2) Omnibox Parsing + Resolution
 **Spec sections:** 4, 20.4
 
-**Tasks**
-- Tokenize input using POSIX sh (`shell-quote`).
-- Parse options via `mri` default semantics (short/long, combined shorts, `--` end‑of‑options, `--flag=value`).
-- Resolve: alias exact match → `name@id` exact → bare `name` MRU‑first.
-- Skip disabled commands during resolution.
-- On no match: omnibox suggestion “No such command: …”, overlay error on execute.
+**Status:** complete
 
 **Files (expected)**
 - `src/sw/omnibox.js` (tokenize, parse, resolve)
 - `src/sw/dispatch.js` (start invocation, update MRU)
 
-**Manual tests**
-- Alias precedence, fully‑qualified token, MRU‑first, no‑such‑command behavior.
+**Notes**
+- Tokenization uses `shell-quote`.
+- Option parsing uses `mri`.
+- M1 stops at resolution and MRU updates; overlay/error display starts in M2.
 
 ---
 

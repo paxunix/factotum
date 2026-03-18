@@ -44,6 +44,7 @@ Each test lists: **Setup → Action → Expected**.
 * Action: omnibox `f cmd1`
 * Expected:
 
+  * Omnibox suggestions may preview the resolved command and its description
   * Runs `oops@demo.debug.error` (overlay shows that)
   * MRU for that command updates immediately
   * Log includes at least one entry (even if command does nothing visible)
@@ -85,6 +86,16 @@ Each test lists: **Setup → Action → Expected**.
   * Omnibox shows “No such command: nosuchcmd”
   * Selecting it / pressing Enter shows overlay error (if injectable)
   * Log contains error entry with `NO_SUCH_COMMAND`
+
+#### T4a: Prefix-matched command suggestions are informational
+
+* Setup: installed commands include `jsonview@A` and `jsonview@B`
+* Action: type `f jso`
+* Expected:
+
+  * Omnibox suggestions include `jsonview` entries with description text
+  * Selecting a suggestion inserts or executes that suggestion content
+  * If the user simply presses Enter on the unmatched free-typed text, normal v1 resolution rules still apply
 
 #### T4b: Localized description in UI
 

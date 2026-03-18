@@ -229,6 +229,22 @@ If authors provide localized `description` for options, those should be used whe
    - show omnibox suggestion “No such command: …”
    - on execute: overlay error
 
+### 4.2a Omnibox suggestion UX
+- `onInputStarted` may preload command index and alias data for the current omnibox session.
+- `onInputChanged` may present informational suggestions derived from the current input.
+- Suggestions may include:
+  - the exact command that would run
+  - whether the resolution came from alias, exact `name@id`, or bare-name MRU resolution
+  - localized command description text
+  - disabled-state feedback
+  - prefix-matched command-name suggestions when the typed first token is a prefix of installed command names
+  - a `--help` suggestion for a resolved command
+- Prefix suggestions are informational only and must not change execution semantics:
+  - free-typed execution still follows the resolution algorithm in §4.2
+  - no fuzzy matching, typo correction, or semantic alternates in v1
+  - no suggestion may override alias precedence or bare-name MRU behavior
+- Disabled commands may be shown in suggestions for feedback, but remain excluded from invocation.
+
 ### 4.3 MRU update
 - MRU updates on invocation start (regardless of success/failure), consistent with shell history.
 - MRU stored in `fcmd:index` entry for that `(name,id)`.
