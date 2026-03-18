@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "@awesome.me/webawesome": "^3.0.0",
-    "npm": "^11.9.0"
+    "mri": "^1.2.0",
+    "npm": "^11.9.0",
+    "shell-quote": "^1.8.3"
   },
   "devDependencies": {
     "esbuild": "^0.27.3"

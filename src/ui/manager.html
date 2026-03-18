@@ -18,6 +18,27 @@
         <wa-button variant="brand" href="manager.html" id="nav-manager"></wa-button>
         <wa-button variant="neutral" href="log.html" id="nav-logs"></wa-button>
       </nav>
+      <section class="import-export-section" aria-labelledby="bundle-tools-title">
+        <div class="section-heading">
+          <h2 id="bundle-tools-title"></h2>
+          <p class="hint" id="bundle-tools-hint"></p>
+        </div>
+        <div class="bundle-actions">
+          <wa-button variant="brand" id="import-bundle-button"></wa-button>
+          <wa-button variant="neutral" id="export-bundle-button"></wa-button>
+        </div>
+        <label class="bundle-label" for="bundle-textarea" id="bundle-label"></label>
+        <textarea id="bundle-textarea" class="bundle-textarea" spellcheck="false"></textarea>
+        <div class="bundle-status" id="bundle-status" hidden></div>
+      </section>
+      <section class="command-list-section" aria-labelledby="command-list-title">
+        <div class="section-heading">
+          <h2 id="command-list-title"></h2>
+          <p class="hint" id="command-list-hint"></p>
+        </div>
+        <div class="empty-state" id="command-list-empty" hidden></div>
+        <div class="command-list" id="command-list"></div>
+      </section>
     </main>
     <script src="manager.js"></script>
   </body>

@@ -19,6 +19,62 @@
     "message": "UI skeleton. Wire up manager in v1 milestones.",
     "description": "Manager page hint"
   },
+  "managerBundleToolsTitle": {
+    "message": "Bundle Tools",
+    "description": "Manager section title for import and export"
+  },
+  "managerBundleToolsHint": {
+    "message": "Import or export the v1 bundle format to populate storage for manual smoke testing.",
+    "description": "Manager section hint for import and export"
+  },
+  "managerImportBundle": {
+    "message": "Import Bundle",
+    "description": "Manager button label for importing a bundle"
+  },
+  "managerExportBundle": {
+    "message": "Export Bundle",
+    "description": "Manager button label for exporting a bundle"
+  },
+  "managerBundleTextareaLabel": {
+    "message": "Bundle JSON",
+    "description": "Manager label for the bundle textarea"
+  },
+  "managerDisableCommand": {
+    "message": "Disable",
+    "description": "Manager button label to disable a command"
+  },
+  "managerEnableCommand": {
+    "message": "Enable",
+    "description": "Manager button label to enable a command"
+  },
+  "managerCommandsTitle": {
+    "message": "Installed Commands",
+    "description": "Manager section title for the command list"
+  },
+  "managerCommandsHint": {
+    "message": "M1 shows the stored command index and localized descriptions.",
+    "description": "Manager section hint for the command list"
+  },
+  "managerCommandsEmpty": {
+    "message": "No commands are installed.",
+    "description": "Empty state for the manager command list"
+  },
+  "managerCommandWorld": {
+    "message": "World",
+    "description": "Label for a command world in the manager command list"
+  },
+  "managerCommandUpdated": {
+    "message": "Updated",
+    "description": "Label for command updated timestamp in the manager command list"
+  },
+  "managerCommandEnabled": {
+    "message": "Enabled",
+    "description": "Label for enabled command status"
+  },
+  "managerCommandDisabled": {
+    "message": "Disabled",
+    "description": "Label for disabled command status"
+  },
   "logsTitle": {
     "message": "Factotum Logs",
     "description": "Logs page title"
