@@ -56,7 +56,7 @@ Must be preserved exactly:
 - Top frame only
 
 ### Worlds and UI
-- Command world is explicit: MAIN or ISOLATED
+- Command world is explicit: MAIN or USER_SCRIPT
 - Overlay ALWAYS in ISOLATED (shadow DOM), top frame only
 - Help HTML is raw (no sanitization)
 
@@ -65,7 +65,7 @@ Must be preserved exactly:
 - Side-effect only (no returned handles)
 - `data:` disallowed
 - Default require world MAIN
-- `world:"isolated"` allowed only for `kind:"module"` (best-effort)
+- `world:"user_script"` allowed only for `kind:"module"` (best-effort)
 - MAIN module requires use dynamic `import(url)` within MAIN host
 
 ### Bridging

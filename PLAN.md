@@ -59,7 +59,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Ready:** dependency loading, MAIN bridge, privileged API access.
 
 **Include**
-- Requires loader (MAIN script/module, ISOLATED module best‑effort).
+- Requires loader (MAIN script/module, USER_SCRIPT module best‑effort).
 - MAIN bridge define/call with nonce enforcement.
 - RPC core (`ctx.chrome`) with denylist, events/ports rejection.
 
@@ -136,7 +136,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Tasks**
 - Enforce tab‑bound, top‑frame‑only execution; refuse non‑injectable pages.
 - Guard against re‑entrancy (one invocation per tab).
-- Start sequence: create `invocationId` + `nonce`, update MRU, inject overlay (ISOLATED), ensure MAIN host, inject runner in command world.
+- Start sequence: create `invocationId` + `nonce`, update MRU, inject overlay (ISOLATED), ensure MAIN host when needed, execute command via `chrome.userScripts.execute()` in the selected world.
 - End sequence: teardown overlay, clear busy state, drop MH handlers, reject further RPC.
 
 **Files (expected)**
@@ -144,7 +144,6 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - `src/sw/invocations.js`
 - `src/overlay/overlay.js`
 - `src/runner/runner_main.js`
-- `src/runner/runner_isolated.js`
 - `src/bridge/main_host.js`
 
 **Manual tests**
@@ -260,7 +259,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Default world MAIN regardless of command world.
 - MAIN script: `<script src>` + load/error.
 - MAIN module: `await import(url)` via MAIN host.
-- ISOLATED module best‑effort: `await import(url)` in CR with clear failure.
+- USER_SCRIPT module best‑effort: execute `await import(url)` in the user-script world with clear failure.
 - Require failure aborts invocation with `REQUIRES_FAILED` + logs.
 
 **Files (expected)**
@@ -270,7 +269,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Manual tests**
 - Sequential order enforced.
 - `data:` rejected.
-- MAIN and ISOLATED module behaviors.
+- MAIN and USER_SCRIPT module behaviors.
 
 ---
 
@@ -381,7 +380,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Non‑injectable page hard error.
 - Overlay appears and status transitions.
 - Cancel button; cancel‑on‑navigation; cancel‑on‑tab‑close.
-- Requires sequential ordering; `data:` rejection; MAIN import; ISOLATED import best‑effort.
+- Requires sequential ordering; `data:` rejection; MAIN import; USER_SCRIPT import best‑effort.
 - Bridge define/call and nonce spoof prevention.
 - RPC: basic calls, denylist block, event block, clone failures.
 - Logging: order, delete entry, clear all, cap 1000 drops oldest.

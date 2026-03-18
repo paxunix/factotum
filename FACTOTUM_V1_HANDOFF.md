@@ -17,10 +17,10 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 
 ### Goals
 - Omnibox keyword provides a CLI-like interface to run user-installed “Fcommands”.
-- Fcommand runs tab-bound in either MAIN or ISOLATED world.
+- Fcommand runs tab-bound in either MAIN or USER_SCRIPT world.
 - Privileged APIs (`chrome.*`) are available to commands via promise-based RPC (`ctx.chrome`).
 - Commands may load dependencies via sequential `requires` (side-effect only).
-- Commands can bridge between ISOLATED and MAIN via named entrypoints (`ctx.main.define/call`).
+- Commands can bridge between USER_SCRIPT and MAIN via named entrypoints (`ctx.main.define/call`).
 - Minimal overlay UI (progress + cancel + status) always in ISOLATED.
 - Session-only log viewer stores all logs (runtime and command) in one sink (max 1000 entries).
 
@@ -42,7 +42,7 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 - Alias: user-defined mapping from token → `{name,id}` (no args).
 - SW: MV3 service worker.
 - OR: overlay runner (ISOLATED, top frame).
-- CR: command runner (MAIN or ISOLATED, top frame).
+- USR: command runtime executed via `chrome.userScripts` in MAIN or USER_SCRIPT world.
 - MH: MAIN bridge host (MAIN, top frame).
 - Invocation: one command run, identified by `invocationId`.
 - LocalizedText: map of BCP‑47 language tag → string, with `en-US` fallback.
@@ -84,7 +84,7 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 Fields:
 - `schemaVersion: 1`
 - `name`, `id`
-- `world: "main" | "isolated"`
+- `world: "main" | "user_script"`
 - `disabled?: boolean` (default false; disabled commands are excluded from resolution)
 - `code: string`
 - `requires: RequireEntry[]` (optional)
@@ -97,7 +97,7 @@ Fields:
 RequireEntry:
 - `url: string` (https only; `data:` disallowed)
 - `kind: "script" | "module"`
-- `world?: "main" | "isolated"` (default main; isolated allowed only if kind=module)
+- `world?: "main" | "user_script"` (default main; user_script allowed only if kind=module)
 
 Duplicates of `(name,id)` allowed; warn on import/install. UI may suffix duplicates for display.
 
@@ -160,7 +160,7 @@ Example command record (excerpt):
   "schemaVersion": 1,
   "name": "pick",
   "id": "demo.pick",
-  "world": "isolated",
+  "world": "user_script",
   "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{summary}}</p><section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section>",
   "helpHtmlStrings": {
     "en-US": { "title": "Pick", "summary": "Selects an item.", "usageTitle": "Usage" },
@@ -270,8 +270,8 @@ If authors provide localized `description` for options, those should be used whe
 4) Create invocation: `invocationId`, per-invocation `nonce`.
 5) Update MRU immediately.
 6) Inject OR (ISOLATED overlay) in top frame.
-7) Ensure MH exists in top frame MAIN.
-8) Inject CR in command’s selected world (MAIN or ISOLATED) top frame.
+7) Ensure MH exists in top frame MAIN when bridge support is needed.
+8) Execute command code in the selected world (MAIN or USER_SCRIPT) using `chrome.userScripts.execute()` targeted to the top frame.
 9) Load requires sequentially (side-effect only).
 10) Execute `await main(argvTokens, ctx)`.
 
@@ -314,12 +314,12 @@ Cancel is cooperative:
 - Side-effect only (no handles returned).
 - `data:` disallowed.
 - Default require world: MAIN, regardless of command world.
-- `world:"isolated"` only permitted for `kind:"module"` (best-effort).
+- `world:"user_script"` only permitted for `kind:"module"` (best-effort).
 
 Loading rules:
 - MAIN script: inject `<script src=...>` await onload/onerror.
 - MAIN module: MH performs `await import(url)`.
-- ISOLATED module (best-effort): CR performs `await import(url)`; fail clearly if blocked.
+- USER_SCRIPT module (best-effort): execute `await import(url)` inside the user-script world; fail clearly if blocked.
 
 Any require failure aborts invocation (ERROR) and is logged.
 
@@ -456,7 +456,8 @@ Localization:
 Recommended entrypoints:
 
 * SW: `src/sw/sw.js` → `dist/sw/sw.js`
-* Injected: `overlay.js`, `runner_isolated.js`, `runner_main.js`, `main_host.js`
+* Injected: `overlay.js`, `main_host.js`
+* User-script execution: command code dispatched via `chrome.userScripts.execute()`
 * UI pages: `manager.js`, `editor.js` (ACE bundled), `log.js`
 
 UI access:
@@ -529,7 +530,7 @@ Covers:
 * non-injectable page hard error
 * overlay appears and status transitions
 * cancel button, cancel-on-navigation, cancel-on-tab-close
-* requires sequential ordering, data: rejection, MAIN import, isolated import best-effort
+* requires sequential ordering, data: rejection, MAIN import, USER_SCRIPT import best-effort
 * bridge define/call and nonce spoof prevention
 * RPC: basic calls, denylist block, event block, clone failures
 * logging: order, delete entry, clear all, cap 1000 drops oldest
@@ -583,7 +584,7 @@ Use a normal import bundle named `fixtures-v1.json` with:
 4. Session log sink + log UI (cap/delete/clear)
 5. RPC core (dispatch + promisify + denylist + clone errors)
 6. MAIN bridge host + define/call protocol + nonce scoping + MAIN import/script_load ops
-7. Requires loader (sequential; MAIN script inject; MAIN import; isolated import best-effort)
+7. Requires loader (sequential; MAIN script inject; MAIN import; USER_SCRIPT import best-effort)
 8. Cancel-on-tab-close + cancel-on-navigation commit
 9. `--help` and `--debug`
 

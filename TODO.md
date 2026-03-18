@@ -22,7 +22,7 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 
 ### M2 follow-up
 - Implement overlay/error feedback so `NO_SUCH_COMMAND`, busy-tab, and successful invocation states are visible outside the service worker console.
-- Rework runner execution so stored command code can run without `eval`/`new Function`, while preserving explicit MAIN vs ISOLATED worlds.
+- Rework runner execution so stored command code can run without `eval`/`new Function`, while preserving explicit MAIN vs USER_SCRIPT worlds.
 - Move the overlay from the upper-right corner to the upper-left corner.
 - Revisit overlay dismissal UX and decide whether commands should be able to specify auto-dismiss behavior on completion/cancellation, or whether dismissal policy should remain runtime-controlled.
 

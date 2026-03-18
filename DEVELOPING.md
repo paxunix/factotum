@@ -274,7 +274,7 @@ If a method has unusual callback shape:
 * [ ] `data:` require rejected.
 * [ ] MAIN script require loads and runs.
 * [ ] MAIN module require uses dynamic import.
-* [ ] ISOLATED module require best-effort fails with clear log if blocked.
+* [ ] USER_SCRIPT module require best-effort fails with clear log if blocked.
 
 ### 8.8 Bridging
 

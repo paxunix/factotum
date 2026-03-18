@@ -224,9 +224,9 @@ Each test lists: **Setup → Action → Expected**.
   * Import completes (or fails) via MAIN host
   * Side effects visible to MAIN (e.g., module sets `window.__MOD_LOADED = true`)
 
-#### T14: ISOLATED module require best-effort failure is clear
+#### T14: USER_SCRIPT module require best-effort failure is clear
 
-* Setup: require `{kind:"module", world:"isolated", url:https://...}`
+* Setup: require `{kind:"module", world:"user_script", url:https://...}`
 * Action: run on a page where it will predictably fail (CORS/CSP)
 * Expected:
 
@@ -240,7 +240,7 @@ Each test lists: **Setup → Action → Expected**.
 #### T15: `ctx.main.define/call` round-trip works
 
 * Setup: define `add(a,b)` in MAIN
-* Action: call it from ISOLATED command
+* Action: call it from USER_SCRIPT command
 * Expected:
 
   * Result returned correctly
@@ -384,7 +384,7 @@ Create a dedicated extension page (internal) `harness.html` that can:
 
 #### A4: Bridge define/call
 
-* Start ISOLATED command that defines MAIN function and calls it.
+* Start USER_SCRIPT command that defines MAIN function and calls it.
 * Assert result logged.
 
 #### A5: Denylisted namespace blocked
