@@ -30,7 +30,7 @@ export function validateAliasKey(alias) {
 }
 
 export function validateWorld(world) {
-  assert(world === 'main' || world === 'user_script', `Invalid world: ${String(world)}`, 'INVALID_WORLD');
+  assert(world === 'user_script', `Invalid world: ${String(world)}`, 'INVALID_WORLD');
   return world;
 }
 

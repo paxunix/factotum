@@ -126,7 +126,8 @@ function buildExecuteCode(invocation) {
     invocationId: invocation.invocationId,
     argvTokens: invocation.argvTokens,
     world: invocation.command.world,
-    commandRef: `${invocation.command.name}@${invocation.command.id}`
+    commandRef: `${invocation.command.name}@${invocation.command.id}`,
+    nonce: invocation.nonce
   });
 
   return `
@@ -134,11 +135,53 @@ function buildExecuteCode(invocation) {
       const __factotumMeta = ${meta};
       const __factotumState = { aborted: false };
       const __factotumPort = chrome.runtime.connect({ name: __factotumMeta.invocationId });
+      let __factotumCallSeq = 0;
+      const __factotumPendingMainCalls = new Map();
       __factotumPort.onMessage.addListener((message) => {
         if (message && message.op === 'CANCEL') {
           __factotumState.aborted = true;
         }
       });
+
+      const __factotumMainListener = (event) => {
+        const data = event.data;
+        if (!data || data.channel !== '__factotum_main_bridge__') {
+          return;
+        }
+        if (data.invocationId !== __factotumMeta.invocationId || data.nonce !== __factotumMeta.nonce) {
+          return;
+        }
+        const pending = __factotumPendingMainCalls.get(data.callId);
+        if (!pending) {
+          return;
+        }
+        __factotumPendingMainCalls.delete(data.callId);
+        if (data.ok) {
+          pending.resolve(data.result);
+        } else {
+          const error = new Error(data.error?.message || 'MAIN bridge call failed');
+          error.name = data.error?.name || 'Error';
+          error.code = data.error?.code || 'BRIDGE_FAILED';
+          error.stack = data.error?.stack;
+          pending.reject(error);
+        }
+      };
+      window.addEventListener('message', __factotumMainListener);
+
+      function __factotumSendMain(op, payload) {
+        const callId = 'main-' + (++__factotumCallSeq);
+        return new Promise((resolve, reject) => {
+          __factotumPendingMainCalls.set(callId, { resolve, reject });
+          window.postMessage({
+            channel: '__factotum_main_bridge__',
+            invocationId: __factotumMeta.invocationId,
+            nonce: __factotumMeta.nonce,
+            callId,
+            op,
+            ...payload
+          }, '*');
+        });
+      }
 
       const ctx = {
         signal: {
@@ -152,11 +195,23 @@ function buildExecuteCode(invocation) {
           }
         }),
         main: {
-          define() {
-            throw new Error('ctx.main.define is not implemented yet.');
+          define(name, fn) {
+            if (typeof name !== 'string' || typeof fn !== 'function') {
+              throw new Error('ctx.main.define(name, fn) requires a string name and function');
+            }
+            return __factotumSendMain('DEFINE', {
+              name,
+              source: fn.toString()
+            });
           },
-          call() {
-            throw new Error('ctx.main.call is not implemented yet.');
+          call(name, args = []) {
+            if (typeof name !== 'string') {
+              throw new Error('ctx.main.call(name, args) requires a string name');
+            }
+            return __factotumSendMain('CALL', {
+              name,
+              args: Array.isArray(args) ? args : []
+            });
           }
         },
         log(...args) {
@@ -214,6 +269,7 @@ function buildExecuteCode(invocation) {
         });
         return __factotumResult;
       } finally {
+        window.removeEventListener('message', __factotumMainListener);
         __factotumPort.disconnect();
       }
     })();
