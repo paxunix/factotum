@@ -23,7 +23,7 @@ Below is a **Test Plan v1** that mixes a small, reliable **manual smoke suite** 
 
 * Omnibox keyword configured (e.g., `f`)
 * `<all_urls>` host permissions and broad permissions as per v1
-* Canonical fixture bundle imported from `fixture-pack.md`:
+* Canonical fixture bundle imported from [`fixtures/fixtures-v1.json`](/home/paxunix/repos/factotum/fixtures/fixtures-v1.json):
 
   * `pick@fixture.A`
   * `pick@fixture.B`
@@ -33,7 +33,8 @@ Below is a **Test Plan v1** that mixes a small, reliable **manual smoke suite** 
   * `deny@fixture.denylisted`
   * `events@fixture.events.unsupported`
   * `workflow@fixture.sw.roundtrip`
-* Ad hoc manual smoke fixtures installed separately when needed:
+  * `helpdemo@fixture.help.basic`
+* Ad hoc manual smoke fixtures imported from [`fixtures/smoke-v1.json`](/home/paxunix/repos/factotum/fixtures/smoke-v1.json) when needed:
 
   * `ok@demo.ok`
   * `longrun@demo.cancel`
@@ -51,6 +52,7 @@ Use these fixtures for the following tests so the test plan stays aligned with t
 * `deny@fixture.denylisted`: T18
 * `events@fixture.events.unsupported`: T19
 * `workflow@fixture.sw.roundtrip`: T17
+* `helpdemo@fixture.help.basic`: T7b, T7c
 
 ---
 
@@ -185,8 +187,8 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T7b: `--help` shows localized help HTML
 
-* Setup: command provides `helpHtmlTemplate` + `helpHtmlStrings` with `en-US` + another language. The maintained fixture pack does not currently include a dedicated passing help fixture, so use a command installed specifically for this check.
-* Action: run `f cmd --help` with UI language set to the other language.
+* Setup: import the canonical fixture bundle and use `helpdemo@fixture.help.basic`, which provides `helpHtmlTemplate` + `helpHtmlStrings` with `en-US` + `fr`.
+* Action: run `f helpdemo --help` with UI language set to `fr`.
 * Expected:
 
   * Help overlay shows the localized HTML.
@@ -194,8 +196,8 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T7c: Options spec generates help tokens
 
-* Setup: command provides `optionsSpec` with at least one option and args. The maintained fixture pack does not currently include a dedicated passing help fixture, so use a command installed specifically for this check.
-* Action: run `f cmd --help`
+* Setup: import the canonical fixture bundle and use `helpdemo@fixture.help.basic`, which provides `optionsSpec` with args and at least one option.
+* Action: run `f helpdemo --help`
 * Expected:
 
   * Help overlay includes generated `usage`/`options`/`args` content.

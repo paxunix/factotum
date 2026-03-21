@@ -1,0 +1,183 @@
+{
+  "bundleSchemaVersion": 1,
+  "exportedAt": 1760000000000,
+  "commands": [
+    {
+      "schemaVersion": 1,
+      "name": "pick",
+      "id": "fixture.A",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('pick@fixture.A start'); await new Promise((resolve) => setTimeout(resolve, 50)); ctx.log('pick@fixture.A done'); }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "pick@fixture.A", "body": "Used for MRU resolution tests." }
+      },
+      "optionsSpec": {
+        "args": "<input>",
+        "options": [
+          {
+            "flags": ["-f", "--force"],
+            "value": "boolean",
+            "description": { "en-US": "Force selection" }
+          }
+        ]
+      },
+      "description": { "en-US": "MRU test A" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "pick",
+      "id": "fixture.B",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('pick@fixture.B start'); await new Promise((resolve) => setTimeout(resolve, 50)); ctx.log('pick@fixture.B done'); }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "pick@fixture.B", "body": "Used for MRU resolution tests." }
+      },
+      "description": { "en-US": "MRU test B" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "longrun",
+      "id": "fixture.cancel.nav",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('longrun started'); for (let i = 0; i < 1000000; i += 1) { if (ctx.signal?.aborted) { ctx.warn('longrun observed abort'); return; } await new Promise((resolve) => setTimeout(resolve, 50)); } ctx.log('longrun finished'); }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": {
+          "title": "longrun",
+          "body": "Long-running cancellable command for navigation/tab-close cancel tests."
+        }
+      },
+      "description": { "en-US": "Cancel-on-navigation test" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "badreq",
+      "id": "fixture.requires.fail",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('badreq should not reach main'); }",
+      "requires": [
+        { "url": "https://example.invalid/does-not-exist.mjs", "kind": "module" }
+      ],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "badreq", "body": "Requires failure fixture." }
+      },
+      "description": { "en-US": "Requires failure fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "bridge",
+      "id": "fixture.main.bridge",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { await ctx.main.define('add', (a, b) => a + b); const out = await ctx.main.call('add', [2, 3]); ctx.log('bridge add result', out); }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "bridge", "body": "Defines and calls a MAIN entrypoint." }
+      },
+      "description": { "en-US": "MAIN bridge define/call fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "deny",
+      "id": "fixture.denylisted",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { try { await ctx.chrome.management.getAll(); } catch (e) { ctx.error('denylisted call failed as expected', { name: e.name, message: e.message, code: e.code }); throw e; } }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": {
+          "title": "deny",
+          "body": "Attempts to call denylisted chrome.management API; must fail."
+        }
+      },
+      "description": { "en-US": "Denylist fixture (chrome.management)" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "events",
+      "id": "fixture.events.unsupported",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { try { ctx.chrome.bookmarks.onChanged.addListener(() => {}); } catch (e) { ctx.error('events unsupported as expected', { name: e.name, message: e.message, code: e.code }); throw e; } }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "events", "body": "Attempts to use chrome events; must fail in v1." }
+      },
+      "description": { "en-US": "Events unsupported fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "workflow",
+      "id": "fixture.sw.roundtrip",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { const title = document.title; ctx.log('title', title); const [tab] = await ctx.chrome.tabs.query({ active: true, currentWindow: true }); ctx.log('tab', { title: tab?.title, url: tab?.url }); const banner = document.createElement('div'); banner.textContent = `Active tab is ${tab?.title || 'unknown'}`; banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#111;color:#fff;padding:8px;z-index:999999;'; document.documentElement.appendChild(banner); const bookmarks = await ctx.chrome.bookmarks.search({ title }); ctx.log('bookmarks', { count: bookmarks?.length || 0 }); banner.textContent += bookmarks?.length ? ` (bookmarked x${bookmarks.length})` : ' (not bookmarked)'; }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "workflow", "body": "Round-trip workflow between page and service worker." }
+      },
+      "description": { "en-US": "SW round-trip workflow fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "helpdemo",
+      "id": "fixture.help.basic",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('helpdemo main executed'); }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{summary}}</p><section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section><section><h2>{{optionsTitle}}</h2>{{options}}</section>",
+      "helpHtmlStrings": {
+        "en-US": {
+          "title": "Help Demo",
+          "summary": "Used to verify localized help rendering.",
+          "usageTitle": "Usage",
+          "optionsTitle": "Options"
+        },
+        "fr": {
+          "title": "Démo Aide",
+          "summary": "Utilisée pour vérifier le rendu d'aide localisé.",
+          "usageTitle": "Utilisation",
+          "optionsTitle": "Options"
+        }
+      },
+      "optionsSpec": {
+        "args": "<input>",
+        "options": [
+          {
+            "flags": ["-f", "--force"],
+            "value": "boolean",
+            "description": { "en-US": "Force mode", "fr": "Mode forcé" }
+          }
+        ]
+      },
+      "description": { "en-US": "Localized help/options fixture", "fr": "Fixture d'aide localisée" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    }
+  ],
+  "aliases": {
+    "cmd1": { "name": "pick", "id": "fixture.B" }
+  }
+}

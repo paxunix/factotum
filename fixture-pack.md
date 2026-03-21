@@ -9,9 +9,9 @@ Below is a **fixture pack specification** you can use as a single JSON bundle. I
 - `TEST.md`: Manual/harness assertions that reference these fixtures.
 - `PLAN.md`: M6 milestone for fixtures and harness integration.
 
-## File: `fixtures-v1.json`
+## File: `fixtures/fixtures-v1.json`
 
-This is a normal import/export bundle:
+This is a normal import/export bundle. The checked-in file lives at [`fixtures/fixtures-v1.json`](/home/paxunix/repos/factotum/fixtures/fixtures-v1.json):
 
 ```json
 {
@@ -163,10 +163,12 @@ This is a normal import/export bundle:
 }
 ```
 
+## File: `fixtures/smoke-v1.json`
+
 ### Ad hoc manual smoke fixtures
 
 For quick manual checks that mutate local storage during development, these two minimal fixtures are useful outside the main pack.
-This blob is directly importable through the normal manager bundle import flow:
+This blob is directly importable through the normal manager bundle import flow. The checked-in file lives at [`fixtures/smoke-v1.json`](/home/paxunix/repos/factotum/fixtures/smoke-v1.json):
 
 ```json
 {
@@ -216,6 +218,7 @@ These ad hoc fixtures are intentionally not part of the canonical import bundle 
 * `deny` tests denylisted namespace handling.
 * `events` tests event API rejection.
 * `workflow` exercises a multi-step page ↔ SW round-trip using `ctx.chrome`.
+* `helpdemo@fixture.help.basic` is the dedicated localized help/options fixture for `T7b` and `T7c`.
 * Help content uses `helpHtmlTemplate` + `helpHtmlStrings` to match the localized help spec.
 
 ---
@@ -247,8 +250,8 @@ This ensures your import logic and storage layout are tested indirectly.
 
 ### Ad hoc overlay smoke checks
 
-* Install `ok@demo.ok` separately when you need a minimal success fixture for T1/T2/T5/T7.
-* Install `longrun@demo.cancel` separately when you need a cancellable fixture for T8.
+* Import [`fixtures/smoke-v1.json`](/home/paxunix/repos/factotum/fixtures/smoke-v1.json) when you need `ok@demo.ok` for T1/T2/T5/T7.
+* Import [`fixtures/smoke-v1.json`](/home/paxunix/repos/factotum/fixtures/smoke-v1.json) when you need `longrun@demo.cancel` for T8.
 
 ### Cancel on navigation
 

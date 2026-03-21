@@ -1,0 +1,29 @@
+{
+  "bundleSchemaVersion": 1,
+  "exportedAt": 1760100000000,
+  "commands": [
+    {
+      "schemaVersion": 1,
+      "name": "ok",
+      "id": "demo.ok",
+      "world": "user_script",
+      "code": "async function main(argvTokens, ctx) { return 42; }",
+      "description": { "en-US": "Simple success fixture" },
+      "createdAt": 1760100000000,
+      "updatedAt": 1760100000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "longrun",
+      "id": "demo.cancel",
+      "world": "user_script",
+      "code": "async function main(argvTokens, ctx) { for (let i = 0; i < 400; i += 1) { if (ctx.signal.aborted) { return; } await new Promise((resolve) => setTimeout(resolve, 100)); } }",
+      "description": { "en-US": "Cancelable long-running fixture" },
+      "createdAt": 1760100000000,
+      "updatedAt": 1760100000000
+    }
+  ],
+  "aliases": {
+    "cmd1": { "name": "ok", "id": "demo.ok" }
+  }
+}

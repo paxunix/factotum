@@ -318,10 +318,12 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 **Tasks**
 - Import canonical `fixtures-v1.json` bundle.
-- Ensure fixtures: pick@fixture.A/B (MRU), alias cmd1 → pick@fixture.B, longrun cancel, badreq requires fail, bridge, denylisted, events unsupported.
+- Ensure fixtures: pick@fixture.A/B (MRU), alias cmd1 → pick@fixture.B, longrun cancel, badreq requires fail, bridge, denylisted, events unsupported, and a dedicated localized help/options fixture.
+- Maintain a separate smoke bundle for ad hoc manual checks such as `ok@demo.ok` and `longrun@demo.cancel`.
 
 **Files (expected)**
 - `fixtures/fixtures-v1.json`
+- `fixtures/smoke-v1.json`
 - `src/ui/harness.html`
 
 **Harness tests**
