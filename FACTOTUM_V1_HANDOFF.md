@@ -31,6 +31,18 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 - No UI helper toolkit beyond overlay/progress/cancel.
 - No persistent run history (logs are session-only).
 
+### Current design direction
+
+The current checked-in implementation still uses a transient overlay plus a separate session log page. Based on manual usage, the next intended redesign is to consolidate those into a per-tab session console overlay:
+
+- lazy-created on first fcommand use in a tab
+- hidden when dismissed, not destroyed
+- reopenable via bare omnibox keyword invocation (`f` with no args)
+- per-tab scrollback that is discarded when the tab closes
+- active invocation state plus prior command-visible output in one surface
+
+Until that redesign lands, the implementation sections below describe the current shipped behavior.
+
 ---
 
 ## 1) Terminology
@@ -389,6 +401,13 @@ SW rejects RPC if:
 
 No other UI helpers.
 
+Planned replacement:
+
+- Replace the transient card overlay with a per-tab session console overlay.
+- Keep the omnibox as the only command input.
+- Bare `f` with no arguments should reopen the hidden session console for the current tab.
+- The future session console should keep per-tab scrollback until tab close and allow resizing of the scrollback area.
+
 ---
 
 ## 11) Session log (single sink)
@@ -415,6 +434,12 @@ Serialization:
 - Capture stack traces when logging Error objects; runtime may attach a stack for error-string logs when useful.
 
 UI: a simple Log page for current session.
+
+Planned replacement:
+
+- Replace the separate log page with the per-tab session console once command-visible output is routed there.
+- Add explicit command-facing output APIs such as `ctx.out.write/info/warn/error` for scrollback entries.
+- Keep internal runtime diagnostics distinct from command-facing session output even if both remain session-scoped.
 
 ---
 
@@ -473,12 +498,12 @@ Recommended entrypoints:
 * SW: `src/sw/sw.js` → `dist/sw/sw.js`
 * Injected: `overlay.js`, `main_host.js`
 * User-script execution: command code dispatched via `chrome.userScripts.execute()` in USER_SCRIPT world
-* UI pages: `manager.js`, `editor.js` (ACE bundled), `log.js`
+* UI pages: `manager.js`, `editor.js` (ACE bundled), and the current `log.js` page while the session-console redesign is still pending
 
 UI access:
 
 * Provide a full-size manager/editor UI via extension pages (recommended for editing code/help).
-* Popup (browser action) may act as a lightweight launcher that opens manager/log pages.
+* Popup (browser action) may act as a lightweight launcher that opens manager/editor pages; the separate log page is expected to be retired once the session console lands.
 
 ---
 
@@ -601,7 +626,7 @@ See `fixture-pack.md` for the maintained canonical fixture pack and ad hoc manua
 1. Storage layer (index + per-command keys + aliases + import/export)
 2. Omnibox resolution + MRU update on start
 3. Injection pipeline (overlay + USER_SCRIPT runtime + MH) and busy-tab guard
-4. Session log sink + log UI (cap/delete/clear)
+4. Per-tab session console + command-visible output sink (cap/clear)
 5. RPC core (dispatch + promisify + denylist + clone errors)
 6. MAIN bridge host + define/call protocol + nonce scoping + MAIN import/script_load ops
 7. Requires loader (sequential; MAIN script inject; MAIN import; USER_SCRIPT import best-effort)

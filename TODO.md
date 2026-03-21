@@ -19,12 +19,15 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 - Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
 - If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
 
-### M2 follow-up
-- Implement overlay/error feedback so `NO_SUCH_COMMAND`, busy-tab, and successful invocation states are visible outside the service worker console.
-- Busy-tab refusal is currently easy to miss when the same command is already running: a second invocation can be rejected without any obvious visible overlay change.
-- Add per-command overlay dismissal defaults (for example `auto` vs `user`) so long-lived/helpful overlays can stay open when needed; `--help` should always require user dismissal.
+### Session console redesign
+- Replace the transient overlay + separate log page with a per-tab session console overlay that keeps scrollback until tab close.
+- Support bare `f` with no args to reopen the hidden session console for the current tab without executing a command.
+- Add a command-facing output API (`ctx.out.write/info/warn/error`) so fcommands can append explicit output entries to scrollback.
+- Make the scrollback region resizable for desktop use.
+- Decide whether existing `ctx.log/warn/error` should alias to `ctx.out.*` during the transition or remain internal diagnostics only.
+- Rework busy-state and no-such-command feedback as append-only/system entries within the session console instead of transient overlay takeovers.
 - Refactor the generated user-script wrapper so future `--debug` support has an obvious, stable boundary immediately before `main(argvTokens, ctx)` and makes it clear to the user where their command code starts and what to inspect next.
-- Reconsider whether the per-tab busy guard should exist at all; possible alternatives include allowing concurrency generally or only blocking re-entry for the same fcommand in the same tab.
+- Reconsider whether the per-tab busy guard should exist at all once the session console can show multiple command/system entries clearly.
 
 ### Tooling / verification
 - Once Chrome MCP is available, use it to automate more of the manual smoke path and reduce reliance on service worker console inspection.

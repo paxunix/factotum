@@ -26,6 +26,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - M2 is active under the `chrome.userScripts` architecture.
 - Current design learning: USER_SCRIPT is the viable command runtime; MAIN should be treated as a bridge target rather than a symmetric top-level runtime.
 - Storage/import-export now quarantine stale invalid stored commands instead of letting one bad record poison manager listing or bundle export.
+- Current UX direction: replace the transient overlay plus separate log page with a per-tab session console overlay that is lazy-created, dismissible, reopenable via bare `f`, and discarded on tab close.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -59,6 +60,29 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Manual tests**
 - T5–T10, T7 (overlay), T8 (cancel).
 
+### Next checkpoint — Session Console Redesign
+**Ready:** replace the transient overlay/log split with a per-tab session console.
+
+**Direction**
+- Keep the omnibox as the only input surface.
+- Preserve one active invocation per tab for now.
+- Treat the console as per-tab session state that survives dismissal and navigation, but is discarded when the tab closes.
+
+**Include**
+- Replace transient overlay takeover behavior with a persistent per-tab scrollback surface.
+- Support bare `f` with no args to reopen the current tab’s hidden session console.
+- Add an explicit command-facing output API (`ctx.out.write/info/warn/error`) for scrollback entries.
+- Keep `--help` as inline console content instead of a special takeover card.
+- Add resize support for the scrollback region.
+- Remove the separate log UI once the console is a sufficient replacement for command-facing output.
+
+**Manual tests**
+- Reopen hidden console with bare `f`.
+- Scrollback retains prior entries across multiple commands in one tab.
+- Scrollback is per-tab and disappears on tab close.
+- Active invocation state and system notices do not clobber prior entries.
+- `ctx.out.*` entries appear in order and are visually attributed to the active command.
+
 ### M3 — Requires + Bridge + RPC
 **Ready:** dependency loading, MAIN bridge, privileged API access.
 
@@ -70,12 +94,12 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Manual tests**
 - T11–T20.
 
-### M4 — Help/OptionsSpec + Logging UI
-**Ready:** help rendering, auto‑generated usage, session log viewer.
+### M4 — Help/OptionsSpec + Session Console Output
+**Ready:** help rendering, auto‑generated usage, command-visible session output.
 
 **Include**
 - Help HTML templating + localized strings; optionsSpec → tokens.
-- Log sink (cap/delete/clear) + log UI.
+- Session console output sink (cap/delete/clear) exposed through command-facing APIs.
 
 **Manual tests**
 - T7b–T7c, T21–T24.
@@ -157,38 +181,42 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 ---
 
-## 4) Overlay UI (ISOLATED only)
+## 4) Overlay UI / Session Console (ISOLATED only)
 **Spec sections:** 10, 20.6
 
 **Tasks**
-- Build ISOLATED shadow‑DOM overlay showing `name@id`, status, cancel.
-- Implement status states: RUNNING, DONE, ERROR, CANCELED, BUSY, HELP.
-- `--help` shows rendered help HTML (template + localized strings), skips requires + main, ends after display.
+- Replace the transient status card with an ISOLATED shadow‑DOM session console for each tab.
+- Show scrollback plus active invocation state (`RUNNING`, `DONE`, `ERROR`, `CANCELED`, `BUSY`, `HELP`) without letting later notices clobber prior entries.
+- Support hiding vs destroying the console; bare `f` should reopen the hidden console for the current tab.
+- `--help` shows rendered help HTML inline in the console, skips requires + main, ends after display.
 - Use Web Awesome components where appropriate (button, alert, spinner), bundled locally.
 - Render help HTML from `helpHtmlTemplate` + localized `helpHtmlStrings` using locale resolution order; fallback `en-US`.
 - Generate help tokens (`usage/options/args`) from `optionsSpec` when present.
+- Allow resizing the scrollback region for desktop use.
 
 **Files (expected)**
 - `src/overlay/overlay.js`
 - `src/overlay/overlay.css`
 
 **Manual tests**
-- Overlay appears in top frame only.
-- `--help` path shows raw HTML and ends invocation.
+- Console appears in top frame only.
+- Bare `f` reopens the hidden console for the current tab.
+- `--help` path shows raw HTML inline and ends invocation.
 
 ---
 
-## 5) Session Log Sink + Log UI
+## 5) Session Console Output Sink
 **Spec sections:** 11
 
 **Tasks**
-- Single session‑only log sink shared by runtime + commands.
+- Single session‑only per-tab output sink for command-visible entries.
 - Cap at 1000 entries; drop oldest on overflow.
 - Safe JSON stringify with circular replacer; include stack traces for Error logs.
-- Log UI page: oldest→newest, remove entry, clear all.
-- Use Web Awesome components where appropriate (table, buttons, dialogs), bundled locally.
-- Log entries accept `{ l10n: LocalizedText, data?: any }` for localized display in UI.
-- Extension UI labels for the log must use `chrome.i18n.getMessage`.
+- Provide command-facing output APIs such as `ctx.out.write/info/warn/error`.
+- Session console shows oldest→newest, clear all, and command attribution.
+- Use Web Awesome components where appropriate (buttons, dialogs), bundled locally.
+- Output entries accept `{ l10n: LocalizedText, data?: any }` for localized display in UI.
+- Extension UI labels for the session console must use `chrome.i18n.getMessage`.
 
 ## 5.1 Manager/Editor UI (dashboard)
 **Spec sections:** 3, 10, 11, 12
@@ -206,11 +234,11 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 **Files (expected)**
 - `src/sw/logs.js`
-- `src/ui/log.js`
-- `src/ui/log.html`
+- `src/overlay/overlay.js`
+- `src/overlay/overlay.css`
 
 **Manual tests**
-- Order preserved, delete entry, clear all.
+- Order preserved, clear entry history, clear all.
 - Cap behavior drops oldest past 1000.
 
 ---

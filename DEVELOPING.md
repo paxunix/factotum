@@ -23,6 +23,15 @@ Command runtime now lives in `USER_SCRIPT` via `chrome.userScripts`. `MAIN` shou
 * SW as the privileged/RPC control plane
 * MAIN only for explicit page-context access
 
+## Current UI direction
+
+The current implementation still has a transient overlay plus a separate log page, but the next intended direction is a per-tab session console overlay. When touching command-facing output or invocation UX, optimize for:
+
+* per-tab session state, discarded on tab close
+* command-visible scrollback in the overlay instead of a separate log page
+* omnibox as the only input surface
+* explicit command-facing output APIs (`ctx.out.*`) instead of relying on incidental `console.*` output
+
 ## Related docs (when to consult)
 - `FACTOTUM_V1_HANDOFF.md`: Authoritative RPC policy and error codes; defer to it on conflicts.
 - `AGENTS.md`: Mandatory guardrails for any change; read before editing.
@@ -273,8 +282,8 @@ If a method has unusual callback shape:
 
 ### 8.6 Logging
 
-* [ ] `ctx.log/warn/error` entries appear in session log UI.
-* [ ] Fatal wrapper failures (requires fail, uncaught exception) appear in session log even if command didn’t log.
+* [ ] Command-facing output (`ctx.out.*`, or temporary `ctx.log/warn/error` aliases if retained) appears in the session console UI.
+* [ ] Fatal wrapper failures (requires fail, uncaught exception) appear in the session console or other visible session diagnostics even if command didn’t log.
 
 ### 8.7 Requires loader
 

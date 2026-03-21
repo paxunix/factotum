@@ -62,6 +62,16 @@ Each test lists: **Setup → Action → Expected**.
 
 ### 1.1 Omnibox resolution
 
+#### T0: Bare omnibox keyword reopens the current tab session console
+
+* Setup: in a normal page, run any fcommand once, then dismiss the session console
+* Action: enter just `f` with no arguments
+* Expected:
+
+  * No command executes
+  * The current tab’s existing Factotum session console reappears
+  * Prior scrollback for that tab is still present
+
 #### T1: Exact alias expansion wins over command name
 
 * Setup: define alias `okcmd → ok@demo.ok`
@@ -343,48 +353,50 @@ Each test lists: **Setup → Action → Expected**.
 
 ---
 
-### 1.8 Logging UI
+### 1.8 Session Console Output
 
-#### T21: Log entries appear, ordered oldest→newest
+#### T21: Command output entries appear, ordered oldest→newest
 
-* Action: call `ctx.log("a"); ctx.log("b")`
+* Action: call `ctx.out.write("a"); ctx.out.write("b")`
 * Expected:
 
-  * Log shows “a” then “b”
+  * Session console shows “a” then “b”
 
-#### T21b: Localized log entry display
+#### T21b: Localized output entry display
 
-* Action: call `ctx.log({ l10n: { "en-US": "Hello", "fr": "Bonjour" }, data: { n: 1 } })`
+* Action: call `ctx.out.info({ l10n: { "en-US": "Hello", "fr": "Bonjour" }, data: { n: 1 } })`
 * Expected:
 
-  * Log shows the localized string for the UI language.
-  * Log detail view shows `data` stringified.
+  * Session console shows the localized string for the UI language.
+  * Entry detail/expanded view shows `data` stringified.
   * Fallback to `en-US` if no matching locale.
 
-#### T21c: Extension UI labels use chrome.i18n
+#### T21c: Session console labels use chrome.i18n
 
-* Action: switch Chrome UI language to a non‑English locale and open manager/log UI.
+* Action: switch Chrome UI language to a non‑English locale and open the session console.
 * Expected:
 
   * All extension‑provided labels are localized via `chrome.i18n.getMessage`.
 
-#### T22: Remove individual entry
+#### T22: Clear session scrollback
 
-* Action: remove a middle log entry
+* Action: clear scrollback in the session console
 * Expected:
 
-  * Entry disappears, no undo
+  * Session scrollback is emptied for the current tab only
 
-#### T23: Clear all
+#### T23: Session scrollback is per-tab and discarded on tab close
 
-* Action: clear
+* Setup: create visible scrollback in two different tabs
+* Action: close one tab
 * Expected:
 
-  * Empty log
+  * The closed tab’s scrollback is gone
+  * The other tab’s session scrollback remains unaffected
 
 #### T24: Retention cap 1000 drops oldest
 
-* Setup: generate 1005 log entries quickly
+* Setup: generate 1005 output entries quickly in one tab
 * Expected:
 
   * Exactly 1000 remain
