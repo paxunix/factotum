@@ -14,7 +14,7 @@
     },
     {
       "schemaVersion": 1,
-      "name": "longrun",
+      "name": "canceldemo",
       "id": "demo.cancel",
       "world": "user_script",
       "code": "async function main(argvTokens, ctx) { for (let i = 0; i < 400; i += 1) { if (ctx.signal.aborted) { return; } await new Promise((resolve) => setTimeout(resolve, 100)); } }",
@@ -24,6 +24,6 @@
     }
   ],
   "aliases": {
-    "cmd1": { "name": "ok", "id": "demo.ok" }
+    "okcmd": { "name": "ok", "id": "demo.ok" }
   }
 }

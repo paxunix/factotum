@@ -37,7 +37,7 @@ Below is a **Test Plan v1** that mixes a small, reliable **manual smoke suite** 
 * Ad hoc manual smoke fixtures imported from [`fixtures/smoke-v1.json`](/home/paxunix/repos/factotum/fixtures/smoke-v1.json) when needed:
 
   * `ok@demo.ok`
-  * `longrun@demo.cancel`
+  * `canceldemo@demo.cancel`
 
 ### Fixture map
 
@@ -45,7 +45,7 @@ Use these fixtures for the following tests so the test plan stays aligned with t
 
 * `ok@demo.ok`: T1, T2, T5, T7
 * `pick@fixture.A` and `pick@fixture.B`: T3, T3b, T4a, T4b
-* `longrun@demo.cancel`: T8
+* `canceldemo@demo.cancel`: T8
 * `longrun@fixture.cancel.nav`: T9, T10
 * `badreq@fixture.requires.fail`: requires-failure checks
 * `bridge@fixture.main.bridge`: T15
@@ -64,8 +64,8 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T1: Exact alias expansion wins over command name
 
-* Setup: define alias `cmd1 → ok@demo.ok`
-* Action: omnibox `f cmd1`
+* Setup: define alias `okcmd → ok@demo.ok`
+* Action: omnibox `f okcmd`
 * Expected:
 
   * Omnibox suggestions may preview the resolved command and its description
@@ -205,8 +205,8 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T8: Cancel button cancels a running command
 
-* Setup: install `longrun@demo.cancel`, a test command that loops with `await new Promise(r=>setTimeout(r,50))` and checks `ctx.signal.aborted`
-* Action: start it, click Cancel
+* Setup: install `canceldemo@demo.cancel`, a test command that loops with `await new Promise(r=>setTimeout(r,50))` and checks `ctx.signal.aborted`
+* Action: start `f canceldemo@demo.cancel`, click Cancel
 * Expected:
 
   * Overlay shows Canceled
