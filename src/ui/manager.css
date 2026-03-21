@@ -126,10 +126,24 @@
   color: rgb(51, 65, 85);
 }
 
+.command-status-invalid {
+  background: rgba(245, 158, 11, 0.16);
+  color: rgb(146, 64, 14);
+}
+
 .empty-state {
   background: rgba(255, 255, 255, 0.85);
   border: 1px dashed rgba(71, 85, 105, 0.35);
   border-radius: 18px;
   color: rgb(71, 85, 105);
   padding: 20px;
+}
+
+.command-invalid-detail {
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 14px;
+  color: rgb(146, 64, 14);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 10px 12px;
 }

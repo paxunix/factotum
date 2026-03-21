@@ -34,6 +34,11 @@ const worldLabel = getMessage('managerCommandWorld', 'World');
 const updatedLabel = getMessage('managerCommandUpdated', 'Updated');
 const enabledLabel = getMessage('managerCommandEnabled', 'Enabled');
 const disabledLabel = getMessage('managerCommandDisabled', 'Disabled');
+const invalidLabel = getMessage('managerCommandInvalid', 'Invalid');
+const validationIssueLabel = getMessage('managerCommandValidationIssue', 'Validation issue');
+const invalidDescriptionLabel = getMessage('managerCommandInvalidDescription', 'This command is quarantined and excluded from resolution, invocation, and normal export.');
+const exportInvalidSummaryLabel = getMessage('managerExportInvalidSummary', 'Preserved $COUNT$ invalid command(s).');
+const importInvalidSummaryLabel = getMessage('managerImportInvalidSummary', 'Quarantined $COUNT$ invalid command(s).');
 
 document.title = title;
 document.getElementById('manager-title').textContent = title;
@@ -68,6 +73,10 @@ function clearBundleStatus() {
   bundleStatus.hidden = true;
   bundleStatus.className = 'bundle-status';
   bundleStatus.textContent = '';
+}
+
+function formatCountMessage(template, count) {
+  return template.replace('$COUNT$', String(count));
 }
 
 async function toggleDisabled(commandRef) {
@@ -108,8 +117,8 @@ function renderCommands(commands) {
     ref.textContent = `${command.name}@${command.id}`;
 
     const status = document.createElement('span');
-    status.className = `command-status ${command.disabled ? 'command-status-disabled' : 'command-status-enabled'}`;
-    status.textContent = command.disabled ? disabledLabel : enabledLabel;
+    status.className = `command-status ${command.invalid ? 'command-status-invalid' : command.disabled ? 'command-status-disabled' : 'command-status-enabled'}`;
+    status.textContent = command.invalid ? invalidLabel : command.disabled ? disabledLabel : enabledLabel;
 
     header.append(ref, status);
 
@@ -125,34 +134,50 @@ function renderCommands(commands) {
 
     const description = document.createElement('div');
     description.className = 'command-description';
-    description.textContent = resolveLocalizedText(command.description, navigator.language || 'en-US');
+    description.textContent = command.invalid
+      ? invalidDescriptionLabel
+      : resolveLocalizedText(command.description, navigator.language || 'en-US');
+
+    if (command.invalid && command.validationError?.message) {
+      const invalidDetail = document.createElement('div');
+      invalidDetail.className = 'command-invalid-detail';
+      invalidDetail.textContent = `${validationIssueLabel}: ${command.validationError.message}`;
+      card.append(header, meta, description, invalidDetail);
+    } else {
+      card.append(header, meta, description);
+    }
 
     const actions = document.createElement('div');
     actions.className = 'command-card-actions';
 
-    const toggleButton = document.createElement('wa-button');
-    toggleButton.setAttribute('variant', 'neutral');
-    toggleButton.textContent = command.disabled ? enableCommandLabel : disableCommandLabel;
-    toggleButton.addEventListener('click', () => {
-      toggleButton.disabled = true;
-      toggleDisabled(command)
-        .catch((error) => {
-          console.error('[factotum] toggle disabled failed', error);
-          setBundleStatus('error', error.message || String(error));
-        })
-        .finally(() => {
-          toggleButton.disabled = false;
-        });
-    });
+    if (!command.invalid) {
+      const toggleButton = document.createElement('wa-button');
+      toggleButton.setAttribute('variant', 'neutral');
+      toggleButton.textContent = command.disabled ? enableCommandLabel : disableCommandLabel;
+      toggleButton.addEventListener('click', () => {
+        toggleButton.disabled = true;
+        toggleDisabled(command)
+          .catch((error) => {
+            console.error('[factotum] toggle disabled failed', error);
+            setBundleStatus('error', error.message || String(error));
+          })
+          .finally(() => {
+            toggleButton.disabled = false;
+          });
+      });
 
-    actions.append(toggleButton);
-    card.append(header, meta, description, actions);
+      actions.append(toggleButton);
+    }
+
+    if (actions.childElementCount > 0) {
+      card.append(actions);
+    }
     container.append(card);
   }
 }
 
 async function loadCommands() {
-  const commands = await listCommandIndex();
+  const commands = await listCommandIndex({ includeInvalid: true });
   commands.sort((left, right) => {
     const leftMru = Number.isFinite(left.mruAt) ? left.mruAt : -1;
     const rightMru = Number.isFinite(right.mruAt) ? right.mruAt : -1;
@@ -177,10 +202,13 @@ async function handleImportBundle() {
 
   try {
     const result = await importBundle(parsed);
+    const invalidText = result.quarantinedCommands > 0
+      ? ` ${formatCountMessage(importInvalidSummaryLabel, result.quarantinedCommands)}`
+      : '';
     const warningText = result.warnings.length > 0
       ? ` Warnings: ${result.warnings.map((warning) => warning.message).join(' | ')}`
       : '';
-    setBundleStatus('success', `Imported ${result.importedCommands.length} command(s).${warningText}`);
+    setBundleStatus('success', `Imported ${result.importedCommands.length} command(s).${invalidText}${warningText}`);
     await loadCommands();
   } catch (error) {
     setBundleStatus('error', error.message || String(error));
@@ -192,7 +220,10 @@ async function handleExportBundle() {
   try {
     const bundle = await exportBundle();
     bundleTextarea.value = JSON.stringify(bundle, null, 2);
-    setBundleStatus('success', `Exported ${bundle.commands.length} command(s).`);
+    const invalidText = Array.isArray(bundle.invalidCommands) && bundle.invalidCommands.length > 0
+      ? ` ${formatCountMessage(exportInvalidSummaryLabel, bundle.invalidCommands.length)}`
+      : '';
+    setBundleStatus('success', `Exported ${bundle.commands.length} command(s).${invalidText}`);
   } catch (error) {
     setBundleStatus('error', error.message || String(error));
   }

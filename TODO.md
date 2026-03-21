@@ -17,8 +17,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 - Cancel terminal state also appears duplicated (`Canceled.` shown twice), which is likely the same overlay/listener duplication bug.
 - Cancel-on-navigation is currently broken: the overlay can remain stuck in `Running...`, the invocation can survive navigation visually, and Chrome may close the message channel when the page enters back/forward cache.
 - MAIN should no longer be treated as a first-class top-level command runtime; remaining docs and code should converge on USER_SCRIPT runtime plus explicit MAIN bridge access.
-- Schema or enum changes that make an already-stored `fcmd` invalid currently poison later operations: validation fails when the command is re-read and the whole operation fails instead of isolating or reporting the stale record. Example: after dropping `world:"main"` support, exporting a bundle can fail until the old stored command is manually cleared from manager storage.
-- Decide on the v1-safe handling policy for stale or now-invalid stored `fcmd` records so user data is not silently lost and users are not blocked from using or exporting the rest of their commands; likely options include quarantining invalid records, exporting them with warnings, or surfacing targeted repair UX instead of hard-failing whole operations.
 
 ### Omnibox / UX
 - Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.

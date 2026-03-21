@@ -106,6 +106,26 @@ Each test lists: **Setup → Action → Expected**.
   * Manager/chooser UI shows the localized description.
   * If no matching locale, it falls back to `en-US`.
 
+#### T4c: Quarantined invalid stored command does not poison export
+
+* Setup:
+
+  1. install or store a command that was valid before but is now invalid under current validation rules
+  2. keep at least one other valid command installed
+* Action:
+
+  1. open the manager UI
+  2. export the bundle
+  3. re-import that exported bundle into clean storage
+* Expected:
+
+  * Manager shows the stale command as invalid/quarantined with the validation reason
+  * Export succeeds instead of failing the whole operation
+  * Exported JSON includes valid commands in `commands[]`
+  * Exported JSON preserves the quarantined record in `invalidCommands[]`
+  * Re-import restores the invalid record in quarantined form without making it runnable
+  * Valid commands continue to work normally
+
 ---
 
 ### 1.2 Injection / page eligibility

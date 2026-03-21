@@ -75,6 +75,36 @@
     "message": "Disabled",
     "description": "Label for disabled command status"
   },
+  "managerCommandInvalid": {
+    "message": "Invalid",
+    "description": "Label for quarantined invalid command status"
+  },
+  "managerCommandValidationIssue": {
+    "message": "Validation issue",
+    "description": "Label for invalid command validation detail"
+  },
+  "managerCommandInvalidDescription": {
+    "message": "This command is quarantined and excluded from resolution, invocation, and normal export.",
+    "description": "Description shown for quarantined invalid commands"
+  },
+  "managerExportInvalidSummary": {
+    "message": "Preserved $COUNT$ invalid command(s).",
+    "description": "Manager export success summary for quarantined invalid commands",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "managerImportInvalidSummary": {
+    "message": "Quarantined $COUNT$ invalid command(s).",
+    "description": "Manager import success summary for quarantined invalid commands",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "overlayCancel": {
     "message": "Cancel",
     "description": "Overlay cancel button label"

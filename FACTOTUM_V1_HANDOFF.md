@@ -94,6 +94,16 @@ Fields:
 - `description?: LocalizedText`
 - `createdAt`, `updatedAt` (epoch ms)
 
+### 3.0a Invalid stored command handling
+
+- A previously stored command record may become invalid after validation or allowed-value changes.
+- Factotum must preserve the raw stored JSON for that record rather than silently deleting it.
+- Invalid stored commands are quarantined:
+  - excluded from normal resolution, invocation, and `commands[]` bundle export
+  - surfaced in manager UI with validation details
+  - exportable only via the separate `invalidCommands[]` recovery bucket in bundle JSON
+- Re-importing an `invalidCommands[]` entry preserves the raw record in quarantined form; it remains ignored by normal runtime flows until repaired.
+
 RequireEntry:
 - `url: string` (https only; `data:` disallowed)
 - `kind: "script" | "module"`
@@ -416,6 +426,7 @@ Bundle format:
   "bundleSchemaVersion": 1,
   "exportedAt": 1760000000000,
   "commands": [ ... ],
+  "invalidCommands": [ ... ],
   "aliases": { ... }
 }
 ````
@@ -425,6 +436,8 @@ Import:
 * Reject if bundleSchemaVersion != 1 (no auto migration)
 * Duplicate `(name,id)` allowed + warn
 * Alias collisions default: skip + warn (unless UI chooses overwrite)
+* `commands[]` contains only valid commands that conform to the v1 schema
+* `invalidCommands[]` is optional and preserves quarantined raw command records plus validation details for recovery/export; these entries are stored but ignored by normal runtime flows
 
 Localization:
 

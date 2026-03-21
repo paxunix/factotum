@@ -25,6 +25,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Manual checks passed for T1, T2, T3, T3b, and T4b using the manager bundle import flow.
 - M2 is active under the `chrome.userScripts` architecture.
 - Current design learning: USER_SCRIPT is the viable command runtime; MAIN should be treated as a bridge target rather than a symmetric top-level runtime.
+- Storage/import-export now quarantine stale invalid stored commands instead of letting one bad record poison manager listing or bundle export.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -36,10 +37,12 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Omnibox resolution with MRU + disabled filtering and no‑such‑command handling.
 - Omnibox suggestion UX for exact-resolution previews and prefix-matched command-name suggestions.
 - Manager bundle import/export and enable/disable controls to make M1 manually testable.
+- Quarantine handling for invalid stored commands, with separate `invalidCommands[]` export/import preservation and manager visibility.
 
 **Verified**
 - T1, T2, T3, T3b, T4b
 - T4 resolution path returns `NO_SUCH_COMMAND`; overlay verification remains an M2 concern because M1 has no execution/overlay path.
+- Manual follow-up should cover quarantined invalid-command export/import behavior.
 
 ### M2 — Injection + Overlay + Cancellation (core execution)
 **Ready:** execute commands with overlay and cancel behavior.
@@ -111,6 +114,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 **Notes**
 - Import/export warnings for duplicate commands and alias collisions are implemented.
+- Invalid stored commands are preserved in quarantined form and excluded from normal resolution/export paths.
 - Locale resolution follows exact match, primary-language fallback, `en-US`, then first available key.
 
 ---
