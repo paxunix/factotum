@@ -98,7 +98,8 @@ For any non-trivial change, agent must:
 - Explain which v1 spec sections it implements
 - Add/adjust tests or a manual test note referencing the Test Plan cases
 - Call out any MV3/CSP edge cases discovered
-- At each commit point, provide a concise markdown commit message summary suitable for `git commit`
+- At each commit point, when the user indicates one has been reached, summarize the work done since the prior commit point and provide that summary as a concise markdown commit message suitable for `git commit`
+- At each commit point, the agent may create the commit directly when the user instructs it to do so
 - Update relevant `.md` docs to remove completed work, record what was learned, and keep next steps aligned with the current repo state
 
 ## 6) Stop conditions (ask before proceeding)
