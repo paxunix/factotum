@@ -100,7 +100,21 @@ For any non-trivial change, agent must:
 - Call out any MV3/CSP edge cases discovered
 - At each commit point, when the user indicates one has been reached, summarize the work done since the prior commit point and provide that summary as a concise markdown commit message suitable for `git commit`
 - At each commit point, the agent may create the commit directly when the user instructs it to do so
-- Update relevant `.md` docs to remove completed work, record what was learned, and keep next steps aligned with the current repo state
+- At each commit point, update the relevant `*.md` docs so they reflect the post-change repo state, including removing items that are now complete, obsolete, or no longer needed because the latest work superseded them
+- Do not preserve stale “done” state in docs just for history; source control is the history. Prefer removing or rewriting outdated items so docs describe current reality and next steps only
+
+## 5.1) Markdown doc hygiene at commit points
+When closing a commit point, agents must sweep the relevant markdown docs and eliminate drift across them.
+
+Agents MUST:
+- Update all relevant `*.md` files touched by the completed work, not just the code-adjacent doc
+- Remove checklist items, TODO entries, and caveats that are no longer needed because the work is complete or the latest design made them obsolete
+- Rewrite remaining next steps so they match the new repo state
+- Keep spec, plan, tests, and development notes consistent with each other
+
+Agents MUST NOT:
+- Leave completed items in place marked as done if removing or rewriting them would leave a cleaner current-state doc
+- Preserve outdated workaround notes once the underlying issue is fixed, unless they are still needed as active guidance
 
 ## 6) Stop conditions (ask before proceeding)
 Agent must STOP and ask before:
@@ -114,4 +128,4 @@ Agent must STOP and ask before:
 A change is “done” only if:
 - It passes the v1 manual smoke suite relevant to the change
 - It does not alter v1 semantics
-- It updates docs if it changes behavior (behavior changes should be avoided in v1)
+- It updates the relevant `*.md` docs so they reflect the new current state without stale completed or obsolete items
