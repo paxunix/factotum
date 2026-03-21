@@ -22,6 +22,7 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 - Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.
 - Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
 - If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
+- in manager UX, the diagnostic messages (e.g. when multiple commands are imported, or duplicates are found) are all concatenated in one line.  Show them on multiple lines for better readability.
 
 ### M2 follow-up
 - Implement overlay/error feedback so `NO_SUCH_COMMAND`, busy-tab, and successful invocation states are visible outside the service worker console.
