@@ -48,7 +48,14 @@
 
 .bundle-status {
   border-radius: 18px;
+  display: grid;
+  gap: 8px;
   padding: 14px 16px;
+}
+
+.bundle-status-line {
+  line-height: 1.5;
+  white-space: pre-wrap;
 }
 
 .bundle-status-success {

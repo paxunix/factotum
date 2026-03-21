@@ -117,7 +117,7 @@ Each test lists: **Setup → Action → Expected**.
 * Action: type `f pi`
 * Expected:
 
-  * Omnibox suggestions include `pick` entries with description text
+  * Omnibox suggestions include distinct `pick@fixture.A` and `pick@fixture.B` entries with description text
   * Selecting a suggestion inserts or executes that suggestion content
   * If the user simply presses Enter on the unmatched free-typed text, normal v1 resolution rules still apply
 
@@ -145,6 +145,7 @@ Each test lists: **Setup → Action → Expected**.
 
   * Manager shows the stale command as invalid/quarantined with the validation reason
   * Export succeeds instead of failing the whole operation
+  * Manager import/export diagnostics render one message per line so warnings and quarantine summaries are readable
   * Exported JSON includes valid commands in `commands[]`
   * Exported JSON preserves the quarantined record in `invalidCommands[]`
   * Re-import restores the invalid record in quarantined form without making it runnable

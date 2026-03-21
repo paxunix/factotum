@@ -80,8 +80,6 @@ function buildPrefixSuggestions(indexCommands, text) {
   if (!cmdToken || cmdToken.includes('@')) {
     return [];
   }
-
-  const seen = new Set();
   return indexCommands
     .filter((entry) => entry.name.startsWith(cmdToken))
     .sort((left, right) => {
@@ -91,14 +89,6 @@ function buildPrefixSuggestions(indexCommands, text) {
         return rightMru - leftMru;
       }
       return right.updatedAt - left.updatedAt;
-    })
-    .filter((entry) => {
-      const key = `${entry.name}@${entry.id}`;
-      if (seen.has(key)) {
-        return false;
-      }
-      seen.add(key);
-      return true;
     })
     .slice(0, 6)
     .map((entry) => {
@@ -111,7 +101,7 @@ function buildPrefixSuggestions(indexCommands, text) {
         parts.push(description);
       }
       return {
-        content: `${entry.name}${remainder}`,
+        content: `${entry.name}@${entry.id}${remainder}`,
         description: escapeHtml(parts.join(' · '))
       };
     });

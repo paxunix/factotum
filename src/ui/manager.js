@@ -63,10 +63,18 @@ function formatDateTime(value) {
   }).format(new Date(value));
 }
 
-function setBundleStatus(kind, message) {
+function setBundleStatus(kind, messages) {
+  const lines = Array.isArray(messages) ? messages.filter(Boolean) : [messages].filter(Boolean);
   bundleStatus.hidden = false;
   bundleStatus.className = `bundle-status bundle-status-${kind}`;
-  bundleStatus.textContent = message;
+  bundleStatus.textContent = '';
+
+  for (const line of lines) {
+    const item = document.createElement('div');
+    item.className = 'bundle-status-line';
+    item.textContent = line;
+    bundleStatus.append(item);
+  }
 }
 
 function clearBundleStatus() {
@@ -202,13 +210,14 @@ async function handleImportBundle() {
 
   try {
     const result = await importBundle(parsed);
-    const invalidText = result.quarantinedCommands > 0
-      ? ` ${formatCountMessage(importInvalidSummaryLabel, result.quarantinedCommands)}`
-      : '';
-    const warningText = result.warnings.length > 0
-      ? ` Warnings: ${result.warnings.map((warning) => warning.message).join(' | ')}`
-      : '';
-    setBundleStatus('success', `Imported ${result.importedCommands.length} command(s).${invalidText}${warningText}`);
+    const statusLines = [`Imported ${result.importedCommands.length} command(s).`];
+    if (result.quarantinedCommands > 0) {
+      statusLines.push(formatCountMessage(importInvalidSummaryLabel, result.quarantinedCommands));
+    }
+    for (const warning of result.warnings) {
+      statusLines.push(warning.message);
+    }
+    setBundleStatus('success', statusLines);
     await loadCommands();
   } catch (error) {
     setBundleStatus('error', error.message || String(error));
@@ -220,10 +229,11 @@ async function handleExportBundle() {
   try {
     const bundle = await exportBundle();
     bundleTextarea.value = JSON.stringify(bundle, null, 2);
-    const invalidText = Array.isArray(bundle.invalidCommands) && bundle.invalidCommands.length > 0
-      ? ` ${formatCountMessage(exportInvalidSummaryLabel, bundle.invalidCommands.length)}`
-      : '';
-    setBundleStatus('success', `Exported ${bundle.commands.length} command(s).${invalidText}`);
+    const statusLines = [`Exported ${bundle.commands.length} command(s).`];
+    if (Array.isArray(bundle.invalidCommands) && bundle.invalidCommands.length > 0) {
+      statusLines.push(formatCountMessage(exportInvalidSummaryLabel, bundle.invalidCommands.length));
+    }
+    setBundleStatus('success', statusLines);
   } catch (error) {
     setBundleStatus('error', error.message || String(error));
   }
