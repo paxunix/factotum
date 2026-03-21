@@ -39,6 +39,33 @@ const STYLE_TEXT = `
     min-height: 18px;
   }
 
+  .factotum-help {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0 0 14px;
+  }
+
+  .factotum-help h1,
+  .factotum-help h2,
+  .factotum-help p,
+  .factotum-help pre,
+  .factotum-help ul {
+    margin: 0 0 10px;
+  }
+
+  .factotum-help pre {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow-x: auto;
+    padding: 10px;
+    white-space: pre-wrap;
+  }
+
+  .factotum-help code {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+  }
+
   .factotum-actions {
     display: flex;
     gap: 10px;
@@ -72,6 +99,7 @@ const stateLabels = {
 
 function teardownController(controller) {
   controller.currentInvocationId = null;
+  controller.dismissible = false;
   controller.overlayRoot?.remove();
   controller.overlayRoot = null;
   controller.shadowRootRef = null;
@@ -81,7 +109,8 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
   const controller = {
     overlayRoot: null,
     shadowRootRef: null,
-    currentInvocationId: null
+    currentInvocationId: null,
+    dismissible: false
   };
 
   function ensureOverlay() {
@@ -102,6 +131,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       <h1 class="factotum-title" id="factotum-title"></h1>
       <p class="factotum-status" id="factotum-status"></p>
       <p class="factotum-message" id="factotum-message"></p>
+      <div class="factotum-help" id="factotum-help" hidden></div>
       <div class="factotum-actions">
         <button class="factotum-button" id="factotum-cancel"></button>
       </div>
@@ -115,11 +145,19 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       if (!controller.currentInvocationId) {
         return;
       }
-      chrome.runtime.sendMessage({
-        type: CONTROL_TYPE,
-        op: 'CANCEL_REQUEST',
-        invocationId: controller.currentInvocationId
-      });
+      chrome.runtime.sendMessage(
+        controller.dismissible
+          ? {
+              type: CONTROL_TYPE,
+              op: 'DISMISS_REQUEST',
+              invocationId: controller.currentInvocationId
+            }
+          : {
+              type: CONTROL_TYPE,
+              op: 'CANCEL_REQUEST',
+              invocationId: controller.currentInvocationId
+            }
+      );
     });
 
     return controller.overlayRoot;
@@ -130,10 +168,35 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       return;
     }
 
+    const helpRoot = controller.shadowRootRef.getElementById('factotum-help');
+    controller.dismissible = false;
     controller.shadowRootRef.getElementById('factotum-title').textContent = commandRef;
     controller.shadowRootRef.getElementById('factotum-status').textContent = stateLabels[state] || state;
     controller.shadowRootRef.getElementById('factotum-message').textContent = message || '';
-    controller.shadowRootRef.getElementById('factotum-cancel').hidden = state !== 'RUNNING';
+    controller.shadowRootRef.getElementById('factotum-message').hidden = state === 'HELP';
+    helpRoot.hidden = true;
+    helpRoot.innerHTML = '';
+    const button = controller.shadowRootRef.getElementById('factotum-cancel');
+    button.hidden = state !== 'RUNNING';
+    button.textContent = getMessage('overlayCancel', 'Cancel');
+  }
+
+  function renderHelp({ commandRef, html }) {
+    if (!ensureOverlay()) {
+      return;
+    }
+
+    controller.dismissible = true;
+    controller.shadowRootRef.getElementById('factotum-title').textContent = commandRef;
+    controller.shadowRootRef.getElementById('factotum-status').textContent = stateLabels.HELP;
+    controller.shadowRootRef.getElementById('factotum-message').hidden = true;
+    controller.shadowRootRef.getElementById('factotum-message').textContent = '';
+    const helpRoot = controller.shadowRootRef.getElementById('factotum-help');
+    helpRoot.hidden = false;
+    helpRoot.innerHTML = html || '';
+    const button = controller.shadowRootRef.getElementById('factotum-cancel');
+    button.hidden = false;
+    button.textContent = getMessage('overlayClose', 'Close');
   }
 
   function teardownOverlay(invocationId) {
@@ -165,6 +228,13 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       });
     }
 
+    if (message.op === 'SET_HELP' && message.invocationId === controller.currentInvocationId) {
+      renderHelp({
+        commandRef: message.commandRef || controller.shadowRootRef?.getElementById('factotum-title')?.textContent || '',
+        html: message.html || ''
+      });
+    }
+
     if (message.op === 'TEARDOWN') {
       teardownOverlay(message.invocationId);
     }
@@ -174,6 +244,13 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
 
   // Clear overlay on page lifecycle transitions so stale UI does not survive BFCache/history restores.
   window.addEventListener('pagehide', () => {
+    if (controller.dismissible && controller.currentInvocationId) {
+      chrome.runtime.sendMessage({
+        type: CONTROL_TYPE,
+        op: 'DISMISS_REQUEST',
+        invocationId: controller.currentInvocationId
+      }).catch(() => {});
+    }
     teardownController(controller);
   });
 

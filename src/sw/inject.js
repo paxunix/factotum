@@ -9,6 +9,7 @@ import {
   isTabBusy,
   releaseTabBusy
 } from './invocations.js';
+import { escapeHtml } from '../shared/html.js';
 
 const CONTROL_TYPE = 'fcmd_control';
 const teardownTimers = new Map();
@@ -96,6 +97,15 @@ async function setOverlayStatus(tabId, invocationId, state, message = '') {
   });
 }
 
+async function setOverlayHelp(tabId, invocationId, commandRef, html) {
+  await sendControlMessage(tabId, {
+    op: 'SET_HELP',
+    invocationId,
+    commandRef,
+    html
+  });
+}
+
 async function teardownOverlay(tabId, invocationId) {
   await sendControlMessage(tabId, {
     op: 'TEARDOWN',
@@ -167,6 +177,124 @@ function waitForInvocationCompletion(invocationId) {
 
 async function injectMainHost(tabId) {
   await injectScript(tabId, 'bridge/main_host.js', 'MAIN');
+}
+
+function resolveLocaleMapEntry(map, locale = 'en-US') {
+  if (!map || typeof map !== 'object' || Array.isArray(map)) {
+    return undefined;
+  }
+
+  const entries = Object.entries(map);
+  if (entries.length === 0) {
+    return undefined;
+  }
+
+  const preferred = String(locale || 'en-US').toLowerCase();
+  const primary = preferred.split('-')[0];
+
+  for (const [key, value] of entries) {
+    if (key.toLowerCase() === preferred) {
+      return value;
+    }
+  }
+
+  for (const [key, value] of entries) {
+    if (key.toLowerCase().split('-')[0] === primary) {
+      return value;
+    }
+  }
+
+  for (const [key, value] of entries) {
+    if (key.toLowerCase() === 'en-us') {
+      return value;
+    }
+  }
+
+  return entries[0][1];
+}
+
+async function getTabLocale(tabId) {
+  try {
+    const [result] = await chrome.scripting.executeScript({
+      target: { tabId, allFrames: false },
+      world: 'ISOLATED',
+      func: () => {
+        if (Array.isArray(navigator.languages) && navigator.languages.length > 0) {
+          return navigator.languages[0] || navigator.language || 'en-US';
+        }
+        return navigator.language || 'en-US';
+      }
+    });
+
+    return result?.result || 'en-US';
+  } catch {
+    return 'en-US';
+  }
+}
+
+function buildHelpUsage(command) {
+  const optionsSpec = command.optionsSpec || {};
+  const displayName = optionsSpec.name || command.name;
+  const optionSynopsis = (optionsSpec.options || [])
+    .map((option) => {
+      const longFlag = option.flags.find((flag) => flag.startsWith('--')) || option.flags[0];
+      return longFlag ? `[${longFlag}]` : '';
+    })
+    .filter(Boolean)
+    .join(' ');
+  const args = optionsSpec.args ? ` ${optionsSpec.args}` : '';
+
+  return `${displayName}${optionSynopsis ? ` ${optionSynopsis}` : ''}${args}`;
+}
+
+function buildHelpOptions(command, locale) {
+  const options = command.optionsSpec?.options || [];
+  if (options.length === 0) {
+    return '';
+  }
+
+  const items = options.map((option) => {
+    const flags = option.flags.map((flag) => `<code>${escapeHtml(flag)}</code>`).join(', ');
+    const description = resolveLocaleMapEntry(option.description, locale);
+    return `<li>${flags}${description ? ` ${escapeHtml(description)}` : ''}</li>`;
+  }).join('');
+
+  return `<ul>${items}</ul>`;
+}
+
+function buildHelpArgs(command) {
+  if (!command.optionsSpec?.args) {
+    return '';
+  }
+
+  return `<p><code>${escapeHtml(command.optionsSpec.args)}</code></p>`;
+}
+
+function renderHelpTemplate(template, tokens) {
+  return String(template || '').replace(/{{\s*([A-Za-z0-9_-]+)\s*}}/g, (_match, token) => {
+    return Object.prototype.hasOwnProperty.call(tokens, token) ? String(tokens[token] ?? '') : '';
+  });
+}
+
+function buildHelpHtml(command, locale) {
+  const localizedTokens = resolveLocaleMapEntry(command.helpHtmlStrings, locale);
+  const tokens = localizedTokens && typeof localizedTokens === 'object' && !Array.isArray(localizedTokens)
+    ? { ...localizedTokens }
+    : {};
+
+  tokens.usage = buildHelpUsage(command);
+  tokens.options = buildHelpOptions(command, locale);
+  tokens.args = buildHelpArgs(command);
+
+  const template = command.helpHtmlTemplate || '<h1>{{title}}</h1><pre>{{usage}}</pre>{{options}}{{args}}';
+  return renderHelpTemplate(template, tokens);
+}
+
+async function showHelpOverlay(invocation) {
+  const locale = await getTabLocale(invocation.tabId);
+  const commandRef = `${invocation.command.name}@${invocation.command.id}`;
+  const html = buildHelpHtml(invocation.command, locale);
+  await setOverlayHelp(invocation.tabId, invocation.invocationId, commandRef, html);
 }
 
 function buildExecuteCode(invocation) {
@@ -454,6 +582,15 @@ async function executeResolvedInvocation(tab, resolution) {
   invocation.mruAt = await markInvocationStart(resolution.command);
 
   await ensureOverlay(tab.id, invocation, 'RUNNING', '');
+
+  const wantsHelp = Boolean(resolution.parsedOpts?.help || resolution.parsedOpts?.h);
+  if (wantsHelp) {
+    finishInvocation(invocation.invocationId, 'HELP');
+    releaseTabBusy(invocation.invocationId);
+    await showHelpOverlay(invocation);
+    return { ok: true, invocation, result: undefined };
+  }
+
   await injectMainHost(tab.id);
 
   try {
@@ -574,6 +711,16 @@ export async function handleRuntimeControlMessage(message) {
     const invocation = getInvocationById(message.invocationId);
     if (invocation) {
       await requestCancel(invocation, 'CANCELED');
+    }
+  }
+
+  if (message.op === 'DISMISS_REQUEST') {
+    const invocation = getInvocationById(message.invocationId);
+    if (invocation) {
+      invocationPorts.get(invocation.invocationId)?.disconnect();
+      invocationPorts.delete(invocation.invocationId);
+      await teardownOverlay(invocation.tabId, invocation.invocationId);
+      clearInvocation(invocation.invocationId);
     }
   }
 

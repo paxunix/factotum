@@ -6,6 +6,7 @@ import {
   updateCommandMru
 } from './storage.js';
 import { formatNoSuchCommandSuggestion, resolveCommand } from './omnibox.js';
+import { escapeHtml } from '../shared/html.js';
 
 let omniboxSessionState = {
   indexCommands: null,
@@ -27,14 +28,6 @@ function getSessionState() {
     return omniboxSessionState;
   }
   return null;
-}
-
-function escapeDescription(text) {
-  return String(text)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
 }
 
 function splitInput(text) {
@@ -67,7 +60,7 @@ function buildResolvedSuggestion(resolution) {
   const suffix = description ? ` - ${description}` : '';
   return {
     content: `${resolution.command.name}@${resolution.command.id}${resolution.argvTokens.length > 0 ? ` ${resolution.argvTokens.join(' ')}` : ''}`,
-    description: `${escapeDescription(detailParts.join(' · '))}${escapeDescription(suffix)}`
+    description: `${escapeHtml(detailParts.join(' · '))}${escapeHtml(suffix)}`
   };
 }
 
@@ -78,7 +71,7 @@ function buildHelpSuggestion(resolution) {
 
   return {
     content: `${resolution.command.name}@${resolution.command.id} --help`,
-    description: `${escapeDescription(`${resolution.command.name}@${resolution.command.id} · help preview`)}`
+    description: `${escapeHtml(`${resolution.command.name}@${resolution.command.id} · help preview`)}`
   };
 }
 
@@ -119,7 +112,7 @@ function buildPrefixSuggestions(indexCommands, text) {
       }
       return {
         content: `${entry.name}${remainder}`,
-        description: escapeDescription(parts.join(' · '))
+        description: escapeHtml(parts.join(' · '))
       };
     });
 }

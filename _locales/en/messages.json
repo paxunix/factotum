@@ -109,6 +109,10 @@
     "message": "Cancel",
     "description": "Overlay cancel button label"
   },
+  "overlayClose": {
+    "message": "Close",
+    "description": "Overlay close button label"
+  },
   "overlayRunning": {
     "message": "Running...",
     "description": "Overlay running state label"

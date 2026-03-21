@@ -13,9 +13,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 
 ### Bugs
 - Omnibox prefix suggestions currently collapse commands that share the same `name`; if more than one command matches a typed prefix, only one appears in the suggestion list.
-- Async USER_SCRIPT commands are currently marked complete too early: long-running fixtures like `longrun@fixture.cancel.nav` can finish immediately from the service worker's point of view, which blocks real T8/T9 cancellation coverage and suggests the runtime is not awaiting `main()` settlement correctly.
-- Cancel-on-navigation still has a race: after navigation cancel, the service worker can report `INVALID_INVOCATION` instead of a clean canceled result.
-- `--help` is currently not intercepting normal execution: commands like `pick --help` still run `main()` and show a normal completion overlay instead of rendering help-only output.
 - MAIN should no longer be treated as a first-class top-level command runtime; remaining docs and code should converge on USER_SCRIPT runtime plus explicit MAIN bridge access.
 
 ### Omnibox / UX
@@ -27,9 +24,8 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 ### M2 follow-up
 - Implement overlay/error feedback so `NO_SUCH_COMMAND`, busy-tab, and successful invocation states are visible outside the service worker console.
 - Move the overlay from the upper-right corner to horizontally centered at top of page.
-- Clear busy state immediately on cancellation so a new command can start before the canceled overlay finishes dismissing.
 - Busy-tab refusal is currently easy to miss when the same command is already running: a second invocation can be rejected without any obvious visible overlay change.
-- Revisit overlay dismissal UX and decide whether commands should be able to specify auto-dismiss behavior on completion/cancellation, or whether dismissal policy should remain runtime-controlled.
+- Add per-command overlay dismissal defaults (for example `auto` vs `user`) so long-lived/helpful overlays can stay open when needed; `--help` should always require user dismissal.
 - Refactor the generated user-script wrapper so future `--debug` support has an obvious, stable boundary immediately before `main(argvTokens, ctx)` and makes it clear to the user where their command code starts and what to inspect next.
 - Reconsider whether the per-tab busy guard should exist at all; possible alternatives include allowing concurrency generally or only blocking re-entry for the same fcommand in the same tab.
 
