@@ -27,6 +27,7 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 - Implement overlay/error feedback so `NO_SUCH_COMMAND`, busy-tab, and successful invocation states are visible outside the service worker console.
 - Move the overlay from the upper-right corner to the upper-left corner.
 - Clear busy state immediately on cancellation so a new command can start before the canceled overlay finishes dismissing.
+- Busy-tab refusal is currently easy to miss when the same command is already running: a second invocation can be rejected without any obvious visible overlay change.
 - Revisit overlay dismissal UX and decide whether commands should be able to specify auto-dismiss behavior on completion/cancellation, or whether dismissal policy should remain runtime-controlled.
 - Refactor the generated user-script wrapper so future `--debug` support has an obvious, stable boundary immediately before `main(argvTokens, ctx)` and makes it clear to the user where their command code starts and what to inspect next.
 - Reconsider whether the per-tab busy guard should exist at all; possible alternatives include allowing concurrency generally or only blocking re-entry for the same fcommand in the same tab.

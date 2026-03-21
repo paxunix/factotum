@@ -78,6 +78,18 @@ export function finishInvocation(invocationId, status, details = {}) {
   return invocation;
 }
 
+export function releaseTabBusy(invocationId) {
+  const invocation = getInvocationById(invocationId);
+  if (!invocation) {
+    return;
+  }
+
+  const activeInvocationId = invocationIdsByTab.get(invocation.tabId);
+  if (activeInvocationId === invocationId) {
+    invocationIdsByTab.delete(invocation.tabId);
+  }
+}
+
 export function clearInvocation(invocationId) {
   const invocation = getInvocationById(invocationId);
   if (!invocation) {

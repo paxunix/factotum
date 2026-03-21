@@ -6,7 +6,8 @@ import {
   finishInvocation,
   getInvocationById,
   getInvocationByTabId,
-  isTabBusy
+  isTabBusy,
+  releaseTabBusy
 } from './invocations.js';
 
 const CONTROL_TYPE = 'fcmd_control';
@@ -57,7 +58,11 @@ async function sendControlMessage(tabId, message) {
     });
   } catch (error) {
     const text = String(error.message || error);
-    if (!text.includes('Receiving end does not exist') && !text.includes('message channel is closed')) {
+    if (
+      !text.includes('Receiving end does not exist')
+      && !text.includes('message channel is closed')
+      && !text.includes('No tab with id')
+    ) {
       throw error;
     }
   }
@@ -462,6 +467,9 @@ async function executeResolvedInvocation(tab, resolution) {
 
     throw completion?.error || Object.assign(new Error('Invocation failed'), { code: 'ERROR' });
   } catch (error) {
+    if (error?.code === 'CANCELED') {
+      return finalizeInvocationSuccess(invocation, undefined);
+    }
     clearCompletionWaiter(invocation.invocationId);
     return finalizeInvocationError(invocation, error);
   }
@@ -611,6 +619,7 @@ export async function requestCancel(invocation, reason = 'CANCELED') {
   }
 
   cancelInvocation(current.invocationId, reason);
+  releaseTabBusy(current.invocationId);
   try {
     invocationPorts.get(current.invocationId)?.postMessage({ op: 'CANCEL' });
   } catch {}
@@ -630,14 +639,14 @@ export async function cancelForTabClose(tabId) {
     return;
   }
 
+  cancelInvocation(invocation.invocationId, 'CANCELED');
+  releaseTabBusy(invocation.invocationId);
   const completion = invocationCompletion.get(invocation.invocationId);
   if (completion) {
     completion.reject(Object.assign(new Error(getMessage('overlayCanceled', 'Canceled.')), { code: 'CANCELED' }));
   }
   invocationPorts.get(invocation.invocationId)?.disconnect();
   invocationPorts.delete(invocation.invocationId);
-  cancelInvocation(invocation.invocationId, 'CANCELED');
-  clearInvocation(invocation.invocationId);
 }
 
 export async function cancelForNavigation(tabId) {
@@ -646,15 +655,15 @@ export async function cancelForNavigation(tabId) {
     return;
   }
 
+  cancelInvocation(invocation.invocationId, 'CANCELED');
+  releaseTabBusy(invocation.invocationId);
   const completion = invocationCompletion.get(invocation.invocationId);
   if (completion) {
     completion.reject(Object.assign(new Error(getMessage('overlayCanceled', 'Canceled.')), { code: 'CANCELED' }));
   }
-  cancelInvocation(invocation.invocationId, 'CANCELED');
   try {
     invocationPorts.get(invocation.invocationId)?.postMessage({ op: 'CANCEL' });
   } catch {}
   invocationPorts.get(invocation.invocationId)?.disconnect();
   invocationPorts.delete(invocation.invocationId);
-  clearInvocation(invocation.invocationId);
 }
