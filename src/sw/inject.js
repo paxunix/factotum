@@ -309,7 +309,7 @@ async function handleBusyTab(tabId) {
     return;
   }
 
-  await setOverlayStatus(tabId, runningInvocation.invocationId, 'BUSY', getMessage('overlayBusy', 'Tab is busy.'));
+  await setOverlayStatus(tabId, runningInvocation.invocationId, 'BUSY', '');
   setTimeout(() => {
     const current = getInvocationById(runningInvocation.invocationId);
     if (current && current.status === 'RUNNING') {
@@ -326,14 +326,14 @@ async function finalizeInvocationSuccess(invocation, result) {
 
   if (current.canceled) {
     try {
-      await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', getMessage('overlayCanceled', 'Canceled.'));
+      await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', '');
     } catch {}
     scheduleTeardown(current, 2500);
     return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
   }
 
   finishInvocation(current.invocationId, 'DONE', { result });
-  await setOverlayStatus(current.tabId, current.invocationId, 'DONE', getMessage('overlayDone', 'Done.'));
+  await setOverlayStatus(current.tabId, current.invocationId, 'DONE', '');
   scheduleTeardown(current, 1200);
   return { ok: true, invocation: current, result };
 }
@@ -517,7 +517,7 @@ export async function requestCancel(invocation, reason = 'CANCELED') {
     invocationPorts.get(current.invocationId)?.postMessage({ op: 'CANCEL' });
   } catch {}
   try {
-    await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', getMessage('overlayCanceled', 'Canceled.'));
+    await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', '');
   } catch {}
   scheduleTeardown(current, 2500);
 }
