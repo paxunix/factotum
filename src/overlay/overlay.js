@@ -12,10 +12,13 @@ const STYLE_TEXT = `
     box-shadow: 0 22px 50px rgba(15, 23, 42, 0.35);
     color: white;
     font-family: ui-sans-serif, system-ui, sans-serif;
-    inset: 20px 20px auto auto;
-    max-width: 360px;
+    left: 50%;
+    max-width: min(360px, calc(100vw - 24px));
     padding: 16px;
     position: fixed;
+    top: 20px;
+    transform: translateX(-50%);
+    width: min(360px, calc(100vw - 24px));
     z-index: 2147483647;
   }
 

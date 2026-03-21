@@ -183,7 +183,7 @@ Each test lists: **Setup → Action → Expected**.
 * Action: `f ok@demo.ok`
 * Expected:
 
-  * Overlay appears (Running…)
+  * Overlay appears once in the top frame, horizontally centered near the top of the page
   * Overlay transitions to Done quickly (for non-failing run)
 
 #### T7b: `--help` shows localized help HTML

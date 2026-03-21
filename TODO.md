@@ -21,7 +21,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 
 ### M2 follow-up
 - Implement overlay/error feedback so `NO_SUCH_COMMAND`, busy-tab, and successful invocation states are visible outside the service worker console.
-- Move the overlay from the upper-right corner to horizontally centered at top of page.
 - Busy-tab refusal is currently easy to miss when the same command is already running: a second invocation can be rejected without any obvious visible overlay change.
 - Add per-command overlay dismissal defaults (for example `auto` vs `user`) so long-lived/helpful overlays can stay open when needed; `--help` should always require user dismissal.
 - Refactor the generated user-script wrapper so future `--debug` support has an obvious, stable boundary immediately before `main(argvTokens, ctx)` and makes it clear to the user where their command code starts and what to inspect next.
