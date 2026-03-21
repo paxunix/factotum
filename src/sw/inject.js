@@ -484,25 +484,33 @@ async function executeUserScript(invocation) {
 }
 
 async function handleResolutionFailure(tab, resolution) {
-  if (isInjectableUrl(tab?.url)) {
-    const invocation = {
-      invocationId: `transient-${Date.now()}`,
-      command: { name: resolution.cmdToken || '', id: '' }
-    };
-    await ensureOverlay(tab.id, invocation, 'ERROR', resolution.message);
-    setTimeout(() => {
-      teardownOverlay(tab.id, invocation.invocationId).catch(() => {});
-    }, 5000);
+  if (!isInjectableUrl(tab?.url)) {
+    return;
   }
+
+  const runningInvocation = getInvocationByTabId(tab.id);
+  if (runningInvocation) {
+    await handleBusyTab(tab.id, resolution.message);
+    return;
+  }
+
+  const invocation = {
+    invocationId: `transient-${Date.now()}`,
+    command: { name: resolution.cmdToken || '', id: '' }
+  };
+  await ensureOverlay(tab.id, invocation, 'ERROR', resolution.message);
+  setTimeout(() => {
+    teardownOverlay(tab.id, invocation.invocationId).catch(() => {});
+  }, 5000);
 }
 
-async function handleBusyTab(tabId) {
+async function handleBusyTab(tabId, message = '') {
   const runningInvocation = getInvocationByTabId(tabId);
   if (!runningInvocation) {
     return;
   }
 
-  await setOverlayStatus(tabId, runningInvocation.invocationId, 'BUSY', '');
+  await setOverlayStatus(tabId, runningInvocation.invocationId, 'BUSY', message);
   setTimeout(() => {
     const current = getInvocationById(runningInvocation.invocationId);
     if (current && current.status === 'RUNNING') {

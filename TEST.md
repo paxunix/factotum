@@ -111,6 +111,11 @@ Each test lists: **Setup → Action → Expected**.
   * Selecting it / pressing Enter shows overlay error (if injectable)
   * Log contains error entry with `NO_SUCH_COMMAND`
 
+* Busy-tab edge case:
+
+  * If another command is already running in the tab, entering `f nosuchcmd` must not clobber the active invocation overlay or strand the busy guard.
+  * The active invocation should remain cancelable and the tab should become runnable again once that invocation ends or is canceled.
+
 #### T4a: Prefix-matched command suggestions are informational
 
 * Setup: installed commands include `pick@fixture.A` and `pick@fixture.B`
