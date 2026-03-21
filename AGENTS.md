@@ -13,6 +13,7 @@ This checklist is the contract for all automated changes.
 ## 0) Golden rule
 **If a change is not explicitly allowed by the v1 spec, do not implement it.**
 Ask before changing semantics.
+**If a command fails due to insufficient permissions, you must elevate the command to the user for approval.**
 
 ## 1) Authoritative docs
 The following are authoritative, in this order:
