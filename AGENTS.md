@@ -99,6 +99,7 @@ For any non-trivial change, agent must:
 - Add/adjust tests or a manual test note referencing the Test Plan cases
 - Call out any MV3/CSP edge cases discovered
 - At each commit point, when the user indicates one has been reached, summarize the work done since the prior commit point and provide that summary as a concise markdown commit message suitable for `git commit`
+- Prefer commit points that are narrowly scoped to a single feature or a single bug fix so future rebases, cherry-picks, and bisects stay straightforward
 - Commit-point messages must say why the change was made, which bug(s) or failing tests it fixed, and any bug(s), regressions, or follow-up issues discovered during the work
 - If a change reveals a new bug or regression that is not fixed in the same commit point, add it to `TODO.md` and mention that follow-up in the commit message so repo history explains both the decision and the remaining gap
 - At each commit point, the agent may create the commit directly when the user instructs it to do so
