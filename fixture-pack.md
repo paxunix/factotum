@@ -22,8 +22,8 @@ This is a normal import/export bundle:
       "schemaVersion": 1,
       "name": "pick",
       "id": "fixture.A",
-      "world": "isolated",
-      "code": "export async function main(argv, ctx) { ctx.log('pick@fixture.A start'); await new Promise(r => setTimeout(r, 50)); ctx.log('pick@fixture.A done'); }",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('pick@fixture.A start'); await new Promise(r => setTimeout(r, 50)); ctx.log('pick@fixture.A done'); }",
       "requires": [],
       "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
       "helpHtmlStrings": {
@@ -47,8 +47,8 @@ This is a normal import/export bundle:
       "schemaVersion": 1,
       "name": "pick",
       "id": "fixture.B",
-      "world": "isolated",
-      "code": "export async function main(argv, ctx) { ctx.log('pick@fixture.B start'); await new Promise(r => setTimeout(r, 50)); ctx.log('pick@fixture.B done'); }",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('pick@fixture.B start'); await new Promise(r => setTimeout(r, 50)); ctx.log('pick@fixture.B done'); }",
       "requires": [],
       "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
       "helpHtmlStrings": {
@@ -62,8 +62,8 @@ This is a normal import/export bundle:
       "schemaVersion": 1,
       "name": "longrun",
       "id": "fixture.cancel.nav",
-      "world": "isolated",
-      "code": "export async function main(argv, ctx) { ctx.log('longrun started'); for (let i = 0; i < 1000000; i++) { if (ctx.signal?.aborted) { ctx.warn('longrun observed abort'); return; } await new Promise(r => setTimeout(r, 50)); } ctx.log('longrun finished'); }",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('longrun started'); for (let i = 0; i < 1000000; i++) { if (ctx.signal?.aborted) { ctx.warn('longrun observed abort'); return; } await new Promise(r => setTimeout(r, 50)); } ctx.log('longrun finished'); }",
       "requires": [],
       "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
       "helpHtmlStrings": {
@@ -80,8 +80,8 @@ This is a normal import/export bundle:
       "schemaVersion": 1,
       "name": "badreq",
       "id": "fixture.requires.fail",
-      "world": "isolated",
-      "code": "export async function main(argv, ctx) { ctx.log('badreq should not reach main'); }",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('badreq should not reach main'); }",
       "requires": [
         { "url": "https://example.invalid/does-not-exist.mjs", "kind": "module" }
       ],
@@ -97,8 +97,8 @@ This is a normal import/export bundle:
       "schemaVersion": 1,
       "name": "bridge",
       "id": "fixture.main.bridge",
-      "world": "isolated",
-      "code": "export async function main(argv, ctx) { await ctx.main.define('add', (a,b) => a + b); const out = await ctx.main.call('add', [2, 3]); ctx.log('bridge add result', out); }",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { await ctx.main.define('add', (a,b) => a + b); const out = await ctx.main.call('add', [2, 3]); ctx.log('bridge add result', out); }",
       "requires": [],
       "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
       "helpHtmlStrings": {
@@ -112,8 +112,8 @@ This is a normal import/export bundle:
       "schemaVersion": 1,
       "name": "deny",
       "id": "fixture.denylisted",
-      "world": "isolated",
-      "code": "export async function main(argv, ctx) { try { await ctx.chrome.management.getAll(); } catch (e) { ctx.error('denylisted call failed as expected', { name: e.name, message: e.message, code: e.code }); throw e; } }",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { try { await ctx.chrome.management.getAll(); } catch (e) { ctx.error('denylisted call failed as expected', { name: e.name, message: e.message, code: e.code }); throw e; } }",
       "requires": [],
       "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
       "helpHtmlStrings": {
@@ -130,8 +130,8 @@ This is a normal import/export bundle:
       "schemaVersion": 1,
       "name": "events",
       "id": "fixture.events.unsupported",
-      "world": "isolated",
-      "code": "export async function main(argv, ctx) { try { ctx.chrome.bookmarks.onChanged.addListener(() => {}); } catch (e) { ctx.error('events unsupported as expected', { name: e.name, message: e.message, code: e.code }); throw e; } }",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { try { ctx.chrome.bookmarks.onChanged.addListener(() => {}); } catch (e) { ctx.error('events unsupported as expected', { name: e.name, message: e.message, code: e.code }); throw e; } }",
       "requires": [],
       "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
       "helpHtmlStrings": {
@@ -145,8 +145,8 @@ This is a normal import/export bundle:
       "schemaVersion": 1,
       "name": "workflow",
       "id": "fixture.sw.roundtrip",
-      "world": "isolated",
-      "code": "export async function main(argv, ctx) { const title = document.title; ctx.log('title', title); const [tab] = await ctx.chrome.tabs.query({ active: true, currentWindow: true }); ctx.log('tab', { title: tab?.title, url: tab?.url }); const banner = document.createElement('div'); banner.textContent = `Active tab is ${tab?.title || 'unknown'}`; banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#111;color:#fff;padding:8px;z-index:999999;'; document.documentElement.appendChild(banner); const bookmarks = await ctx.chrome.bookmarks.search({ title }); ctx.log('bookmarks', { count: bookmarks?.length || 0 }); banner.textContent += bookmarks?.length ? ` (bookmarked x${bookmarks.length})` : ' (not bookmarked)'; }",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { const title = document.title; ctx.log('title', title); const [tab] = await ctx.chrome.tabs.query({ active: true, currentWindow: true }); ctx.log('tab', { title: tab?.title, url: tab?.url }); const banner = document.createElement('div'); banner.textContent = `Active tab is ${tab?.title || 'unknown'}`; banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#111;color:#fff;padding:8px;z-index:999999;'; document.documentElement.appendChild(banner); const bookmarks = await ctx.chrome.bookmarks.search({ title }); ctx.log('bookmarks', { count: bookmarks?.length || 0 }); banner.textContent += bookmarks?.length ? ` (bookmarked x${bookmarks.length})` : ' (not bookmarked)'; }",
       "requires": [],
       "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
       "helpHtmlStrings": {
@@ -163,11 +163,54 @@ This is a normal import/export bundle:
 }
 ```
 
+### Ad hoc manual smoke fixtures
+
+For quick manual checks that mutate local storage during development, these two minimal fixtures are useful outside the main pack.
+This blob is directly importable through the normal manager bundle import flow:
+
+```json
+{
+  "bundleSchemaVersion": 1,
+  "exportedAt": 1760100000000,
+  "commands": [
+    {
+      "schemaVersion": 1,
+      "name": "ok",
+      "id": "demo.ok",
+      "world": "user_script",
+      "code": "async function main(argvTokens, ctx) { return 42; }",
+      "description": { "en-US": "Simple success fixture" },
+      "createdAt": 1760100000000,
+      "updatedAt": 1760100000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "longrun",
+      "id": "demo.cancel",
+      "world": "user_script",
+      "code": "async function main(argvTokens, ctx) { for (let i = 0; i < 1000000; i += 1) { if (ctx.signal.aborted) { return; } await new Promise((resolve) => setTimeout(resolve, 50)); } }",
+      "description": { "en-US": "Cancelable long-running fixture" },
+      "createdAt": 1760100000000,
+      "updatedAt": 1760100000000
+    }
+  ],
+  "aliases": {
+    "cmd1": { "name": "ok", "id": "demo.ok" }
+  }
+}
+```
+
+These ad hoc fixtures are intentionally not part of the canonical import bundle above. Install them separately when you need targeted manual smoke coverage without disturbing the shared fixture pack.
+
 ### Notes / rationale
 
+* All fixtures use `world: "user_script"` to match the current v1 runtime. MAIN is accessed only through `ctx.main`.
+* Fixture code snippets should define `async function main(...)` directly; the runtime wrapper evaluates the code and invokes `main`.
 * `pick@fixture.A` and `pick@fixture.B` are used to test MRU ordering.
 * `cmd1` alias maps to `pick@fixture.B` to test alias precedence.
 * `longrun` is cancellable and checks `ctx.signal.aborted` frequently.
+* `ok@demo.ok` is the minimal success fixture for overlay-completion checks.
+* `longrun@demo.cancel` is the minimal cancellable fixture for overlay cancel checks when local storage is being mutated manually.
 * `badreq` has a guaranteed-failing requires URL (`example.invalid` is reserved for invalid domains and should not resolve).
 * `bridge` tests `ctx.main.define/call`.
 * `deny` tests denylisted namespace handling.
@@ -202,9 +245,14 @@ This ensures your import logic and storage layout are tested indirectly.
 * Run `cmd1` → must run `pick@fixture.B` and set it MRU.
 * Run `pick` → must pick `pick@fixture.B` MRU-first.
 
+### Ad hoc overlay smoke checks
+
+* Install `ok@demo.ok` separately when you need a minimal success fixture for T1/T2/T5/T7.
+* Install `longrun@demo.cancel` separately when you need a cancellable fixture for T8.
+
 ### Cancel on navigation
 
-* Run `longrun`
+* Run `longrun@fixture.cancel.nav`
 * Navigate tab to a new URL → must cancel.
 
 ### Requires failure

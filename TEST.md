@@ -23,12 +23,34 @@ Below is a **Test Plan v1** that mixes a small, reliable **manual smoke suite** 
 
 * Omnibox keyword configured (e.g., `f`)
 * `<all_urls>` host permissions and broad permissions as per v1
-* Test Fcommands imported/installed:
+* Canonical fixture bundle imported from `fixture-pack.md`:
 
-  * `oops@demo.debug.error`
-  * `libdemo@demo.require.script`
-  * `bmkclean@demo.bookmarks.cleaner`
-  * `jsonview@demo.json.viewer`
+  * `pick@fixture.A`
+  * `pick@fixture.B`
+  * `longrun@fixture.cancel.nav`
+  * `badreq@fixture.requires.fail`
+  * `bridge@fixture.main.bridge`
+  * `deny@fixture.denylisted`
+  * `events@fixture.events.unsupported`
+  * `workflow@fixture.sw.roundtrip`
+* Ad hoc manual smoke fixtures installed separately when needed:
+
+  * `ok@demo.ok`
+  * `longrun@demo.cancel`
+
+### Fixture map
+
+Use these fixtures for the following tests so the test plan stays aligned with the maintained bundle and ad hoc smoke commands:
+
+* `ok@demo.ok`: T1, T2, T5, T7
+* `pick@fixture.A` and `pick@fixture.B`: T3, T3b, T4a, T4b
+* `longrun@demo.cancel`: T8
+* `longrun@fixture.cancel.nav`: T9, T10
+* `badreq@fixture.requires.fail`: requires-failure checks
+* `bridge@fixture.main.bridge`: T15
+* `deny@fixture.denylisted`: T18
+* `events@fixture.events.unsupported`: T19
+* `workflow@fixture.sw.roundtrip`: T17
 
 ---
 
@@ -40,39 +62,39 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T1: Exact alias expansion wins over command name
 
-* Setup: define alias `cmd1 → oops@demo.debug.error`
+* Setup: define alias `cmd1 → ok@demo.ok`
 * Action: omnibox `f cmd1`
 * Expected:
 
   * Omnibox suggestions may preview the resolved command and its description
-  * Runs `oops@demo.debug.error` (overlay shows that)
+  * Runs `ok@demo.ok` (overlay shows that)
   * MRU for that command updates immediately
   * Log includes at least one entry (even if command does nothing visible)
 
 #### T2: Fully qualified command runs exact match
 
-* Action: `f oops@demo.debug.error`
+* Action: `f ok@demo.ok`
 * Expected:
 
   * Correct command runs
-  * Overlay shows `oops@demo.debug.error`
+  * Overlay shows `ok@demo.ok`
 
 #### T3: Bare name resolves MRU-first
 
-* Setup: two commands share same name `jsonview@A` and `jsonview@B`
+* Setup: two commands share same name `pick@fixture.A` and `pick@fixture.B`
 * Action:
 
-  1. run `f jsonview@B`
-  2. run `f jsonview`
+  1. run `f pick@fixture.B`
+  2. run `f pick`
 * Expected:
 
-  * Second invocation runs `jsonview@B` (MRU-first)
+  * Second invocation runs `pick@fixture.B` (MRU-first)
   * MRU updates on invocation start
 
 #### T3b: Disabled commands are excluded
 
-* Setup: mark `jsonview@B` as disabled.
-* Action: run `f jsonview`
+* Setup: mark `pick@fixture.B` as disabled.
+* Action: run `f pick`
 * Expected:
 
   * Disabled command is skipped.
@@ -89,11 +111,11 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T4a: Prefix-matched command suggestions are informational
 
-* Setup: installed commands include `jsonview@A` and `jsonview@B`
-* Action: type `f jso`
+* Setup: installed commands include `pick@fixture.A` and `pick@fixture.B`
+* Action: type `f pi`
 * Expected:
 
-  * Omnibox suggestions include `jsonview` entries with description text
+  * Omnibox suggestions include `pick` entries with description text
   * Selecting a suggestion inserts or executes that suggestion content
   * If the user simply presses Enter on the unmatched free-typed text, normal v1 resolution rules still apply
 
@@ -133,7 +155,7 @@ Each test lists: **Setup → Action → Expected**.
 #### T5: Non-injectable page hard error
 
 * Setup: open `chrome://extensions/`
-* Action: `f oops@demo.debug.error`
+* Action: `f ok@demo.ok`
 * Expected:
 
   * Command does not run
@@ -155,7 +177,7 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T7: Overlay always appears and signals completion
 
-* Action: `f oops@demo.debug.error`
+* Action: `f ok@demo.ok`
 * Expected:
 
   * Overlay appears (Running…)
@@ -163,7 +185,7 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T7b: `--help` shows localized help HTML
 
-* Setup: command provides `helpHtmlTemplate` + `helpHtmlStrings` with `en-US` + another language.
+* Setup: command provides `helpHtmlTemplate` + `helpHtmlStrings` with `en-US` + another language. The maintained fixture pack does not currently include a dedicated passing help fixture, so use a command installed specifically for this check.
 * Action: run `f cmd --help` with UI language set to the other language.
 * Expected:
 
@@ -172,7 +194,7 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T7c: Options spec generates help tokens
 
-* Setup: command provides `optionsSpec` with at least one option and args.
+* Setup: command provides `optionsSpec` with at least one option and args. The maintained fixture pack does not currently include a dedicated passing help fixture, so use a command installed specifically for this check.
 * Action: run `f cmd --help`
 * Expected:
 
@@ -181,7 +203,7 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T8: Cancel button cancels a running command
 
-* Setup: a test command that loops with `await new Promise(r=>setTimeout(r,50))` and checks `ctx.signal.aborted`
+* Setup: install `longrun@demo.cancel`, a test command that loops with `await new Promise(r=>setTimeout(r,50))` and checks `ctx.signal.aborted`
 * Action: start it, click Cancel
 * Expected:
 
@@ -282,11 +304,11 @@ Each test lists: **Setup → Action → Expected**.
 #### T17: Basic RPC works (bookmarks)
 
 * Setup: ensure bookmarks permission and at least one bookmark exists
-* Action: run `bmkclean@demo.bookmarks.cleaner` in “dry” mode (or a safe query)
+* Action: run `workflow@fixture.sw.roundtrip`
 * Expected:
 
-  * `ctx.chrome.bookmarks.getTree()` returns data
-  * Log shows match count
+  * `ctx.chrome.tabs.query()` and `ctx.chrome.bookmarks.search()` return data
+  * Log shows active tab details and bookmark count
 
 #### T18: Denylisted namespaces blocked
 
@@ -549,7 +571,7 @@ All harness messages use:
   "op": "START",
   "requestId": "…",
   "tabId": 123,
-  "input": "jsonview@demo.json.viewer --flag x"
+  "input": "pick@fixture.B --force sample"
 }
 ```
 
@@ -635,8 +657,8 @@ Notes:
   "invocations": {
     "invocation-abc": {
       "tabId": 123,
-      "name": "jsonview",
-      "id": "demo.json.viewer",
+      "name": "pick",
+      "id": "fixture.B",
       "status": "RUNNING" | "DONE" | "ERROR" | "CANCELED",
       "startedAt": 1760000000000
     }

@@ -586,7 +586,13 @@ Use a normal import bundle named `fixtures-v1.json` with:
 * [deny@fixture.denylisted](mailto:deny@fixture.denylisted) (denylisted namespace call)
 * [events@fixture.events.unsupported](mailto:events@fixture.events.unsupported) (event usage rejection)
 
-(See the fixture JSON from the design conversation; it is treated as the canonical fixture pack for v1.)
+Fixture maintenance requirements:
+
+* fixture examples must remain importable under the current command schema
+* fixture command records must use the currently valid command `world`
+* fixture code samples must match the current runtime entrypoint contract (`async function main(...)`, not stale wrapper syntax)
+
+See `fixture-pack.md` for the maintained canonical fixture pack and ad hoc manual smoke fixtures.
 
 ---
 

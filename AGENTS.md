@@ -111,10 +111,12 @@ Agents MUST:
 - Remove checklist items, TODO entries, and caveats that are no longer needed because the work is complete or the latest design made them obsolete
 - Rewrite remaining next steps so they match the new repo state
 - Keep spec, plan, tests, and development notes consistent with each other
+- Keep fixture examples, import bundles, and manual-test snippets valid under the current schema and runtime contract so they can still be used without repair
 
 Agents MUST NOT:
 - Leave completed items in place marked as done if removing or rewriting them would leave a cleaner current-state doc
 - Preserve outdated workaround notes once the underlying issue is fixed, unless they are still needed as active guidance
+- Leave stale sample JSON or code snippets that no longer import or execute under the current repo state
 
 ## 6) Stop conditions (ask before proceeding)
 Agent must STOP and ask before:
