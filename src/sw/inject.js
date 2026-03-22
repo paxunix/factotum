@@ -14,7 +14,6 @@ import { escapeHtml } from '../shared/html.js';
 const CONTROL_TYPE = 'fcmd_control';
 const teardownTimers = new Map();
 const invocationPorts = new Map();
-const invocationCompletion = new Map();
 
 function getMessage(key, fallback) {
   return chrome.i18n.getMessage(key) || fallback;
@@ -131,48 +130,6 @@ function scheduleTeardown(invocation, delayMs = 1200) {
   }, delayMs);
 
   teardownTimers.set(invocation.invocationId, timeoutId);
-}
-
-function clearCompletionWaiter(invocationId) {
-  invocationCompletion.delete(invocationId);
-}
-
-function waitForInvocationCompletion(invocationId) {
-  const existing = invocationCompletion.get(invocationId);
-  if (existing) {
-    return existing.promise;
-  }
-
-  let settled = false;
-  let resolvePromise;
-  let rejectPromise;
-  const promise = new Promise((resolve, reject) => {
-    resolvePromise = resolve;
-    rejectPromise = reject;
-  });
-
-  const completion = {
-    promise,
-    resolve(value) {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      clearCompletionWaiter(invocationId);
-      resolvePromise(value);
-    },
-    reject(error) {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      clearCompletionWaiter(invocationId);
-      rejectPromise(error);
-    }
-  };
-
-  invocationCompletion.set(invocationId, completion);
-  return promise;
 }
 
 async function injectMainHost(tabId) {
@@ -473,7 +430,7 @@ function buildExecuteCode(invocation) {
 
 async function executeUserScript(invocation) {
   const world = invocation.command.world === 'main' ? 'MAIN' : 'USER_SCRIPT';
-  await chrome.userScripts.execute({
+  return chrome.userScripts.execute({
     target: {
       tabId: invocation.tabId,
       frameIds: [0]
@@ -602,20 +559,16 @@ async function executeResolvedInvocation(tab, resolution) {
   await injectMainHost(tab.id);
 
   try {
-    const completionPromise = waitForInvocationCompletion(invocation.invocationId);
-    await executeUserScript(invocation);
-    const completion = await completionPromise;
-
-    if (completion?.ok) {
-      return finalizeInvocationSuccess(invocation, completion.result);
+    const injectionResult = await executeUserScript(invocation);
+    if (injectionResult?.error) {
+      throw Object.assign(new Error(injectionResult.error), { code: 'ERROR' });
     }
 
-    throw completion?.error || Object.assign(new Error('Invocation failed'), { code: 'ERROR' });
+    return finalizeInvocationSuccess(invocation, injectionResult?.result ?? injectionResult);
   } catch (error) {
     if (error?.code === 'CANCELED') {
       return finalizeInvocationSuccess(invocation, undefined);
     }
-    clearCompletionWaiter(invocation.invocationId);
     return finalizeInvocationError(invocation, error);
   }
 }
@@ -668,40 +621,6 @@ function handleCommandEvent(message) {
       lastEvent: message.event,
       detail: message.detail || null
     };
-  }
-
-  const completion = invocationCompletion.get(message.invocationId);
-  if (!completion) {
-    return;
-  }
-
-  if (message.event === 'completed') {
-    completion.resolve({
-      ok: true,
-      result: message.detail?.result
-    });
-    return;
-  }
-
-  if (message.event === 'no_main') {
-    completion.resolve({
-      ok: true,
-      result: undefined
-    });
-    return;
-  }
-
-  if (message.event === 'failed') {
-    const errorDetail = message.detail?.error || {};
-    const error = Object.assign(
-      new Error(errorDetail.message || 'Invocation failed'),
-      {
-        name: errorDetail.name || 'Error',
-        stack: errorDetail.stack,
-        code: errorDetail.code || 'ERROR'
-      }
-    );
-    completion.reject(error);
   }
 }
 
@@ -778,10 +697,6 @@ export async function requestCancel(invocation, reason = 'CANCELED') {
   try {
     invocationPorts.get(current.invocationId)?.postMessage({ op: 'CANCEL' });
   } catch {}
-  const completion = invocationCompletion.get(current.invocationId);
-  if (completion) {
-    completion.reject(Object.assign(new Error(getMessage('overlayCanceled', 'Canceled.')), { code: 'CANCELED' }));
-  }
   try {
     await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', '');
   } catch {}
@@ -796,10 +711,6 @@ export async function cancelForTabClose(tabId) {
 
   cancelInvocation(invocation.invocationId, 'CANCELED');
   releaseTabBusy(invocation.invocationId);
-  const completion = invocationCompletion.get(invocation.invocationId);
-  if (completion) {
-    completion.reject(Object.assign(new Error(getMessage('overlayCanceled', 'Canceled.')), { code: 'CANCELED' }));
-  }
   invocationPorts.get(invocation.invocationId)?.disconnect();
   invocationPorts.delete(invocation.invocationId);
 }
@@ -812,10 +723,6 @@ export async function cancelForNavigation(tabId) {
 
   cancelInvocation(invocation.invocationId, 'CANCELED');
   releaseTabBusy(invocation.invocationId);
-  const completion = invocationCompletion.get(invocation.invocationId);
-  if (completion) {
-    completion.reject(Object.assign(new Error(getMessage('overlayCanceled', 'Canceled.')), { code: 'CANCELED' }));
-  }
   try {
     invocationPorts.get(invocation.invocationId)?.postMessage({ op: 'CANCEL' });
   } catch {}

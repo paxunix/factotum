@@ -13,6 +13,7 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 
 ### Bugs
 - MAIN should no longer be treated as a first-class top-level command runtime; remaining docs and code should converge on USER_SCRIPT runtime plus explicit MAIN bridge access.
+- Reliable explicit USER_SCRIPT completion signaling is still unresolved. Restoring direct `chrome.userScripts.execute()` completion fixed short commands again, but long-running commands now appear to finish immediately, which blocks meaningful T8/T9 cancel validation.
 
 ### Omnibox / UX
 - Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.

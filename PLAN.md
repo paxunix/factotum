@@ -27,6 +27,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current design learning: USER_SCRIPT is the viable command runtime; MAIN should be treated as a bridge target rather than a symmetric top-level runtime.
 - Storage/import-export now quarantine stale invalid stored commands instead of letting one bad record poison manager listing or bundle export.
 - Current UX direction: replace the transient overlay plus separate log page with a per-tab session console overlay that is lazy-created, dismissible, reopenable via bare `f`, and discarded on tab close.
+- Current runtime state: direct `chrome.userScripts.execute()` completion is restored for short commands, but reliable explicit USER_SCRIPT completion signaling is still unresolved, so long-running cancel/busy validation is temporarily blocked again.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -62,6 +63,9 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 ### Next checkpoint — Session Console Redesign
 **Ready:** replace the transient overlay/log split with a per-tab session console.
+
+**Blocked on**
+- Re-establish a reliable completion signal for long-running USER_SCRIPT commands before building more runtime-dependent session-console behavior.
 
 **Direction**
 - Keep the omnibox as the only input surface.
