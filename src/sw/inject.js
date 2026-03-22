@@ -24,7 +24,6 @@ import { escapeHtml } from '../shared/html.js';
 const CONTROL_TYPE = 'fcmd_control';
 const COMPLETION_MARKER_PREFIX = '__factotum_completion__';
 const CANCEL_MARKER_PREFIX = '__factotum_cancel__';
-const teardownTimers = new Map();
 const invocationCompletion = new Map();
 
 function getMessage(key, fallback) {
@@ -84,6 +83,15 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function buildSessionView(tabId, snapshot = null) {
+  const session = getSession(tabId) || ensureSession(tabId);
+  return {
+    snapshot,
+    entries: session.entries || [],
+    emptyMessage: getMessage('overlaySessionIdle', 'No commands have run in this tab yet.')
+  };
+}
+
 async function injectScript(tabId, file, world = 'ISOLATED') {
   await chrome.scripting.executeScript({
     target: { tabId, allFrames: false },
@@ -93,24 +101,21 @@ async function injectScript(tabId, file, world = 'ISOLATED') {
 }
 
 async function ensureOverlay(tabId, invocation, state = 'RUNNING', message = '') {
-  setSessionSnapshot(tabId, {
+  const snapshot = {
     invocationId: invocation.invocationId,
     commandRef: `${invocation.command.name}@${invocation.command.id}`,
     state,
     message,
     html: '',
     dismissible: state !== 'RUNNING'
-  });
+  };
+  setSessionSnapshot(tabId, snapshot);
   setSessionVisibility(tabId, true);
   setSessionActiveInvocation(tabId, invocation.invocationId);
   await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
   await sendControlMessage(tabId, {
-    op: 'INIT_OVERLAY',
-    invocationId: invocation.invocationId,
-    commandRef: `${invocation.command.name}@${invocation.command.id}`,
-    state,
-    message,
-    entries: ensureSession(tabId).entries || []
+    op: 'SHOW_SESSION',
+    ...buildSessionView(tabId, snapshot)
   });
 }
 
@@ -131,40 +136,36 @@ function appendSnapshotEntry(tabId, snapshot) {
 async function setOverlayStatus(tabId, invocationId, state, message = '') {
   const session = ensureSession(tabId);
   const snapshot = session.snapshot || {};
-  setSessionSnapshot(tabId, {
+  const nextSnapshot = {
     invocationId,
     commandRef: snapshot.commandRef || '',
     state,
     message,
     html: '',
     dismissible: state !== 'RUNNING'
-  });
+  };
+  setSessionSnapshot(tabId, nextSnapshot);
   setSessionVisibility(tabId, true);
   await sendControlMessage(tabId, {
-    op: 'SET_STATUS',
-    invocationId,
-    state,
-    message,
-    entries: ensureSession(tabId).entries || []
+    op: 'SHOW_SESSION',
+    ...buildSessionView(tabId, nextSnapshot)
   });
 }
 
 async function setOverlayHelp(tabId, invocationId, commandRef, html) {
-  setSessionSnapshot(tabId, {
+  const snapshot = {
     invocationId,
     commandRef,
     state: 'HELP',
     message: '',
     html,
     dismissible: true
-  });
+  };
+  setSessionSnapshot(tabId, snapshot);
   setSessionVisibility(tabId, true);
   await sendControlMessage(tabId, {
-    op: 'SET_HELP',
-    invocationId,
-    commandRef,
-    html,
-    entries: ensureSession(tabId).entries || []
+    op: 'SHOW_SESSION',
+    ...buildSessionView(tabId, snapshot)
   });
 }
 
@@ -210,28 +211,18 @@ async function showSessionOverlay(tabId) {
   await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
   await sendControlMessage(tabId, {
     op: 'SHOW_SESSION',
-    snapshot,
-    entries: session.entries || []
+    ...buildSessionView(tabId, snapshot)
   });
 }
 
-function scheduleTeardown(invocation, delayMs = 1200) {
-  const existing = teardownTimers.get(invocation.invocationId);
-  if (existing) {
-    clearTimeout(existing);
-  }
-
-  const timeoutId = setTimeout(async () => {
-    teardownTimers.delete(invocation.invocationId);
-    try {
-      await removeInvocationMarkers(invocation.tabId, invocation.invocationId);
-      await teardownOverlay(invocation.tabId, invocation.invocationId);
-    } finally {
-      clearInvocation(invocation.invocationId);
-    }
-  }, delayMs);
-
-  teardownTimers.set(invocation.invocationId, timeoutId);
+async function showHistoryOnly(tabId) {
+  setSessionSnapshot(tabId, null);
+  setSessionVisibility(tabId, true);
+  clearSessionActiveInvocation(tabId);
+  await sendControlMessage(tabId, {
+    op: 'SHOW_SESSION',
+    ...buildSessionView(tabId, null)
+  });
 }
 
 async function injectMainHost(tabId) {
@@ -545,7 +536,6 @@ async function showHelpOverlay(invocation) {
   const locale = await getTabLocale(invocation.tabId);
   const commandRef = `${invocation.command.name}@${invocation.command.id}`;
   const html = buildHelpHtml(invocation.command, locale);
-  await setOverlayHelp(invocation.tabId, invocation.invocationId, commandRef, html);
   appendSnapshotEntry(invocation.tabId, {
     invocationId: invocation.invocationId,
     commandRef,
@@ -553,6 +543,7 @@ async function showHelpOverlay(invocation) {
     message: '',
     html
   });
+  await showHistoryOnly(invocation.tabId);
 }
 
 function buildExecuteCode(invocation) {
@@ -752,9 +743,6 @@ async function handleResolutionFailure(tab, resolution) {
     command: { name: resolution.cmdToken || '', id: '' }
   };
   await ensureOverlay(tab.id, invocation, 'ERROR', resolution.message);
-  setTimeout(() => {
-    teardownOverlay(tab.id, invocation.invocationId).catch(() => {});
-  }, 5000);
 }
 
 async function handleBusyTab(tabId, message = '') {
@@ -789,12 +777,13 @@ async function finalizeInvocationSuccess(invocation, result) {
       message: '',
       html: ''
     });
-    scheduleTeardown(current, 2500);
+    await removeInvocationMarkers(current.tabId, current.invocationId);
+    clearInvocation(current.invocationId);
+    await showHistoryOnly(current.tabId);
     return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
   }
 
   finishInvocation(current.invocationId, 'DONE', { result });
-  await setOverlayStatus(current.tabId, current.invocationId, 'DONE', '');
   appendSnapshotEntry(current.tabId, {
     invocationId: current.invocationId,
     commandRef: `${current.command.name}@${current.command.id}`,
@@ -802,7 +791,10 @@ async function finalizeInvocationSuccess(invocation, result) {
     message: '',
     html: ''
   });
-  scheduleTeardown(current, 1200);
+  releaseTabBusy(current.invocationId);
+  await removeInvocationMarkers(current.tabId, current.invocationId);
+  clearInvocation(current.invocationId);
+  await showHistoryOnly(current.tabId);
   return { ok: true, invocation: current, result };
 }
 
@@ -814,7 +806,6 @@ async function finalizeInvocationError(invocation, error) {
 
   const serialized = serializeError(error, 'ERROR');
   finishInvocation(current.invocationId, 'ERROR', { error: serialized });
-  await setOverlayStatus(current.tabId, current.invocationId, 'ERROR', serialized.message);
   appendSnapshotEntry(current.tabId, {
     invocationId: current.invocationId,
     commandRef: `${current.command.name}@${current.command.id}`,
@@ -822,7 +813,10 @@ async function finalizeInvocationError(invocation, error) {
     message: serialized.message,
     html: ''
   });
-  scheduleTeardown(current, 5000);
+  releaseTabBusy(current.invocationId);
+  await removeInvocationMarkers(current.tabId, current.invocationId);
+  clearInvocation(current.invocationId);
+  await showHistoryOnly(current.tabId);
   return { ok: false, code: serialized.code, message: serialized.message };
 }
 
@@ -1045,10 +1039,7 @@ export async function requestCancel(invocation, reason = 'CANCELED') {
   settleCompletionWaiter(current.invocationId, {
     canceled: true
   });
-  try {
-    await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', '');
-  } catch {}
-  scheduleTeardown(current, 2500);
+  await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', '');
 }
 
 export async function cancelForTabClose(tabId) {

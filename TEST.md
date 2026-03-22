@@ -199,7 +199,8 @@ Each test lists: **Setup → Action → Expected**.
 * Expected:
 
   * Overlay appears once in the top frame, horizontally centered near the top of the page
-  * Overlay transitions to Done quickly (for non-failing run)
+  * Overlay shows the command outcome as a bubble in the session stream
+  * Overlay does not auto-dismiss; it remains visible until user close
 
 #### T7b: `--help` shows localized help HTML
 
@@ -218,6 +219,7 @@ Each test lists: **Setup → Action → Expected**.
 
   * Help overlay includes generated `usage`/`options`/`args` content.
   * Author-provided tokens remain localized.
+  * Help is shown as a bubble in the session stream, not a special takeover card.
 
 #### T8: Cancel button cancels a running command
 
@@ -225,7 +227,7 @@ Each test lists: **Setup → Action → Expected**.
 * Action: start `f canceldemo@demo.cancel`, click Cancel
 * Expected:
 
-  * Overlay shows Canceled
+  * Overlay shows running and canceled states as bubbles in the same session stream
   * Log contains cancellation entry
   * Any subsequent `ctx.chrome.*` calls from that command reject with `CANCELED`
 
