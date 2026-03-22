@@ -12,8 +12,10 @@ import {
 import { escapeHtml } from '../shared/html.js';
 
 const CONTROL_TYPE = 'fcmd_control';
+const COMPLETION_MARKER_PREFIX = '__factotum_completion__';
 const teardownTimers = new Map();
 const invocationPorts = new Map();
+const invocationCompletion = new Map();
 
 function getMessage(key, fallback) {
   return chrome.i18n.getMessage(key) || fallback;
@@ -134,6 +136,79 @@ function scheduleTeardown(invocation, delayMs = 1200) {
 
 async function injectMainHost(tabId) {
   await injectScript(tabId, 'bridge/main_host.js', 'MAIN');
+}
+
+function getCompletionMarkerId(invocationId) {
+  return `${COMPLETION_MARKER_PREFIX}${invocationId}`;
+}
+
+function clearCompletionWaiter(invocationId) {
+  invocationCompletion.delete(invocationId);
+}
+
+function waitForInvocationCompletion(invocationId) {
+  const existing = invocationCompletion.get(invocationId);
+  if (existing) {
+    return existing.promise;
+  }
+
+  let settled = false;
+  let resolvePromise;
+  let rejectPromise;
+  const promise = new Promise((resolve, reject) => {
+    resolvePromise = resolve;
+    rejectPromise = reject;
+  });
+
+  const completion = {
+    promise,
+    resolve(value) {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearCompletionWaiter(invocationId);
+      resolvePromise(value);
+    },
+    reject(error) {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearCompletionWaiter(invocationId);
+      rejectPromise(error);
+    }
+  };
+
+  invocationCompletion.set(invocationId, completion);
+  return promise;
+}
+
+async function readInvocationCompletionMarker(tabId, invocationId) {
+  try {
+    const [result] = await chrome.scripting.executeScript({
+      target: { tabId, allFrames: false },
+      world: 'ISOLATED',
+      func: (markerId) => {
+        const marker = document.getElementById(markerId);
+        if (!marker) {
+          return null;
+        }
+        const text = marker.textContent || '';
+        marker.remove();
+        return text;
+      },
+      args: [getCompletionMarkerId(invocationId)]
+    });
+
+    if (!result?.result) {
+      return null;
+    }
+
+    return JSON.parse(result.result);
+  } catch {
+    return null;
+  }
 }
 
 function resolveLocaleMapEntry(map, locale = 'en-US') {
@@ -260,7 +335,8 @@ function buildExecuteCode(invocation) {
     argvTokens: invocation.argvTokens,
     world: invocation.command.world,
     commandRef: `${invocation.command.name}@${invocation.command.id}`,
-    nonce: invocation.nonce
+    nonce: invocation.nonce,
+    completionMarkerId: getCompletionMarkerId(invocation.invocationId)
   });
 
   return `
@@ -316,6 +392,33 @@ function buildExecuteCode(invocation) {
         });
       }
 
+      function __factotumWriteCompletion(payload) {
+        let marker = document.getElementById(__factotumMeta.completionMarkerId);
+        if (!marker) {
+          marker = document.createElement('script');
+          marker.id = __factotumMeta.completionMarkerId;
+          marker.type = 'application/json';
+          marker.hidden = true;
+          (document.documentElement || document.body || document.head).append(marker);
+        }
+
+        let serialized = '';
+        try {
+          serialized = JSON.stringify(payload);
+        } catch (error) {
+          serialized = JSON.stringify({
+            status: 'failed',
+            error: {
+              name: error?.name || 'Error',
+              message: error?.message || String(error),
+              code: 'UNCLONEABLE_RESULT'
+            }
+          });
+        }
+
+        marker.textContent = serialized;
+      }
+
       const ctx = {
         signal: {
           get aborted() {
@@ -359,64 +462,31 @@ function buildExecuteCode(invocation) {
       };
 
       try {
-        chrome.runtime.sendMessage({
-          type: CONTROL_TYPE,
-          op: 'COMMAND_EVENT',
-          invocationId: __factotumMeta.invocationId,
-          event: 'started',
-          detail: {
-            commandRef: __factotumMeta.commandRef,
-            world: __factotumMeta.world
-          }
-        });
-
         console.info('[factotum execute]', __factotumMeta.commandRef, __factotumMeta.world);
         const __factotumMain = (() => {
           ${invocation.command.code}
           return typeof main === 'function' ? main : undefined;
         })();
         if (typeof __factotumMain !== 'function') {
-          chrome.runtime.sendMessage({
-            type: CONTROL_TYPE,
-            op: 'COMMAND_EVENT',
-            invocationId: __factotumMeta.invocationId,
-            event: 'no_main',
-            detail: {
-              commandRef: __factotumMeta.commandRef,
-              world: __factotumMeta.world
-            }
+          __factotumWriteCompletion({
+            status: 'no_main'
           });
           return undefined;
         }
         const __factotumResult = await __factotumMain(__factotumMeta.argvTokens, ctx);
-        chrome.runtime.sendMessage({
-          type: CONTROL_TYPE,
-          op: 'COMMAND_EVENT',
-          invocationId: __factotumMeta.invocationId,
-          event: 'completed',
-          detail: {
-            commandRef: __factotumMeta.commandRef,
-            world: __factotumMeta.world,
-            mainDefined: true,
-            result: __factotumResult
-          }
+        __factotumWriteCompletion({
+          status: 'completed',
+          result: __factotumResult
         });
         return __factotumResult;
       } catch (error) {
-        chrome.runtime.sendMessage({
-          type: CONTROL_TYPE,
-          op: 'COMMAND_EVENT',
-          invocationId: __factotumMeta.invocationId,
-          event: 'failed',
-          detail: {
-            commandRef: __factotumMeta.commandRef,
-            world: __factotumMeta.world,
-            error: {
-              name: error?.name || 'Error',
-              message: error?.message || String(error),
-              stack: error?.stack,
-              code: error?.code || 'ERROR'
-            }
+        __factotumWriteCompletion({
+          status: 'failed',
+          error: {
+            name: error?.name || 'Error',
+            message: error?.message || String(error),
+            stack: error?.stack,
+            code: error?.code || 'ERROR'
           }
         });
         throw error;
@@ -559,12 +629,15 @@ async function executeResolvedInvocation(tab, resolution) {
   await injectMainHost(tab.id);
 
   try {
-    const injectionResult = await executeUserScript(invocation);
-    if (injectionResult?.error) {
-      throw Object.assign(new Error(injectionResult.error), { code: 'ERROR' });
+    const completionPromise = waitForInvocationCompletion(invocation.invocationId);
+    await executeUserScript(invocation);
+    const completion = await completionPromise;
+
+    if (completion?.ok) {
+      return finalizeInvocationSuccess(invocation, completion.result);
     }
 
-    return finalizeInvocationSuccess(invocation, injectionResult?.result ?? injectionResult);
+    throw completion?.error || Object.assign(new Error('Invocation failed'), { code: 'ERROR' });
   } catch (error) {
     if (error?.code === 'CANCELED') {
       return finalizeInvocationSuccess(invocation, undefined);
@@ -683,6 +756,50 @@ export function handleUserScriptConnect(port) {
     if (invocationPorts.get(invocation.invocationId) === port) {
       invocationPorts.delete(invocation.invocationId);
     }
+
+    const completion = invocationCompletion.get(invocation.invocationId);
+    if (!completion) {
+      return;
+    }
+
+    if (invocation.canceled) {
+      completion.reject(Object.assign(new Error(getMessage('overlayCanceled', 'Canceled.')), { code: 'CANCELED' }));
+      return;
+    }
+
+    readInvocationCompletionMarker(invocation.tabId, invocation.invocationId)
+      .then((marker) => {
+        if (!marker || marker.status === 'no_main') {
+          completion.resolve({ ok: true, result: undefined });
+          return;
+        }
+
+        if (marker.status === 'completed') {
+          completion.resolve({ ok: true, result: marker.result });
+          return;
+        }
+
+        if (marker.status === 'failed') {
+          const errorDetail = marker.error || {};
+          completion.reject(Object.assign(
+            new Error(errorDetail.message || 'Invocation failed'),
+            {
+              name: errorDetail.name || 'Error',
+              stack: errorDetail.stack,
+              code: errorDetail.code || 'ERROR'
+            }
+          ));
+          return;
+        }
+
+        completion.reject(Object.assign(new Error('Invocation ended unexpectedly.'), { code: 'INVALID_INVOCATION' }));
+      })
+      .catch((error) => {
+        completion.reject(Object.assign(
+          new Error(error?.message || 'Invocation ended unexpectedly.'),
+          { code: error?.code || 'INVALID_INVOCATION' }
+        ));
+      });
   });
 }
 
