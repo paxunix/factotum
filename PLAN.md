@@ -26,8 +26,8 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - M2 is active under the `chrome.userScripts` architecture.
 - Current design learning: USER_SCRIPT is the viable command runtime; MAIN should be treated as a bridge target rather than a symmetric top-level runtime.
 - Storage/import-export now quarantine stale invalid stored commands instead of letting one bad record poison manager listing or bundle export.
-- Current UX direction: replace the transient overlay plus separate log page with a per-tab session console overlay that is lazy-created, dismissible, reopenable via bare `f`, and discarded on tab close.
-- Current runtime state: direct `chrome.userScripts.execute()` completion is restored for short commands, but reliable explicit USER_SCRIPT completion signaling is still unresolved, so long-running cancel/busy validation is temporarily blocked again.
+- Current UX direction: replace the transient overlay plus separate log page with a per-tab session console overlay that is lazy-created, dismissible, reopenable via `f -`, and discarded on tab close.
+- Current runtime state: short commands, long-running commands, manual cancel, and cancel-on-navigation are all working again after moving USER_SCRIPT completion/cancel coordination to DOM-backed markers instead of unreliable USER_SCRIPT-to-service-worker completion messages.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -64,9 +64,6 @@ Each milestone should end with a runnable subset and the matching manual tests f
 ### Next checkpoint — Session Console Redesign
 **Ready:** replace the transient overlay/log split with a per-tab session console.
 
-**Blocked on**
-- Re-establish a reliable completion signal for long-running USER_SCRIPT commands before building more runtime-dependent session-console behavior.
-
 **Direction**
 - Keep the omnibox as the only input surface.
 - Preserve one active invocation per tab for now.
@@ -74,14 +71,14 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 **Include**
 - Replace transient overlay takeover behavior with a persistent per-tab scrollback surface.
-- Support bare `f` with no args to reopen the current tab’s hidden session console.
+- Support `f -` to reopen the current tab’s hidden session console.
 - Add an explicit command-facing output API (`ctx.out.write/info/warn/error`) for scrollback entries.
 - Keep `--help` as inline console content instead of a special takeover card.
 - Add resize support for the scrollback region.
 - Remove the separate log UI once the console is a sufficient replacement for command-facing output.
 
 **Manual tests**
-- Reopen hidden console with bare `f`.
+- Reopen hidden console with `f -`.
 - Scrollback retains prior entries across multiple commands in one tab.
 - Scrollback is per-tab and disappears on tab close.
 - Active invocation state and system notices do not clobber prior entries.
@@ -191,7 +188,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Tasks**
 - Replace the transient status card with an ISOLATED shadow‑DOM session console for each tab.
 - Show scrollback plus active invocation state (`RUNNING`, `DONE`, `ERROR`, `CANCELED`, `BUSY`, `HELP`) without letting later notices clobber prior entries.
-- Support hiding vs destroying the console; bare `f` should reopen the hidden console for the current tab.
+- Support hiding vs destroying the console; `f -` should reopen the hidden console for the current tab.
 - `--help` shows rendered help HTML inline in the console, skips requires + main, ends after display.
 - Use Web Awesome components where appropriate (button, alert, spinner), bundled locally.
 - Render help HTML from `helpHtmlTemplate` + localized `helpHtmlStrings` using locale resolution order; fallback `en-US`.
@@ -204,7 +201,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 **Manual tests**
 - Console appears in top frame only.
-- Bare `f` reopens the hidden console for the current tab.
+- `f -` reopens the hidden console for the current tab.
 - `--help` path shows raw HTML inline and ends invocation.
 
 ---

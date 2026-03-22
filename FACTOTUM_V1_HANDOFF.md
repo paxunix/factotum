@@ -37,7 +37,7 @@ The current checked-in implementation still uses a transient overlay plus a sepa
 
 - lazy-created on first fcommand use in a tab
 - hidden when dismissed, not destroyed
-- reopenable via bare omnibox keyword invocation (`f` with no args)
+- reopenable via omnibox `f -`
 - per-tab scrollback that is discarded when the tab closes
 - active invocation state plus prior command-visible output in one surface
 
@@ -405,7 +405,7 @@ Planned replacement:
 
 - Replace the transient card overlay with a per-tab session console overlay.
 - Keep the omnibox as the only command input.
-- Bare `f` with no arguments should reopen the hidden session console for the current tab.
+- `f -` should reopen the hidden session console for the current tab.
 - The future session console should keep per-tab scrollback until tab close and allow resizing of the scrollback area.
 
 ---

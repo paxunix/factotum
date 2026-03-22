@@ -9,6 +9,15 @@ import {
   isTabBusy,
   releaseTabBusy
 } from './invocations.js';
+import {
+  clearSessionActiveInvocation,
+  discardSession,
+  ensureSession,
+  getSession,
+  setSessionActiveInvocation,
+  setSessionSnapshot,
+  setSessionVisibility
+} from './sessions.js';
 import { escapeHtml } from '../shared/html.js';
 
 const CONTROL_TYPE = 'fcmd_control';
@@ -83,6 +92,16 @@ async function injectScript(tabId, file, world = 'ISOLATED') {
 }
 
 async function ensureOverlay(tabId, invocation, state = 'RUNNING', message = '') {
+  setSessionSnapshot(tabId, {
+    invocationId: invocation.invocationId,
+    commandRef: `${invocation.command.name}@${invocation.command.id}`,
+    state,
+    message,
+    html: '',
+    dismissible: state !== 'RUNNING'
+  });
+  setSessionVisibility(tabId, true);
+  setSessionActiveInvocation(tabId, invocation.invocationId);
   await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
   await sendControlMessage(tabId, {
     op: 'INIT_OVERLAY',
@@ -94,6 +113,17 @@ async function ensureOverlay(tabId, invocation, state = 'RUNNING', message = '')
 }
 
 async function setOverlayStatus(tabId, invocationId, state, message = '') {
+  const session = ensureSession(tabId);
+  const snapshot = session.snapshot || {};
+  setSessionSnapshot(tabId, {
+    invocationId,
+    commandRef: snapshot.commandRef || '',
+    state,
+    message,
+    html: '',
+    dismissible: state !== 'RUNNING'
+  });
+  setSessionVisibility(tabId, true);
   await sendControlMessage(tabId, {
     op: 'SET_STATUS',
     invocationId,
@@ -103,6 +133,15 @@ async function setOverlayStatus(tabId, invocationId, state, message = '') {
 }
 
 async function setOverlayHelp(tabId, invocationId, commandRef, html) {
+  setSessionSnapshot(tabId, {
+    invocationId,
+    commandRef,
+    state: 'HELP',
+    message: '',
+    html,
+    dismissible: true
+  });
+  setSessionVisibility(tabId, true);
   await sendControlMessage(tabId, {
     op: 'SET_HELP',
     invocationId,
@@ -112,9 +151,30 @@ async function setOverlayHelp(tabId, invocationId, commandRef, html) {
 }
 
 async function teardownOverlay(tabId, invocationId) {
+  setSessionVisibility(tabId, false);
+  clearSessionActiveInvocation(tabId, invocationId);
   await sendControlMessage(tabId, {
     op: 'TEARDOWN',
     invocationId
+  });
+}
+
+async function showSessionOverlay(tabId) {
+  const session = getSession(tabId) || ensureSession(tabId);
+  const snapshot = session.snapshot || {
+    invocationId: null,
+    commandRef: getMessage('appName', 'Factotum'),
+    state: 'IDLE',
+    message: getMessage('overlaySessionIdle', 'No commands have run in this tab yet.'),
+    html: '',
+    dismissible: true
+  };
+
+  setSessionVisibility(tabId, true);
+  await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
+  await sendControlMessage(tabId, {
+    op: 'SHOW_SESSION',
+    snapshot
   });
 }
 
@@ -822,6 +882,11 @@ export async function executeOmniboxInput(text) {
     return;
   }
 
+  if (String(text || '').trim() === '-') {
+    await showSessionOverlay(tab.id);
+    return { ok: true, reopen: true };
+  }
+
   const resolution = await resolveInvocationInput(text);
   if (!resolution.ok) {
     await handleResolutionFailure(tab, resolution);
@@ -855,7 +920,7 @@ function handleCommandEvent(message) {
   }
 }
 
-export async function handleRuntimeControlMessage(message) {
+export async function handleRuntimeControlMessage(message, sender) {
   if (!message || message.type !== CONTROL_TYPE) {
     return undefined;
   }
@@ -875,10 +940,12 @@ export async function handleRuntimeControlMessage(message) {
   if (message.op === 'DISMISS_REQUEST') {
     const invocation = getInvocationById(message.invocationId);
     if (invocation) {
-      invocationPorts.get(invocation.invocationId)?.disconnect();
-      invocationPorts.delete(invocation.invocationId);
       await teardownOverlay(invocation.tabId, invocation.invocationId);
-      clearInvocation(invocation.invocationId);
+      if (invocation.status === 'HELP') {
+        clearInvocation(invocation.invocationId);
+      }
+    } else if (sender?.tab?.id) {
+      setSessionVisibility(sender.tab.id, false);
     }
   }
 
@@ -922,6 +989,7 @@ export async function requestCancel(invocation, reason = 'CANCELED') {
 export async function cancelForTabClose(tabId) {
   const invocation = getInvocationByTabId(tabId);
   if (!invocation) {
+    discardSession(tabId);
     return;
   }
 
@@ -931,6 +999,7 @@ export async function cancelForTabClose(tabId) {
   settleCompletionWaiter(invocation.invocationId, {
     canceled: true
   });
+  discardSession(tabId);
 }
 
 export async function cancelForNavigation(tabId) {

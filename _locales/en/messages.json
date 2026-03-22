@@ -137,6 +137,10 @@
     "message": "Help",
     "description": "Overlay help state label"
   },
+  "overlaySessionIdle": {
+    "message": "No commands have run in this tab yet.",
+    "description": "Session overlay empty-state message"
+  },
   "overlayCannotInject": {
     "message": "Cannot run on this page.",
     "description": "Overlay error message for non-injectable pages"

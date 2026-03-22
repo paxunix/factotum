@@ -27,7 +27,7 @@ Command runtime now lives in `USER_SCRIPT` via `chrome.userScripts`. `MAIN` shou
 
 The current implementation still has a transient overlay plus a separate log page, but the next intended direction is a per-tab session console overlay. When touching command-facing output or invocation UX, optimize for:
 
-* per-tab session state, discarded on tab close
+* per-tab session state, discarded on tab close, reopenable via `f -`
 * command-visible scrollback in the overlay instead of a separate log page
 * omnibox as the only input surface
 * explicit command-facing output APIs (`ctx.out.*`) instead of relying on incidental `console.*` output

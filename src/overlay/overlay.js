@@ -92,6 +92,7 @@ function getMessage(key, fallback) {
 }
 
 const stateLabels = {
+  IDLE: '',
   RUNNING: getMessage('overlayRunning', 'Running...'),
   DONE: getMessage('overlayDone', 'Done.'),
   ERROR: getMessage('overlayError', 'Error.'),
@@ -145,7 +146,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
 
     controller.shadowRootRef.getElementById('factotum-cancel').textContent = getMessage('overlayCancel', 'Cancel');
     controller.shadowRootRef.getElementById('factotum-cancel').addEventListener('click', () => {
-      if (!controller.currentInvocationId) {
+      if (!controller.currentInvocationId && !controller.dismissible) {
         return;
       }
       chrome.runtime.sendMessage(
@@ -153,7 +154,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
           ? {
               type: CONTROL_TYPE,
               op: 'DISMISS_REQUEST',
-              invocationId: controller.currentInvocationId
+              invocationId: controller.currentInvocationId || null
             }
           : {
               type: CONTROL_TYPE,
@@ -161,18 +162,22 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
               invocationId: controller.currentInvocationId
             }
       );
+
+      if (controller.dismissible) {
+        teardownController(controller);
+      }
     });
 
     return controller.overlayRoot;
   }
 
-  function renderOverlay({ commandRef, state, message }) {
+  function renderOverlay({ commandRef, state, message, dismissible = false }) {
     if (!ensureOverlay()) {
       return;
     }
 
     const helpRoot = controller.shadowRootRef.getElementById('factotum-help');
-    controller.dismissible = false;
+    controller.dismissible = dismissible;
     controller.shadowRootRef.getElementById('factotum-title').textContent = commandRef;
     controller.shadowRootRef.getElementById('factotum-status').textContent = stateLabels[state] || state;
     controller.shadowRootRef.getElementById('factotum-message').textContent = message || '';
@@ -180,8 +185,8 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     helpRoot.hidden = true;
     helpRoot.innerHTML = '';
     const button = controller.shadowRootRef.getElementById('factotum-cancel');
-    button.hidden = state !== 'RUNNING';
-    button.textContent = getMessage('overlayCancel', 'Cancel');
+    button.hidden = state !== 'RUNNING' && !dismissible;
+    button.textContent = dismissible ? getMessage('overlayClose', 'Close') : getMessage('overlayCancel', 'Cancel');
   }
 
   function renderHelp({ commandRef, html }) {
@@ -219,7 +224,8 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       renderOverlay({
         commandRef: message.commandRef,
         state: message.state || 'RUNNING',
-        message: message.message || ''
+        message: message.message || '',
+        dismissible: message.state !== 'RUNNING'
       });
     }
 
@@ -227,7 +233,8 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       renderOverlay({
         commandRef: controller.shadowRootRef?.getElementById('factotum-title')?.textContent || '',
         state: message.state,
-        message: message.message || ''
+        message: message.message || '',
+        dismissible: message.state !== 'RUNNING'
       });
     }
 
@@ -240,6 +247,24 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
 
     if (message.op === 'TEARDOWN') {
       teardownOverlay(message.invocationId);
+    }
+
+    if (message.op === 'SHOW_SESSION') {
+      const snapshot = message.snapshot || {};
+      controller.currentInvocationId = snapshot.invocationId || null;
+      if (snapshot.state === 'HELP') {
+        renderHelp({
+          commandRef: snapshot.commandRef || getMessage('appName', 'Factotum'),
+          html: snapshot.html || ''
+        });
+      } else {
+        renderOverlay({
+          commandRef: snapshot.commandRef || getMessage('appName', 'Factotum'),
+          state: snapshot.state || 'IDLE',
+          message: snapshot.message || '',
+          dismissible: snapshot.dismissible !== false
+        });
+      }
     }
 
     return undefined;

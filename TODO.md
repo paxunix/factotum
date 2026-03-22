@@ -13,7 +13,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 
 ### Bugs
 - MAIN should no longer be treated as a first-class top-level command runtime; remaining docs and code should converge on USER_SCRIPT runtime plus explicit MAIN bridge access.
-- Reliable explicit USER_SCRIPT completion signaling is still unresolved. Restoring direct `chrome.userScripts.execute()` completion fixed short commands again, but long-running commands now appear to finish immediately, which blocks meaningful T8/T9 cancel validation.
 
 ### Omnibox / UX
 - Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.
@@ -22,7 +21,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 
 ### Session console redesign
 - Replace the transient overlay + separate log page with a per-tab session console overlay that keeps scrollback until tab close.
-- Support bare `f` with no args to reopen the hidden session console for the current tab without executing a command.
 - Add a command-facing output API (`ctx.out.write/info/warn/error`) so fcommands can append explicit output entries to scrollback.
 - Make the scrollback region resizable for desktop use.
 - Decide whether existing `ctx.log/warn/error` should alias to `ctx.out.*` during the transition or remain internal diagnostics only.

@@ -62,10 +62,10 @@ Each test lists: **Setup → Action → Expected**.
 
 ### 1.1 Omnibox resolution
 
-#### T0: Bare omnibox keyword reopens the current tab session console
+#### T0: `f -` reopens the current tab session console
 
 * Setup: in a normal page, run any fcommand once, then dismiss the session console
-* Action: enter just `f` with no arguments
+* Action: enter `f -`
 * Expected:
 
   * No command executes
