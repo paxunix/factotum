@@ -6,6 +6,7 @@ function createSession(tabId) {
     visible: false,
     activeInvocationId: null,
     snapshot: null,
+    entries: [],
     createdAt: Date.now(),
     updatedAt: Date.now()
   };
@@ -56,6 +57,17 @@ export function clearSessionActiveInvocation(tabId, invocationId = null) {
 export function setSessionSnapshot(tabId, snapshot) {
   const session = ensureSession(tabId);
   session.snapshot = snapshot ? { ...snapshot } : null;
+  session.updatedAt = Date.now();
+  return session;
+}
+
+export function appendSessionEntry(tabId, entry) {
+  const session = ensureSession(tabId);
+  session.entries.push({
+    id: `entry-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    createdAt: Date.now(),
+    ...entry
+  });
   session.updatedAt = Date.now();
   return session;
 }

@@ -22,6 +22,69 @@ const STYLE_TEXT = `
     z-index: 2147483647;
   }
 
+  .factotum-history {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 0 14px;
+    max-height: min(240px, 40vh);
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .factotum-history[hidden] {
+    display: none;
+  }
+
+  .factotum-entry {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .factotum-entry-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+
+  .factotum-entry-status {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
+    margin: 0 0 6px;
+  }
+
+  .factotum-entry-message {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  .factotum-entry-help {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .factotum-entry-help h1,
+  .factotum-entry-help h2,
+  .factotum-entry-help p,
+  .factotum-entry-help pre,
+  .factotum-entry-help ul {
+    margin: 0 0 8px;
+  }
+
+  .factotum-entry-help pre {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    overflow-x: auto;
+    padding: 8px;
+    white-space: pre-wrap;
+  }
+
   .factotum-title {
     font-size: 14px;
     font-weight: 700;
@@ -114,7 +177,8 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     overlayRoot: null,
     shadowRootRef: null,
     currentInvocationId: null,
-    dismissible: false
+    dismissible: false,
+    entries: []
   };
 
   function ensureOverlay() {
@@ -132,6 +196,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     const shell = document.createElement('section');
     shell.className = 'factotum-shell';
     shell.innerHTML = `
+      <div class="factotum-history" id="factotum-history" hidden></div>
       <h1 class="factotum-title" id="factotum-title"></h1>
       <p class="factotum-status" id="factotum-status"></p>
       <p class="factotum-message" id="factotum-message"></p>
@@ -171,17 +236,61 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     return controller.overlayRoot;
   }
 
+  function renderHistory(entries = []) {
+    ensureOverlay();
+
+    controller.entries = Array.isArray(entries) ? entries : [];
+    const root = controller.shadowRootRef.getElementById('factotum-history');
+    root.innerHTML = '';
+    root.hidden = controller.entries.length === 0;
+
+    for (const entry of controller.entries) {
+      const item = document.createElement('article');
+      item.className = 'factotum-entry';
+
+      const title = document.createElement('p');
+      title.className = 'factotum-entry-title';
+      title.textContent = entry.commandRef || getMessage('appName', 'Factotum');
+
+      const status = document.createElement('p');
+      status.className = 'factotum-entry-status';
+      status.textContent = stateLabels[entry.state] || entry.state || '';
+
+      item.append(title, status);
+
+      if (entry.state === 'HELP' && entry.html) {
+        const help = document.createElement('div');
+        help.className = 'factotum-entry-help';
+        help.innerHTML = entry.html;
+        item.append(help);
+      } else if (entry.message) {
+        const message = document.createElement('p');
+        message.className = 'factotum-entry-message';
+        message.textContent = entry.message;
+        item.append(message);
+      }
+
+      root.append(item);
+    }
+  }
+
   function renderOverlay({ commandRef, state, message, dismissible = false }) {
     if (!ensureOverlay()) {
       return;
     }
 
     const helpRoot = controller.shadowRootRef.getElementById('factotum-help');
+    const titleRoot = controller.shadowRootRef.getElementById('factotum-title');
+    const statusRoot = controller.shadowRootRef.getElementById('factotum-status');
+    const messageRoot = controller.shadowRootRef.getElementById('factotum-message');
+    const idleShell = state === 'IDLE' && !message;
     controller.dismissible = dismissible;
-    controller.shadowRootRef.getElementById('factotum-title').textContent = commandRef;
-    controller.shadowRootRef.getElementById('factotum-status').textContent = stateLabels[state] || state;
-    controller.shadowRootRef.getElementById('factotum-message').textContent = message || '';
-    controller.shadowRootRef.getElementById('factotum-message').hidden = state === 'HELP';
+    titleRoot.textContent = commandRef;
+    titleRoot.hidden = idleShell;
+    statusRoot.textContent = stateLabels[state] || state;
+    statusRoot.hidden = idleShell;
+    messageRoot.textContent = message || '';
+    messageRoot.hidden = state === 'HELP' || idleShell;
     helpRoot.hidden = true;
     helpRoot.innerHTML = '';
     const button = controller.shadowRootRef.getElementById('factotum-cancel');
@@ -221,6 +330,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
 
     if (message.op === 'INIT_OVERLAY') {
       controller.currentInvocationId = message.invocationId;
+      renderHistory(message.entries || []);
       renderOverlay({
         commandRef: message.commandRef,
         state: message.state || 'RUNNING',
@@ -230,6 +340,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     }
 
     if (message.op === 'SET_STATUS' && message.invocationId === controller.currentInvocationId) {
+      renderHistory(message.entries || controller.entries);
       renderOverlay({
         commandRef: controller.shadowRootRef?.getElementById('factotum-title')?.textContent || '',
         state: message.state,
@@ -239,6 +350,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     }
 
     if (message.op === 'SET_HELP' && message.invocationId === controller.currentInvocationId) {
+      renderHistory(message.entries || controller.entries);
       renderHelp({
         commandRef: message.commandRef || controller.shadowRootRef?.getElementById('factotum-title')?.textContent || '',
         html: message.html || ''
@@ -252,6 +364,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     if (message.op === 'SHOW_SESSION') {
       const snapshot = message.snapshot || {};
       controller.currentInvocationId = snapshot.invocationId || null;
+      renderHistory(message.entries || []);
       if (snapshot.state === 'HELP') {
         renderHelp({
           commandRef: snapshot.commandRef || getMessage('appName', 'Factotum'),

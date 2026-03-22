@@ -10,6 +10,7 @@ import {
   releaseTabBusy
 } from './invocations.js';
 import {
+  appendSessionEntry,
   clearSessionActiveInvocation,
   discardSession,
   ensureSession,
@@ -108,8 +109,23 @@ async function ensureOverlay(tabId, invocation, state = 'RUNNING', message = '')
     invocationId: invocation.invocationId,
     commandRef: `${invocation.command.name}@${invocation.command.id}`,
     state,
-    message
+    message,
+    entries: ensureSession(tabId).entries || []
   });
+}
+
+function snapshotToEntry(snapshot) {
+  return {
+    invocationId: snapshot.invocationId || null,
+    commandRef: snapshot.commandRef || '',
+    state: snapshot.state || 'IDLE',
+    message: snapshot.message || '',
+    html: snapshot.html || ''
+  };
+}
+
+function appendSnapshotEntry(tabId, snapshot) {
+  appendSessionEntry(tabId, snapshotToEntry(snapshot));
 }
 
 async function setOverlayStatus(tabId, invocationId, state, message = '') {
@@ -128,7 +144,8 @@ async function setOverlayStatus(tabId, invocationId, state, message = '') {
     op: 'SET_STATUS',
     invocationId,
     state,
-    message
+    message,
+    entries: ensureSession(tabId).entries || []
   });
 }
 
@@ -146,7 +163,8 @@ async function setOverlayHelp(tabId, invocationId, commandRef, html) {
     op: 'SET_HELP',
     invocationId,
     commandRef,
-    html
+    html,
+    entries: ensureSession(tabId).entries || []
   });
 }
 
@@ -161,20 +179,39 @@ async function teardownOverlay(tabId, invocationId) {
 
 async function showSessionOverlay(tabId) {
   const session = getSession(tabId) || ensureSession(tabId);
-  const snapshot = session.snapshot || {
-    invocationId: null,
-    commandRef: getMessage('appName', 'Factotum'),
-    state: 'IDLE',
-    message: getMessage('overlaySessionIdle', 'No commands have run in this tab yet.'),
-    html: '',
-    dismissible: true
-  };
+  const snapshot = session.activeInvocationId
+    ? (session.snapshot || {
+        invocationId: null,
+        commandRef: getMessage('appName', 'Factotum'),
+        state: 'IDLE',
+        message: getMessage('overlaySessionIdle', 'No commands have run in this tab yet.'),
+        html: '',
+        dismissible: true
+      })
+    : (session.entries && session.entries.length > 0
+        ? {
+            invocationId: null,
+            commandRef: getMessage('appName', 'Factotum'),
+            state: 'IDLE',
+            message: '',
+            html: '',
+            dismissible: true
+          }
+        : {
+            invocationId: null,
+            commandRef: getMessage('appName', 'Factotum'),
+            state: 'IDLE',
+            message: getMessage('overlaySessionIdle', 'No commands have run in this tab yet.'),
+            html: '',
+            dismissible: true
+          });
 
   setSessionVisibility(tabId, true);
   await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
   await sendControlMessage(tabId, {
     op: 'SHOW_SESSION',
-    snapshot
+    snapshot,
+    entries: session.entries || []
   });
 }
 
@@ -509,6 +546,13 @@ async function showHelpOverlay(invocation) {
   const commandRef = `${invocation.command.name}@${invocation.command.id}`;
   const html = buildHelpHtml(invocation.command, locale);
   await setOverlayHelp(invocation.tabId, invocation.invocationId, commandRef, html);
+  appendSnapshotEntry(invocation.tabId, {
+    invocationId: invocation.invocationId,
+    commandRef,
+    state: 'HELP',
+    message: '',
+    html
+  });
 }
 
 function buildExecuteCode(invocation) {
@@ -738,12 +782,26 @@ async function finalizeInvocationSuccess(invocation, result) {
     try {
       await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', '');
     } catch {}
+    appendSnapshotEntry(current.tabId, {
+      invocationId: current.invocationId,
+      commandRef: `${current.command.name}@${current.command.id}`,
+      state: 'CANCELED',
+      message: '',
+      html: ''
+    });
     scheduleTeardown(current, 2500);
     return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
   }
 
   finishInvocation(current.invocationId, 'DONE', { result });
   await setOverlayStatus(current.tabId, current.invocationId, 'DONE', '');
+  appendSnapshotEntry(current.tabId, {
+    invocationId: current.invocationId,
+    commandRef: `${current.command.name}@${current.command.id}`,
+    state: 'DONE',
+    message: '',
+    html: ''
+  });
   scheduleTeardown(current, 1200);
   return { ok: true, invocation: current, result };
 }
@@ -757,6 +815,13 @@ async function finalizeInvocationError(invocation, error) {
   const serialized = serializeError(error, 'ERROR');
   finishInvocation(current.invocationId, 'ERROR', { error: serialized });
   await setOverlayStatus(current.tabId, current.invocationId, 'ERROR', serialized.message);
+  appendSnapshotEntry(current.tabId, {
+    invocationId: current.invocationId,
+    commandRef: `${current.command.name}@${current.command.id}`,
+    state: 'ERROR',
+    message: serialized.message,
+    html: ''
+  });
   scheduleTeardown(current, 5000);
   return { ok: false, code: serialized.code, message: serialized.message };
 }

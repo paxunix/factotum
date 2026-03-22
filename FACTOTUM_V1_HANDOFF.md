@@ -33,7 +33,7 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 
 ### Current design direction
 
-The current checked-in implementation still uses a transient overlay plus a separate session log page. Based on manual usage, the next intended redesign is to consolidate those into a per-tab session console overlay:
+The current checked-in implementation now has the first slice of a per-tab session console: saved per-tab overlay/help history can be reopened with `f -`, while the separate session log page still exists. Based on manual usage, the next intended redesign steps are to continue consolidating toward a full per-tab session console overlay:
 
 - lazy-created on first fcommand use in a tab
 - hidden when dismissed, not destroyed

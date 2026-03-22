@@ -27,6 +27,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current design learning: USER_SCRIPT is the viable command runtime; MAIN should be treated as a bridge target rather than a symmetric top-level runtime.
 - Storage/import-export now quarantine stale invalid stored commands instead of letting one bad record poison manager listing or bundle export.
 - Current UX direction: replace the transient overlay plus separate log page with a per-tab session console overlay that is lazy-created, dismissible, reopenable via `f -`, and discarded on tab close.
+- Current session-console progress: reopened sessions now show per-tab append-only history entries for completed/help/error/canceled command outcomes.
 - Current runtime state: short commands, long-running commands, manual cancel, and cancel-on-navigation are all working again after moving USER_SCRIPT completion/cancel coordination to DOM-backed markers instead of unreliable USER_SCRIPT-to-service-worker completion messages.
 
 ### M1 — Storage + Omnibox Resolution (no execution)

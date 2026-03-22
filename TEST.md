@@ -70,7 +70,7 @@ Each test lists: **Setup → Action → Expected**.
 
   * No command executes
   * The current tab’s existing Factotum session console reappears
-  * Prior scrollback for that tab is still present
+  * Prior scrollback bubbles for that tab are still present
 
 #### T1: Exact alias expansion wins over command name
 
