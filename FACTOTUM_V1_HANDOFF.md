@@ -37,15 +37,13 @@ When user-facing behavior or author-facing APIs change, keep those audience guid
 
 ### Current design direction
 
-The current checked-in implementation now has a working per-tab session-console foundation: saved per-tab overlay/help history can be reopened with `f -`, active command state is shown in the same bubble stream as saved history, busy/no-such-command notices append as system entries instead of taking over the current view, `ctx.out.write/info/warn/error` append command-visible output bubbles (including localized payloads), terminal overlays no longer auto-dismiss, the desktop console defaults to a wider presentation with a vertically resizable scrollback region, and the separate session log page still exists. Based on manual usage, the next intended redesign steps are to continue consolidating toward a full per-tab session console overlay:
+The current checked-in implementation now uses a per-tab session console as the primary command-facing overlay surface: it is lazy-created on first use in a tab, hidden when dismissed rather than destroyed, reopenable via omnibox `f -`, preserved across navigation in the same tab, and discarded on tab close. Saved command outcomes, help, system notices, active invocation state, and `ctx.out.write/info/warn/error` output all render in the same append-only bubble stream. Terminal states do not auto-dismiss, the desktop console defaults to a wider presentation, and the scrollback region is vertically resizable. The separate log page still exists for internal diagnostics while the command-facing console continues to mature.
 
-- lazy-created on first fcommand use in a tab
-- hidden when dismissed, not destroyed
-- reopenable via omnibox `f -`
-- per-tab scrollback that is discarded when the tab closes
-- active invocation state plus prior command-visible output in one surface
+The main remaining follow-ups in this area are presentation refinements rather than a model change:
 
-Until that redesign lands, the implementation sections below describe the current shipped behavior.
+- stronger visual distinctions between output levels and command-state/system bubbles
+- manager/import diagnostics that surface newly imported commands as clearly as duplicate/quarantine warnings
+- a cleaner generated-wrapper boundary before `main(argvTokens, ctx)` so future `--debug` support has an obvious insertion point
 
 ---
 
@@ -396,21 +394,15 @@ SW rejects RPC if:
 
 ---
 
-## 10) Overlay UI (minimal)
+## 10) Overlay UI / Session Console
 
 - Always in ISOLATED top frame (shadow DOM).
-- Shows: `name@id`, running/progress, cancel button, status done/error/canceled.
-- `--help` shows raw rendered help HTML in overlay; skips requires and main execution; invocation ends after help display.
+- The command-facing UI is a per-tab session console overlay.
+- It shows append-only bubbles for command start/progress, `ctx.out.*` output, help, and terminal states such as done/error/canceled/busy/no-such-command.
+- `--help` shows raw rendered help HTML inline in the session console, skips requires and main execution, and requires explicit user dismissal.
 - Help HTML is rendered from `helpHtmlTemplate` + localized `helpHtmlStrings` per §3.2.
-
-No other UI helpers.
-
-Planned replacement:
-
-- Replace the transient card overlay with a per-tab session console overlay.
-- Keep the omnibox as the only command input.
-- `f -` should reopen the hidden session console for the current tab.
-- The future session console should keep per-tab scrollback until tab close and allow resizing of the scrollback area.
+- `f -` reopens the hidden session console for the current tab without starting a command.
+- The desktop console uses a wider default presentation and a vertically resizable scrollback region.
 
 ---
 
@@ -437,13 +429,11 @@ Serialization:
 - No truncation
 - Capture stack traces when logging Error objects; runtime may attach a stack for error-string logs when useful.
 
-UI: a simple Log page for current session.
+UI:
 
-Planned replacement:
-
-- Replace the separate log page with the per-tab session console once command-visible output is routed there.
-- Add explicit command-facing output APIs such as `ctx.out.write/info/warn/error` for scrollback entries.
-- Keep internal runtime diagnostics distinct from command-facing session output even if both remain session-scoped.
+- Command-facing output appears in the per-tab session console via `ctx.out.write/info/warn/error`.
+- Internal diagnostics still have a separate current-session log page.
+- `ctx.log/warn/error` remain diagnostics and are not aliases of `ctx.out.*`.
 
 ---
 
@@ -502,12 +492,12 @@ Recommended entrypoints:
 * SW: `src/sw/sw.js` → `dist/sw/sw.js`
 * Injected: `overlay.js`, `main_host.js`
 * User-script execution: command code dispatched via `chrome.userScripts.execute()` in USER_SCRIPT world
-* UI pages: `manager.js`, `editor.js` (ACE bundled), and the current `log.js` page while the session-console redesign is still pending
+* UI pages: `manager.js`, `editor.js` (ACE bundled), and the current `log.js` page for internal diagnostics
 
 UI access:
 
 * Provide a full-size manager/editor UI via extension pages (recommended for editing code/help).
-* Popup (browser action) may act as a lightweight launcher that opens manager/editor pages; the separate log page is expected to be retired once the session console lands.
+* Popup (browser action) may act as a lightweight launcher that opens manager/editor pages; if the separate log page is retired later, preserve access to internal diagnostics somewhere explicit.
 
 ---
 

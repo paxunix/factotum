@@ -25,12 +25,13 @@ Command runtime now lives in `USER_SCRIPT` via `chrome.userScripts`. `MAIN` shou
 
 ## Current UI direction
 
-The current implementation now has reopenable per-tab overlay history plus active-state bubbles in the same session stream, alongside a separate log page. The next intended direction is a fuller per-tab session console overlay. When touching command-facing output or invocation UX, optimize for:
+The current implementation now uses a per-tab session console overlay for command-facing output, while a separate log page still exists for internal diagnostics. When touching command-facing output or invocation UX, optimize for:
 
 * per-tab session state, discarded on tab close, reopenable via `f -`
-* command-visible scrollback in the overlay instead of a separate log page
+* command-visible scrollback in the overlay
 * omnibox as the only input surface
 * explicit command-facing output APIs (`ctx.out.*`) instead of relying on incidental `console.*` output
+* keeping `ctx.log/warn/error` as diagnostics rather than aliases of `ctx.out.*`
 
 ## Related docs (when to consult)
 - `FACTOTUM_V1_HANDOFF.md`: Authoritative RPC policy and error codes; defer to it on conflicts.

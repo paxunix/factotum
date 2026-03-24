@@ -25,17 +25,18 @@ Each milestone should end with a runnable subset and the matching manual tests f
 ## Current status
 - M1 is complete.
 - Manual checks passed for T1, T2, T3, T3b, and T4b using the manager bundle import flow.
-- M2 is active under the `chrome.userScripts` architecture.
+- M2 core execution/session-console work is now landed under the `chrome.userScripts` architecture.
 - Current design learning: USER_SCRIPT is the viable command runtime; MAIN should be treated as a bridge target rather than a symmetric top-level runtime.
 - Storage/import-export now quarantine stale invalid stored commands instead of letting one bad record poison manager listing or bundle export.
-- Current UX direction: replace the transient overlay plus separate log page with a per-tab session console overlay that is lazy-created, dismissible, reopenable via `f -`, and discarded on tab close.
-- Current session-console progress: reopened sessions now show per-tab append-only history entries for completed/help/error/canceled command outcomes.
-- Current session-console progress: active command state now renders in the same bubble stream as saved history, and terminal overlays no longer auto-dismiss.
-- Current session-console progress: busy and no-such-command notices now append as system entries instead of taking over the current command view.
-- Current session-console progress: `ctx.out.write/info/warn/error` now append command-visible output bubbles, including localized payloads, into the per-tab session stream.
+- Current UX state: the per-tab session console is now the primary overlay surface. It is lazy-created, dismissible, reopenable via `f -`, preserved across navigation in the same tab, and discarded on tab close.
+- Current session-console progress: reopened sessions show per-tab append-only history entries for completed/help/error/canceled command outcomes.
+- Current session-console progress: active command state renders in the same bubble stream as saved history, and terminal overlays no longer auto-dismiss.
+- Current session-console progress: busy and no-such-command notices append as system entries instead of taking over the current command view.
+- Current session-console progress: `ctx.out.write/info/warn/error` append command-visible output bubbles, including localized payloads, into the per-tab session stream.
 - Current session-console progress: the console now defaults to a wider desktop presentation and the scrollback region is vertically resizable.
 - Current busy-guard direction: keep one invocation per tab, but explain refusals with a busy bubble that names the running command and tells the user to cancel or wait.
 - Current runtime state: short commands, long-running commands, manual cancel, and cancel-on-navigation are all working again after moving USER_SCRIPT completion/cancel coordination to DOM-backed markers instead of unreliable USER_SCRIPT-to-service-worker completion messages.
+- Current near-term follow-ups: visual distinction between output/result/system bubbles, manager import diagnostics that explicitly name newly imported commands, and a cleaner future `--debug` wrapper boundary.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -55,7 +56,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Manual follow-up should cover quarantined invalid-command export/import behavior.
 
 ### M2 — Injection + Overlay + Cancellation (core execution)
-**Ready:** execute commands with overlay and cancel behavior.
+**Status:** core delivered; follow-up polish remains in `TODO.md`.
 
 **Direction**
 - Execute command code in USER_SCRIPT via `chrome.userScripts.execute()`.
@@ -69,29 +70,24 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Manual tests**
 - T5–T10, T7 (overlay), T8 (cancel).
 
-### Next checkpoint — Session Console Redesign
-**Ready:** replace the transient overlay/log split with a per-tab session console.
+### Next checkpoint — Bridge/RPC hardening plus remaining console polish
+**Ready:** continue into bridge/RPC/requires work while finishing the remaining session-console polish items.
 
 **Direction**
 - Keep the omnibox as the only input surface.
-- Preserve one active invocation per tab for now.
-- Treat the console as per-tab session state that survives dismissal and navigation, but is discarded when the tab closes.
+- Preserve one active invocation per tab.
+- Keep the session console as the command-facing per-tab surface; retain internal diagnostics separately until the log-page retirement decision is implemented.
 
 **Include**
-- Replace transient overlay takeover behavior with a persistent per-tab scrollback surface.
-- Support `f -` to reopen the current tab’s hidden session console.
-- Add an explicit command-facing output API (`ctx.out.write/info/warn/error`) for scrollback entries.
-- Keep `--help` as inline console content instead of a special takeover card.
-- Add resize support for the scrollback region.
-- Remove the separate log UI once the console is a sufficient replacement for command-facing output.
+- MAIN bridge and RPC hardening against the v1 tests.
+- Requires-loader follow-through and diagnostics.
+- Session-console bubble styling distinctions for output vs command-state/system entries.
+- Manager import diagnostics that explicitly enumerate newly imported commands.
+- Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argvTokens, ctx)`.
 
 **Manual tests**
-- Reopen hidden console with `f -`.
-- Scrollback retains prior entries across multiple commands in one tab.
-- Scrollback is per-tab and disappears on tab close.
-- Active invocation state and system notices do not clobber prior entries.
-- `ctx.out.*` entries appear in order and are visually attributed to the active command.
-- Scrollback region is vertically resizable and the default desktop width is wider.
+- T11–T20 for bridge/RPC/requires.
+- Existing session-console smoke checks from T0, T4, T7, T7b/T7c, T8, T9, and T21–T24 remain regression coverage for the current UI model.
 
 ### M3 — Requires + Bridge + RPC
 **Ready:** dependency loading, MAIN bridge, privileged API access.
@@ -195,14 +191,14 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Spec sections:** 10, 20.6
 
 **Tasks**
-- Replace the transient status card with an ISOLATED shadow‑DOM session console for each tab.
-- Show scrollback plus active invocation state (`RUNNING`, `DONE`, `ERROR`, `CANCELED`, `BUSY`, `HELP`) without letting later notices clobber prior entries.
-- Support hiding vs destroying the console; `f -` should reopen the hidden console for the current tab.
-- `--help` shows rendered help HTML inline in the console, skips requires + main, ends after display.
+- Maintain the ISOLATED shadow‑DOM session console for each tab.
+- Keep scrollback plus active invocation state (`RUNNING`, `DONE`, `ERROR`, `CANCELED`, `BUSY`, `HELP`) in one append-only bubble stream.
+- Support hiding vs destroying the console; `f -` reopens the hidden console for the current tab.
+- `--help` shows rendered help HTML inline in the console, skips requires + main, and requires explicit user dismissal.
 - Use Web Awesome components where appropriate (button, alert, spinner), bundled locally.
 - Render help HTML from `helpHtmlTemplate` + localized `helpHtmlStrings` using locale resolution order; fallback `en-US`.
 - Generate help tokens (`usage/options/args`) from `optionsSpec` when present.
-- Allow resizing the scrollback region for desktop use.
+- Keep the vertically resizable desktop scrollback region and wider default width.
 
 **Files (expected)**
 - `src/overlay/overlay.js`
@@ -227,6 +223,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Use Web Awesome components where appropriate (buttons, dialogs), bundled locally.
 - Output entries accept `{ l10n: LocalizedText, data?: any }` for localized display in UI.
 - Extension UI labels for the session console must use `chrome.i18n.getMessage`.
+- Keep `ctx.log/warn/error` separate as diagnostics rather than aliasing them to `ctx.out.*`.
 
 ## 5.1 Manager/Editor UI (dashboard)
 **Spec sections:** 3, 10, 11, 12
