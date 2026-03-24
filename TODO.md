@@ -20,8 +20,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 - If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
 
 ### Session console redesign
-- Make the scrollback region resizable for desktop use.
-- Increase the default desktop session-console width; target about `40vw` before user resizing.
 - Decide whether existing `ctx.log/warn/error` should alias to `ctx.out.*` during the transition or remain internal diagnostics only.
 - Refactor the generated user-script wrapper so future `--debug` support has an obvious, stable boundary immediately before `main(argvTokens, ctx)` and makes it clear to the user where their command code starts and what to inspect next.
 - Reconsider whether the per-tab busy guard should exist at all once the session console can show multiple command/system entries clearly.

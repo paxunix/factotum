@@ -33,6 +33,10 @@ It keeps:
 - system notice bubbles like busy/no-such-command
 - command-visible output from `ctx.out.*`
 
+On desktop:
+- the console opens wider than the original narrow card layout
+- the scrollback region can be resized vertically
+
 It does not survive tab close.
 
 ## Closing and reopening

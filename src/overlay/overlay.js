@@ -13,12 +13,13 @@ const STYLE_TEXT = `
     color: white;
     font-family: ui-sans-serif, system-ui, sans-serif;
     left: 50%;
-    max-width: min(360px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    min-width: min(360px, calc(100vw - 24px));
     padding: 16px;
     position: fixed;
     top: 20px;
     transform: translateX(-50%);
-    width: min(360px, calc(100vw - 24px));
+    width: min(40vw, calc(100vw - 24px));
     z-index: 2147483647;
   }
 
@@ -27,9 +28,11 @@ const STYLE_TEXT = `
     flex-direction: column;
     gap: 10px;
     margin: 0 0 14px;
-    max-height: min(240px, 40vh);
+    max-height: 70vh;
+    min-height: 140px;
     overflow-y: auto;
     padding-right: 4px;
+    resize: vertical;
   }
 
   .factotum-current {

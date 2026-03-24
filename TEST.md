@@ -392,6 +392,16 @@ Each test lists: **Setup → Action → Expected**.
 
   * Session scrollback is emptied for the current tab only
 
+#### T22a: Session console layout is desktop-friendly
+
+* Setup: open the session console on a normal desktop-width page
+* Action: drag the scrollback region resize handle
+* Expected:
+
+  * Default console width is visibly wider than the old narrow card layout
+  * Scrollback region resizes vertically
+  * Resizing does not break bubble rendering or controls
+
 #### T23: Session scrollback is per-tab and discarded on tab close
 
 * Setup: create visible scrollback in two different tabs

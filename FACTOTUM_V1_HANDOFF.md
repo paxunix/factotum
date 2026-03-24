@@ -37,7 +37,7 @@ When user-facing behavior or author-facing APIs change, keep those audience guid
 
 ### Current design direction
 
-The current checked-in implementation now has a working per-tab session-console foundation: saved per-tab overlay/help history can be reopened with `f -`, active command state is shown in the same bubble stream as saved history, busy/no-such-command notices append as system entries instead of taking over the current view, `ctx.out.write/info/warn/error` append command-visible output bubbles (including localized payloads), terminal overlays no longer auto-dismiss, and the separate session log page still exists. Based on manual usage, the next intended redesign steps are to continue consolidating toward a full per-tab session console overlay:
+The current checked-in implementation now has a working per-tab session-console foundation: saved per-tab overlay/help history can be reopened with `f -`, active command state is shown in the same bubble stream as saved history, busy/no-such-command notices append as system entries instead of taking over the current view, `ctx.out.write/info/warn/error` append command-visible output bubbles (including localized payloads), terminal overlays no longer auto-dismiss, the desktop console defaults to a wider presentation with a vertically resizable scrollback region, and the separate session log page still exists. Based on manual usage, the next intended redesign steps are to continue consolidating toward a full per-tab session console overlay:
 
 - lazy-created on first fcommand use in a tab
 - hidden when dismissed, not destroyed
