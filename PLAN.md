@@ -8,6 +8,8 @@ This plan is derived directly from `FACTOTUM_V1_HANDOFF.md` and the AGENTS “Do
 - `TEST.md`: Manual/harness tests tied to each milestone.
 - `fixture-pack.md`: Fixture bundle for harness/milestone validation.
 - `DEVELOPING.md`: RPC exposure specifics and troubleshooting when working in M3.
+- `USER_GUIDE.md`: Update when a milestone changes end-user workflows or visible behavior.
+- `FCMD_AUTHORING.md`: Update when a milestone changes fcommand schema, runtime, APIs, or author expectations.
 
 ## 0) Scope guard (read first)
 - Implement **only** v1 features described in `FACTOTUM_V1_HANDOFF.md`.

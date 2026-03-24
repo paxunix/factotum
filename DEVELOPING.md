@@ -40,6 +40,8 @@ The current implementation now has reopenable per-tab overlay history plus activ
 - `USER_GUIDE.md`: end-user-facing behavior to preserve when changing UX.
 - `FCMD_AUTHORING.md`: author-facing behavior to preserve when changing fcommand APIs.
 
+If a change affects either audience directly, update the matching guide in the same checkpoint instead of leaving it for later.
+
 ---
 
 # UI dependency note (v1 steering)

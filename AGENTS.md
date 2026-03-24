@@ -9,6 +9,8 @@ This checklist is the contract for all automated changes.
 - `TEST.md`: Use to select manual smoke tests and harness checks for your change.
 - `DEVELOPING.md`: Use when modifying RPC exposure or debugging RPC/bridge/requires behavior.
 - `fixture-pack.md`: Use when installing or validating fixtures for tests.
+- `USER_GUIDE.md`: Use when a change affects how end users operate the extension.
+- `FCMD_AUTHORING.md`: Use when a change affects how fcommand authors write or debug commands.
 
 ## 0) Golden rule
 **If a change is not explicitly allowed by the v1 spec, do not implement it.**
@@ -105,6 +107,7 @@ For any non-trivial change, agent must:
 - If a change reveals a new bug or regression that is not fixed in the same commit point, add it to `TODO.md` and mention that follow-up in the commit message so repo history explains both the decision and the remaining gap
 - At each commit point, the agent may create the commit directly when the user instructs it to do so
 - At each commit point, update the relevant `*.md` docs so they reflect the post-change repo state, including removing items that are now complete, obsolete, or no longer needed because the latest work superseded them
+- At each commit point, if the change affects end-user workflows or fcommand-author workflows/APIs, update `USER_GUIDE.md` and/or `FCMD_AUTHORING.md` as part of the same doc sweep
 - Do not preserve stale “done” state in docs just for history; source control is the history. Prefer removing or rewriting outdated items so docs describe current reality and next steps only
 
 ## 5.1) Markdown doc hygiene at commit points
@@ -112,9 +115,11 @@ When closing a commit point, agents must sweep the relevant markdown docs and el
 
 Agents MUST:
 - Update all relevant `*.md` files touched by the completed work, not just the code-adjacent doc
+- Include audience docs such as `USER_GUIDE.md` and `FCMD_AUTHORING.md` whenever user-facing behavior or author-facing APIs/contracts changed
 - Remove checklist items, TODO entries, and caveats that are no longer needed because the work is complete or the latest design made them obsolete
 - Rewrite remaining next steps so they match the new repo state
 - Keep spec, plan, tests, and development notes consistent with each other
+- Keep user and author guides consistent with the current repo behavior whenever they are in scope
 - Keep fixture examples, import bundles, and manual-test snippets valid under the current schema and runtime contract so they can still be used without repair
 
 Agents MUST NOT:

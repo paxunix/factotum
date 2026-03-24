@@ -13,6 +13,8 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 - `USER_GUIDE.md`: end-user usage guide.
 - `FCMD_AUTHORING.md`: author-facing guide for writing fcommands.
 
+When user-facing behavior or author-facing APIs change, keep those audience guides aligned with this authoritative document during the same checkpoint.
+
 ---
 
 ## 0) Goals and non-goals
