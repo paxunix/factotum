@@ -32,6 +32,10 @@ function getMessage(key, fallback) {
   return chrome.i18n.getMessage(key) || fallback;
 }
 
+function getMessageWithSubstitutions(key, substitutions, fallback) {
+  return chrome.i18n.getMessage(key, substitutions) || fallback;
+}
+
 function serializeError(error, fallbackCode = 'ERROR') {
   if (!error) {
     return { message: fallbackCode, code: fallbackCode };
@@ -912,7 +916,14 @@ async function handleBusyTab(tabId, message = '') {
     return;
   }
 
-  appendSystemEntry(tabId, 'BUSY', message || getMessage('overlayBusy', 'Tab is busy.'));
+  const runningCommandRef = `${runningInvocation.command.name}@${runningInvocation.command.id}`;
+  const busyMessage = message
+    || getMessageWithSubstitutions(
+      'overlayBusyDetail',
+      [runningCommandRef],
+      `Tab busy: ${runningCommandRef}. Cancel it or wait for it to finish.`
+    );
+  appendSystemEntry(tabId, 'BUSY', busyMessage);
   const session = getSession(tabId) || ensureSession(tabId);
   await refreshSessionView(tabId, session.snapshot || null);
 }

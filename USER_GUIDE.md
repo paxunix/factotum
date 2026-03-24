@@ -61,6 +61,11 @@ For long-running commands:
 - click `Cancel` in the session console
 - navigation and tab close also cancel the running command
 
+If you try to run another command in the same tab while one is already running:
+- Factotum keeps the original command running
+- the session console adds a busy notice naming the running command
+- cancel it or wait for it to finish before starting another command in that tab
+
 ## Manager import/export
 
 Use the Manager page to:

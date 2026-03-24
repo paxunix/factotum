@@ -24,7 +24,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 - Add stronger visual distinctions between `ctx.out` output bubble levels (`info`, `warn`, `error`).
 - Add stronger visual distinctions between command-output bubbles and command-state/result bubbles (`done`, `error`, `canceled`, help, system notices).
 - Refactor the generated user-script wrapper so future `--debug` support has an obvious, stable boundary immediately before `main(argvTokens, ctx)` and makes it clear to the user where their command code starts and what to inspect next.
-- Reconsider whether the per-tab busy guard should exist at all once the session console can show multiple command/system entries clearly.
 
 ### Tooling / verification
 - Once Chrome MCP is available, use it to automate more of the manual smoke path and reduce reliance on service worker console inspection.

@@ -34,6 +34,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current session-console progress: busy and no-such-command notices now append as system entries instead of taking over the current command view.
 - Current session-console progress: `ctx.out.write/info/warn/error` now append command-visible output bubbles, including localized payloads, into the per-tab session stream.
 - Current session-console progress: the console now defaults to a wider desktop presentation and the scrollback region is vertically resizable.
+- Current busy-guard direction: keep one invocation per tab, but explain refusals with a busy bubble that names the running command and tells the user to cancel or wait.
 - Current runtime state: short commands, long-running commands, manual cancel, and cancel-on-navigation are all working again after moving USER_SCRIPT completion/cancel coordination to DOM-backed markers instead of unreliable USER_SCRIPT-to-service-worker completion messages.
 
 ### M1 — Storage + Omnibox Resolution (no execution)

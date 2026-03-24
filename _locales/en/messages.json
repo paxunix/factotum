@@ -133,6 +133,15 @@
     "message": "Tab is busy.",
     "description": "Overlay busy state label"
   },
+  "overlayBusyDetail": {
+    "message": "Tab busy: $COMMAND$. Cancel it or wait for it to finish.",
+    "description": "Session console busy notice that names the running command",
+    "placeholders": {
+      "command": {
+        "content": "$1"
+      }
+    }
+  },
   "overlayHelp": {
     "message": "Help",
     "description": "Overlay help state label"

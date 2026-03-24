@@ -233,6 +233,7 @@ Each test lists: **Setup → Action → Expected**.
   * Overlay shows running and canceled states as bubbles in the same session stream
   * Log contains cancellation entry
   * Any subsequent `ctx.chrome.*` calls from that command reject with `CANCELED`
+  * If another command is attempted while the tab is busy, the session console appends a busy bubble naming the running command and telling the user to cancel or wait
 
 ---
 
