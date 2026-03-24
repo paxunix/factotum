@@ -118,12 +118,13 @@ Each test lists: **Setup → Action → Expected**.
 * Expected:
 
   * Omnibox shows “No such command: nosuchcmd”
-  * Selecting it / pressing Enter shows overlay error (if injectable)
+  * Selecting it / pressing Enter appends a no-such-command error bubble to the session stream (if injectable)
   * Log contains error entry with `NO_SUCH_COMMAND`
 
 * Busy-tab edge case:
 
   * If another command is already running in the tab, entering `f nosuchcmd` must not clobber the active invocation overlay or strand the busy guard.
+  * Instead, a separate no-such-command system bubble is appended while the running command remains active/cancelable.
   * The active invocation should remain cancelable and the tab should become runnable again once that invocation ends or is canceled.
 
 #### T4a: Prefix-matched command suggestions are informational

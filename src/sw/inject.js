@@ -92,6 +92,15 @@ function buildSessionView(tabId, snapshot = null) {
   };
 }
 
+async function refreshSessionView(tabId, snapshot = null) {
+  setSessionVisibility(tabId, true);
+  await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
+  await sendControlMessage(tabId, {
+    op: 'SHOW_SESSION',
+    ...buildSessionView(tabId, snapshot)
+  });
+}
+
 async function injectScript(tabId, file, world = 'ISOLATED') {
   await chrome.scripting.executeScript({
     target: { tabId, allFrames: false },
@@ -131,6 +140,16 @@ function snapshotToEntry(snapshot) {
 
 function appendSnapshotEntry(tabId, snapshot) {
   appendSessionEntry(tabId, snapshotToEntry(snapshot));
+}
+
+function appendSystemEntry(tabId, state, message, commandRef = getMessage('appName', 'Factotum')) {
+  appendSessionEntry(tabId, {
+    invocationId: null,
+    commandRef,
+    state,
+    message,
+    html: ''
+  });
 }
 
 async function setOverlayStatus(tabId, invocationId, state, message = '') {
@@ -207,22 +226,14 @@ async function showSessionOverlay(tabId) {
             dismissible: true
           });
 
-  setSessionVisibility(tabId, true);
-  await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
-  await sendControlMessage(tabId, {
-    op: 'SHOW_SESSION',
-    ...buildSessionView(tabId, snapshot)
-  });
+  await refreshSessionView(tabId, snapshot);
 }
 
 async function showHistoryOnly(tabId) {
   setSessionSnapshot(tabId, null);
   setSessionVisibility(tabId, true);
   clearSessionActiveInvocation(tabId);
-  await sendControlMessage(tabId, {
-    op: 'SHOW_SESSION',
-    ...buildSessionView(tabId, null)
-  });
+  await refreshSessionView(tabId, null);
 }
 
 async function injectMainHost(tabId) {
@@ -738,11 +749,8 @@ async function handleResolutionFailure(tab, resolution) {
     return;
   }
 
-  const invocation = {
-    invocationId: `transient-${Date.now()}`,
-    command: { name: resolution.cmdToken || '', id: '' }
-  };
-  await ensureOverlay(tab.id, invocation, 'ERROR', resolution.message);
+  appendSystemEntry(tab.id, 'ERROR', resolution.message);
+  await showHistoryOnly(tab.id);
 }
 
 async function handleBusyTab(tabId, message = '') {
@@ -751,13 +759,9 @@ async function handleBusyTab(tabId, message = '') {
     return;
   }
 
-  await setOverlayStatus(tabId, runningInvocation.invocationId, 'BUSY', message);
-  setTimeout(() => {
-    const current = getInvocationById(runningInvocation.invocationId);
-    if (current && current.status === 'RUNNING') {
-      setOverlayStatus(tabId, current.invocationId, 'RUNNING', '').catch(() => {});
-    }
-  }, 1000);
+  appendSystemEntry(tabId, 'BUSY', message || getMessage('overlayBusy', 'Tab is busy.'));
+  const session = getSession(tabId) || ensureSession(tabId);
+  await refreshSessionView(tabId, session.snapshot || null);
 }
 
 async function finalizeInvocationSuccess(invocation, result) {
