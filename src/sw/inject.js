@@ -24,7 +24,9 @@ import { escapeHtml } from '../shared/html.js';
 const CONTROL_TYPE = 'fcmd_control';
 const COMPLETION_MARKER_PREFIX = '__factotum_completion__';
 const CANCEL_MARKER_PREFIX = '__factotum_cancel__';
+const OUTPUT_MARKER_PREFIX = '__factotum_output__';
 const invocationCompletion = new Map();
+const invocationOutputOffsets = new Map();
 
 function getMessage(key, fallback) {
   return chrome.i18n.getMessage(key) || fallback;
@@ -41,6 +43,27 @@ function serializeError(error, fallbackCode = 'ERROR') {
     stack: error.stack,
     code: error.code || fallbackCode
   };
+}
+
+function safeStringify(value) {
+  const seen = new WeakSet();
+  return JSON.stringify(value, (_key, current) => {
+    if (typeof current === 'object' && current !== null) {
+      if (seen.has(current)) {
+        return '[Circular]';
+      }
+      seen.add(current);
+    }
+    if (current instanceof Error) {
+      return {
+        name: current.name,
+        message: current.message,
+        stack: current.stack,
+        code: current.code
+      };
+    }
+    return current;
+  });
 }
 
 function isInjectableUrl(url) {
@@ -152,6 +175,46 @@ function appendSystemEntry(tabId, state, message, commandRef = getMessage('appNa
   });
 }
 
+async function appendCommandOutputEntry(tabId, invocation, rawEntry) {
+  const locale = await getTabLocale(tabId);
+  const payload = rawEntry && typeof rawEntry === 'object' && Object.prototype.hasOwnProperty.call(rawEntry, 'value')
+    ? rawEntry.value
+    : rawEntry;
+  let message = '';
+
+  if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+    if (payload.l10n && typeof payload.l10n === 'object') {
+      const localized = resolveLocaleMapEntry(payload.l10n, locale);
+      if (localized) {
+        message = String(localized);
+      }
+    } else if (Object.prototype.hasOwnProperty.call(payload, 'message')) {
+      message = typeof payload.message === 'string' ? payload.message : safeStringify(payload.message);
+    } else {
+      message = safeStringify(payload);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'data')) {
+      const serializedData = safeStringify(payload.data);
+      message = message ? `${message}\n${serializedData}` : serializedData;
+    }
+  } else if (typeof payload === 'string') {
+    message = payload;
+  } else {
+    message = safeStringify(payload);
+  }
+
+  appendSessionEntry(tabId, {
+    invocationId: invocation.invocationId,
+    commandRef: `${invocation.command.name}@${invocation.command.id}`,
+    kind: 'output',
+    level: rawEntry?.level || 'info',
+    state: '',
+    message,
+    html: ''
+  });
+}
+
 async function setOverlayStatus(tabId, invocationId, state, message = '') {
   const session = ensureSession(tabId);
   const snapshot = session.snapshot || {};
@@ -248,8 +311,13 @@ function getCancelMarkerId(invocationId) {
   return `${CANCEL_MARKER_PREFIX}${invocationId}`;
 }
 
+function getOutputMarkerId(invocationId) {
+  return `${OUTPUT_MARKER_PREFIX}${invocationId}`;
+}
+
 function clearCompletionWaiter(invocationId) {
   invocationCompletion.delete(invocationId);
+  invocationOutputOffsets.delete(invocationId);
 }
 
 function settleCompletionWaiter(invocationId, outcome) {
@@ -343,6 +411,32 @@ async function readInvocationCompletionMarker(tabId, invocationId, remove = fals
   }
 }
 
+async function readInvocationOutputMarker(tabId, invocationId) {
+  try {
+    const [result] = await chrome.scripting.executeScript({
+      target: { tabId, allFrames: false },
+      world: 'ISOLATED',
+      func: (markerId) => {
+        const marker = document.getElementById(markerId);
+        if (!marker) {
+          return null;
+        }
+        return marker.textContent || '[]';
+      },
+      args: [getOutputMarkerId(invocationId)]
+    });
+
+    if (!result?.result) {
+      return [];
+    }
+
+    const parsed = JSON.parse(result.result);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 async function writeInvocationMarker(tabId, markerId, text) {
   try {
     await chrome.scripting.executeScript({
@@ -369,11 +463,12 @@ async function removeInvocationMarkers(tabId, invocationId) {
     await chrome.scripting.executeScript({
       target: { tabId, allFrames: false },
       world: 'ISOLATED',
-      func: (completionId, cancelId) => {
+      func: (completionId, cancelId, outputId) => {
         document.getElementById(completionId)?.remove();
         document.getElementById(cancelId)?.remove();
+        document.getElementById(outputId)?.remove();
       },
-      args: [getCompletionMarkerId(invocationId), getCancelMarkerId(invocationId)]
+      args: [getCompletionMarkerId(invocationId), getCancelMarkerId(invocationId), getOutputMarkerId(invocationId)]
     });
   } catch {}
 }
@@ -381,6 +476,8 @@ async function removeInvocationMarkers(tabId, invocationId) {
 async function initializeInvocationMarkers(tabId, invocationId) {
   await writeInvocationMarker(tabId, getCompletionMarkerId(invocationId), JSON.stringify({ status: 'pending' }));
   await writeInvocationMarker(tabId, getCancelMarkerId(invocationId), '0');
+  await writeInvocationMarker(tabId, getOutputMarkerId(invocationId), '[]');
+  invocationOutputOffsets.set(invocationId, 0);
 }
 
 async function signalInvocationCancel(tabId, invocationId) {
@@ -398,8 +495,11 @@ async function pollInvocationCompletion(invocation) {
       return;
     }
 
+    await drainInvocationOutputs(invocation);
+
     const marker = await readInvocationCompletionMarker(invocation.tabId, invocation.invocationId, false);
     if (marker && marker.status && marker.status !== 'pending') {
+      await drainInvocationOutputs(invocation);
       await readInvocationCompletionMarker(invocation.tabId, invocation.invocationId, true);
 
       if (marker.status === 'no_main') {
@@ -430,6 +530,21 @@ async function pollInvocationCompletion(invocation) {
 
     await delay(100);
   }
+}
+
+async function drainInvocationOutputs(invocation) {
+  const outputs = await readInvocationOutputMarker(invocation.tabId, invocation.invocationId);
+  const offset = invocationOutputOffsets.get(invocation.invocationId) || 0;
+  if (outputs.length <= offset) {
+    return;
+  }
+
+  for (const entry of outputs.slice(offset)) {
+    await appendCommandOutputEntry(invocation.tabId, invocation, entry);
+  }
+  invocationOutputOffsets.set(invocation.invocationId, outputs.length);
+  const session = getSession(invocation.tabId) || ensureSession(invocation.tabId);
+  await refreshSessionView(invocation.tabId, session.snapshot || null);
 }
 
 function resolveLocaleMapEntry(map, locale = 'en-US') {
@@ -565,7 +680,8 @@ function buildExecuteCode(invocation) {
     commandRef: `${invocation.command.name}@${invocation.command.id}`,
     nonce: invocation.nonce,
     completionMarkerId: getCompletionMarkerId(invocation.invocationId),
-    cancelMarkerId: getCancelMarkerId(invocation.invocationId)
+    cancelMarkerId: getCancelMarkerId(invocation.invocationId),
+    outputMarkerId: getOutputMarkerId(invocation.invocationId)
   });
 
   return `
@@ -646,6 +762,29 @@ function buildExecuteCode(invocation) {
         return Boolean(marker && marker.textContent === '1');
       }
 
+      function __factotumAppendOutput(entry) {
+        let marker = document.getElementById(__factotumMeta.outputMarkerId);
+        if (!marker) {
+          marker = document.createElement('script');
+          marker.id = __factotumMeta.outputMarkerId;
+          marker.type = 'application/json';
+          marker.hidden = true;
+          (document.documentElement || document.body || document.head).append(marker);
+        }
+
+        let entries = [];
+        try {
+          entries = JSON.parse(marker.textContent || '[]');
+          if (!Array.isArray(entries)) {
+            entries = [];
+          }
+        } catch {
+          entries = [];
+        }
+        entries.push(entry);
+        marker.textContent = JSON.stringify(entries);
+      }
+
       __factotumWriteCompletion({ status: 'pending' });
 
       const ctx = {
@@ -677,6 +816,20 @@ function buildExecuteCode(invocation) {
               name,
               args: Array.isArray(args) ? args : []
             });
+          }
+        },
+        out: {
+          write(value) {
+            __factotumAppendOutput({ level: 'info', value });
+          },
+          info(value) {
+            __factotumAppendOutput({ level: 'info', value });
+          },
+          warn(value) {
+            __factotumAppendOutput({ level: 'warn', value });
+          },
+          error(value) {
+            __factotumAppendOutput({ level: 'error', value });
           }
         },
         log(...args) {

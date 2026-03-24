@@ -30,6 +30,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current session-console progress: reopened sessions now show per-tab append-only history entries for completed/help/error/canceled command outcomes.
 - Current session-console progress: active command state now renders in the same bubble stream as saved history, and terminal overlays no longer auto-dismiss.
 - Current session-console progress: busy and no-such-command notices now append as system entries instead of taking over the current command view.
+- Current session-console progress: `ctx.out.write/info/warn/error` now append command-visible output bubbles, including localized payloads, into the per-tab session stream.
 - Current runtime state: short commands, long-running commands, manual cancel, and cancel-on-navigation are all working again after moving USER_SCRIPT completion/cancel coordination to DOM-backed markers instead of unreliable USER_SCRIPT-to-service-worker completion messages.
 
 ### M1 — Storage + Omnibox Resolution (no execution)

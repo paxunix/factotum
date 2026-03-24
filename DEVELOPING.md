@@ -282,7 +282,7 @@ If a method has unusual callback shape:
 
 ### 8.6 Logging
 
-* [ ] Command-facing output (`ctx.out.*`, or temporary `ctx.log/warn/error` aliases if retained) appears in the session console UI.
+* [x] Command-facing output (`ctx.out.*`) appears in the session console UI.
 * [ ] Fatal wrapper failures (requires fail, uncaught exception) appear in the session console or other visible session diagnostics even if command didn’t log.
 
 ### 8.7 Requires loader

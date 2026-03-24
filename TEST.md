@@ -38,6 +38,7 @@ Below is a **Test Plan v1** that mixes a small, reliable **manual smoke suite** 
 
   * `ok@demo.ok`
   * `canceldemo@demo.cancel`
+  * `outputdemo@demo.output`
 
 ### Fixture map
 
@@ -46,6 +47,7 @@ Use these fixtures for the following tests so the test plan stays aligned with t
 * `ok@demo.ok`: T1, T2, T5, T7
 * `pick@fixture.A` and `pick@fixture.B`: T3, T3b, T4a, T4b
 * `canceldemo@demo.cancel`: T8
+* `outputdemo@demo.output`: T21, T21b
 * `longrun@fixture.cancel.nav`: T9, T10
 * `badreq@fixture.requires.fail`: requires-failure checks
 * `bridge@fixture.main.bridge`: T15
@@ -360,14 +362,16 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T21: Command output entries appear, ordered oldest→newest
 
-* Action: call `ctx.out.write("a"); ctx.out.write("b")`
+* Setup: import `outputdemo@demo.output`
+* Action: run `f outputdemo@demo.output`
 * Expected:
 
   * Session console shows “a” then “b”
 
 #### T21b: Localized output entry display
 
-* Action: call `ctx.out.info({ l10n: { "en-US": "Hello", "fr": "Bonjour" }, data: { n: 1 } })`
+* Setup: import `outputdemo@demo.output`
+* Action: run `f outputdemo@demo.output` with page language set to `fr`
 * Expected:
 
   * Session console shows the localized string for the UI language.

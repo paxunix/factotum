@@ -62,6 +62,18 @@ const STYLE_TEXT = `
     padding: 10px 12px;
   }
 
+  .factotum-entry[data-kind="output"] {
+    background: rgba(148, 163, 184, 0.12);
+  }
+
+  .factotum-entry[data-level="warn"] {
+    border-color: rgba(251, 191, 36, 0.35);
+  }
+
+  .factotum-entry[data-level="error"] {
+    border-color: rgba(248, 113, 113, 0.35);
+  }
+
   .factotum-entry-title {
     font-size: 12px;
     font-weight: 700;
@@ -209,6 +221,12 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
   function buildEntryElement(entry) {
     const item = document.createElement('article');
     item.className = 'factotum-entry';
+    if (entry.kind) {
+      item.dataset.kind = entry.kind;
+    }
+    if (entry.level) {
+      item.dataset.level = entry.level;
+    }
 
     const title = document.createElement('p');
     title.className = 'factotum-entry-title';
@@ -217,6 +235,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     const status = document.createElement('p');
     status.className = 'factotum-entry-status';
     status.textContent = stateLabels[entry.state] || entry.state || '';
+    status.hidden = !status.textContent;
 
     item.append(title, status);
 

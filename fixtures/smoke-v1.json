@@ -21,6 +21,16 @@
       "description": { "en-US": "Cancelable long-running fixture" },
       "createdAt": 1760100000000,
       "updatedAt": 1760100000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "outputdemo",
+      "id": "demo.output",
+      "world": "user_script",
+      "code": "async function main(argvTokens, ctx) { ctx.out.write('a'); ctx.out.write('b'); ctx.out.info({ l10n: { 'en-US': 'Hello', 'fr': 'Bonjour' }, data: { n: 1 } }); return 42; }",
+      "description": { "en-US": "Command-visible output fixture" },
+      "createdAt": 1760100000000,
+      "updatedAt": 1760100000000
     }
   ],
   "aliases": {
