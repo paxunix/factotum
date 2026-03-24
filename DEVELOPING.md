@@ -37,6 +37,8 @@ The current implementation now has reopenable per-tab overlay history plus activ
 - `AGENTS.md`: Mandatory guardrails for any change; read before editing.
 - `TEST.md`: Required RPC/bridge/requires tests (T17–T20, T15–T16, T11–T14) after changes.
 - `PLAN.md`: Milestone scope for RPC, bridge, requires, and logging work.
+- `USER_GUIDE.md`: end-user-facing behavior to preserve when changing UX.
+- `FCMD_AUTHORING.md`: author-facing behavior to preserve when changing fcommand APIs.
 
 ---
 

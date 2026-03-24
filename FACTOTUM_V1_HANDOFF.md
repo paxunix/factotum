@@ -10,6 +10,8 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 - `TEST.md`: Manual smoke suite + harness tests; consult when planning or verifying changes.
 - `DEVELOPING.md`: RPC exposure guidance and troubleshooting; consult when touching `ctx.chrome` or RPC plumbing.
 - `fixture-pack.md`: Fixture bundle definition; consult when adding/importing test fixtures.
+- `USER_GUIDE.md`: end-user usage guide.
+- `FCMD_AUTHORING.md`: author-facing guide for writing fcommands.
 
 ---
 

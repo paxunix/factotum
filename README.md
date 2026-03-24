@@ -27,3 +27,8 @@ npm run build
 - The manager page now provides a `Bundle JSON` import/export flow for loading manual smoke-test fixtures.
 - Current architecture direction: command runtime lives in USER_SCRIPT and accesses MAIN only through the explicit bridge.
 - The next milestone remains M2: stabilize USER_SCRIPT execution, overlay behavior, busy-guard/cancel semantics, and then continue into bridge/RPC work.
+
+## Guides
+
+- [USER_GUIDE.md](/home/paxunix/repos/factotum/USER_GUIDE.md): basic extension usage
+- [FCMD_AUTHORING.md](/home/paxunix/repos/factotum/FCMD_AUTHORING.md): writing fcommands
