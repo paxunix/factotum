@@ -25,6 +25,9 @@ const CONTROL_TYPE = 'fcmd_control';
 const COMPLETION_MARKER_PREFIX = '__factotum_completion__';
 const CANCEL_MARKER_PREFIX = '__factotum_cancel__';
 const OUTPUT_MARKER_PREFIX = '__factotum_output__';
+const RPC_DENYLIST_NAMESPACES = new Set(['debugger', 'management']);
+const RPC_DENYLIST_METHODS = new Set(['connect', 'connectNative']);
+const RPC_EVENT_METHODS = new Set(['addListener', 'removeListener', 'hasListener', 'hasListeners']);
 const invocationCompletion = new Map();
 const invocationOutputOffsets = new Map();
 
@@ -49,6 +52,15 @@ function serializeError(error, fallbackCode = 'ERROR') {
   };
 }
 
+function createRpcError(code, message, details) {
+  const error = new Error(message);
+  error.code = code;
+  if (details !== undefined) {
+    error.details = details;
+  }
+  return error;
+}
+
 function safeStringify(value) {
   const seen = new WeakSet();
   return JSON.stringify(value, (_key, current) => {
@@ -68,6 +80,168 @@ function safeStringify(value) {
     }
     return current;
   });
+}
+
+function isThenable(value) {
+  return Boolean(value && typeof value.then === 'function');
+}
+
+function ensureStructuredCloneable(value, method) {
+  try {
+    structuredClone(value);
+    return value;
+  } catch (error) {
+    throw createRpcError(
+      'UNCLONEABLE_RESULT',
+      `RPC result from ${method} is not cloneable.`,
+      { method, reason: error?.message || String(error) }
+    );
+  }
+}
+
+function normalizeRpcError(method, error, fallbackCode = 'RPC_FAILED') {
+  if (error && error.code) {
+    return error;
+  }
+
+  const lastErrorMessage = chrome.runtime.lastError?.message;
+  if (lastErrorMessage) {
+    return createRpcError('RPC_FAILED', lastErrorMessage, { method });
+  }
+
+  const serialized = serializeError(error, fallbackCode);
+  return Object.assign(new Error(serialized.message), serialized, {
+    details: { method }
+  });
+}
+
+function validateRpcInvocation(invocationId, senderTabId = null) {
+  const invocation = getInvocationById(invocationId);
+  if (!invocation) {
+    throw createRpcError('INVALID_INVOCATION', 'Invocation ended unexpectedly.');
+  }
+
+  if (senderTabId !== null && senderTabId !== invocation.tabId) {
+    throw createRpcError('INVALID_INVOCATION', 'Invocation tab mismatch.');
+  }
+
+  if (invocation.canceled) {
+    throw createRpcError('CANCELED', getMessage('overlayCanceled', 'Canceled.'));
+  }
+
+  return invocation;
+}
+
+function resolveRpcMember(method) {
+  const parts = String(method || '').split('.').filter(Boolean);
+  if (parts.length < 2) {
+    throw createRpcError('NO_SUCH_METHOD', `No such method: ${method}`);
+  }
+
+  const namespace = parts[0];
+  if (RPC_DENYLIST_NAMESPACES.has(namespace)) {
+    throw createRpcError('UNSUPPORTED_MEMBER', `Unsupported member: ${method}`, { method });
+  }
+
+  if (parts.some((part) => RPC_EVENT_METHODS.has(part))) {
+    throw createRpcError('UNSUPPORTED_API_SHAPE', `Events are not supported in v1: ${method}`, { method });
+  }
+
+  if (parts.some((part) => RPC_DENYLIST_METHODS.has(part))) {
+    throw createRpcError('UNSUPPORTED_MEMBER', `Unsupported member: ${method}`, { method });
+  }
+
+  let current = chrome;
+  for (const part of parts) {
+    if (current == null || !(part in current)) {
+      throw createRpcError('NO_SUCH_METHOD', `No such method: ${method}`, { method });
+    }
+    current = current[part];
+  }
+
+  if (typeof current !== 'function') {
+    if (current && typeof current === 'object' && (
+      typeof current.addListener === 'function'
+      || typeof current.removeListener === 'function'
+    )) {
+      throw createRpcError('UNSUPPORTED_API_SHAPE', `Events are not supported in v1: ${method}`, { method });
+    }
+    throw createRpcError('NO_SUCH_METHOD', `No such method: ${method}`, { method });
+  }
+
+  let receiver = chrome;
+  for (const part of parts.slice(0, -1)) {
+    receiver = receiver[part];
+  }
+
+  return {
+    method,
+    fn: current,
+    receiver
+  };
+}
+
+async function callChromeRpc(method, args) {
+  const { fn, receiver } = resolveRpcMember(method);
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finishResolve = (value) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      try {
+        resolve(ensureStructuredCloneable(value, method));
+      } catch (error) {
+        reject(error);
+      }
+    };
+    const finishReject = (error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      reject(normalizeRpcError(method, error));
+    };
+    const callback = (...callbackArgs) => {
+      if (settled) {
+        return;
+      }
+      if (chrome.runtime.lastError) {
+        finishReject(createRpcError('RPC_FAILED', chrome.runtime.lastError.message, { method }));
+        return;
+      }
+      finishResolve(callbackArgs.length <= 1 ? callbackArgs[0] : callbackArgs);
+    };
+
+    let result;
+    try {
+      result = fn.call(receiver, ...(Array.isArray(args) ? args : []), callback);
+    } catch (error) {
+      finishReject(error);
+      return;
+    }
+
+    if (isThenable(result)) {
+      Promise.resolve(result).then(finishResolve, finishReject);
+      return;
+    }
+
+    if (result !== undefined) {
+      queueMicrotask(() => finishResolve(result));
+    }
+  });
+}
+
+async function handleRpcRequest(message, sender) {
+  const invocation = validateRpcInvocation(message.invocationId, sender?.tab?.id ?? null);
+  const result = await callChromeRpc(message.method, message.args);
+  validateRpcInvocation(message.invocationId, sender?.tab?.id ?? invocation.tabId);
+  return {
+    ok: true,
+    result
+  };
 }
 
 function isInjectableUrl(url) {
@@ -300,6 +474,10 @@ async function showHistoryOnly(tabId) {
   setSessionSnapshot(tabId, null);
   setSessionVisibility(tabId, true);
   clearSessionActiveInvocation(tabId);
+  await sendControlMessage(tabId, {
+    op: 'TEARDOWN',
+    invocationId: null
+  });
   await refreshSessionView(tabId, null);
 }
 
@@ -687,8 +865,13 @@ function buildExecuteCode(invocation) {
     cancelMarkerId: getCancelMarkerId(invocation.invocationId),
     outputMarkerId: getOutputMarkerId(invocation.invocationId)
   });
+  const rpcUnsupported = JSON.stringify({
+    denylistedNamespaces: Array.from(RPC_DENYLIST_NAMESPACES),
+    eventMethods: Array.from(RPC_EVENT_METHODS),
+    denylistedMethods: Array.from(RPC_DENYLIST_METHODS)
+  });
 
-  return `
+  const prefix = `
     (async () => {
       const __factotumMeta = ${meta};
       let __factotumCallSeq = 0;
@@ -789,6 +972,93 @@ function buildExecuteCode(invocation) {
         marker.textContent = JSON.stringify(entries);
       }
 
+      function __factotumSendRpc(method, args) {
+        return new Promise((resolve, reject) => {
+          try {
+            chrome.runtime.sendMessage({
+              type: '${CONTROL_TYPE}',
+              op: 'RPC_REQUEST',
+              invocationId: __factotumMeta.invocationId,
+              method,
+              args: Array.isArray(args) ? args : []
+            }, (response) => {
+              const runtimeError = chrome.runtime.lastError;
+              if (runtimeError) {
+                const error = new Error(runtimeError.message || 'RPC failed');
+                error.code = 'RPC_FAILED';
+                reject(error);
+                return;
+              }
+
+              if (!response || response.ok !== true) {
+                const detail = response?.error || {};
+                const error = new Error(detail.message || 'RPC failed');
+                error.name = detail.name || 'Error';
+                error.code = detail.code || 'RPC_FAILED';
+                error.stack = detail.stack;
+                error.details = detail.details;
+                reject(error);
+                return;
+              }
+
+              resolve(response.result);
+            });
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+
+      function __factotumCreateRpcProxy(path = []) {
+        const unsupported = ${rpcUnsupported};
+
+        function __factotumGetUnsupported(parts) {
+          if (!parts.length) {
+            return null;
+          }
+          if (unsupported.denylistedNamespaces.includes(parts[0])) {
+            return {
+              code: 'UNSUPPORTED_MEMBER',
+              message: 'Unsupported member: ' + parts.join('.')
+            };
+          }
+          if (parts.some((part) => unsupported.eventMethods.includes(part))) {
+            return {
+              code: 'UNSUPPORTED_API_SHAPE',
+              message: 'Events are not supported in v1: ' + parts.join('.')
+            };
+          }
+          if (parts.some((part) => unsupported.denylistedMethods.includes(part))) {
+            return {
+              code: 'UNSUPPORTED_MEMBER',
+              message: 'Unsupported member: ' + parts.join('.')
+            };
+          }
+          return null;
+        }
+
+        return new Proxy(function __factotumRpcMethod() {}, {
+          get(_target, prop) {
+            if (typeof prop === 'symbol') {
+              return undefined;
+            }
+            const nextPath = path.concat(String(prop));
+            const nextUnsupported = __factotumGetUnsupported(nextPath);
+            if (nextUnsupported && unsupported.eventMethods.includes(String(prop))) {
+              throw Object.assign(new Error(nextUnsupported.message), { code: nextUnsupported.code });
+            }
+            return __factotumCreateRpcProxy(nextPath);
+          },
+          apply(_target, _thisArg, args) {
+            const unsupportedDetail = __factotumGetUnsupported(path);
+            if (unsupportedDetail) {
+              throw Object.assign(new Error(unsupportedDetail.message), { code: unsupportedDetail.code });
+            }
+            return __factotumSendRpc(path.join('.'), Array.isArray(args) ? args : []);
+          }
+        });
+      }
+
       __factotumWriteCompletion({ status: 'pending' });
 
       const ctx = {
@@ -798,8 +1068,11 @@ function buildExecuteCode(invocation) {
           }
         },
         chrome: new Proxy({}, {
-          get() {
-            throw new Error('ctx.chrome is not implemented yet.');
+          get(_target, prop) {
+            if (typeof prop === 'symbol') {
+              return undefined;
+            }
+            return __factotumCreateRpcProxy([String(prop)]);
           }
         }),
         main: {
@@ -850,7 +1123,9 @@ function buildExecuteCode(invocation) {
       try {
         console.info('[factotum execute]', __factotumMeta.commandRef, __factotumMeta.world);
         const __factotumMain = (() => {
-          ${invocation.command.code}
+  `;
+
+  const suffix = `
           return typeof main === 'function' ? main : undefined;
         })();
         if (typeof __factotumMain !== 'function') {
@@ -881,6 +1156,8 @@ function buildExecuteCode(invocation) {
       }
     })();
   `;
+
+  return [prefix, String(invocation.command.code || ''), suffix].join('\n');
 }
 
 async function executeUserScript(invocation) {
@@ -1048,7 +1325,6 @@ async function executeResolvedInvocation(tab, resolution) {
       completionPromise.then((completion) => ({ kind: 'completion', completion })),
       executionPromise
     ]);
-
     if (firstSettled.kind === 'completion') {
       const completion = firstSettled.completion;
 
@@ -1152,6 +1428,17 @@ export async function handleRuntimeControlMessage(message, sender) {
     return undefined;
   }
 
+  if (message.op === 'RPC_REQUEST') {
+    try {
+      return await handleRpcRequest(message, sender);
+    } catch (error) {
+      return {
+        ok: false,
+        error: serializeError(error, error?.code || 'RPC_FAILED')
+      };
+    }
+  }
+
   if (message.op === 'COMMAND_EVENT') {
     handleCommandEvent(message);
     return undefined;
@@ -1182,6 +1469,17 @@ export async function handleRuntimeControlMessage(message, sender) {
 export async function handleUserScriptMessage(message) {
   if (!message || message.type !== CONTROL_TYPE) {
     return undefined;
+  }
+
+  if (message.op === 'RPC_REQUEST') {
+    try {
+      return await handleRpcRequest(message, null);
+    } catch (error) {
+      return {
+        ok: false,
+        error: serializeError(error, error?.code || 'RPC_FAILED')
+      };
+    }
   }
 
   if (message.op === 'COMMAND_EVENT') {

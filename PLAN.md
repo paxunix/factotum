@@ -36,7 +36,8 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current session-console progress: the console now defaults to a wider desktop presentation and the scrollback region is vertically resizable.
 - Current busy-guard direction: keep one invocation per tab, but explain refusals with a busy bubble that names the running command and tells the user to cancel or wait.
 - Current runtime state: short commands, long-running commands, manual cancel, and cancel-on-navigation are all working again after moving USER_SCRIPT completion/cancel coordination to DOM-backed markers instead of unreliable USER_SCRIPT-to-service-worker completion messages.
-- Current near-term follow-ups: visual distinction between output/result/system bubbles, manager import diagnostics that explicitly name newly imported commands, and a cleaner future `--debug` wrapper boundary.
+- Current RPC state: `ctx.chrome` now works for the v1 one-shot surface, including callback-style methods like `tabs.query`/`bookmarks.search`, namespace denylist rejection, and event/listener-shape rejection.
+- Current near-term follow-ups: T20 cloneability verification, visual distinction between output/result/system bubbles, manager import diagnostics that explicitly name newly imported commands, and a cleaner future `--debug` wrapper boundary.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -79,7 +80,8 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Keep the session console as the command-facing per-tab surface; retain internal diagnostics separately until the log-page retirement decision is implemented.
 
 **Include**
-- MAIN bridge and RPC hardening against the v1 tests.
+- MAIN bridge hardening against the remaining v1 tests.
+- RPC follow-through for cloneability/error-path verification.
 - Requires-loader follow-through and diagnostics.
 - Session-console bubble styling distinctions for output vs command-state/system entries.
 - Manager import diagnostics that explicitly enumerate newly imported commands.

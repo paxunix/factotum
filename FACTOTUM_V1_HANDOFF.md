@@ -385,6 +385,7 @@ Expose all callable one-shot RPC-friendly methods EXCEPT:
 
 ### 9.3 Promisification
 SW promisifies callback-style APIs using `chrome.runtime.lastError`.
+For callback-style methods that directly return `undefined`, SW must wait for the callback result rather than treating the `undefined` return value as immediate success.
 
 ### 9.4 Invocation binding
 SW rejects RPC if:

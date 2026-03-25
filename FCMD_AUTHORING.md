@@ -39,10 +39,28 @@ An fcommand record must use `world: "user_script"` and define an async `main()` 
 - `ctx.main.define(name, fn)`: expose a named `MAIN` entrypoint for this invocation
 - `ctx.main.call(name, args)`: call a named `MAIN` entrypoint for this invocation
 - `ctx.out.write/info/warn/error(value)`: append user-visible output bubbles to the session console
+- `ctx.chrome.ns.method(...args)`: Promise-based access to the supported one-shot `chrome.*` surface
 
 Current status:
-- `ctx.chrome` is still not implemented
+- `ctx.chrome.ns.method(...args)` is available for the v1 one-shot Chrome API surface
+- denylisted namespaces like `chrome.management` reject with `UNSUPPORTED_MEMBER`
+- event/listener shapes reject with `UNSUPPORTED_API_SHAPE`
 - `ctx.log/warn/error` remain internal diagnostics, not the user-facing output API
+
+Important author rule:
+- Always use `await ctx.chrome...` or the returned Promise directly.
+- Do not pass Chrome-style callbacks to `ctx.chrome` methods from an fcommand.
+- Factotum normalizes callback-style Chrome APIs into Promise results for you.
+
+Example:
+
+```js
+async function main(argvTokens, ctx) {
+  const tabs = await ctx.chrome.tabs.query({ active: true, currentWindow: true });
+  const bookmarks = await ctx.chrome.bookmarks.search({ title: document.title });
+  ctx.out.write(`tabs=${tabs.length} bookmarks=${bookmarks.length}`);
+}
+```
 
 ## Output
 

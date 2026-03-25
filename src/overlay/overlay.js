@@ -293,7 +293,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
   }
 
   function teardownOverlay(invocationId) {
-    if (controller.currentInvocationId && invocationId !== controller.currentInvocationId) {
+    if (invocationId && controller.currentInvocationId && invocationId !== controller.currentInvocationId) {
       return;
     }
     teardownController(controller);

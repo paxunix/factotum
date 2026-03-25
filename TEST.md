@@ -332,15 +332,16 @@ Each test lists: **Setup → Action → Expected**.
 * Expected:
 
   * `ctx.chrome.tabs.query()` and `ctx.chrome.bookmarks.search()` return data
-  * Log shows active tab details and bookmark count
+  * Page banner shows the active tab title and bookmark status
+  * Session console settles to `Done.`
 
 #### T18: Denylisted namespaces blocked
 
 * Action: run a command that calls `ctx.chrome.debugger.attach` or `ctx.chrome.management.getAll`
 * Expected:
 
-  * Rejected with `UNSUPPORTED_MEMBER` (or equivalent)
-  * Log includes method name
+  * Rejected with `UNSUPPORTED_MEMBER`
+  * Session console error text includes the blocked method name
 
 #### T19: Event usage rejected
 
@@ -348,7 +349,7 @@ Each test lists: **Setup → Action → Expected**.
 * Expected:
 
   * Throws/rejects with `UNSUPPORTED_API_SHAPE`
-  * Log includes hint “events not supported in v1”
+  * Session console error text includes “events not supported in v1”
 
 #### T20: Cloneability failure surfaces as `UNCLONEABLE_RESULT`
 

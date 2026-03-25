@@ -43,21 +43,52 @@ chrome.omnibox.onInputEntered.addListener((text) => {
   });
 });
 
-chrome.runtime.onMessage.addListener((message, sender) => {
-  handleRuntimeControlMessage(message, sender).catch((error) => {
-    console.error('[factotum] runtime control error', error);
-  });
-  return false;
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  handleRuntimeControlMessage(message, sender)
+    .then((response) => {
+      if (response !== undefined) {
+        sendResponse(response);
+      }
+    })
+    .catch((error) => {
+      console.error('[factotum] runtime control error', error);
+      sendResponse({
+        ok: false,
+        error: {
+          name: error?.name || 'Error',
+          message: error?.message || String(error),
+          stack: error?.stack,
+          code: error?.code || 'ERROR'
+        }
+      });
+    });
+  return true;
 });
 
 chrome.runtime.onUserScriptConnect.addListener((port) => {
   handleUserScriptConnect(port);
 });
 
-chrome.runtime.onUserScriptMessage.addListener((message) => {
-  handleUserScriptMessage(message).catch((error) => {
-    console.error('[factotum] user script message error', error);
-  });
+chrome.runtime.onUserScriptMessage.addListener((message, sender, sendResponse) => {
+  handleUserScriptMessage(message, sender)
+    .then((response) => {
+      if (response !== undefined) {
+        sendResponse(response);
+      }
+    })
+    .catch((error) => {
+      console.error('[factotum] user script message error', error);
+      sendResponse({
+        ok: false,
+        error: {
+          name: error?.name || 'Error',
+          message: error?.message || String(error),
+          stack: error?.stack,
+          code: error?.code || 'ERROR'
+        }
+      });
+    });
+  return true;
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {

@@ -13,6 +13,10 @@ Fcommands access privileged APIs through `ctx.chrome`, a Proxy that forwards cal
 * ❌ denylist certain namespaces entirely (`chrome.debugger`, `chrome.management`)
 * ✅ wrap callback-based APIs into Promises so the runner sees `await`-able methods
 
+Current implementation note:
+* USER_SCRIPT-originated `ctx.chrome` requests must be answered on `chrome.runtime.onUserScriptMessage`, not only the normal extension `onMessage` path.
+* Callback-style methods such as `chrome.tabs.query()` and `chrome.bookmarks.search()` must not be resolved early from an `undefined` direct return value; wait for the callback unless the API actually returned a Promise or concrete result.
+
 This document explains how to add/maintain RPC exposure safely.
 
 ## Current execution direction
@@ -161,6 +165,9 @@ Pattern:
 Pseudo-behavior:
 
 * `fn(...args, (result) => { if (lastError) reject(lastError); else resolve(result); })`
+
+Important:
+* Do not treat `undefined` as success for callback-style APIs just because the direct method return was `undefined`. That will break callers like `const [tab] = await ctx.chrome.tabs.query(...)`.
 
 ### 4.2 Multiple callback parameters
 
