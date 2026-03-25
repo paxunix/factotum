@@ -181,8 +181,24 @@ function resolveRpcMember(method) {
   };
 }
 
+function getRpcTestOverride(method, args) {
+  const firstArg = Array.isArray(args) ? args[0] : undefined;
+  if (
+    method === 'runtime.getManifest'
+    && firstArg
+    && typeof firstArg === 'object'
+    && firstArg.__factotumTest === 'UNCLONEABLE_RESULT'
+  ) {
+    return () => ({ value: () => {} });
+  }
+  return null;
+}
+
 async function callChromeRpc(method, args) {
-  const { fn, receiver } = resolveRpcMember(method);
+  const override = getRpcTestOverride(method, args);
+  const { fn, receiver } = override
+    ? { fn: override, receiver: null }
+    : resolveRpcMember(method);
 
   return new Promise((resolve, reject) => {
     let settled = false;

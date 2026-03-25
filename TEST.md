@@ -33,6 +33,7 @@ Below is a **Test Plan v1** that mixes a small, reliable **manual smoke suite** 
   * `deny@fixture.denylisted`
   * `events@fixture.events.unsupported`
   * `workflow@fixture.sw.roundtrip`
+  * `clonefail@fixture.rpc.uncloneable`
   * `helpdemo@fixture.help.basic`
 * Ad hoc manual smoke fixtures imported from [`fixtures/smoke-v1.json`](/home/paxunix/repos/factotum/fixtures/smoke-v1.json) when needed:
 
@@ -54,6 +55,7 @@ Use these fixtures for the following tests so the test plan stays aligned with t
 * `deny@fixture.denylisted`: T18
 * `events@fixture.events.unsupported`: T19
 * `workflow@fixture.sw.roundtrip`: T17
+* `clonefail@fixture.rpc.uncloneable`: T20
 * `helpdemo@fixture.help.basic`: T7b, T7c
 
 ---
@@ -353,7 +355,7 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T20: Cloneability failure surfaces as `UNCLONEABLE_RESULT`
 
-* Action: call a method known/constructed to return an uncloneable object (or simulate by returning an uncloneable from an override)
+* Action: run `clonefail@fixture.rpc.uncloneable`
 * Expected:
 
   * Rejection with `UNCLONEABLE_RESULT`

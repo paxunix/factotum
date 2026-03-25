@@ -142,6 +142,24 @@
     },
     {
       "schemaVersion": 1,
+      "name": "clonefail",
+      "id": "fixture.rpc.uncloneable",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { try { await ctx.chrome.runtime.getManifest({ __factotumTest: 'UNCLONEABLE_RESULT' }); } catch (e) { ctx.error('uncloneable result failed as expected', { name: e.name, message: e.message, code: e.code }); throw e; } }",
+      "requires": [],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": {
+          "title": "clonefail",
+          "body": "Uses the maintained test-only RPC override that returns an uncloneable value; must fail with UNCLONEABLE_RESULT."
+        }
+      },
+      "description": { "en-US": "RPC uncloneable-result fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
       "name": "helpdemo",
       "id": "fixture.help.basic",
       "world": "user_script",

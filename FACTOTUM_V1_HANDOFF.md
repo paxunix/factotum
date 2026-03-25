@@ -605,6 +605,7 @@ Use a normal import bundle named `fixtures-v1.json` with:
 * [bridge@fixture.main.bridge](mailto:bridge@fixture.main.bridge) (bridge test)
 * [deny@fixture.denylisted](mailto:deny@fixture.denylisted) (denylisted namespace call)
 * [events@fixture.events.unsupported](mailto:events@fixture.events.unsupported) (event usage rejection)
+* [clonefail@fixture.rpc.uncloneable](mailto:clonefail@fixture.rpc.uncloneable) (maintained UNCLONEABLE_RESULT check via a narrow test-only RPC override)
 
 Fixture maintenance requirements:
 

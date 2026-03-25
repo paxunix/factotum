@@ -286,6 +286,7 @@ If a method has unusual callback shape:
 ### 8.4 Cloneability
 
 * [ ] If method returns uncloneable, error `UNCLONEABLE_RESULT` is returned and logged.
+* [ ] `clonefail@fixture.rpc.uncloneable` still fails with `UNCLONEABLE_RESULT` via the maintained test-only override path.
 
 ### 8.5 Cancel-on-navigation
 

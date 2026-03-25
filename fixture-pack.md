@@ -21,6 +21,7 @@ Use checked-in import bundles for manual and harness testing rather than copying
   - `deny@fixture.denylisted`
   - `events@fixture.events.unsupported`
   - `workflow@fixture.sw.roundtrip`
+  - `clonefail@fixture.rpc.uncloneable`
   - `helpdemo@fixture.help.basic`
 - Aliases:
   - `cmd1 -> pick@fixture.B`
@@ -53,6 +54,7 @@ Use checked-in import bundles for manual and harness testing rather than copying
 - `deny@fixture.denylisted`: T18
 - `events@fixture.events.unsupported`: T19
 - `workflow@fixture.sw.roundtrip`: T17
+- `clonefail@fixture.rpc.uncloneable`: T20
 - `helpdemo@fixture.help.basic`: T7b, T7c
 
 ## Maintenance rules

@@ -27,5 +27,4 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 - Refactor the generated user-script wrapper so future `--debug` support has an obvious, stable boundary immediately before `main(argvTokens, ctx)` and makes it clear to the user where their command code starts and what to inspect next.
 
 ### Tooling / verification
-- Add or maintain a reliable manual fixture for T20 so `UNCLONEABLE_RESULT` can be verified without ad hoc overrides.
 - Once Chrome MCP is available, use it to automate more of the manual smoke path and reduce reliance on service worker console inspection.
