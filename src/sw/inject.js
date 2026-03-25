@@ -901,6 +901,9 @@ function buildExecuteCode(invocation) {
         if (data.invocationId !== __factotumMeta.invocationId || data.nonce !== __factotumMeta.nonce) {
           return;
         }
+        if (!Object.prototype.hasOwnProperty.call(data, 'ok')) {
+          return;
+        }
         const pending = __factotumPendingMainCalls.get(data.callId);
         if (!pending) {
           return;

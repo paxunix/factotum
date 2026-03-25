@@ -22,18 +22,17 @@ if (!window.__factotumMainHostInstalled) {
   }
 
   function postResponse(sourceWindow, payload) {
-    sourceWindow.postMessage({
-      channel: CHANNEL,
-      ...payload
-    }, '*');
-  }
+  sourceWindow.postMessage({
+    channel: CHANNEL,
+    ...payload
+  }, '*');
+}
 
   window.addEventListener('message', async (event) => {
     const data = event.data;
     if (!data || data.channel !== CHANNEL || !data.invocationId || !data.nonce || !data.op) {
       return;
     }
-
     const sourceWindow = event.source;
     if (!sourceWindow || typeof sourceWindow.postMessage !== 'function') {
       return;
