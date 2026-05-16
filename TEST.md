@@ -180,6 +180,24 @@ Each test lists: **Setup → Action → Expected**.
   * Re-import restores the invalid record in quarantined form without making it runnable
   * Valid commands continue to work normally
 
+#### T4d: Manager edits an existing valid command
+
+* Setup: import `fixtures/smoke-v1.json` or another bundle with at least one valid command.
+* Action:
+
+  1. open the manager UI
+  2. click `Edit` on a valid command
+  3. change the description JSON and command code
+  4. save the command
+  5. export the bundle
+* Expected:
+
+  * Editor opens with name, ID, and world visible but read-only
+  * Editable body fields include disabled state, description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
+  * Save reports `Saved command: name@id`
+  * Invalid JSON in JSON fields reports an inline editor error and does not save
+  * Exported JSON contains the saved edits
+
 ---
 
 ### 1.2 Injection / page eligibility

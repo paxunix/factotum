@@ -114,6 +114,83 @@
       }
     }
   },
+  "managerEditCommand": {
+    "message": "Edit",
+    "description": "Manager button label to edit a command"
+  },
+  "managerEditorTitle": {
+    "message": "Command Editor",
+    "description": "Manager command editor section title"
+  },
+  "managerEditorHint": {
+    "message": "Edit an installed valid command. Name, ID, and world are read-only in this first editor slice.",
+    "description": "Manager command editor section hint"
+  },
+  "managerEditorEmpty": {
+    "message": "Select a valid command to edit.",
+    "description": "Manager command editor empty state"
+  },
+  "managerEditorName": {
+    "message": "Name",
+    "description": "Manager command editor name field label"
+  },
+  "managerEditorId": {
+    "message": "ID",
+    "description": "Manager command editor ID field label"
+  },
+  "managerEditorWorld": {
+    "message": "World",
+    "description": "Manager command editor world field label"
+  },
+  "managerEditorDisabled": {
+    "message": "Disabled",
+    "description": "Manager command editor disabled field label"
+  },
+  "managerEditorDescription": {
+    "message": "Description JSON",
+    "description": "Manager command editor description JSON field label"
+  },
+  "managerEditorCode": {
+    "message": "Code",
+    "description": "Manager command editor code field label"
+  },
+  "managerEditorAdvanced": {
+    "message": "Help, options, and requires",
+    "description": "Manager command editor advanced details label"
+  },
+  "managerEditorHelpTemplate": {
+    "message": "Help HTML template",
+    "description": "Manager command editor help template field label"
+  },
+  "managerEditorHelpStrings": {
+    "message": "Help strings JSON",
+    "description": "Manager command editor help strings JSON field label"
+  },
+  "managerEditorOptions": {
+    "message": "Options spec JSON",
+    "description": "Manager command editor options spec JSON field label"
+  },
+  "managerEditorRequires": {
+    "message": "Requires JSON array",
+    "description": "Manager command editor requires JSON field label"
+  },
+  "managerEditorSave": {
+    "message": "Save Command",
+    "description": "Manager command editor save button label"
+  },
+  "managerEditorReset": {
+    "message": "Reset",
+    "description": "Manager command editor reset button label"
+  },
+  "managerEditorSaved": {
+    "message": "Saved command: $COMMAND$",
+    "description": "Manager command editor success message",
+    "placeholders": {
+      "command": {
+        "content": "$1"
+      }
+    }
+  },
   "overlayCancel": {
     "message": "Cancel",
     "description": "Overlay cancel button label"

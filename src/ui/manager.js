@@ -37,6 +37,24 @@ const disabledLabel = getMessage('managerCommandDisabled', 'Disabled');
 const invalidLabel = getMessage('managerCommandInvalid', 'Invalid');
 const validationIssueLabel = getMessage('managerCommandValidationIssue', 'Validation issue');
 const invalidDescriptionLabel = getMessage('managerCommandInvalidDescription', 'This command is quarantined and excluded from resolution, invocation, and normal export.');
+const editCommandLabel = getMessage('managerEditCommand', 'Edit');
+const editorTitle = getMessage('managerEditorTitle', 'Command Editor');
+const editorHint = getMessage('managerEditorHint', 'Edit an installed valid command. Name, ID, and world are read-only in this first editor slice.');
+const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command to edit.');
+const editorNameLabel = getMessage('managerEditorName', 'Name');
+const editorIdLabel = getMessage('managerEditorId', 'ID');
+const editorWorldLabel = getMessage('managerEditorWorld', 'World');
+const editorDisabledLabel = getMessage('managerEditorDisabled', 'Disabled');
+const editorDescriptionLabel = getMessage('managerEditorDescription', 'Description JSON');
+const editorCodeLabel = getMessage('managerEditorCode', 'Code');
+const editorAdvancedLabel = getMessage('managerEditorAdvanced', 'Help, options, and requires');
+const editorHelpTemplateLabel = getMessage('managerEditorHelpTemplate', 'Help HTML template');
+const editorHelpStringsLabel = getMessage('managerEditorHelpStrings', 'Help strings JSON');
+const editorOptionsLabel = getMessage('managerEditorOptions', 'Options spec JSON');
+const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires JSON array');
+const editorSaveLabel = getMessage('managerEditorSave', 'Save Command');
+const editorResetLabel = getMessage('managerEditorReset', 'Reset');
+const editorSavedLabel = getMessage('managerEditorSaved', 'Saved command: $COMMAND$');
 
 document.title = title;
 document.getElementById('manager-title').textContent = title;
@@ -50,9 +68,42 @@ document.getElementById('export-bundle-button').textContent = exportBundleLabel;
 document.getElementById('bundle-label').textContent = bundleLabel;
 document.getElementById('command-list-title').textContent = commandListTitle;
 document.getElementById('command-list-hint').textContent = commandListHint;
+document.getElementById('command-editor-title').textContent = editorTitle;
+document.getElementById('command-editor-hint').textContent = editorHint;
+document.getElementById('command-editor-empty').textContent = editorEmptyMessage;
+document.getElementById('editor-name-label').textContent = editorNameLabel;
+document.getElementById('editor-id-label').textContent = editorIdLabel;
+document.getElementById('editor-world-label').textContent = editorWorldLabel;
+document.getElementById('editor-disabled-label').textContent = editorDisabledLabel;
+document.getElementById('editor-description-label').textContent = editorDescriptionLabel;
+document.getElementById('editor-code-label').textContent = editorCodeLabel;
+document.getElementById('editor-advanced-label').textContent = editorAdvancedLabel;
+document.getElementById('editor-help-template-label').textContent = editorHelpTemplateLabel;
+document.getElementById('editor-help-strings-label').textContent = editorHelpStringsLabel;
+document.getElementById('editor-options-label').textContent = editorOptionsLabel;
+document.getElementById('editor-requires-label').textContent = editorRequiresLabel;
+document.getElementById('editor-save-button').textContent = editorSaveLabel;
+document.getElementById('editor-reset-button').textContent = editorResetLabel;
 
 const bundleTextarea = document.getElementById('bundle-textarea');
 const bundleStatus = document.getElementById('bundle-status');
+const editorForm = document.getElementById('command-editor');
+const editorEmpty = document.getElementById('command-editor-empty');
+const editorStatus = document.getElementById('editor-status');
+const editorFields = {
+  name: document.getElementById('editor-name'),
+  id: document.getElementById('editor-id'),
+  world: document.getElementById('editor-world'),
+  disabled: document.getElementById('editor-disabled'),
+  description: document.getElementById('editor-description'),
+  code: document.getElementById('editor-code'),
+  helpHtmlTemplate: document.getElementById('editor-help-template'),
+  helpHtmlStrings: document.getElementById('editor-help-strings'),
+  optionsSpec: document.getElementById('editor-options'),
+  requires: document.getElementById('editor-requires')
+};
+let selectedCommandRef = null;
+let selectedCommand = null;
 
 function formatDateTime(value) {
   return new Intl.DateTimeFormat(navigator.language || 'en-US', {
@@ -61,24 +112,38 @@ function formatDateTime(value) {
   }).format(new Date(value));
 }
 
-function setBundleStatus(kind, messages) {
+function setStatus(container, kind, messages) {
   const lines = Array.isArray(messages) ? messages.filter(Boolean) : [messages].filter(Boolean);
-  bundleStatus.hidden = false;
-  bundleStatus.className = `bundle-status bundle-status-${kind}`;
-  bundleStatus.textContent = '';
+  container.hidden = false;
+  container.className = `bundle-status bundle-status-${kind}`;
+  container.textContent = '';
 
   for (const line of lines) {
     const item = document.createElement('div');
     item.className = 'bundle-status-line';
     item.textContent = line;
-    bundleStatus.append(item);
+    container.append(item);
   }
+}
+
+function setBundleStatus(kind, messages) {
+  setStatus(bundleStatus, kind, messages);
+}
+
+function setEditorStatus(kind, messages) {
+  setStatus(editorStatus, kind, messages);
 }
 
 function clearBundleStatus() {
   bundleStatus.hidden = true;
   bundleStatus.className = 'bundle-status';
   bundleStatus.textContent = '';
+}
+
+function clearEditorStatus() {
+  editorStatus.hidden = true;
+  editorStatus.className = 'bundle-status';
+  editorStatus.textContent = '';
 }
 
 function formatMessage(key, fallback, substitutions) {
@@ -94,6 +159,116 @@ function formatInvalidSummaryMessage(key, fallback, count) {
 
 function formatImportCommandMessage(commandRef) {
   return formatMessage('managerImportCommandLine', 'Imported command: $COMMAND$', `${commandRef.name}@${commandRef.id}`);
+}
+
+function commandRefKey(commandRef) {
+  return `${commandRef.name}@${commandRef.id}`;
+}
+
+function stringifyJson(value, fallback = '') {
+  return value == null ? fallback : JSON.stringify(value, null, 2);
+}
+
+function parseOptionalJson(label, value) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(trimmed);
+  } catch (error) {
+    throw new Error(`${label}: ${error.message}`);
+  }
+}
+
+function setEditorVisible(visible) {
+  editorForm.hidden = !visible;
+  editorEmpty.hidden = visible;
+}
+
+function populateEditor(command) {
+  selectedCommand = command;
+  selectedCommandRef = { name: command.name, id: command.id };
+  editorFields.name.value = command.name;
+  editorFields.id.value = command.id;
+  editorFields.world.value = command.world;
+  editorFields.disabled.checked = Boolean(command.disabled);
+  editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
+  editorFields.code.value = command.code;
+  editorFields.helpHtmlTemplate.value = command.helpHtmlTemplate || '';
+  editorFields.helpHtmlStrings.value = stringifyJson(command.helpHtmlStrings);
+  editorFields.optionsSpec.value = stringifyJson(command.optionsSpec);
+  editorFields.requires.value = stringifyJson(command.requires);
+  setEditorVisible(true);
+}
+
+async function selectCommandForEdit(commandRef) {
+  clearEditorStatus();
+  const command = await getCommand(commandRef.name, commandRef.id);
+  if (!command) {
+    setEditorVisible(false);
+    throw new Error(`Command not found: ${commandRef.name}@${commandRef.id}`);
+  }
+  populateEditor(command);
+}
+
+function readEditedCommand() {
+  if (!selectedCommand) {
+    throw new Error(editorEmptyMessage);
+  }
+
+  const next = {
+    ...selectedCommand,
+    disabled: editorFields.disabled.checked,
+    code: editorFields.code.value,
+    updatedAt: Date.now()
+  };
+
+  const description = parseOptionalJson(editorDescriptionLabel, editorFields.description.value);
+  if (description == null) {
+    delete next.description;
+  } else {
+    next.description = description;
+  }
+
+  const helpHtmlTemplate = editorFields.helpHtmlTemplate.value;
+  if (helpHtmlTemplate.trim()) {
+    next.helpHtmlTemplate = helpHtmlTemplate;
+  } else {
+    delete next.helpHtmlTemplate;
+  }
+
+  const helpHtmlStrings = parseOptionalJson(editorHelpStringsLabel, editorFields.helpHtmlStrings.value);
+  if (helpHtmlStrings == null) {
+    delete next.helpHtmlStrings;
+  } else {
+    next.helpHtmlStrings = helpHtmlStrings;
+  }
+
+  const optionsSpec = parseOptionalJson(editorOptionsLabel, editorFields.optionsSpec.value);
+  if (optionsSpec == null) {
+    delete next.optionsSpec;
+  } else {
+    next.optionsSpec = optionsSpec;
+  }
+
+  const requires = parseOptionalJson(editorRequiresLabel, editorFields.requires.value);
+  if (requires == null) {
+    delete next.requires;
+  } else {
+    next.requires = requires;
+  }
+
+  return next;
+}
+
+async function saveEditedCommand() {
+  clearEditorStatus();
+  const saved = await saveCommand(readEditedCommand());
+  populateEditor(saved);
+  setEditorStatus('success', formatMessage('managerEditorSaved', editorSavedLabel, commandRefKey(saved)));
+  await loadCommands();
 }
 
 async function toggleDisabled(commandRef) {
@@ -124,7 +299,9 @@ function renderCommands(commands) {
 
   for (const command of commands) {
     const card = document.createElement('article');
-    card.className = 'command-card';
+    card.className = selectedCommandRef && selectedCommandRef.name === command.name && selectedCommandRef.id === command.id
+      ? 'command-card command-card-selected'
+      : 'command-card';
 
     const header = document.createElement('div');
     header.className = 'command-card-header';
@@ -168,6 +345,22 @@ function renderCommands(commands) {
     actions.className = 'command-card-actions';
 
     if (!command.invalid) {
+      const editButton = document.createElement('wa-button');
+      editButton.setAttribute('variant', 'neutral');
+      editButton.textContent = editCommandLabel;
+      editButton.addEventListener('click', () => {
+        editButton.disabled = true;
+        selectCommandForEdit(command)
+          .then(loadCommands)
+          .catch((error) => {
+            console.error('[factotum] select command failed', error);
+            setBundleStatus('error', error.message || String(error));
+          })
+          .finally(() => {
+            editButton.disabled = false;
+          });
+      });
+
       const toggleButton = document.createElement('wa-button');
       toggleButton.setAttribute('variant', 'neutral');
       toggleButton.textContent = command.disabled ? enableCommandLabel : disableCommandLabel;
@@ -183,7 +376,7 @@ function renderCommands(commands) {
           });
       });
 
-      actions.append(toggleButton);
+      actions.append(editButton, toggleButton);
     }
 
     if (actions.childElementCount > 0) {
@@ -219,6 +412,10 @@ async function handleImportBundle() {
 
   try {
     const result = await importBundle(parsed);
+    selectedCommandRef = null;
+    selectedCommand = null;
+    setEditorVisible(false);
+    clearEditorStatus();
     const statusLines = [`Imported ${result.importedCommands.length} command(s).`];
     for (const command of result.importedCommands) {
       statusLines.push(formatImportCommandMessage(command));
@@ -268,6 +465,32 @@ document.getElementById('import-bundle-button').addEventListener('click', () => 
 document.getElementById('export-bundle-button').addEventListener('click', () => {
   handleExportBundle().catch((error) => {
     setBundleStatus('error', error.message || String(error));
+  });
+});
+
+editorForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  saveEditedCommand().catch((error) => {
+    console.error('[factotum] save command failed', error);
+    setEditorStatus('error', error.message || String(error));
+  });
+});
+
+document.getElementById('editor-save-button').addEventListener('click', (event) => {
+  event.preventDefault();
+  saveEditedCommand().catch((error) => {
+    console.error('[factotum] save command failed', error);
+    setEditorStatus('error', error.message || String(error));
+  });
+});
+
+document.getElementById('editor-reset-button').addEventListener('click', () => {
+  if (!selectedCommandRef) {
+    return;
+  }
+  selectCommandForEdit(selectedCommandRef).catch((error) => {
+    console.error('[factotum] reset command editor failed', error);
+    setEditorStatus('error', error.message || String(error));
   });
 });
 

@@ -72,10 +72,22 @@ Use the Manager page to:
 - import command bundles
 - export current commands
 - review quarantined invalid commands
+- edit installed valid commands
 
 For maintained test fixtures, use:
 - `fixtures/fixtures-v1.json`
 - `fixtures/smoke-v1.json`
+
+The current command editor supports existing valid commands. Select `Edit` on a command card to change:
+- disabled state
+- localized description JSON
+- command code
+- help HTML template
+- help strings JSON
+- options spec JSON
+- requires JSON array
+
+Name, ID, and world are read-only in the current editor. Use bundle import/export for rename-style changes until a dedicated rename/new-command flow exists.
 
 ## Command worlds
 

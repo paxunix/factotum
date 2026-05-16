@@ -39,6 +39,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current RPC state: `ctx.chrome` now works for the v1 one-shot surface, including callback-style methods like `tabs.query`/`bookmarks.search`, namespace denylist rejection, and event/listener-shape rejection.
 - Current bridge state: `ctx.main.define/call` works with nonce-scoped responses, and spoofed nonce messages are ignored.
 - Current requires state: sequential MAIN script loads, MAIN module imports, `data:` rejection, and best-effort USER_SCRIPT module failure paths are implemented and manually verified.
+- Current manager state: bundle import/export, enable/disable, quarantine visibility, per-command import diagnostics, and editing existing valid command body fields are implemented.
 - Current near-term follow-ups: visual distinction between output/result/system bubbles, full manager/editor UX, dev harness automation, and a cleaner future `--debug` wrapper boundary.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
@@ -52,6 +53,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Omnibox suggestion UX for exact-resolution previews and prefix-matched command-name suggestions.
 - Manager bundle import/export and enable/disable controls to make M1 manually testable.
 - Quarantine handling for invalid stored commands, with separate `invalidCommands[]` export/import preservation and manager visibility.
+- Existing valid command editor for disabled state, description JSON, code, help template/strings, optionsSpec, and requires.
 
 **Verified**
 - T1, T2, T3, T3b, T4b
@@ -88,7 +90,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argvTokens, ctx)`.
 
 **Manual tests**
-- T4b/T21c plus manager import/export checks.
+- T4b/T4c/T4d/T21c plus manager import/export checks.
 - Harness A1-A5 after dev hooks land.
 - Existing session-console smoke checks from T0, T4, T7, T7b/T7c, T8, T9, and T21–T24 remain regression coverage for the current UI model.
 
@@ -232,14 +234,14 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Spec sections:** 3, 10, 11, 12
 
 **Tasks**
-- Provide a manager page listing installed commands (name/id/world/updated, disabled state).
-- Support enable/disable toggle (updates `disabled` flag).
-- Provide structured editing for command fields (no raw JSON editor).
-- Separate editors for code and help template/strings.
-- Provide editing for `optionsSpec` (flags, descriptions, defaults) used for help generation.
+- Provide a manager page listing installed commands (name/id/world/updated, disabled state). Current state: implemented.
+- Support enable/disable toggle (updates `disabled` flag). Current state: implemented.
+- Provide structured editing for existing valid command fields. Current state: body fields are editable; name/id/world are read-only.
+- Separate editors for code and help template/strings. Current state: implemented as textarea fields.
+- Provide editing for `optionsSpec` (flags, descriptions, defaults) used for help generation. Current state: implemented as JSON textarea.
 - Manage aliases (add/remove alias keys for a command).
-- Import bundle with per-command selection + warnings for duplicates/alias collisions.
-- Export all to bundleSchemaVersion 1.
+- Import bundle with warnings for duplicates/alias collisions. Current state: implemented without per-command selection.
+- Export all to bundleSchemaVersion 1. Current state: implemented.
 - Provide “new command” flow with sensible defaults.
 
 **Files (expected)**

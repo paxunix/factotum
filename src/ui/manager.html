@@ -39,6 +39,65 @@
         <div class="empty-state" id="command-list-empty" hidden></div>
         <div class="command-list" id="command-list"></div>
       </section>
+      <section class="command-editor-section" aria-labelledby="command-editor-title">
+        <div class="section-heading">
+          <h2 id="command-editor-title"></h2>
+          <p class="hint" id="command-editor-hint"></p>
+        </div>
+        <div class="empty-state" id="command-editor-empty"></div>
+        <form class="command-editor" id="command-editor" hidden>
+          <div class="editor-grid">
+            <label class="editor-field">
+              <span id="editor-name-label"></span>
+              <input id="editor-name" class="editor-input" type="text" readonly />
+            </label>
+            <label class="editor-field">
+              <span id="editor-id-label"></span>
+              <input id="editor-id" class="editor-input" type="text" readonly />
+            </label>
+            <label class="editor-field">
+              <span id="editor-world-label"></span>
+              <input id="editor-world" class="editor-input" type="text" readonly />
+            </label>
+            <label class="editor-check-field">
+              <input id="editor-disabled" type="checkbox" />
+              <span id="editor-disabled-label"></span>
+            </label>
+          </div>
+          <label class="editor-field">
+            <span id="editor-description-label"></span>
+            <textarea id="editor-description" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
+          </label>
+          <label class="editor-field">
+            <span id="editor-code-label"></span>
+            <textarea id="editor-code" class="editor-textarea editor-code" spellcheck="false"></textarea>
+          </label>
+          <details class="editor-advanced">
+            <summary id="editor-advanced-label"></summary>
+            <label class="editor-field">
+              <span id="editor-help-template-label"></span>
+              <textarea id="editor-help-template" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
+            </label>
+            <label class="editor-field">
+              <span id="editor-help-strings-label"></span>
+              <textarea id="editor-help-strings" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
+            </label>
+            <label class="editor-field">
+              <span id="editor-options-label"></span>
+              <textarea id="editor-options" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
+            </label>
+            <label class="editor-field">
+              <span id="editor-requires-label"></span>
+              <textarea id="editor-requires" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
+            </label>
+          </details>
+          <div class="editor-actions">
+            <wa-button variant="brand" type="submit" id="editor-save-button"></wa-button>
+            <wa-button variant="neutral" type="button" id="editor-reset-button"></wa-button>
+          </div>
+          <div class="bundle-status" id="editor-status" hidden></div>
+        </form>
+      </section>
     </main>
     <script src="manager.js"></script>
   </body>

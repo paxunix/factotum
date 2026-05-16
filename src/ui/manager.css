@@ -9,6 +9,12 @@
   margin-top: 32px;
 }
 
+.command-editor-section {
+  display: grid;
+  gap: 16px;
+  margin-top: 32px;
+}
+
 .import-export-section {
   display: grid;
   gap: 16px;
@@ -83,6 +89,11 @@
   padding: 18px;
 }
 
+.command-card-selected {
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 16px 32px rgba(37, 99, 235, 0.14);
+}
+
 .command-card-header {
   align-items: center;
   display: flex;
@@ -153,4 +164,95 @@
   font-size: 13px;
   line-height: 1.5;
   padding: 10px 12px;
+}
+
+.command-editor {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 22px;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.editor-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.editor-field,
+.editor-check-field {
+  color: rgb(30, 41, 59);
+  display: grid;
+  font-size: 14px;
+  font-weight: 600;
+  gap: 8px;
+}
+
+.editor-check-field {
+  align-content: end;
+  align-items: center;
+  display: flex;
+  min-height: 68px;
+}
+
+.editor-input,
+.editor-textarea {
+  background: rgba(248, 250, 252, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 14px;
+  color: rgb(15, 23, 42);
+  font: inherit;
+  font-weight: 400;
+  padding: 11px 12px;
+}
+
+.editor-input[readonly] {
+  color: rgb(71, 85, 105);
+}
+
+.editor-textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 140px;
+  resize: vertical;
+}
+
+.editor-textarea-small {
+  min-height: 96px;
+}
+
+.editor-code {
+  min-height: 260px;
+}
+
+.editor-advanced {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 18px;
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+}
+
+.editor-advanced[open] {
+  background: rgba(241, 245, 249, 0.72);
+}
+
+.editor-advanced summary {
+  color: rgb(15, 23, 42);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.editor-advanced[open] summary {
+  margin-bottom: 14px;
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
