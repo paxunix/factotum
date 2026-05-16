@@ -9,94 +9,70 @@
     <link rel="stylesheet" href="manager.css" />
   </head>
   <body>
-    <main class="page">
-      <div class="hero">
-        <h1 id="manager-title"></h1>
-        <p class="hint" id="manager-hint"></p>
-      </div>
-      <nav class="nav">
-        <wa-button variant="brand" href="manager.html" id="nav-manager"></wa-button>
-        <wa-button variant="neutral" href="log.html" id="nav-logs"></wa-button>
-      </nav>
-      <section class="import-export-section" aria-labelledby="bundle-tools-title">
-        <div class="section-heading">
-          <h2 id="bundle-tools-title"></h2>
-          <p class="hint" id="bundle-tools-hint"></p>
+    <main class="manager-shell">
+      <header class="manager-topbar">
+        <div class="hero">
+          <h1 id="manager-title"></h1>
+          <p class="hint" id="manager-hint"></p>
         </div>
-        <div class="bundle-actions">
-          <wa-button variant="brand" id="import-bundle-button"></wa-button>
-          <wa-button variant="neutral" id="export-bundle-button"></wa-button>
-        </div>
-        <label class="bundle-label" for="bundle-textarea" id="bundle-label"></label>
-        <textarea id="bundle-textarea" class="bundle-textarea" spellcheck="false"></textarea>
-        <div class="bundle-status" id="bundle-status" hidden></div>
-      </section>
-      <section class="command-list-section" aria-labelledby="command-list-title">
-        <div class="section-heading">
-          <h2 id="command-list-title"></h2>
-          <p class="hint" id="command-list-hint"></p>
-        </div>
-        <div class="empty-state" id="command-list-empty" hidden></div>
-        <div class="command-list" id="command-list"></div>
-      </section>
-      <section class="command-editor-section" aria-labelledby="command-editor-title">
-        <div class="section-heading">
-          <h2 id="command-editor-title"></h2>
-          <p class="hint" id="command-editor-hint"></p>
-        </div>
-        <div class="empty-state" id="command-editor-empty"></div>
-        <form class="command-editor" id="command-editor" hidden>
-          <div class="editor-grid">
-            <label class="editor-field">
-              <span id="editor-name-label"></span>
-              <input id="editor-name" class="editor-input" type="text" readonly />
-            </label>
-            <label class="editor-field">
-              <span id="editor-id-label"></span>
-              <input id="editor-id" class="editor-input" type="text" readonly />
-            </label>
-            <label class="editor-field">
-              <span id="editor-world-label"></span>
-              <input id="editor-world" class="editor-input" type="text" readonly />
-            </label>
-            <label class="editor-check-field">
-              <input id="editor-disabled" type="checkbox" />
-              <span id="editor-disabled-label"></span>
-            </label>
+        <nav class="nav">
+          <wa-button variant="brand" href="manager.html" id="nav-manager"></wa-button>
+          <wa-button variant="neutral" href="log.html" id="nav-logs"></wa-button>
+        </nav>
+      </header>
+
+      <section class="manager-grid">
+        <aside class="manager-pane command-list-section" aria-labelledby="command-list-title">
+          <div class="section-heading">
+            <h2 id="command-list-title"></h2>
+            <p class="hint" id="command-list-hint"></p>
           </div>
-          <label class="editor-field">
-            <span id="editor-description-label"></span>
-            <textarea id="editor-description" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
-          </label>
-          <label class="editor-field">
-            <span id="editor-code-label"></span>
-            <textarea id="editor-code" class="editor-textarea editor-code" spellcheck="false"></textarea>
-          </label>
-          <details class="editor-advanced">
-            <summary id="editor-advanced-label"></summary>
-            <label class="editor-field">
-              <span id="editor-help-template-label"></span>
-              <textarea id="editor-help-template" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
-            </label>
-            <label class="editor-field">
-              <span id="editor-help-strings-label"></span>
-              <textarea id="editor-help-strings" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
-            </label>
-            <label class="editor-field">
-              <span id="editor-options-label"></span>
-              <textarea id="editor-options" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
-            </label>
-            <label class="editor-field">
-              <span id="editor-requires-label"></span>
-              <textarea id="editor-requires" class="editor-textarea editor-textarea-small" spellcheck="false"></textarea>
-            </label>
-          </details>
-          <div class="editor-actions">
-            <wa-button variant="brand" type="submit" id="editor-save-button"></wa-button>
-            <wa-button variant="neutral" type="button" id="editor-reset-button"></wa-button>
+          <div class="empty-state" id="command-list-empty" hidden></div>
+          <div class="command-list" id="command-list"></div>
+        </aside>
+
+        <aside class="manager-pane import-export-section" aria-labelledby="bundle-tools-title">
+          <div class="section-heading">
+            <h2 id="bundle-tools-title"></h2>
+            <p class="hint" id="bundle-tools-hint"></p>
           </div>
-          <div class="bundle-status" id="editor-status" hidden></div>
-        </form>
+          <div class="bundle-actions">
+            <wa-button variant="brand" id="import-bundle-button"></wa-button>
+            <wa-button variant="neutral" id="export-bundle-button"></wa-button>
+          </div>
+          <wa-textarea id="bundle-textarea" class="bundle-textarea" resize="vertical" spellcheck="false"></wa-textarea>
+          <div class="bundle-status" id="bundle-status" hidden></div>
+        </aside>
+
+        <section class="manager-pane command-editor-section" aria-labelledby="command-editor-title">
+          <div class="section-heading">
+            <h2 id="command-editor-title"></h2>
+            <p class="hint" id="command-editor-hint"></p>
+          </div>
+          <div class="empty-state" id="command-editor-empty"></div>
+          <form class="command-editor" id="command-editor" hidden>
+            <div class="editor-grid">
+              <wa-input id="editor-name" readonly></wa-input>
+              <wa-input id="editor-id" readonly></wa-input>
+              <wa-input id="editor-world" readonly></wa-input>
+              <wa-switch id="editor-disabled"></wa-switch>
+            </div>
+            <wa-textarea id="editor-description" class="editor-textarea-small" resize="vertical" spellcheck="false"></wa-textarea>
+            <wa-textarea id="editor-code" class="editor-code" resize="vertical" spellcheck="false"></wa-textarea>
+            <details class="editor-advanced">
+              <summary id="editor-advanced-label"></summary>
+              <wa-textarea id="editor-help-template" class="editor-textarea-small" resize="vertical" spellcheck="false"></wa-textarea>
+              <wa-textarea id="editor-help-strings" class="editor-textarea-small" resize="vertical" spellcheck="false"></wa-textarea>
+              <wa-textarea id="editor-options" class="editor-textarea-small" resize="vertical" spellcheck="false"></wa-textarea>
+              <wa-textarea id="editor-requires" class="editor-textarea-small" resize="vertical" spellcheck="false"></wa-textarea>
+            </details>
+            <div class="editor-actions">
+              <wa-button variant="brand" type="submit" id="editor-save-button"></wa-button>
+              <wa-button variant="neutral" type="button" id="editor-reset-button"></wa-button>
+            </div>
+            <div class="bundle-status" id="editor-status" hidden></div>
+          </form>
+        </section>
       </section>
     </main>
     <script src="manager.js"></script>

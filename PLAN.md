@@ -39,7 +39,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current RPC state: `ctx.chrome` now works for the v1 one-shot surface, including callback-style methods like `tabs.query`/`bookmarks.search`, namespace denylist rejection, and event/listener-shape rejection.
 - Current bridge state: `ctx.main.define/call` works with nonce-scoped responses, and spoofed nonce messages are ignored.
 - Current requires state: sequential MAIN script loads, MAIN module imports, `data:` rejection, and best-effort USER_SCRIPT module failure paths are implemented and manually verified.
-- Current manager state: bundle import/export, enable/disable, quarantine visibility, per-command import diagnostics, and editing existing valid command body fields are implemented.
+- Current manager state: the page uses a wide three-panel layout for command list, bundle tools, and command editor. Bundle import/export, enable/disable, quarantine visibility, per-command import diagnostics, and editing existing valid command body fields are implemented.
 - Current near-term follow-ups: visual distinction between output/result/system bubbles, full manager/editor UX, dev harness automation, and a cleaner future `--debug` wrapper boundary.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
@@ -53,7 +53,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Omnibox suggestion UX for exact-resolution previews and prefix-matched command-name suggestions.
 - Manager bundle import/export and enable/disable controls to make M1 manually testable.
 - Quarantine handling for invalid stored commands, with separate `invalidCommands[]` export/import preservation and manager visibility.
-- Existing valid command editor for disabled state, description JSON, code, help template/strings, optionsSpec, and requires.
+- Existing valid command editor for disabled state, description JSON, code, help template/strings, optionsSpec, and requires, presented in the wide three-panel manager layout.
 
 **Verified**
 - T1, T2, T3, T3b, T4b
@@ -86,11 +86,12 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Include**
 - Session-console bubble styling distinctions for output vs command-state/system entries.
 - Structured manager/editor workflows for command fields, aliases, help, and options.
+- ACE-backed code editing as a separate editor enhancement after the structural layout pivot.
 - Dev harness hooks/page for repeatable A1-A5 automation.
 - Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argvTokens, ctx)`.
 
 **Manual tests**
-- T4b/T4c/T4d/T21c plus manager import/export checks.
+- T4b/T4c/T4d/T4e/T21c plus manager import/export checks.
 - Harness A1-A5 after dev hooks land.
 - Existing session-console smoke checks from T0, T4, T7, T7b/T7c, T8, T9, and T21–T24 remain regression coverage for the current UI model.
 

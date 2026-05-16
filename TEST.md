@@ -198,6 +198,17 @@ Each test lists: **Setup → Action → Expected**.
   * Invalid JSON in JSON fields reports an inline editor error and does not save
   * Exported JSON contains the saved edits
 
+#### T4e: Manager uses the wide three-panel layout
+
+* Setup: open the manager UI on a desktop-width window.
+* Action: import a fixture bundle and select a valid command for editing.
+* Expected:
+
+  * Manager presents separate command list, bundle tools, and command editor panels.
+  * Editor fields use Web Awesome controls for simple field edits.
+  * Code editing remains a textarea in this checkpoint; ACE integration is a separate follow-up.
+  * Existing import/export, enable/disable, and save behavior still works.
+
 ---
 
 ### 1.2 Injection / page eligibility

@@ -68,6 +68,11 @@ If you try to run another command in the same tab while one is already running:
 
 ## Manager import/export
 
+The Manager page uses a wide three-panel layout:
+- left panel: installed commands
+- middle panel: bundle import/export tools
+- right panel: command editor
+
 Use the Manager page to:
 - import command bundles
 - export current commands

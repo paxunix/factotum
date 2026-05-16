@@ -1,29 +1,60 @@
+.manager-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.manager-topbar {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  padding: 20px 28px;
+}
+
 .hero {
   display: grid;
-  gap: 12px;
+  gap: 6px;
 }
 
-.command-list-section {
+.hero h1 {
+  margin: 0;
+}
+
+.manager-grid {
   display: grid;
   gap: 16px;
-  margin-top: 32px;
+  grid-template-columns: minmax(260px, 1fr) minmax(300px, 1fr) minmax(460px, 2fr);
+  padding: 20px 24px 32px;
 }
 
-.command-editor-section {
-  display: grid;
+.manager-pane {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 18px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.07);
+  display: flex;
+  flex-direction: column;
   gap: 16px;
-  margin-top: 32px;
+  min-height: calc(100vh - 132px);
+  padding: 16px;
 }
 
+.command-list-section,
+.command-editor-section,
 .import-export-section {
-  display: grid;
-  gap: 16px;
-  margin-top: 32px;
+  display: flex;
 }
 
 .section-heading {
   display: grid;
   gap: 8px;
+}
+
+.section-heading h2 {
+  margin: 0;
 }
 
 .bundle-actions {
@@ -32,24 +63,8 @@
   gap: 12px;
 }
 
-.bundle-label {
-  color: rgb(30, 41, 59);
-  font-size: 14px;
-  font-weight: 600;
-}
-
 .bundle-textarea {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 18px;
-  color: rgb(15, 23, 42);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
-  font-size: 13px;
-  line-height: 1.5;
   min-height: 220px;
-  padding: 16px;
-  resize: vertical;
-  width: 100%;
 }
 
 .bundle-status {
@@ -77,6 +92,8 @@
 .command-list {
   display: grid;
   gap: 12px;
+  overflow: auto;
+  padding-right: 2px;
 }
 
 .command-card {
@@ -167,58 +184,16 @@
 }
 
 .command-editor {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  border-radius: 22px;
-  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
   display: grid;
   gap: 16px;
-  padding: 18px;
+  overflow: auto;
+  padding-right: 2px;
 }
 
 .editor-grid {
   display: grid;
   gap: 14px;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-.editor-field,
-.editor-check-field {
-  color: rgb(30, 41, 59);
-  display: grid;
-  font-size: 14px;
-  font-weight: 600;
-  gap: 8px;
-}
-
-.editor-check-field {
-  align-content: end;
-  align-items: center;
-  display: flex;
-  min-height: 68px;
-}
-
-.editor-input,
-.editor-textarea {
-  background: rgba(248, 250, 252, 0.96);
-  border: 1px solid rgba(15, 23, 42, 0.14);
-  border-radius: 14px;
-  color: rgb(15, 23, 42);
-  font: inherit;
-  font-weight: 400;
-  padding: 11px 12px;
-}
-
-.editor-input[readonly] {
-  color: rgb(71, 85, 105);
-}
-
-.editor-textarea {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
-  font-size: 13px;
-  line-height: 1.5;
-  min-height: 140px;
-  resize: vertical;
 }
 
 .editor-textarea-small {
@@ -255,4 +230,25 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+wa-textarea::part(textarea) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+}
+
+@media (max-width: 1200px) {
+  .manager-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-pane {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .manager-topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }

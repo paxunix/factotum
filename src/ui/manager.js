@@ -1,5 +1,8 @@
 import { setBasePath } from '@awesome.me/webawesome/dist/webawesome.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
+import '@awesome.me/webawesome/dist/components/input/input.js';
+import '@awesome.me/webawesome/dist/components/switch/switch.js';
+import '@awesome.me/webawesome/dist/components/textarea/textarea.js';
 import {
   exportBundle,
   getCommand,
@@ -65,23 +68,12 @@ document.getElementById('bundle-tools-title').textContent = bundleToolsTitle;
 document.getElementById('bundle-tools-hint').textContent = bundleToolsHint;
 document.getElementById('import-bundle-button').textContent = importBundleLabel;
 document.getElementById('export-bundle-button').textContent = exportBundleLabel;
-document.getElementById('bundle-label').textContent = bundleLabel;
 document.getElementById('command-list-title').textContent = commandListTitle;
 document.getElementById('command-list-hint').textContent = commandListHint;
 document.getElementById('command-editor-title').textContent = editorTitle;
 document.getElementById('command-editor-hint').textContent = editorHint;
 document.getElementById('command-editor-empty').textContent = editorEmptyMessage;
-document.getElementById('editor-name-label').textContent = editorNameLabel;
-document.getElementById('editor-id-label').textContent = editorIdLabel;
-document.getElementById('editor-world-label').textContent = editorWorldLabel;
-document.getElementById('editor-disabled-label').textContent = editorDisabledLabel;
-document.getElementById('editor-description-label').textContent = editorDescriptionLabel;
-document.getElementById('editor-code-label').textContent = editorCodeLabel;
 document.getElementById('editor-advanced-label').textContent = editorAdvancedLabel;
-document.getElementById('editor-help-template-label').textContent = editorHelpTemplateLabel;
-document.getElementById('editor-help-strings-label').textContent = editorHelpStringsLabel;
-document.getElementById('editor-options-label').textContent = editorOptionsLabel;
-document.getElementById('editor-requires-label').textContent = editorRequiresLabel;
 document.getElementById('editor-save-button').textContent = editorSaveLabel;
 document.getElementById('editor-reset-button').textContent = editorResetLabel;
 
@@ -104,6 +96,18 @@ const editorFields = {
 };
 let selectedCommandRef = null;
 let selectedCommand = null;
+
+editorFields.name.label = editorNameLabel;
+bundleTextarea.label = bundleLabel;
+editorFields.id.label = editorIdLabel;
+editorFields.world.label = editorWorldLabel;
+editorFields.disabled.textContent = editorDisabledLabel;
+editorFields.description.label = editorDescriptionLabel;
+editorFields.code.label = editorCodeLabel;
+editorFields.helpHtmlTemplate.label = editorHelpTemplateLabel;
+editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
+editorFields.optionsSpec.label = editorOptionsLabel;
+editorFields.requires.label = editorRequiresLabel;
 
 function formatDateTime(value) {
   return new Intl.DateTimeFormat(navigator.language || 'en-US', {
