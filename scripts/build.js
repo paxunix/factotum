@@ -17,7 +17,7 @@ function copyFile(src, dest) {
 }
 
 function copyStaticFiles() {
-  const exts = new Set(['.html', '.css', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.json']);
+  const exts = new Set(['.html', '.css', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.json', '.mjs']);
 
   const walk = (dir) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

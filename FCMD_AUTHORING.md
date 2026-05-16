@@ -32,6 +32,35 @@ An fcommand record must use `world: "user_script"` and define an async `main()` 
 - One command runs at a time per tab.
 - Commands are canceled on tab close and top-level navigation.
 
+## Worlds
+
+Factotum uses two page worlds:
+
+- `USER_SCRIPT`: the command runtime. Every fcommand record must use `world: "user_script"`, and `main(argvTokens, ctx)` runs here.
+- `MAIN`: the page's own JavaScript environment. Use it only when you need page-context side effects or access to page globals.
+
+Most commands should stay in `USER_SCRIPT` and use the `ctx` APIs:
+
+- use `ctx.chrome.*` for privileged extension APIs
+- use `ctx.out.*` for user-visible output
+- use `ctx.main.define/call` only for page-context work
+
+Examples of MAIN work:
+
+- reading or writing page globals
+- calling a page-defined function
+- loading a legacy script dependency that expects to attach itself to `window`
+
+MAIN bridge functions are per invocation. Define the entrypoints you need inside the command before calling them:
+
+```js
+async function main(argvTokens, ctx) {
+  await ctx.main.define('readTitle', () => document.title);
+  const title = await ctx.main.call('readTitle');
+  ctx.out.write(title);
+}
+```
+
 ## `main(argvTokens, ctx)`
 
 - `argvTokens`: positional/option tokens after the command token
@@ -102,9 +131,31 @@ Optional fields:
 - side-effect only
 - `data:` URLs are disallowed
 - default require world is `MAIN`
+- `kind: "script"` loads a classic MAIN `<script src="...">`
+- `kind: "module"` loads a MAIN module with dynamic `import(url)` unless `world: "user_script"` is set
 - `world: "user_script"` is only for `kind: "module"` best-effort cases
 
-Consult `FACTOTUM_V1_HANDOFF.md` before relying on require behavior details.
+Require examples:
+
+```json
+{ "url": "https://example.com/legacy-lib.js", "kind": "script" }
+```
+
+Loads a classic script in MAIN.
+
+```json
+{ "url": "https://example.com/mod.mjs", "kind": "module" }
+```
+
+Loads a module in MAIN.
+
+```json
+{ "url": "https://example.com/user-mod.mjs", "kind": "module", "world": "user_script" }
+```
+
+Attempts a USER_SCRIPT module import. This is best-effort and may fail because of CORS/CSP/import restrictions.
+
+Consult `FACTOTUM_V1_HANDOFF.md` before relying on deeper require behavior details.
 
 ## Bridge
 

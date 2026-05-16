@@ -22,11 +22,22 @@ if (!window.__factotumMainHostInstalled) {
   }
 
   function postResponse(sourceWindow, payload) {
-  sourceWindow.postMessage({
-    channel: CHANNEL,
-    ...payload
-  }, '*');
-}
+    sourceWindow.postMessage({
+      channel: CHANNEL,
+      ...payload
+    }, '*');
+  }
+
+  function loadScript(url) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = url;
+      script.async = false;
+      script.onload = () => resolve(true);
+      script.onerror = () => reject(Object.assign(new Error(`Failed to load required script: ${url}`), { code: 'REQUIRES_FAILED' }));
+      (document.head || document.documentElement).append(script);
+    });
+  }
 
   window.addEventListener('message', async (event) => {
     const data = event.data;
@@ -62,6 +73,18 @@ if (!window.__factotumMainHostInstalled) {
         }
         const result = await fn(...(Array.isArray(data.args) ? data.args : []));
         postResponse(sourceWindow, { ...base, ok: true, result });
+        return;
+      }
+
+      if (data.op === 'REQUIRE_SCRIPT') {
+        await loadScript(data.url);
+        postResponse(sourceWindow, { ...base, ok: true, result: true });
+        return;
+      }
+
+      if (data.op === 'IMPORT') {
+        await import(data.url);
+        postResponse(sourceWindow, { ...base, ok: true, result: true });
         return;
       }
 

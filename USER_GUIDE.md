@@ -77,6 +77,17 @@ For maintained test fixtures, use:
 - `fixtures/fixtures-v1.json`
 - `fixtures/smoke-v1.json`
 
+## Command worlds
+
+Most users do not need to choose a world. Valid fcommands run as `user_script` commands.
+
+When installing or troubleshooting a command:
+- `user_script` means the command runs in Factotum's isolated command runtime
+- `MAIN` means the page's own JavaScript environment
+- commands reach `MAIN` only through explicit bridge calls or MAIN-world requires
+
+If a stored command record says `world: "main"`, it is stale or invalid and should be quarantined by the manager instead of running.
+
 ## Current limitations
 
 - only one command can run at a time per tab

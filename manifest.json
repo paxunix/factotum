@@ -27,6 +27,12 @@
   "background": {
     "service_worker": "sw/sw.js"
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["fixtures/*.mjs"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "permissions": [
     "activeTab",
     "alarms",

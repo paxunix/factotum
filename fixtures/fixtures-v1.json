@@ -79,6 +79,75 @@
     },
     {
       "schemaVersion": 1,
+      "name": "reqorder",
+      "id": "fixture.requires.order",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { await ctx.main.define('readRequireOrder', () => window.__FACTOTUM_REQUIRE_ORDER); const order = await ctx.main.call('readRequireOrder'); ctx.out.write(`require order=${order.join(',')}`); }",
+      "requires": [
+        { "url": "/fixtures/require-a.mjs", "kind": "script" },
+        { "url": "/fixtures/require-b.mjs", "kind": "script" }
+      ],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "reqorder", "body": "Verifies sequential MAIN script requires." }
+      },
+      "description": { "en-US": "Sequential requires fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "reqdata",
+      "id": "fixture.requires.data",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('reqdata should not reach main'); }",
+      "requires": [
+        { "url": "data:text/javascript,window.__FACTOTUM_BAD=1", "kind": "script" }
+      ],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "reqdata", "body": "Verifies data: requires are rejected." }
+      },
+      "description": { "en-US": "data: require rejection fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "reqmod",
+      "id": "fixture.requires.main.module",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { await ctx.main.define('readModuleLoaded', () => window.__FACTOTUM_MODULE_LOADED === true); const loaded = await ctx.main.call('readModuleLoaded'); ctx.out.write(`module loaded=${loaded}`); }",
+      "requires": [
+        { "url": "/fixtures/require-module.mjs", "kind": "module" }
+      ],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "reqmod", "body": "Verifies MAIN module requires through dynamic import." }
+      },
+      "description": { "en-US": "MAIN module require fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "requsermod",
+      "id": "fixture.requires.user.module.fail",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { ctx.log('requsermod should not reach main'); }",
+      "requires": [
+        { "url": "https://example.invalid/user-script-module.mjs", "kind": "module", "world": "user_script" }
+      ],
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{body}}</p>",
+      "helpHtmlStrings": {
+        "en-US": { "title": "requsermod", "body": "Verifies USER_SCRIPT module require failures are explicit." }
+      },
+      "description": { "en-US": "USER_SCRIPT module require failure fixture" },
+      "createdAt": 1760000000000,
+      "updatedAt": 1760000000000
+    },
+    {
+      "schemaVersion": 1,
       "name": "bridge",
       "id": "fixture.main.bridge",
       "world": "user_script",

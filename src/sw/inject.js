@@ -513,6 +513,28 @@ function getOutputMarkerId(invocationId) {
   return `${OUTPUT_MARKER_PREFIX}${invocationId}`;
 }
 
+function resolveRequireUrl(url) {
+  const raw = String(url || '');
+  if (/^data:/i.test(raw)) {
+    throw createRpcError('REQUIRES_FAILED', `Requires cannot use data: URLs: ${raw}`);
+  }
+  if (/^\//.test(raw)) {
+    return chrome.runtime.getURL(raw.replace(/^\/+/, ''));
+  }
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(raw)) {
+    return chrome.runtime.getURL(raw);
+  }
+  return raw;
+}
+
+function prepareRequires(command) {
+  return (Array.isArray(command.requires) ? command.requires : []).map((entry) => ({
+    url: resolveRequireUrl(entry.url),
+    kind: entry.kind,
+    world: entry.world || 'main'
+  }));
+}
+
 function clearCompletionWaiter(invocationId) {
   invocationCompletion.delete(invocationId);
   invocationOutputOffsets.delete(invocationId);
@@ -877,6 +899,7 @@ function buildExecuteCode(invocation) {
     world: invocation.command.world,
     commandRef: `${invocation.command.name}@${invocation.command.id}`,
     nonce: invocation.nonce,
+    requires: prepareRequires(invocation.command),
     completionMarkerId: getCompletionMarkerId(invocation.invocationId),
     cancelMarkerId: getCancelMarkerId(invocation.invocationId),
     outputMarkerId: getOutputMarkerId(invocation.invocationId)
@@ -1078,6 +1101,47 @@ function buildExecuteCode(invocation) {
         });
       }
 
+      async function __factotumLoadRequire(entry) {
+        if (!entry || typeof entry.url !== 'string') {
+          throw Object.assign(new Error('Invalid require entry'), { code: 'REQUIRES_FAILED' });
+        }
+        if (/^data:/i.test(entry.url)) {
+          throw Object.assign(new Error('Requires cannot use data: URLs: ' + entry.url), { code: 'REQUIRES_FAILED' });
+        }
+        if (entry.world === 'user_script') {
+          if (entry.kind !== 'module') {
+            throw Object.assign(new Error('USER_SCRIPT requires must be modules: ' + entry.url), { code: 'REQUIRES_FAILED' });
+          }
+          try {
+            await import(entry.url);
+            return;
+          } catch (error) {
+            const wrapped = new Error('USER_SCRIPT module require failed for ' + entry.url + ': ' + (error?.message || String(error)));
+            wrapped.name = error?.name || 'Error';
+            wrapped.stack = error?.stack;
+            wrapped.code = 'REQUIRES_FAILED';
+            throw wrapped;
+          }
+        }
+
+        const op = entry.kind === 'module' ? 'IMPORT' : 'REQUIRE_SCRIPT';
+        try {
+          await __factotumSendMain(op, { url: entry.url });
+        } catch (error) {
+          const wrapped = new Error('MAIN ' + entry.kind + ' require failed for ' + entry.url + ': ' + (error?.message || String(error)));
+          wrapped.name = error?.name || 'Error';
+          wrapped.stack = error?.stack;
+          wrapped.code = 'REQUIRES_FAILED';
+          throw wrapped;
+        }
+      }
+
+      async function __factotumLoadRequires() {
+        for (const entry of __factotumMeta.requires || []) {
+          await __factotumLoadRequire(entry);
+        }
+      }
+
       __factotumWriteCompletion({ status: 'pending' });
 
       const ctx = {
@@ -1141,6 +1205,7 @@ function buildExecuteCode(invocation) {
 
       try {
         console.info('[factotum execute]', __factotumMeta.commandRef, __factotumMeta.world);
+        await __factotumLoadRequires();
         const __factotumMain = (() => {
   `;
 
