@@ -84,9 +84,9 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Keep the session console as the command-facing per-tab surface; retain internal diagnostics separately until the log-page retirement decision is implemented.
 
 **Include**
+- Manager layout iteration: independent pane scrolling, possible two-pane dashboard, and possible top-level Dashboard vs Import/Export tabs.
+- Manager editor iteration: ACE code editing, delete with undo, stronger command-card hierarchy, structured editors for localized text/help/options/requires, and overlay-backed help preview.
 - Session-console bubble styling distinctions for output vs command-state/system entries.
-- Structured manager/editor workflows for command fields, aliases, help, and options.
-- ACE-backed code editing as a separate editor enhancement after the structural layout pivot.
 - Dev harness hooks/page for repeatable A1-A5 automation.
 - Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argvTokens, ctx)`.
 
