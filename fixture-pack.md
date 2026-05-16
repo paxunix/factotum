@@ -17,6 +17,10 @@ Use checked-in import bundles for manual and harness testing rather than copying
   - `pick@fixture.B`
   - `longrun@fixture.cancel.nav`
   - `badreq@fixture.requires.fail`
+  - `reqorder@fixture.requires.order`
+  - `reqdata@fixture.requires.data`
+  - `reqmod@fixture.requires.main.module`
+  - `requsermod@fixture.requires.user.module.fail`
   - `bridge@fixture.main.bridge`
   - `deny@fixture.denylisted`
   - `events@fixture.events.unsupported`
@@ -49,7 +53,11 @@ Use checked-in import bundles for manual and harness testing rather than copying
 - `outputdemo@demo.output`: T21, T21b
 - `pick@fixture.A` and `pick@fixture.B`: T3, T3b, T4a, T4b
 - `longrun@fixture.cancel.nav`: T9, T10
-- `badreq@fixture.requires.fail`: requires-failure checks
+- `badreq@fixture.requires.fail`: external requires-failure check
+- `reqorder@fixture.requires.order`: T11
+- `reqdata@fixture.requires.data`: T12
+- `reqmod@fixture.requires.main.module`: T13
+- `requsermod@fixture.requires.user.module.fail`: T14
 - `bridge@fixture.main.bridge`: T15
 - `deny@fixture.denylisted`: T18
 - `events@fixture.events.unsupported`: T19

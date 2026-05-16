@@ -1,7 +1,7 @@
 # TODO.md — Deferred Work and Follow-Ups
 
 Use this file to capture work that should not be forgotten but does not belong on the current critical path.
-Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-ups.
+Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups.
 
 ## Rules
 - Keep entries concise and actionable.
@@ -12,7 +12,7 @@ Items here may be bugs, UX polish, wishlist ideas, or later-mileestone follow-up
 ## Current TODOs
 
 ### Bugs
-- MAIN should no longer be treated as a first-class top-level command runtime; remaining docs and code should converge on USER_SCRIPT runtime plus explicit MAIN bridge access.
+- Remove remaining dead compatibility paths and scratch fixtures that still mention `world: "main"` as a command runtime. Validation already rejects this, but cleanup should finish converging code examples on USER_SCRIPT plus explicit MAIN bridge access.
 
 ### Omnibox / UX
 - Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.

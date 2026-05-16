@@ -37,7 +37,9 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current busy-guard direction: keep one invocation per tab, but explain refusals with a busy bubble that names the running command and tells the user to cancel or wait.
 - Current runtime state: short commands, long-running commands, manual cancel, and cancel-on-navigation are all working again after moving USER_SCRIPT completion/cancel coordination to DOM-backed markers instead of unreliable USER_SCRIPT-to-service-worker completion messages.
 - Current RPC state: `ctx.chrome` now works for the v1 one-shot surface, including callback-style methods like `tabs.query`/`bookmarks.search`, namespace denylist rejection, and event/listener-shape rejection.
-- Current near-term follow-ups: T20 cloneability verification, visual distinction between output/result/system bubbles, manager import diagnostics that explicitly name newly imported commands, and a cleaner future `--debug` wrapper boundary.
+- Current bridge state: `ctx.main.define/call` works with nonce-scoped responses, and spoofed nonce messages are ignored.
+- Current requires state: sequential MAIN script loads, MAIN module imports, `data:` rejection, and best-effort USER_SCRIPT module failure paths are implemented and manually verified.
+- Current near-term follow-ups: visual distinction between output/result/system bubbles, manager import diagnostics that explicitly name newly imported commands, full manager/editor UX, dev harness automation, and a cleaner future `--debug` wrapper boundary.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -71,8 +73,8 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Manual tests**
 - T5–T10, T7 (overlay), T8 (cancel).
 
-### Next checkpoint — Bridge/RPC hardening plus remaining console polish
-**Ready:** continue into bridge/RPC/requires work while finishing the remaining session-console polish items.
+### Next checkpoint — Manager/editor UX, harness, and console polish
+**Ready:** continue into manager/editor import UX, dev harness automation, and remaining session-console polish.
 
 **Direction**
 - Keep the omnibox as the only input surface.
@@ -80,26 +82,26 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Keep the session console as the command-facing per-tab surface; retain internal diagnostics separately until the log-page retirement decision is implemented.
 
 **Include**
-- MAIN bridge hardening against the remaining v1 tests.
-- RPC follow-through for cloneability/error-path verification.
-- Requires-loader follow-through and diagnostics.
 - Session-console bubble styling distinctions for output vs command-state/system entries.
 - Manager import diagnostics that explicitly enumerate newly imported commands.
+- Structured manager/editor workflows for command fields, aliases, help, and options.
+- Dev harness hooks/page for repeatable A1-A5 automation.
 - Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argvTokens, ctx)`.
 
 **Manual tests**
-- T11–T20 for bridge/RPC/requires.
+- T4b/T21c plus manager import/export checks.
+- Harness A1-A5 after dev hooks land.
 - Existing session-console smoke checks from T0, T4, T7, T7b/T7c, T8, T9, and T21–T24 remain regression coverage for the current UI model.
 
 ### M3 — Requires + Bridge + RPC
-**Ready:** dependency loading, MAIN bridge, privileged API access.
+**Status:** complete
 
-**Include**
+**Delivered**
 - Requires loader (MAIN script/module, USER_SCRIPT module best‑effort).
 - MAIN bridge define/call with nonce enforcement.
 - RPC core (`ctx.chrome`) with denylist, events/ports rejection.
 
-**Manual tests**
+**Verified**
 - T11–T20.
 
 ### M4 — Help/OptionsSpec + Session Console Output
@@ -255,18 +257,20 @@ Each milestone should end with a runnable subset and the matching manual tests f
 ## 6) RPC Core (`ctx.chrome`)
 **Spec sections:** 9, 20.7
 
-**Tasks**
+**Status:** complete
+
+**Delivered**
 - Proxy mapping `ctx.chrome.ns.method(...)` → SW RPC `ns.method`.
 - Promisify callback APIs with `chrome.runtime.lastError`.
 - Denylist namespaces: debugger, management.
 - Block events + ports (listeners/connect), reject unsupported shapes.
 - Enforce invocationId validity + tab binding + canceled/ended rejection.
 
-**Files (expected)**
-- `src/sw/rpc.js`
-- `src/runner/ctx_chrome.js`
+**Files**
+- `src/sw/inject.js`
+- `src/sw/sw.js`
 
-**Manual tests**
+**Verified**
 - Basic RPC calls succeed.
 - Denylisted namespace rejection.
 - Events/ports rejected.
@@ -277,18 +281,20 @@ Each milestone should end with a runnable subset and the matching manual tests f
 ## 7) MAIN Bridge Host + Protocol
 **Spec sections:** 8, 20.2
 
-**Tasks**
+**Status:** complete
+
+**Delivered**
 - Treat MAIN as a bridge target rather than a top-level command runtime.
 - Implement `ctx.main.define(name, fn)` and `ctx.main.call(name, args)`.
 - Use `window.postMessage` with `invocationId`, `nonce`, and `callId`.
 - Maintain per‑invocation handler map; reply `{ok,result}` / `{ok:false,error}`.
 - Surface `BRIDGE_FAILED` on failure; log error.
 
-**Files (expected)**
+**Files**
 - `src/bridge/main_host.js`
-- `src/runner/ctx_main.js`
+- `src/sw/inject.js`
 
-**Manual tests**
+**Verified**
 - Define/call works in MAIN; spoofed nonce rejected.
 
 ---
@@ -296,7 +302,9 @@ Each milestone should end with a runnable subset and the matching manual tests f
 ## 8) Requires Loader
 **Spec sections:** 7, 20.5
 
-**Tasks**
+**Status:** complete
+
+**Delivered**
 - Sequential, side‑effect only; `data:` URLs disallowed.
 - Default world MAIN regardless of command world.
 - MAIN script: `<script src>` + load/error.
@@ -304,11 +312,12 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - USER_SCRIPT module best‑effort: execute `await import(url)` in the user-script world with clear failure.
 - Require failure aborts invocation with `REQUIRES_FAILED` + logs.
 
-**Files (expected)**
-- `src/runner/requires.js`
-- `src/bridge/main_host.js` (IMPORT, SCRIPT_LOAD ops)
+**Files**
+- `src/sw/inject.js`
+- `src/bridge/main_host.js`
+- `src/fixtures/*.mjs`
 
-**Manual tests**
+**Verified**
 - Sequential order enforced.
 - `data:` rejected.
 - MAIN and USER_SCRIPT module behaviors.
@@ -355,7 +364,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 **Tasks**
 - Import canonical `fixtures-v1.json` bundle.
-- Ensure fixtures: pick@fixture.A/B (MRU), alias cmd1 → pick@fixture.B, longrun cancel, badreq requires fail, bridge, denylisted, events unsupported, and a dedicated localized help/options fixture.
+- Ensure fixtures: pick@fixture.A/B, alias cmd1 → pick@fixture.B, longrun cancel, requires T11-T14, bridge, denylisted, events unsupported, RPC clone failure, and localized help/options.
 - Maintain a separate smoke bundle for ad hoc manual checks such as `ok@demo.ok` and `longrun@demo.cancel`.
 
 **Files (expected)**

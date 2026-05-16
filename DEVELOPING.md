@@ -1,7 +1,3 @@
-Here’s a `DEVELOPING.md`-style guide for extending the RPC exposure (“all chrome.* namespaces” minus denylist) plus a test checklist. It’s written to prevent the most common drift: missing promisification, accidental event exposure, uncloneables, and inconsistent error handling.
-
----
-
 # DEVELOPING.md — Extending Fcommands RPC Exposure (v1)
 
 ## Overview
@@ -262,55 +258,57 @@ If a method has unusual callback shape:
 
 ---
 
-## 8) Test checklist (required before merging changes)
+## 8) Verification checklist
+
+Run the relevant fixture-backed tests in `TEST.md` before merging changes in these areas. The currently maintained runtime fixtures cover RPC, requires, and bridge behavior through T11-T20.
 
 ### 8.1 RPC basics
 
-* [ ] Calling a known method returns expected result.
-* [ ] Missing method returns `NO_SUCH_METHOD`.
-* [ ] Denylisted namespace returns `UNSUPPORTED_MEMBER`.
-* [ ] Event-like members cannot be called (error `UNSUPPORTED_API_SHAPE`).
+- Calling a known method returns expected result: `workflow@fixture.sw.roundtrip` (T17).
+- Missing method returns `NO_SUCH_METHOD`.
+- Denylisted namespace returns `UNSUPPORTED_MEMBER`: `deny@fixture.denylisted` (T18).
+- Event-like members cannot be called and return `UNSUPPORTED_API_SHAPE`: `events@fixture.events.unsupported` (T19).
 
 ### 8.2 Promisification
 
-* [ ] Callback-style method resolves correctly.
-* [ ] `chrome.runtime.lastError` causes rejection with `RPC_FAILED`.
-* [ ] Multi-arg callback returns an array (if encountered).
+- Callback-style methods resolve correctly: `workflow@fixture.sw.roundtrip` (T17).
+- `chrome.runtime.lastError` causes rejection with `RPC_FAILED`.
+- Multi-arg callbacks return an array if encountered.
 
 ### 8.3 Invocation binding
 
-* [ ] RPC rejects when `invocationId` is unknown (`INVALID_INVOCATION`).
-* [ ] RPC rejects after cancel (`CANCELED`).
-* [ ] RPC rejects if tabId mismatches the invocation.
+- RPC rejects when `invocationId` is unknown (`INVALID_INVOCATION`).
+- RPC rejects after cancel (`CANCELED`).
+- RPC rejects if tabId mismatches the invocation.
 
 ### 8.4 Cloneability
 
-* [ ] If method returns uncloneable, error `UNCLONEABLE_RESULT` is returned and logged.
-* [ ] `clonefail@fixture.rpc.uncloneable` still fails with `UNCLONEABLE_RESULT` via the maintained test-only override path.
+- If method returns uncloneable, error `UNCLONEABLE_RESULT` is returned and logged.
+- `clonefail@fixture.rpc.uncloneable` fails with `UNCLONEABLE_RESULT` via the maintained test-only override path (T20).
 
 ### 8.5 Cancel-on-navigation
 
-* [ ] Starting a command then navigating cancels it.
-* [ ] Cancel prevents further RPC calls.
+- Starting a command then navigating cancels it: `longrun@fixture.cancel.nav` (T9).
+- Cancel prevents further RPC calls: `longrun@fixture.cancel.nav` / cancel fixtures (T8-T10).
 
 ### 8.6 Logging
 
-* [x] Command-facing output (`ctx.out.*`) appears in the session console UI.
-* [ ] Fatal wrapper failures (requires fail, uncaught exception) appear in the session console or other visible session diagnostics even if command didn’t log.
+- Command-facing output (`ctx.out.*`) appears in the session console UI: `outputdemo@demo.output` (T21/T21b).
+- Fatal wrapper failures appear in the session console or other visible session diagnostics even if command did not log.
 
 ### 8.7 Requires loader
 
-* [ ] Sequential requires order honored.
-* [ ] `data:` require rejected.
-* [ ] MAIN script require loads and runs.
-* [ ] MAIN module require uses dynamic import.
-* [ ] USER_SCRIPT module require best-effort fails with clear log if blocked.
+- Sequential requires order honored: `reqorder@fixture.requires.order` (T11).
+- `data:` require rejected: `reqdata@fixture.requires.data` (T12).
+- MAIN script require loads and runs: `reqorder@fixture.requires.order` (T11).
+- MAIN module require uses dynamic import: `reqmod@fixture.requires.main.module` (T13).
+- USER_SCRIPT module require best-effort fails clearly if blocked: `requsermod@fixture.requires.user.module.fail` (T14).
 
 ### 8.8 Bridging
 
-* [ ] `ctx.main.define/call` works on a normal page.
-* [ ] Bridge messages require correct `nonce` (spoofing attempt ignored).
-* [ ] Bridge failure produces `BRIDGE_FAILED` and logs.
+- `ctx.main.define/call` works on a normal page: `bridge@fixture.main.bridge` (T15).
+- Bridge messages require correct `nonce`; spoofing attempts are ignored (T16).
+- Bridge failure produces `BRIDGE_FAILED` and logs.
 
 ---
 
@@ -330,10 +328,6 @@ This is acceptable in v1. The correct behavior is:
 
 ---
 
-
-Here’s a concise **Troubleshooting** section you can append to `DEVELOPING.md`. It’s geared toward interpreting the session log and quickly narrowing down whether a failure is injection, requires, bridge, RPC dispatch, or command code.
-
----
 
 # Troubleshooting
 
@@ -583,5 +577,3 @@ Even if a command writes no logs, the runtime should emit at least one `error` e
 This is the “no DevTools required” guarantee.
 
 ---
-
-If you’d like, I can also draft a **“Test Plan v1”** that lists a small set of manual smoke tests plus a couple automated harness tests (where feasible in an extension) to validate omnibox resolution, MRU, requires order, bridge correctness, and cancellation.

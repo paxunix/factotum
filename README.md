@@ -27,7 +27,8 @@ npm run build
 - The manager page now provides a `Bundle JSON` import/export flow for loading manual smoke-test fixtures.
 - Current architecture direction: command runtime lives in USER_SCRIPT and accesses MAIN only through the explicit bridge.
 - Core execution and session-console work are now in place: per-tab session reopen via `f -`, append-only bubble history, `ctx.out.*` command-visible output, non-auto-dismissing terminal states, busy/no-such-command system bubbles, and a wider resizable desktop console.
-- Current near-term work is narrower: session-console visual refinement, manager import/export diagnostics polish, and the remaining bridge/RPC/requires surface.
+- Requires, MAIN bridge, and `ctx.chrome` RPC are implemented and manually verified through T11-T20.
+- Current near-term work is narrower: manager/editor import UX, dev harness automation, and session-console visual refinement.
 
 ## Guides
 

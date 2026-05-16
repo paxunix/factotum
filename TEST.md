@@ -29,6 +29,10 @@ Below is a **Test Plan v1** that mixes a small, reliable **manual smoke suite** 
   * `pick@fixture.B`
   * `longrun@fixture.cancel.nav`
   * `badreq@fixture.requires.fail`
+  * `reqorder@fixture.requires.order`
+  * `reqdata@fixture.requires.data`
+  * `reqmod@fixture.requires.main.module`
+  * `requsermod@fixture.requires.user.module.fail`
   * `bridge@fixture.main.bridge`
   * `deny@fixture.denylisted`
   * `events@fixture.events.unsupported`
@@ -50,7 +54,11 @@ Use these fixtures for the following tests so the test plan stays aligned with t
 * `canceldemo@demo.cancel`: T8
 * `outputdemo@demo.output`: T21, T21b
 * `longrun@fixture.cancel.nav`: T9, T10
-* `badreq@fixture.requires.fail`: requires-failure checks
+* `badreq@fixture.requires.fail`: external requires-failure check
+* `reqorder@fixture.requires.order`: T11
+* `reqdata@fixture.requires.data`: T12
+* `reqmod@fixture.requires.main.module`: T13
+* `requsermod@fixture.requires.user.module.fail`: T14
 * `bridge@fixture.main.bridge`: T15
 * `deny@fixture.denylisted`: T18
 * `events@fixture.events.unsupported`: T19
@@ -267,39 +275,42 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T11: Sequential requires order honored
 
-* Setup: requires A then B; each logs a side effect (e.g. sets `window.__A` then B checks it)
-* Action: run command
+* Setup: import `reqorder@fixture.requires.order`
+* Action: run `f reqorder@fixture.requires.order`
 * Expected:
 
-  * B observes A’s side effect
-  * If A fails, B never loads
+  * Session console output includes `require order=a,b`
+  * Final state is `Done.`
 
 #### T12: `data:` in requires rejected
 
-* Setup: command with `requires: [{url:"data:…", kind:"script"}]`
-* Action: run command
+* Setup: import `reqdata@fixture.requires.data`
+* Action: run `f reqdata@fixture.requires.data`
 * Expected:
 
   * Immediate failure
-  * Log contains `REQUIRES_FAILED` with URL scheme noted
+  * Session console error includes `Requires cannot use data: URLs`
+  * SW console reports `REQUIRES_FAILED`
+  * `main()` does not run
 
 #### T13: MAIN module require uses dynamic import
 
-* Setup: require `{kind:"module", url:https://.../mod.mjs}`
-* Action: run command
+* Setup: import `reqmod@fixture.requires.main.module`
+* Action: run `f reqmod@fixture.requires.main.module`
 * Expected:
 
-  * Import completes (or fails) via MAIN host
-  * Side effects visible to MAIN (e.g., module sets `window.__MOD_LOADED = true`)
+  * Session console output includes `module loaded=true`
+  * Final state is `Done.`
 
 #### T14: USER_SCRIPT module require best-effort failure is clear
 
-* Setup: require `{kind:"module", world:"user_script", url:https://...}`
-* Action: run on a page where it will predictably fail (CORS/CSP)
+* Setup: import `requsermod@fixture.requires.user.module.fail`
+* Action: run `f requsermod@fixture.requires.user.module.fail`
 * Expected:
 
-  * Failure message is explicit (CORS/CSP/import failure)
-  * Code = `REQUIRES_FAILED`
+  * Failure message identifies USER_SCRIPT module require failure
+  * SW console reports `REQUIRES_FAILED`
+  * `main()` does not run
 
 ---
 
@@ -513,18 +524,9 @@ v1 is “feature complete” when:
 
 ---
 
+## 5) Planned dev harness (A1-A5)
 
-
-=======================================================================
-
-
-Here’s a spec-only `HARNESS.md` that describes an internal test harness page and the minimal, low-risk service-worker hooks you’d add to make A1–A5 automation reliable—without changing production behavior.
-
----
-
-# HARNESS.md — Test Harness (v1)
-
-## Purpose
+### Purpose
 
 The harness provides a deterministic way to:
 
@@ -537,9 +539,9 @@ This is for developer testing only. It should be disabled or guarded behind a �
 
 ---
 
-## 1) Harness page
+### 5.1 Harness page
 
-### 1.1 Location
+#### 5.1.1 Location
 
 An internal extension page, e.g.:
 
@@ -554,7 +556,7 @@ It provides simple controls:
 * “Show logs”
 * “Show active invocations”
 
-### 1.2 Harness responsibilities
+#### 5.1.2 Harness responsibilities
 
 The harness:
 
@@ -575,15 +577,15 @@ No omnibox interaction is required.
 
 ---
 
-## 2) Minimal SW hooks (dev-only API)
+### 5.2 Minimal SW hooks (dev-only API)
 
-### 2.1 Hook design goals
+#### 5.2.1 Hook design goals
 
 * Must not change production behavior.
 * Must not expose sensitive data by default.
 * Must be easy to disable.
 
-### 2.2 Enablement
+#### 5.2.2 Enablement
 
 One of:
 
@@ -594,7 +596,7 @@ All harness-only message handlers should require dev mode enabled.
 
 ---
 
-## 3) Harness → SW message API
+### 5.3 Harness to SW message API
 
 All harness messages use:
 
@@ -602,7 +604,7 @@ All harness messages use:
 * `op: ...`
 * `requestId` for correlation
 
-### 3.1 Start invocation (bypass omnibox)
+#### 5.3.1 Start invocation (bypass omnibox)
 
 **Request**
 
@@ -645,7 +647,7 @@ or error:
 }
 ```
 
-### 3.2 Get logs
+#### 5.3.2 Get logs
 
 **Request**
 
@@ -669,7 +671,7 @@ Notes:
 * Returns logs in oldest→newest order.
 * Must reflect retention rules (max 1000).
 
-### 3.3 Clear logs
+#### 5.3.3 Clear logs
 
 **Request**
 
@@ -679,7 +681,7 @@ Notes:
 
 **Response**: ok
 
-### 3.4 Get invocation state (minimal)
+#### 5.3.4 Get invocation state (minimal)
 
 **Request**
 
@@ -712,7 +714,7 @@ Notes:
 * Minimal info only; no code contents or secrets.
 * Enough for harness assertions.
 
-### 3.5 Cancel invocation
+#### 5.3.5 Cancel invocation
 
 **Request**
 
@@ -724,9 +726,9 @@ Notes:
 
 ---
 
-## 4) Fixture installation strategy
+### 5.4 Fixture installation strategy
 
-### 4.1 “Install fixtures” button
+#### 5.4.1 Install fixtures button
 
 The harness page writes a known set of commands:
 
@@ -740,7 +742,7 @@ It also installs:
 
 * one alias mapping that points to a fully-qualified token
 
-### 4.2 Reset storage
+#### 5.4.2 Reset storage
 
 Reset should:
 
@@ -749,38 +751,38 @@ Reset should:
 
 ---
 
-## 5) Recommended harness assertions (A1–A5)
+### 5.5 Recommended harness assertions (A1-A5)
 
-### A1: Resolution + MRU
+#### A1: Resolution + MRU
 
 * Start fully qualified command B.
 * Start bare name.
 * Assert second run chose B (by checking overlay log entries or invocation metadata).
 
-### A2: Cancel on navigation
+#### A2: Cancel on navigation
 
 * Start long-running command.
 * Navigate tab via `chrome.tabs.update({url: ...})`.
 * Assert invocation status becomes `CANCELED` and busy state clears.
 
-### A3: Requires failure log
+#### A3: Requires failure log
 
 * Start command with invalid require URL.
 * Assert logs contain `REQUIRES_FAILED`.
 
-### A4: Bridge define/call
+#### A4: Bridge define/call
 
 * Start bridge command.
 * Assert logs contain expected returned value.
 
-### A5: Denylisted blocked
+#### A5: Denylisted blocked
 
 * Start command calling `chrome.management.*`.
 * Assert error code `UNSUPPORTED_MEMBER` is logged.
 
 ---
 
-## 6) Keeping harness from polluting production
+### 5.6 Keeping harness from polluting production
 
 * All harness op handlers should be behind dev mode.
 * Consider naming these messages distinctly and rejecting them by default.

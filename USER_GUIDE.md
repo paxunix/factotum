@@ -91,5 +91,4 @@ If a stored command record says `world: "main"`, it is stale or invalid and shou
 ## Current limitations
 
 - only one command can run at a time per tab
-- some privileged APIs are still unfinished
 - session console layout is still being refined
