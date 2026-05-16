@@ -39,7 +39,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current RPC state: `ctx.chrome` now works for the v1 one-shot surface, including callback-style methods like `tabs.query`/`bookmarks.search`, namespace denylist rejection, and event/listener-shape rejection.
 - Current bridge state: `ctx.main.define/call` works with nonce-scoped responses, and spoofed nonce messages are ignored.
 - Current requires state: sequential MAIN script loads, MAIN module imports, `data:` rejection, and best-effort USER_SCRIPT module failure paths are implemented and manually verified.
-- Current near-term follow-ups: visual distinction between output/result/system bubbles, manager import diagnostics that explicitly name newly imported commands, full manager/editor UX, dev harness automation, and a cleaner future `--debug` wrapper boundary.
+- Current near-term follow-ups: visual distinction between output/result/system bubbles, full manager/editor UX, dev harness automation, and a cleaner future `--debug` wrapper boundary.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
 **Status:** complete
@@ -83,7 +83,6 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 **Include**
 - Session-console bubble styling distinctions for output vs command-state/system entries.
-- Manager import diagnostics that explicitly enumerate newly imported commands.
 - Structured manager/editor workflows for command fields, aliases, help, and options.
 - Dev harness hooks/page for repeatable A1-A5 automation.
 - Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argvTokens, ctx)`.

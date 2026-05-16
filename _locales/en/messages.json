@@ -105,6 +105,15 @@
       }
     }
   },
+  "managerImportCommandLine": {
+    "message": "Imported command: $COMMAND$",
+    "description": "Manager import diagnostic line for each imported command",
+    "placeholders": {
+      "command": {
+        "content": "$1"
+      }
+    }
+  },
   "overlayCancel": {
     "message": "Cancel",
     "description": "Overlay cancel button label"

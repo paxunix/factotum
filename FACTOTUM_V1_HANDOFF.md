@@ -42,7 +42,6 @@ The current checked-in implementation now uses a per-tab session console as the 
 The main remaining follow-ups in this area are presentation refinements rather than a model change:
 
 - stronger visual distinctions between output levels and command-state/system bubbles
-- manager/import diagnostics that surface newly imported commands as clearly as duplicate/quarantine warnings
 - a cleaner generated-wrapper boundary before `main(argvTokens, ctx)` so future `--debug` support has an obvious insertion point
 
 ---

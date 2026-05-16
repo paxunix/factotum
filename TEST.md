@@ -174,6 +174,7 @@ Each test lists: **Setup → Action → Expected**.
   * Manager shows the stale command as invalid/quarantined with the validation reason
   * Export succeeds instead of failing the whole operation
   * Manager import/export diagnostics render one message per line so warnings and quarantine summaries are readable
+  * Import diagnostics include one `Imported command: name@id` line per imported valid command
   * Exported JSON includes valid commands in `commands[]`
   * Exported JSON preserves the quarantined record in `invalidCommands[]`
   * Re-import restores the invalid record in quarantined form without making it runnable

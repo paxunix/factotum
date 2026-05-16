@@ -12,8 +12,8 @@ import {
 // Ensure Web Awesome assets resolve inside the extension bundle.
 setBasePath(chrome.runtime.getURL('vendor/webawesome'));
 
-function getMessage(key, fallback = key) {
-  return chrome.i18n.getMessage(key) || fallback;
+function getMessage(key, fallback = key, substitutions) {
+  return chrome.i18n.getMessage(key, substitutions) || fallback;
 }
 
 const title = getMessage('managerTitle', 'Factotum');
@@ -37,8 +37,6 @@ const disabledLabel = getMessage('managerCommandDisabled', 'Disabled');
 const invalidLabel = getMessage('managerCommandInvalid', 'Invalid');
 const validationIssueLabel = getMessage('managerCommandValidationIssue', 'Validation issue');
 const invalidDescriptionLabel = getMessage('managerCommandInvalidDescription', 'This command is quarantined and excluded from resolution, invocation, and normal export.');
-const exportInvalidSummaryLabel = getMessage('managerExportInvalidSummary', 'Preserved $COUNT$ invalid command(s).');
-const importInvalidSummaryLabel = getMessage('managerImportInvalidSummary', 'Quarantined $COUNT$ invalid command(s).');
 
 document.title = title;
 document.getElementById('manager-title').textContent = title;
@@ -83,8 +81,19 @@ function clearBundleStatus() {
   bundleStatus.textContent = '';
 }
 
-function formatCountMessage(template, count) {
-  return template.replace('$COUNT$', String(count));
+function formatMessage(key, fallback, substitutions) {
+  const values = Array.isArray(substitutions) ? substitutions.map(String) : [String(substitutions)];
+  return getMessage(key, fallback, values)
+    .replace('$COUNT$', values[0])
+    .replace('$COMMAND$', values[0]);
+}
+
+function formatInvalidSummaryMessage(key, fallback, count) {
+  return formatMessage(key, fallback, count);
+}
+
+function formatImportCommandMessage(commandRef) {
+  return formatMessage('managerImportCommandLine', 'Imported command: $COMMAND$', `${commandRef.name}@${commandRef.id}`);
 }
 
 async function toggleDisabled(commandRef) {
@@ -211,8 +220,11 @@ async function handleImportBundle() {
   try {
     const result = await importBundle(parsed);
     const statusLines = [`Imported ${result.importedCommands.length} command(s).`];
+    for (const command of result.importedCommands) {
+      statusLines.push(formatImportCommandMessage(command));
+    }
     if (result.quarantinedCommands > 0) {
-      statusLines.push(formatCountMessage(importInvalidSummaryLabel, result.quarantinedCommands));
+      statusLines.push(formatInvalidSummaryMessage('managerImportInvalidSummary', 'Quarantined $COUNT$ invalid command(s).', result.quarantinedCommands));
     }
     for (const warning of result.warnings) {
       statusLines.push(warning.message);
@@ -231,7 +243,7 @@ async function handleExportBundle() {
     bundleTextarea.value = JSON.stringify(bundle, null, 2);
     const statusLines = [`Exported ${bundle.commands.length} command(s).`];
     if (Array.isArray(bundle.invalidCommands) && bundle.invalidCommands.length > 0) {
-      statusLines.push(formatCountMessage(exportInvalidSummaryLabel, bundle.invalidCommands.length));
+      statusLines.push(formatInvalidSummaryMessage('managerExportInvalidSummary', 'Preserved $COUNT$ invalid command(s).', bundle.invalidCommands.length));
     }
     setBundleStatus('success', statusLines);
   } catch (error) {

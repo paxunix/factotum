@@ -18,7 +18,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 - Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.
 - Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
 - If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
-- Manager import diagnostics should explicitly list newly imported commands, similar to how duplicate and quarantine messages are already shown.
 
 ### Session console redesign
 - Keep `ctx.log/warn/error` as internal diagnostics only; do not alias them to `ctx.out.*`.
