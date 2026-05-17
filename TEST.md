@@ -205,6 +205,7 @@ Each test lists: **Setup → Action → Expected**.
 * Expected:
 
   * Manager presents separate command list, bundle tools, and command editor panels.
+  * Each pane scrolls independently; the whole manager page does not jump while browsing long pane contents.
   * Editor fields use Web Awesome controls for simple field edits.
   * Code editing remains a textarea in this checkpoint; ACE integration is a separate follow-up.
   * Existing import/export, enable/disable, and save behavior still works.

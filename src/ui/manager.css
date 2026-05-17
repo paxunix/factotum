@@ -1,7 +1,8 @@
 .manager-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .manager-topbar {
@@ -25,8 +26,11 @@
 
 .manager-grid {
   display: grid;
+  flex: 1;
   gap: 16px;
   grid-template-columns: minmax(260px, 1fr) minmax(300px, 1fr) minmax(460px, 2fr);
+  min-height: 0;
+  overflow: hidden;
   padding: 20px 24px 32px;
 }
 
@@ -38,7 +42,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-height: calc(100vh - 132px);
+  min-height: 0;
+  overflow: hidden;
   padding: 16px;
 }
 
@@ -49,6 +54,7 @@
 }
 
 .section-heading {
+  flex: 0 0 auto;
   display: grid;
   gap: 8px;
 }
@@ -58,12 +64,14 @@
 }
 
 .bundle-actions {
+  flex: 0 0 auto;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
 .bundle-textarea {
+  flex: 1 1 auto;
   min-height: 220px;
 }
 
@@ -72,6 +80,7 @@
   display: grid;
   gap: 8px;
   padding: 14px 16px;
+  overflow: auto;
 }
 
 .bundle-status-line {
@@ -90,8 +99,11 @@
 }
 
 .command-list {
+  flex: 1 1 auto;
   display: grid;
+  align-content: start;
   gap: 12px;
+  min-height: 0;
   overflow: auto;
   padding-right: 2px;
 }
@@ -184,8 +196,11 @@
 }
 
 .command-editor {
+  flex: 1 1 auto;
   display: grid;
+  align-content: start;
   gap: 16px;
+  min-height: 0;
   overflow: auto;
   padding-right: 2px;
 }
@@ -194,14 +209,6 @@
   display: grid;
   gap: 14px;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-.editor-textarea-small {
-  min-height: 96px;
-}
-
-.editor-code {
-  min-height: 260px;
 }
 
 .editor-advanced {
@@ -232,8 +239,27 @@
   gap: 10px;
 }
 
+wa-textarea {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+wa-textarea.editor-textarea-small::part(base) {
+  min-height: 96px;
+}
+
+wa-textarea.editor-code::part(base) {
+  min-height: 260px;
+}
+
+wa-textarea::part(base) {
+  align-items: flex-start;
+}
+
 wa-textarea::part(textarea) {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+  overflow: hidden;
 }
 
 @media (max-width: 1200px) {
