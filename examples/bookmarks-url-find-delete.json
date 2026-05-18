@@ -1,0 +1,43 @@
+{
+  "bundleSchemaVersion": 1,
+  "exportedAt": 1760100000000,
+  "commands": [
+    {
+      "schemaVersion": 1,
+      "name": "bookmarks-url",
+      "id": "examples.bookmarks.url",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { const terms = argv.positionals.map((value) => String(value).trim()).filter(Boolean); const shouldDelete = Boolean(argv.options.delete); if (terms.length === 0) { ctx.out.warn('Provide at least one URL substring to search for.'); ctx.out.write('Usage: f bookmarks-url <word...> [--delete]'); return { matched: 0, deleted: 0 }; } const needles = terms.map((term) => term.toLowerCase()); const roots = await ctx.chrome.bookmarks.getTree(); const bookmarks = []; const visit = (node) => { if (!node) { return; } if (node.url) { bookmarks.push(node); } for (const child of node.children || []) { visit(child); } }; for (const root of roots || []) { visit(root); } const matches = bookmarks.filter((bookmark) => { const url = String(bookmark.url || '').toLowerCase(); return needles.some((needle) => url.includes(needle)); }); ctx.out.info('Matched ' + matches.length + ' bookmark(s) for: ' + terms.join(', ')); for (const bookmark of matches) { ctx.out.write((bookmark.title || '(untitled)') + '\\n' + bookmark.url); } if (!shouldDelete || matches.length === 0) { return { matched: matches.length, deleted: 0 }; } let deleted = 0; ctx.out.warn('Deleting ' + matches.length + ' matched bookmark(s).'); for (const bookmark of matches) { try { await ctx.chrome.bookmarks.remove(bookmark.id); deleted += 1; } catch (error) { ctx.out.error('Failed to delete ' + (bookmark.title || bookmark.url) + ': ' + (error.message || String(error))); } } ctx.out.info('Deleted ' + deleted + ' bookmark(s).'); return { matched: matches.length, deleted }; }",
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{summary}}</p><section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section>{{options}}{{args}}<section><h2>{{examplesTitle}}</h2><pre>{{examples}}</pre></section>",
+      "helpHtmlStrings": {
+        "en-US": {
+          "title": "bookmarks-url",
+          "summary": "Find bookmarks whose URLs contain any supplied substring. Preview matches first, then rerun with --delete or -d to remove them.",
+          "usageTitle": "Usage",
+          "examplesTitle": "Examples",
+          "examples": "f bookmarks-url github docs\nf bookmarks-url github docs --delete\nf bmurl github -d"
+        }
+      },
+      "optionsSpec": {
+        "name": "bookmarks-url",
+        "args": "<word...>",
+        "options": [
+          {
+            "flags": ["-d", "--delete"],
+            "value": "boolean",
+            "default": false,
+            "description": { "en-US": "Delete matched bookmarks after listing them." }
+          }
+        ]
+      },
+      "description": {
+        "en-US": "Find bookmarks by URL substring and optionally delete matches"
+      },
+      "createdAt": 1760100000000,
+      "updatedAt": 1760100000000
+    }
+  ],
+  "aliases": {
+    "bmurl": { "name": "bookmarks-url", "id": "examples.bookmarks.url" }
+  }
+}
