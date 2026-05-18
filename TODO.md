@@ -28,6 +28,13 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 - Present `world` with an appropriate Web Awesome fixed-choice control instead of a free-text/read-only string once world editing/new-command flow exists.
 - Add ACE for the command code editor as a separate checkpoint from the structural manager layout pivot.
 - fix editor text area sizing and scrolling.  If you paste too many lines into it or load an fcommand whose code has many lines, the text area becomes too large and you can't scroll the rightmost panel to reach other content within it.
+- manager UX needs a separate tab to hold overall settings.
+
+### Overlay UX
+
+- an additional settings toggle area at the bottom of the overlay that houses buttons for adjusting overlay settings.  The settings are persisted for the extension beyond current page and session..
+    - setting for toggling whether the overlay is light or dark, probably based on the page on which the overlay is loaded.
+    - setting for changing overlay opacity
 
 ### Session console redesign
 - Auto-scroll the session console to the bottom after each new write only when the user is already at the bottom; if the scroll thumb is away from the end, preserve the user's scroll position so history inspection is not interrupted.
