@@ -24,14 +24,43 @@
   margin: 0;
 }
 
-.manager-grid {
-  display: grid;
+.manager-tabs {
   flex: 1;
-  gap: 16px;
-  grid-template-columns: minmax(320px, 1.1fr) minmax(300px, 1fr) minmax(460px, 2fr);
   min-height: 0;
   overflow: hidden;
-  padding: 20px 24px 32px;
+  padding: 16px 24px 32px;
+}
+
+.manager-tabs::part(base) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.manager-tabs::part(body) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.manager-tabs > wa-tab-panel {
+  height: 100%;
+}
+
+.manager-grid {
+  display: grid;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.manager-grid-main {
+  grid-template-columns: minmax(340px, 1fr) minmax(560px, 2.2fr);
+}
+
+.manager-grid-utilities {
+  grid-template-columns: minmax(520px, 0.8fr);
 }
 
 .manager-pane {

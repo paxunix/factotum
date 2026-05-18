@@ -55,6 +55,14 @@
     "message": "M1 shows the stored command index and localized descriptions.",
     "description": "Manager section hint for the command list"
   },
+  "managerTabManager": {
+    "message": "Manager",
+    "description": "Top-level manager page tab for command management"
+  },
+  "managerTabUtilities": {
+    "message": "Utilities",
+    "description": "Top-level manager page tab for utility tools"
+  },
   "managerCommandFilter": {
     "message": "Filter commands",
     "description": "Manager command-list filter input label and placeholder"
