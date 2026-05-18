@@ -16,6 +16,7 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 
 ### Omnibox / UX
 - Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.
+- Allow omnibox execution from unique prefixes of command names and aliases, resolving the correct MRU command when a prefix is ambiguous but runnable by MRU.
 - Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
 - If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
 
@@ -28,6 +29,7 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 - Add ACE for the command code editor as a separate checkpoint from the structural manager layout pivot.
 
 ### Session console redesign
+- Auto-scroll the session console to the bottom after each new write only when the user is already at the bottom; if the scroll thumb is away from the end, preserve the user's scroll position so history inspection is not interrupted.
 - Keep `ctx.log/warn/error` as internal diagnostics only; do not alias them to `ctx.out.*`.
 - Add stronger visual distinctions between `ctx.out` output bubble levels (`info`, `warn`, `error`).
 - Add stronger visual distinctions between command-output bubbles and command-state/result bubbles (`done`, `error`, `canceled`, help, system notices).
