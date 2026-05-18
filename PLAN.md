@@ -39,7 +39,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current RPC state: `ctx.chrome` now works for the v1 one-shot surface, including callback-style methods like `tabs.query`/`bookmarks.search`, namespace denylist rejection, and event/listener-shape rejection.
 - Current bridge state: `ctx.main.define/call` works with nonce-scoped responses, and spoofed nonce messages are ignored.
 - Current requires state: sequential MAIN script loads, MAIN module imports, `data:` rejection, and best-effort USER_SCRIPT module failure paths are implemented and manually verified.
-- Current manager state: the page uses a wide three-panel layout for command navigation, bundle tools, and command editor. The command panel has a filterable vertical command-name tab menu plus one selected-command detail card, including alias display. Bundle import/export, enable/disable, quarantine visibility, per-command import diagnostics, and editing existing valid command body fields are implemented.
+- Current manager state: the page uses top-level Manager and Utilities tabs. The Manager tab is a two-pane command navigation plus editor view; the Utilities tab contains bundle import/export. The command panel has a filterable vertical command-name tab menu plus one selected-command detail card, including alias display. Bundle import/export, enable/disable, quarantine visibility, per-command import diagnostics, and editing existing valid command body fields are implemented.
 - Current near-term follow-ups: visual distinction between output/result/system bubbles, full manager/editor UX, dev harness automation, and a cleaner future `--debug` wrapper boundary.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
@@ -53,7 +53,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Omnibox suggestion UX for exact-resolution previews and prefix-matched command-name suggestions.
 - Manager bundle import/export and enable/disable controls to make M1 manually testable.
 - Quarantine handling for invalid stored commands, with separate `invalidCommands[]` export/import preservation and manager visibility.
-- Existing valid command editor for disabled state, description JSON, code, help template/strings, optionsSpec, and requires, presented in the wide three-panel manager layout with filterable command-name navigation.
+- Existing valid command editor for disabled state, description JSON, code, help template/strings, optionsSpec, and requires, presented in the Manager tab's two-pane layout with filterable command-name navigation.
 
 **Verified**
 - T1, T2, T3, T3b, T4b
@@ -84,7 +84,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Keep the session console as the command-facing per-tab surface; retain internal diagnostics separately until the log-page retirement decision is implemented.
 
 **Include**
-- Manager layout iteration: filterable command navigation is implemented; possible two-pane dashboard and possible top-level Dashboard vs Import/Export tabs remain.
+- Manager layout iteration: filterable command navigation and the top-level Manager/Utilities tab split are implemented.
 - Manager editor iteration: ACE code editing, delete with undo, stronger command-card hierarchy, structured editors for localized text/help/options/requires, and overlay-backed help preview.
 - Session-console bubble styling distinctions for output vs command-state/system entries.
 - Dev harness hooks/page for repeatable A1-A5 automation.

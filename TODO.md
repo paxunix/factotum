@@ -20,8 +20,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 - If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
 
 ### Manager / editor UX
-- Re-evaluate the middle pane. Consider a two-pane dashboard where the left pane is the command list and the right pane is the editor, with import/export moved elsewhere.
-- Consider a top-level Web Awesome tab structure with a Dashboard tab for command list/editor work and an Import/Export tab dedicated to bundle tools.
 - Add command deletion. Prefer an undoable deletion flow; decide whether this means soft-delete until page close, a trash/undo queue, or another reversible model.
 - Add alias management to the manager editor so users can add/remove every alternate invocation name for a command.
 - Add help-template preview. Preferred direction: render preview through the same overlay UI used by command help, overlaying on the manager page and dismissible by the user.
