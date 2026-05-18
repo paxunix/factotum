@@ -136,11 +136,11 @@
   gap: 10px;
 }
 
-.command-ref {
+.command-name {
   color: rgb(15, 23, 42);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 760;
+  letter-spacing: -0.02em;
 }
 
 .command-meta {

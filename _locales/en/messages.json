@@ -59,6 +59,10 @@
     "message": "No commands are installed.",
     "description": "Empty state for the manager command list"
   },
+  "managerCommandId": {
+    "message": "ID",
+    "description": "Label for command ID metadata in the manager command list"
+  },
   "managerCommandWorld": {
     "message": "World",
     "description": "Label for a command world in the manager command list"

@@ -33,6 +33,7 @@ const enableCommandLabel = getMessage('managerEnableCommand', 'Enable');
 const commandListTitle = getMessage('managerCommandsTitle', 'Installed Commands');
 const commandListHint = getMessage('managerCommandsHint', 'M1 shows the stored command index and localized descriptions.');
 const emptyMessage = getMessage('managerCommandsEmpty', 'No commands are installed.');
+const idLabel = getMessage('managerCommandId', 'ID');
 const worldLabel = getMessage('managerCommandWorld', 'World');
 const updatedLabel = getMessage('managerCommandUpdated', 'Updated');
 const enabledLabel = getMessage('managerCommandEnabled', 'Enabled');
@@ -310,25 +311,28 @@ function renderCommands(commands) {
     const header = document.createElement('div');
     header.className = 'command-card-header';
 
-    const ref = document.createElement('div');
-    ref.className = 'command-ref';
-    ref.textContent = `${command.name}@${command.id}`;
+    const name = document.createElement('div');
+    name.className = 'command-name';
+    name.textContent = command.name;
 
     const status = document.createElement('span');
     status.className = `command-status ${command.invalid ? 'command-status-invalid' : command.disabled ? 'command-status-disabled' : 'command-status-enabled'}`;
     status.textContent = command.invalid ? invalidLabel : command.disabled ? disabledLabel : enabledLabel;
 
-    header.append(ref, status);
+    header.append(name, status);
 
     const meta = document.createElement('div');
     meta.className = 'command-meta';
+    const idMeta = document.createElement('span');
+    idMeta.textContent = `${idLabel}: ${command.id}`;
+
     const worldMeta = document.createElement('span');
     worldMeta.textContent = `${worldLabel}: ${command.world}`;
 
     const updatedMeta = document.createElement('span');
     updatedMeta.textContent = `${updatedLabel}: ${formatDateTime(command.updatedAt)}`;
 
-    meta.append(worldMeta, updatedMeta);
+    meta.append(idMeta, worldMeta, updatedMeta);
 
     const description = document.createElement('div');
     description.className = 'command-description';
