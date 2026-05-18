@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.js main",
-    "build:scratch": "node scripts/build.js scratch"
+    "build:scratch": "node scripts/build.js scratch",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "@awesome.me/webawesome": "^3.0.0",

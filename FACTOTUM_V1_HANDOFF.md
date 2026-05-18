@@ -42,7 +42,7 @@ The current checked-in implementation now uses a per-tab session console as the 
 The main remaining follow-ups in this area are presentation refinements rather than a model change:
 
 - stronger visual distinctions between output levels and command-state/system bubbles
-- a cleaner generated-wrapper boundary before `main(argvTokens, ctx)` so future `--debug` support has an obvious insertion point
+- a cleaner generated-wrapper boundary before `main(argv, ctx)` so future `--debug` support has an obvious insertion point
 
 ---
 
@@ -236,9 +236,14 @@ If authors provide localized `description` for options, those should be used whe
 
 ### 4.1 Tokenization + option parsing
 - Tokenize input using POSIX sh-like rules (`shell-quote`).
-- Parse flags with `mri` using its default semantics (short/long, combined shorts, `--` end-of-options, `--flag=value` support).
-- The v1 expectation is “mri default behavior” for options parsing; if mri changes, pin a version or update the spec.
-- Pass to command: raw argv tokens + parsed opts.
+- Parse flags internally using `optionsSpec` as the author-facing contract.
+- The parser must support short/long flags, aliases declared by multiple `flags`, `--` end-of-options, and `--flag=value`.
+- When `optionsSpec.options` declares a closed option set, unknown flags fail before command execution.
+- Required options fail before command execution when missing.
+- Pass to command:
+  - `argv.tokens`: raw tokens after the command token
+  - `argv.positionals`: parsed positional arguments
+  - `argv.options`: canonical option values keyed by the preferred option name
 
 ### 4.2 Resolution algorithm
 1) cmdToken = first token; argvTokens = rest
@@ -298,7 +303,7 @@ If authors provide localized `description` for options, those should be used whe
 7) Ensure MH exists in top frame MAIN when bridge support is needed.
 8) Execute command code in USER_SCRIPT world using `chrome.userScripts.execute()` targeted to the top frame.
 9) Load requires sequentially (side-effect only).
-10) Execute `await main(argvTokens, ctx)`.
+10) Execute `await main(argv, ctx)`.
 
 ### 5.3 End conditions
 Invocation ends when:

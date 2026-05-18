@@ -895,7 +895,7 @@ async function showHelpOverlay(invocation) {
 function buildExecuteCode(invocation) {
   const meta = JSON.stringify({
     invocationId: invocation.invocationId,
-    argvTokens: invocation.argvTokens,
+    argv: invocation.argv,
     world: invocation.command.world,
     commandRef: `${invocation.command.name}@${invocation.command.id}`,
     nonce: invocation.nonce,
@@ -1150,6 +1150,7 @@ function buildExecuteCode(invocation) {
             return __factotumCancelRequested();
           }
         },
+        argv: __factotumMeta.argv,
         chrome: new Proxy({}, {
           get(_target, prop) {
             if (typeof prop === 'symbol') {
@@ -1218,7 +1219,7 @@ function buildExecuteCode(invocation) {
           });
           return undefined;
         }
-        const __factotumResult = await __factotumMain(__factotumMeta.argvTokens, ctx);
+        const __factotumResult = await __factotumMain(__factotumMeta.argv, ctx);
         __factotumWriteCompletion({
           status: 'completed',
           result: __factotumResult
@@ -1379,8 +1380,7 @@ async function executeResolvedInvocation(tab, resolution) {
   const invocation = createInvocation({
     tabId: tab.id,
     command: resolution.command,
-    argvTokens: resolution.argvTokens,
-    parsedOpts: resolution.parsedOpts,
+    argv: resolution.argv,
     sourceText: resolution.effectiveCmdToken
   });
 
@@ -1388,7 +1388,7 @@ async function executeResolvedInvocation(tab, resolution) {
 
   await ensureOverlay(tab.id, invocation, 'RUNNING', '');
 
-  const wantsHelp = Boolean(resolution.parsedOpts?.help || resolution.parsedOpts?.h);
+  const wantsHelp = Boolean(resolution.argv?.options?.help);
   if (wantsHelp) {
     finishInvocation(invocation.invocationId, 'HELP');
     releaseTabBusy(invocation.invocationId);

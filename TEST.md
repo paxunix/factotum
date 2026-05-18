@@ -198,13 +198,15 @@ Each test lists: **Setup → Action → Expected**.
   * Invalid JSON in JSON fields reports an inline editor error and does not save
   * Exported JSON contains the saved edits
 
-#### T4e: Manager uses the wide three-panel layout
+#### T4e: Manager uses the tabbed two-pane layout
 
 * Setup: open the manager UI on a desktop-width window.
 * Action: import a fixture bundle and select a valid command for editing.
 * Expected:
 
-  * Manager presents separate command list, bundle tools, and command editor panels.
+  * Manager presents top-level Manager and Utilities tabs.
+  * The Manager tab contains command navigation and command editor panes.
+  * The Utilities tab contains bundle import/export tools.
   * Each pane scrolls independently; the whole manager page does not jump while browsing long pane contents.
   * The command list is a concise vertical tab menu of command names with one detail card for the selected command.
   * The filter input matches substrings in command name, command ID, or command aliases.
@@ -212,6 +214,23 @@ Each test lists: **Setup → Action → Expected**.
   * Editor fields use Web Awesome controls for simple field edits.
   * Code editing remains a textarea in this checkpoint; ACE integration is a separate follow-up.
   * Existing import/export, enable/disable, and save behavior still works.
+
+---
+
+#### T4f: optionsSpec drives parsed argv contract
+
+* Setup: use a command with `optionsSpec` declaring `["-d", "--delete"]` as a boolean option.
+* Action:
+
+  1. run the command with positional args and `--delete`
+  2. run the command with positional args and `-d`
+  3. run the command with an undeclared option such as `--bogus`
+* Expected:
+
+  * `main(argv, ctx)` receives `argv.tokens` as the raw post-command tokens
+  * `main(argv, ctx)` receives `argv.positionals` as parsed positional args
+  * `main(argv, ctx)` receives `argv.options.delete === true` for both `--delete` and `-d`
+  * unknown declared-option flags fail before `main()` executes
 
 ---
 

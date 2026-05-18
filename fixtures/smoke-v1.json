@@ -7,7 +7,7 @@
       "name": "ok",
       "id": "demo.ok",
       "world": "user_script",
-      "code": "async function main(argvTokens, ctx) { return 42; }",
+      "code": "async function main(argv, ctx) { return 42; }",
       "description": { "en-US": "Simple success fixture" },
       "createdAt": 1760100000000,
       "updatedAt": 1760100000000
@@ -17,7 +17,7 @@
       "name": "canceldemo",
       "id": "demo.cancel",
       "world": "user_script",
-      "code": "async function main(argvTokens, ctx) { for (let i = 0; i < 400; i += 1) { if (ctx.signal.aborted) { return; } await new Promise((resolve) => setTimeout(resolve, 100)); } }",
+      "code": "async function main(argv, ctx) { for (let i = 0; i < 400; i += 1) { if (ctx.signal.aborted) { return; } await new Promise((resolve) => setTimeout(resolve, 100)); } }",
       "description": { "en-US": "Cancelable long-running fixture" },
       "createdAt": 1760100000000,
       "updatedAt": 1760100000000
@@ -27,7 +27,7 @@
       "name": "outputdemo",
       "id": "demo.output",
       "world": "user_script",
-      "code": "async function main(argvTokens, ctx) { ctx.out.write('a'); ctx.out.write('b'); ctx.out.info({ l10n: { 'en-US': 'Hello', 'fr': 'Bonjour' }, data: { n: 1 } }); return 42; }",
+      "code": "async function main(argv, ctx) { ctx.out.write('a'); ctx.out.write('b'); ctx.out.info({ l10n: { 'en-US': 'Hello', 'fr': 'Bonjour' }, data: { n: 1 } }); return 42; }",
       "description": { "en-US": "Command-visible output fixture" },
       "createdAt": 1760100000000,
       "updatedAt": 1760100000000

@@ -18,7 +18,7 @@ An fcommand record must use `world: "user_script"` and define an async `main()` 
   "name": "ok",
   "id": "demo.ok",
   "world": "user_script",
-  "code": "async function main(argvTokens, ctx) { return 42; }",
+  "code": "async function main(argv, ctx) { return 42; }",
   "description": { "en-US": "Simple success fixture" },
   "createdAt": 1760100000000,
   "updatedAt": 1760100000000
@@ -36,7 +36,7 @@ An fcommand record must use `world: "user_script"` and define an async `main()` 
 
 Factotum uses two page worlds:
 
-- `USER_SCRIPT`: the command runtime. Every fcommand record must use `world: "user_script"`, and `main(argvTokens, ctx)` runs here.
+- `USER_SCRIPT`: the command runtime. Every fcommand record must use `world: "user_script"`, and `main(argv, ctx)` runs here.
 - `MAIN`: the page's own JavaScript environment. Use it only when you need page-context side effects or access to page globals.
 
 Most commands should stay in `USER_SCRIPT` and use the `ctx` APIs:
@@ -54,16 +54,18 @@ Examples of MAIN work:
 MAIN bridge functions are per invocation. Define the entrypoints you need inside the command before calling them:
 
 ```js
-async function main(argvTokens, ctx) {
+async function main(argv, ctx) {
   await ctx.main.define('readTitle', () => document.title);
   const title = await ctx.main.call('readTitle');
   ctx.out.write(title);
 }
 ```
 
-## `main(argvTokens, ctx)`
+## `main(argv, ctx)`
 
-- `argvTokens`: positional/option tokens after the command token
+- `argv.tokens`: raw positional/option tokens after the command token
+- `argv.positionals`: parsed positional arguments
+- `argv.options`: parsed options keyed by the canonical option name from `optionsSpec`
 - `ctx.signal.aborted`: cooperative cancel flag
 - `ctx.main.define(name, fn)`: expose a named `MAIN` entrypoint for this invocation
 - `ctx.main.call(name, args)`: call a named `MAIN` entrypoint for this invocation
@@ -84,7 +86,7 @@ Important author rule:
 Example:
 
 ```js
-async function main(argvTokens, ctx) {
+async function main(argv, ctx) {
   const tabs = await ctx.chrome.tabs.query({ active: true, currentWindow: true });
   const bookmarks = await ctx.chrome.bookmarks.search({ title: document.title });
   ctx.out.write(`tabs=${tabs.length} bookmarks=${bookmarks.length}`);
@@ -98,7 +100,7 @@ Use `ctx.out.*` for user-visible output.
 Examples:
 
 ```js
-async function main(argvTokens, ctx) {
+async function main(argv, ctx) {
   ctx.out.write('a');
   ctx.out.write('b');
   ctx.out.info({
@@ -124,6 +126,7 @@ Optional fields:
 - skips normal command execution
 - renders help in the session console
 - may use generated `usage`, `options`, and `args` tokens from `optionsSpec`
+- uses `optionsSpec` to parse command input before `main()` runs; unknown declared-option flags and missing required options fail before command execution
 
 ## Requires
 
@@ -162,7 +165,7 @@ Consult `FACTOTUM_V1_HANDOFF.md` before relying on deeper require behavior detai
 Pattern:
 
 ```js
-async function main(argvTokens, ctx) {
+async function main(argv, ctx) {
   await ctx.main.define('add', (a, b) => a + b);
   const sum = await ctx.main.call('add', [2, 3]);
   ctx.out.write(`sum=${sum}`);

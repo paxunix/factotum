@@ -1,4 +1,3 @@
-import mri from 'mri';
 import shellQuote from 'shell-quote';
 
 const { parse: shellQuoteParse } = shellQuote;
@@ -32,10 +31,6 @@ function normalizeShellQuoteTokens(parsedTokens) {
 export function tokenizeInput(input) {
   const parsed = shellQuoteParse(String(input || ''));
   return normalizeShellQuoteTokens(parsed);
-}
-
-export function parseArgv(argvTokens) {
-  return mri(argvTokens);
 }
 
 function splitCommandToken(token) {
@@ -109,7 +104,6 @@ export function resolveCommand(indexCommands, aliases, input) {
     effectiveCmdToken,
     argvTokens,
     rawTokens,
-    parsedOpts: parseArgv(argvTokens),
     resolutionType
   };
 }

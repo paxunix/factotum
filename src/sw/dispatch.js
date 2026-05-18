@@ -6,6 +6,7 @@ import {
   updateCommandMru
 } from './storage.js';
 import { formatNoSuchCommandSuggestion, resolveCommand } from './omnibox.js';
+import { parseCommandArgv } from './argv.mjs';
 import { escapeHtml } from '../shared/html.js';
 
 let omniboxSessionState = {
@@ -121,9 +122,24 @@ export async function resolveInvocationInput(text) {
   }
 
   const fullCommand = await getCommand(resolution.command.name, resolution.command.id);
+  const command = fullCommand || resolution.command;
+  let argv;
+  try {
+    argv = parseCommandArgv(resolution.argvTokens, command.optionsSpec);
+  } catch (error) {
+    return {
+      ok: false,
+      code: error.code || 'INVALID_ARGS',
+      message: error.message || String(error),
+      argvTokens: resolution.argvTokens,
+      rawTokens: resolution.rawTokens
+    };
+  }
+
   return {
     ...resolution,
-    command: fullCommand || resolution.command
+    command,
+    argv
   };
 }
 

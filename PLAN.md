@@ -88,7 +88,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Manager editor iteration: ACE code editing, delete with undo, stronger command-card hierarchy, structured editors for localized text/help/options/requires, and overlay-backed help preview.
 - Session-console bubble styling distinctions for output vs command-state/system entries.
 - Dev harness hooks/page for repeatable A1-A5 automation.
-- Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argvTokens, ctx)`.
+- Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argv, ctx)`.
 
 **Manual tests**
 - T4b/T4c/T4d/T4e/T21c plus manager import/export checks.

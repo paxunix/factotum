@@ -8,14 +8,14 @@ function createId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export function createInvocation({ tabId, command, argvTokens, parsedOpts, sourceText }) {
+export function createInvocation({ tabId, command, argv, sourceText }) {
   const invocation = {
     invocationId: createId('inv'),
     nonce: createId('nonce'),
     tabId,
     command,
-    argvTokens,
-    parsedOpts,
+    argv,
+    argvTokens: argv?.tokens || [],
     sourceText,
     status: 'RUNNING',
     createdAt: Date.now(),
