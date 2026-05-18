@@ -27,8 +27,9 @@
             <h2 id="command-list-title"></h2>
             <p class="hint" id="command-list-hint"></p>
           </div>
+          <wa-input id="command-filter" size="small" clearable></wa-input>
           <div class="empty-state" id="command-list-empty" hidden></div>
-          <div class="command-list" id="command-list"></div>
+          <wa-tab-group placement="start" class="command-list command-tabs" id="command-list"></wa-tab-group>
         </aside>
 
         <aside class="manager-pane import-export-section" aria-labelledby="bundle-tools-title">

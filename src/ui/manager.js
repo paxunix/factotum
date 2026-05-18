@@ -2,9 +2,13 @@ import { setBasePath } from '@awesome.me/webawesome/dist/webawesome.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/switch/switch.js';
+import '@awesome.me/webawesome/dist/components/tab/tab.js';
+import '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
+import '@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js';
 import '@awesome.me/webawesome/dist/components/textarea/textarea.js';
 import {
   exportBundle,
+  getAliasMap,
   getCommand,
   importBundle,
   listCommandIndex,
@@ -32,8 +36,11 @@ const disableCommandLabel = getMessage('managerDisableCommand', 'Disable');
 const enableCommandLabel = getMessage('managerEnableCommand', 'Enable');
 const commandListTitle = getMessage('managerCommandsTitle', 'Installed Commands');
 const commandListHint = getMessage('managerCommandsHint', 'M1 shows the stored command index and localized descriptions.');
+const commandFilterLabel = getMessage('managerCommandFilter', 'Filter commands');
 const emptyMessage = getMessage('managerCommandsEmpty', 'No commands are installed.');
+const noMatchesMessage = getMessage('managerCommandsNoMatches', 'No commands match the filter.');
 const idLabel = getMessage('managerCommandId', 'ID');
+const aliasesLabel = getMessage('managerCommandAliases', 'Aliases');
 const worldLabel = getMessage('managerCommandWorld', 'World');
 const updatedLabel = getMessage('managerCommandUpdated', 'Updated');
 const enabledLabel = getMessage('managerCommandEnabled', 'Enabled');
@@ -80,6 +87,7 @@ document.getElementById('editor-reset-button').textContent = editorResetLabel;
 
 const bundleTextarea = document.getElementById('bundle-textarea');
 const bundleStatus = document.getElementById('bundle-status');
+const commandFilter = document.getElementById('command-filter');
 const editorForm = document.getElementById('command-editor');
 const editorEmpty = document.getElementById('command-editor-empty');
 const editorStatus = document.getElementById('editor-status');
@@ -97,8 +105,14 @@ const editorFields = {
 };
 let selectedCommandRef = null;
 let selectedCommand = null;
+let selectedMenuCommandRef = null;
+let currentCommands = [];
+let currentAliases = {};
+let currentPanelRefs = new Map();
 
 editorFields.name.label = editorNameLabel;
+commandFilter.label = commandFilterLabel;
+commandFilter.placeholder = commandFilterLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
 editorFields.world.label = editorWorldLabel;
@@ -168,6 +182,44 @@ function formatImportCommandMessage(commandRef) {
 
 function commandRefKey(commandRef) {
   return `${commandRef.name}@${commandRef.id}`;
+}
+
+function commandRefsMatch(left, right) {
+  return Boolean(left && right && left.name === right.name && left.id === right.id);
+}
+
+function aliasesForCommand(command, aliases = currentAliases) {
+  return Object.entries(aliases)
+    .filter(([, target]) => target.name === command.name && target.id === command.id)
+    .map(([alias]) => alias)
+    .sort((left, right) => left.localeCompare(right));
+}
+
+function commandMatchesFilter(command, filterText) {
+  const query = filterText.trim().toLowerCase();
+  if (!query) {
+    return true;
+  }
+
+  const aliases = aliasesForCommand(command);
+  const values = [
+    command.name,
+    command.id,
+    commandRefKey(command),
+    ...aliases,
+    ...aliases.map((alias) => `${alias} ${command.name}@${command.id}`)
+  ];
+  return values.some((value) => String(value).toLowerCase().includes(query));
+}
+
+function getCommandFilterValue() {
+  const input = commandFilter.shadowRoot?.querySelector('input');
+  return input?.value ?? commandFilter.value ?? '';
+}
+
+function renderFilteredCommandsFromInput() {
+  selectedMenuCommandRef = null;
+  renderCommands(currentCommands);
 }
 
 function stringifyJson(value, fallback = '') {
@@ -289,113 +341,176 @@ async function toggleDisabled(commandRef) {
   });
 }
 
+function buildCommandActions(command) {
+  const actions = document.createElement('div');
+  actions.className = 'command-card-actions';
+
+  if (command.invalid) {
+    return actions;
+  }
+
+  const editButton = document.createElement('wa-button');
+  editButton.setAttribute('variant', 'neutral');
+  editButton.textContent = editCommandLabel;
+  editButton.addEventListener('click', () => {
+    editButton.disabled = true;
+    selectCommandForEdit(command)
+      .then(loadCommands)
+      .catch((error) => {
+        console.error('[factotum] select command failed', error);
+        setBundleStatus('error', error.message || String(error));
+      })
+      .finally(() => {
+        editButton.disabled = false;
+      });
+  });
+
+  const toggleButton = document.createElement('wa-button');
+  toggleButton.setAttribute('variant', 'neutral');
+  toggleButton.textContent = command.disabled ? enableCommandLabel : disableCommandLabel;
+  toggleButton.addEventListener('click', () => {
+    toggleButton.disabled = true;
+    toggleDisabled(command)
+      .catch((error) => {
+        console.error('[factotum] toggle disabled failed', error);
+        setBundleStatus('error', error.message || String(error));
+      })
+      .finally(() => {
+        toggleButton.disabled = false;
+      });
+  });
+
+  actions.append(editButton, toggleButton);
+  return actions;
+}
+
+function buildCommandDetailCard(command) {
+  const card = document.createElement('article');
+  card.className = 'command-card command-detail-card';
+
+  const header = document.createElement('div');
+  header.className = 'command-card-header';
+
+  const name = document.createElement('div');
+  name.className = 'command-name';
+  name.textContent = command.name;
+
+  const status = document.createElement('span');
+  status.className = `command-status ${command.invalid ? 'command-status-invalid' : command.disabled ? 'command-status-disabled' : 'command-status-enabled'}`;
+  status.textContent = command.invalid ? invalidLabel : command.disabled ? disabledLabel : enabledLabel;
+
+  header.append(name, status);
+
+  const aliases = aliasesForCommand(command);
+  const meta = document.createElement('div');
+  meta.className = 'command-meta';
+
+  const idMeta = document.createElement('span');
+  idMeta.textContent = `${idLabel}: ${command.id}`;
+
+  const worldMeta = document.createElement('span');
+  worldMeta.textContent = `${worldLabel}: ${command.world}`;
+
+  const updatedMeta = document.createElement('span');
+  updatedMeta.textContent = `${updatedLabel}: ${formatDateTime(command.updatedAt)}`;
+
+  meta.append(idMeta, worldMeta, updatedMeta);
+
+  if (aliases.length > 0) {
+    const aliasesMeta = document.createElement('span');
+    aliasesMeta.textContent = `${aliasesLabel}: ${aliases.join(', ')}`;
+    meta.append(aliasesMeta);
+  }
+
+  const description = document.createElement('div');
+  description.className = 'command-description';
+  description.textContent = command.invalid
+    ? invalidDescriptionLabel
+    : resolveLocalizedText(command.description, navigator.language || 'en-US');
+
+  card.append(header, meta, description);
+
+  if (command.invalid && command.validationError?.message) {
+    const invalidDetail = document.createElement('div');
+    invalidDetail.className = 'command-invalid-detail';
+    invalidDetail.textContent = `${validationIssueLabel}: ${command.validationError.message}`;
+    card.append(invalidDetail);
+  }
+
+  const actions = buildCommandActions(command);
+  if (actions.childElementCount > 0) {
+    card.append(actions);
+  }
+
+  return card;
+}
+
 function renderCommands(commands) {
   const container = document.getElementById('command-list');
   const emptyState = document.getElementById('command-list-empty');
+  const filteredCommands = commands.filter((command) => commandMatchesFilter(command, getCommandFilterValue()));
 
+  container.active = '';
   container.textContent = '';
   if (commands.length === 0) {
     emptyState.hidden = false;
     emptyState.textContent = emptyMessage;
+    container.hidden = true;
+    currentPanelRefs = new Map();
+    return;
+  }
+
+  if (filteredCommands.length === 0) {
+    emptyState.hidden = false;
+    emptyState.textContent = noMatchesMessage;
+    container.hidden = true;
+    currentPanelRefs = new Map();
     return;
   }
 
   emptyState.hidden = true;
+  container.hidden = false;
 
-  for (const command of commands) {
-    const card = document.createElement('article');
-    card.className = selectedCommandRef && selectedCommandRef.name === command.name && selectedCommandRef.id === command.id
-      ? 'command-card command-card-selected'
-      : 'command-card';
-
-    const header = document.createElement('div');
-    header.className = 'command-card-header';
-
-    const name = document.createElement('div');
-    name.className = 'command-name';
-    name.textContent = command.name;
-
-    const status = document.createElement('span');
-    status.className = `command-status ${command.invalid ? 'command-status-invalid' : command.disabled ? 'command-status-disabled' : 'command-status-enabled'}`;
-    status.textContent = command.invalid ? invalidLabel : command.disabled ? disabledLabel : enabledLabel;
-
-    header.append(name, status);
-
-    const meta = document.createElement('div');
-    meta.className = 'command-meta';
-    const idMeta = document.createElement('span');
-    idMeta.textContent = `${idLabel}: ${command.id}`;
-
-    const worldMeta = document.createElement('span');
-    worldMeta.textContent = `${worldLabel}: ${command.world}`;
-
-    const updatedMeta = document.createElement('span');
-    updatedMeta.textContent = `${updatedLabel}: ${formatDateTime(command.updatedAt)}`;
-
-    meta.append(idMeta, worldMeta, updatedMeta);
-
-    const description = document.createElement('div');
-    description.className = 'command-description';
-    description.textContent = command.invalid
-      ? invalidDescriptionLabel
-      : resolveLocalizedText(command.description, navigator.language || 'en-US');
-
-    if (command.invalid && command.validationError?.message) {
-      const invalidDetail = document.createElement('div');
-      invalidDetail.className = 'command-invalid-detail';
-      invalidDetail.textContent = `${validationIssueLabel}: ${command.validationError.message}`;
-      card.append(header, meta, description, invalidDetail);
-    } else {
-      card.append(header, meta, description);
-    }
-
-    const actions = document.createElement('div');
-    actions.className = 'command-card-actions';
-
-    if (!command.invalid) {
-      const editButton = document.createElement('wa-button');
-      editButton.setAttribute('variant', 'neutral');
-      editButton.textContent = editCommandLabel;
-      editButton.addEventListener('click', () => {
-        editButton.disabled = true;
-        selectCommandForEdit(command)
-          .then(loadCommands)
-          .catch((error) => {
-            console.error('[factotum] select command failed', error);
-            setBundleStatus('error', error.message || String(error));
-          })
-          .finally(() => {
-            editButton.disabled = false;
-          });
-      });
-
-      const toggleButton = document.createElement('wa-button');
-      toggleButton.setAttribute('variant', 'neutral');
-      toggleButton.textContent = command.disabled ? enableCommandLabel : disableCommandLabel;
-      toggleButton.addEventListener('click', () => {
-        toggleButton.disabled = true;
-        toggleDisabled(command)
-          .catch((error) => {
-            console.error('[factotum] toggle disabled failed', error);
-            setBundleStatus('error', error.message || String(error));
-          })
-          .finally(() => {
-            toggleButton.disabled = false;
-          });
-      });
-
-      actions.append(editButton, toggleButton);
-    }
-
-    if (actions.childElementCount > 0) {
-      card.append(actions);
-    }
-    container.append(card);
+  if (!filteredCommands.some((command) => commandRefsMatch(command, selectedMenuCommandRef))) {
+    selectedMenuCommandRef = { name: filteredCommands[0].name, id: filteredCommands[0].id };
   }
+
+  currentPanelRefs = new Map();
+  let activePanelName = '';
+
+  for (const [index, command] of filteredCommands.entries()) {
+    const panelName = `command-${index}`;
+    currentPanelRefs.set(panelName, { name: command.name, id: command.id });
+
+    const tab = document.createElement('wa-tab');
+    tab.slot = 'nav';
+    tab.panel = panelName;
+    tab.textContent = command.name;
+
+    const panel = document.createElement('wa-tab-panel');
+    panel.name = panelName;
+    panel.append(buildCommandDetailCard(command));
+
+    if (commandRefsMatch(command, selectedMenuCommandRef)) {
+      activePanelName = panelName;
+      tab.active = true;
+      panel.active = true;
+    }
+
+    container.append(tab, panel);
+  }
+
+  container.active = activePanelName;
+  container.updateComplete?.then(() => {
+    container.active = activePanelName;
+  });
 }
 
 async function loadCommands() {
-  const commands = await listCommandIndex({ includeInvalid: true });
+  const [commands, aliases] = await Promise.all([
+    listCommandIndex({ includeInvalid: true }),
+    getAliasMap()
+  ]);
   commands.sort((left, right) => {
     const leftMru = Number.isFinite(left.mruAt) ? left.mruAt : -1;
     const rightMru = Number.isFinite(right.mruAt) ? right.mruAt : -1;
@@ -404,7 +519,9 @@ async function loadCommands() {
     }
     return right.updatedAt - left.updatedAt;
   });
-  renderCommands(commands);
+  currentCommands = commands;
+  currentAliases = aliases;
+  renderCommands(currentCommands);
 }
 
 async function handleImportBundle() {
@@ -422,6 +539,7 @@ async function handleImportBundle() {
     const result = await importBundle(parsed);
     selectedCommandRef = null;
     selectedCommand = null;
+    selectedMenuCommandRef = null;
     setEditorVisible(false);
     clearEditorStatus();
     const statusLines = [`Imported ${result.importedCommands.length} command(s).`];
@@ -474,6 +592,21 @@ document.getElementById('export-bundle-button').addEventListener('click', () => 
   handleExportBundle().catch((error) => {
     setBundleStatus('error', error.message || String(error));
   });
+});
+
+commandFilter.updateComplete?.then(() => {
+  commandFilter.shadowRoot
+    ?.querySelector('input')
+    ?.addEventListener('input', renderFilteredCommandsFromInput);
+});
+commandFilter.addEventListener('wa-clear', renderFilteredCommandsFromInput);
+commandFilter.addEventListener('change', renderFilteredCommandsFromInput);
+
+document.getElementById('command-list').addEventListener('wa-tab-show', (event) => {
+  const commandRef = currentPanelRefs.get(event.detail.name);
+  if (commandRef) {
+    selectedMenuCommandRef = commandRef;
+  }
 });
 
 editorForm.addEventListener('submit', (event) => {

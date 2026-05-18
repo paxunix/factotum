@@ -23,7 +23,7 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 - Re-evaluate the middle pane. Consider a two-pane dashboard where the left pane is the command list and the right pane is the editor, with import/export moved elsewhere.
 - Consider a top-level Web Awesome tab structure with a Dashboard tab for command list/editor work and an Import/Export tab dedicated to bundle tools.
 - Add command deletion. Prefer an undoable deletion flow; decide whether this means soft-delete until page close, a trash/undo queue, or another reversible model.
-- Surface command aliases in the manager. Cards should show aliases as secondary invocation names, and the editor should eventually support alias add/remove so users can see and manage every way a command can be invoked.
+- Add alias management to the manager editor so users can add/remove every alternate invocation name for a command.
 - Add help-template preview. Preferred direction: render preview through the same overlay UI used by command help, overlaying on the manager page and dismissible by the user.
 - Replace JSON textareas with friendlier structured editors over time for localized descriptions, help strings, optionsSpec, and requires. For localized text, prefer a locale selector plus add-locale flow over raw JSON editing.
 - Present `world` with an appropriate Web Awesome fixed-choice control instead of a free-text/read-only string once world editing/new-command flow exists.

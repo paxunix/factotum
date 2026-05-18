@@ -28,7 +28,7 @@
   display: grid;
   flex: 1;
   gap: 16px;
-  grid-template-columns: minmax(260px, 1fr) minmax(300px, 1fr) minmax(460px, 2fr);
+  grid-template-columns: minmax(320px, 1.1fr) minmax(300px, 1fr) minmax(460px, 2fr);
   min-height: 0;
   overflow: hidden;
   padding: 20px 24px 32px;
@@ -100,12 +100,22 @@
 
 .command-list {
   flex: 1 1 auto;
-  display: grid;
-  align-content: start;
-  gap: 12px;
   min-height: 0;
   overflow: auto;
   padding-right: 2px;
+}
+
+.command-tabs::part(active-tab-indicator) {
+  background: rgb(37, 99, 235);
+}
+
+.command-tabs wa-tab {
+  font-weight: 680;
+  letter-spacing: -0.01em;
+}
+
+.command-tabs wa-tab-panel {
+  padding-inline-start: 14px;
 }
 
 .command-card {
@@ -118,9 +128,8 @@
   padding: 18px;
 }
 
-.command-card-selected {
-  border-color: rgba(37, 99, 235, 0.45);
-  box-shadow: 0 16px 32px rgba(37, 99, 235, 0.14);
+.command-detail-card {
+  background: rgba(248, 250, 252, 0.94);
 }
 
 .command-card-header {

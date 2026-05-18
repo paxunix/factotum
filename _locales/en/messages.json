@@ -55,13 +55,25 @@
     "message": "M1 shows the stored command index and localized descriptions.",
     "description": "Manager section hint for the command list"
   },
+  "managerCommandFilter": {
+    "message": "Filter commands",
+    "description": "Manager command-list filter input label and placeholder"
+  },
   "managerCommandsEmpty": {
     "message": "No commands are installed.",
     "description": "Empty state for the manager command list"
   },
+  "managerCommandsNoMatches": {
+    "message": "No commands match the filter.",
+    "description": "Empty state for the manager command list when a filter has no matches"
+  },
   "managerCommandId": {
     "message": "ID",
     "description": "Label for command ID metadata in the manager command list"
+  },
+  "managerCommandAliases": {
+    "message": "Aliases",
+    "description": "Label for command aliases metadata in the manager command list"
   },
   "managerCommandWorld": {
     "message": "World",
