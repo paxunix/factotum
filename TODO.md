@@ -50,3 +50,13 @@ SC5. Refactor the generated user-script wrapper so future `--debug` support has 
 
 ### Tooling / verification
 TV1. Once Chrome MCP is available, use it to automate more of the manual smoke path and reduce reliance on service worker console inspection.
+
+
+### Fcommand internals
+
+FI1. could we automatically generate the options/arguments section of an
+Fcommand based on the options spec?
+FI2. there should be a default help template that is used, into which we
+substitute information from the Fcommand's metadata, unless the user has
+overridden with their own template.
+
