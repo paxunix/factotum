@@ -192,25 +192,28 @@ Each test lists: **Setup → Action → Expected**.
   5. export the bundle
 * Expected:
 
-  * Editor opens with name, ID, and world visible but read-only
+  * Editor opens with name and ID visible but read-only
+  * Editor sections include Identity, Description, Help, Options, Requires, and Code
   * Editable body fields include disabled state, description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
   * Save reports `Saved command: name@id`
   * Invalid JSON in JSON fields reports an inline editor error and does not save
   * Exported JSON contains the saved edits
 
-#### T4e: Manager uses the tabbed two-pane layout
+#### T4e: Manager uses the tabbed two-pane editor layout
 
 * Setup: open the manager UI on a desktop-width window.
 * Action: import a fixture bundle and select a valid command for editing.
 * Expected:
 
   * Manager presents top-level Manager and Utilities tabs.
-  * The Manager tab contains command navigation and command editor panes.
+  * The Manager tab contains command navigation and a wide command editor pane.
   * The Utilities tab contains bundle import/export tools.
   * Each pane scrolls independently; the whole manager page does not jump while browsing long pane contents.
   * The command list is a concise vertical tab menu of command names with one detail card for the selected command.
   * The filter input matches substrings in command name, command ID, or command aliases.
   * The selected command detail card shows command name as the primary title and command ID as secondary metadata.
+  * The command editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code.
+  * The Code section gets the full editor pane height and scrolls code internally.
   * Editor fields use Web Awesome controls for simple field edits.
   * Code editing remains a textarea in this checkpoint; ACE integration is a separate follow-up.
   * Existing import/export, enable/disable, and save behavior still works.

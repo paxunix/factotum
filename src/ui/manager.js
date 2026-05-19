@@ -43,7 +43,6 @@ const emptyMessage = getMessage('managerCommandsEmpty', 'No commands are install
 const noMatchesMessage = getMessage('managerCommandsNoMatches', 'No commands match the filter.');
 const idLabel = getMessage('managerCommandId', 'ID');
 const aliasesLabel = getMessage('managerCommandAliases', 'Aliases');
-const worldLabel = getMessage('managerCommandWorld', 'World');
 const updatedLabel = getMessage('managerCommandUpdated', 'Updated');
 const enabledLabel = getMessage('managerCommandEnabled', 'Enabled');
 const disabledLabel = getMessage('managerCommandDisabled', 'Disabled');
@@ -52,15 +51,13 @@ const validationIssueLabel = getMessage('managerCommandValidationIssue', 'Valida
 const invalidDescriptionLabel = getMessage('managerCommandInvalidDescription', 'This command is quarantined and excluded from resolution, invocation, and normal export.');
 const editCommandLabel = getMessage('managerEditCommand', 'Edit');
 const editorTitle = getMessage('managerEditorTitle', 'Command Editor');
-const editorHint = getMessage('managerEditorHint', 'Edit an installed valid command. Name, ID, and world are read-only in this first editor slice.');
+const editorHint = getMessage('managerEditorHint', 'Edit an installed valid command. Name and ID are read-only in this first editor slice.');
 const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command to edit.');
 const editorNameLabel = getMessage('managerEditorName', 'Name');
 const editorIdLabel = getMessage('managerEditorId', 'ID');
-const editorWorldLabel = getMessage('managerEditorWorld', 'World');
 const editorDisabledLabel = getMessage('managerEditorDisabled', 'Disabled');
 const editorDescriptionLabel = getMessage('managerEditorDescription', 'Description JSON');
 const editorCodeLabel = getMessage('managerEditorCode', 'Code');
-const editorAdvancedLabel = getMessage('managerEditorAdvanced', 'Help, options, and requires');
 const editorHelpTemplateLabel = getMessage('managerEditorHelpTemplate', 'Help HTML template');
 const editorHelpStringsLabel = getMessage('managerEditorHelpStrings', 'Help strings JSON');
 const editorOptionsLabel = getMessage('managerEditorOptions', 'Options spec JSON');
@@ -68,6 +65,12 @@ const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires JSON a
 const editorSaveLabel = getMessage('managerEditorSave', 'Save Command');
 const editorResetLabel = getMessage('managerEditorReset', 'Reset');
 const editorSavedLabel = getMessage('managerEditorSaved', 'Saved command: $COMMAND$');
+const editorIdentitySectionLabel = getMessage('managerEditorSectionIdentity', 'Identity');
+const editorDescriptionSectionLabel = getMessage('managerEditorSectionDescription', 'Description');
+const editorHelpSectionLabel = getMessage('managerEditorSectionHelp', 'Help');
+const editorOptionsSectionLabel = getMessage('managerEditorSectionOptions', 'Options');
+const editorRequiresSectionLabel = getMessage('managerEditorSectionRequires', 'Requires');
+const editorCodeSectionLabel = getMessage('managerEditorSectionCode', 'Code');
 
 document.title = title;
 document.getElementById('manager-title').textContent = title;
@@ -85,9 +88,14 @@ document.getElementById('manager-tab-utilities').textContent = utilitiesTabLabel
 document.getElementById('command-editor-title').textContent = editorTitle;
 document.getElementById('command-editor-hint').textContent = editorHint;
 document.getElementById('command-editor-empty').textContent = editorEmptyMessage;
-document.getElementById('editor-advanced-label').textContent = editorAdvancedLabel;
 document.getElementById('editor-save-button').textContent = editorSaveLabel;
 document.getElementById('editor-reset-button').textContent = editorResetLabel;
+document.getElementById('editor-section-identity-tab').textContent = editorIdentitySectionLabel;
+document.getElementById('editor-section-description-tab').textContent = editorDescriptionSectionLabel;
+document.getElementById('editor-section-help-tab').textContent = editorHelpSectionLabel;
+document.getElementById('editor-section-options-tab').textContent = editorOptionsSectionLabel;
+document.getElementById('editor-section-requires-tab').textContent = editorRequiresSectionLabel;
+document.getElementById('editor-section-code-tab').textContent = editorCodeSectionLabel;
 
 const bundleTextarea = document.getElementById('bundle-textarea');
 const bundleStatus = document.getElementById('bundle-status');
@@ -98,7 +106,6 @@ const editorStatus = document.getElementById('editor-status');
 const editorFields = {
   name: document.getElementById('editor-name'),
   id: document.getElementById('editor-id'),
-  world: document.getElementById('editor-world'),
   disabled: document.getElementById('editor-disabled'),
   description: document.getElementById('editor-description'),
   code: document.getElementById('editor-code'),
@@ -119,7 +126,6 @@ commandFilter.label = commandFilterLabel;
 commandFilter.placeholder = commandFilterLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
-editorFields.world.label = editorWorldLabel;
 editorFields.disabled.textContent = editorDisabledLabel;
 editorFields.description.label = editorDescriptionLabel;
 editorFields.code.label = editorCodeLabel;
@@ -253,7 +259,6 @@ function populateEditor(command) {
   selectedCommandRef = { name: command.name, id: command.id };
   editorFields.name.value = command.name;
   editorFields.id.value = command.id;
-  editorFields.world.value = command.world;
   editorFields.disabled.checked = Boolean(command.disabled);
   editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
   editorFields.code.value = command.code;
@@ -412,13 +417,10 @@ function buildCommandDetailCard(command) {
   const idMeta = document.createElement('span');
   idMeta.textContent = `${idLabel}: ${command.id}`;
 
-  const worldMeta = document.createElement('span');
-  worldMeta.textContent = `${worldLabel}: ${command.world}`;
-
   const updatedMeta = document.createElement('span');
   updatedMeta.textContent = `${updatedLabel}: ${formatDateTime(command.updatedAt)}`;
 
-  meta.append(idMeta, worldMeta, updatedMeta);
+  meta.append(idMeta, updatedMeta);
 
   if (aliases.length > 0) {
     const aliasesMeta = document.createElement('span');

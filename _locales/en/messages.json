@@ -83,10 +83,6 @@
     "message": "Aliases",
     "description": "Label for command aliases metadata in the manager command list"
   },
-  "managerCommandWorld": {
-    "message": "World",
-    "description": "Label for a command world in the manager command list"
-  },
   "managerCommandUpdated": {
     "message": "Updated",
     "description": "Label for command updated timestamp in the manager command list"
@@ -147,7 +143,7 @@
     "description": "Manager command editor section title"
   },
   "managerEditorHint": {
-    "message": "Edit an installed valid command. Name, ID, and world are read-only in this first editor slice.",
+    "message": "Edit an installed valid command. Name and ID are read-only in this first editor slice.",
     "description": "Manager command editor section hint"
   },
   "managerEditorEmpty": {
@@ -162,10 +158,6 @@
     "message": "ID",
     "description": "Manager command editor ID field label"
   },
-  "managerEditorWorld": {
-    "message": "World",
-    "description": "Manager command editor world field label"
-  },
   "managerEditorDisabled": {
     "message": "Disabled",
     "description": "Manager command editor disabled field label"
@@ -177,10 +169,6 @@
   "managerEditorCode": {
     "message": "Code",
     "description": "Manager command editor code field label"
-  },
-  "managerEditorAdvanced": {
-    "message": "Help, options, and requires",
-    "description": "Manager command editor advanced details label"
   },
   "managerEditorHelpTemplate": {
     "message": "Help HTML template",
@@ -214,6 +202,30 @@
         "content": "$1"
       }
     }
+  },
+  "managerEditorSectionIdentity": {
+    "message": "Identity",
+    "description": "Manager command editor identity section tab label"
+  },
+  "managerEditorSectionDescription": {
+    "message": "Description",
+    "description": "Manager command editor description section tab label"
+  },
+  "managerEditorSectionHelp": {
+    "message": "Help",
+    "description": "Manager command editor help section tab label"
+  },
+  "managerEditorSectionOptions": {
+    "message": "Options",
+    "description": "Manager command editor options section tab label"
+  },
+  "managerEditorSectionRequires": {
+    "message": "Requires",
+    "description": "Manager command editor requires section tab label"
+  },
+  "managerEditorSectionCode": {
+    "message": "Code",
+    "description": "Manager command editor code section tab label"
   },
   "overlayCancel": {
     "message": "Cancel",

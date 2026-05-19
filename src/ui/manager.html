@@ -44,26 +44,55 @@
               </div>
               <div class="empty-state" id="command-editor-empty"></div>
               <form class="command-editor" id="command-editor" hidden>
-                <div class="editor-grid">
-                  <wa-input id="editor-name" readonly></wa-input>
-                  <wa-input id="editor-id" readonly></wa-input>
-                  <wa-input id="editor-world" readonly></wa-input>
-                  <wa-switch id="editor-disabled"></wa-switch>
-                </div>
                 <div class="editor-actions">
                   <wa-button variant="brand" type="submit" id="editor-save-button"></wa-button>
                   <wa-button variant="neutral" type="button" id="editor-reset-button"></wa-button>
                 </div>
-                <wa-textarea id="editor-description" class="editor-textarea-small" resize="auto" spellcheck="false"></wa-textarea>
-                <details class="editor-advanced">
-                  <summary id="editor-advanced-label"></summary>
-                  <wa-textarea id="editor-help-template" class="editor-textarea-small" resize="auto" spellcheck="false"></wa-textarea>
-                  <wa-textarea id="editor-help-strings" class="editor-textarea-small" resize="auto" spellcheck="false"></wa-textarea>
-                  <wa-textarea id="editor-options" class="editor-textarea-small" resize="auto" spellcheck="false"></wa-textarea>
-                  <wa-textarea id="editor-requires" class="editor-textarea-small" resize="auto" spellcheck="false"></wa-textarea>
-                </details>
-                <wa-textarea id="editor-code" class="editor-code" resize="none" spellcheck="false"></wa-textarea>
                 <div class="bundle-status" id="editor-status" hidden></div>
+                <wa-tab-group placement="start" class="editor-section-tabs" id="editor-section-tabs" active="editor-section-identity">
+                  <wa-tab slot="nav" panel="editor-section-identity" id="editor-section-identity-tab" active></wa-tab>
+                  <wa-tab slot="nav" panel="editor-section-description" id="editor-section-description-tab"></wa-tab>
+                  <wa-tab slot="nav" panel="editor-section-help" id="editor-section-help-tab"></wa-tab>
+                  <wa-tab slot="nav" panel="editor-section-options" id="editor-section-options-tab"></wa-tab>
+                  <wa-tab slot="nav" panel="editor-section-requires" id="editor-section-requires-tab"></wa-tab>
+                  <wa-tab slot="nav" panel="editor-section-code" id="editor-section-code-tab"></wa-tab>
+
+                  <wa-tab-panel name="editor-section-identity" active>
+                    <section class="editor-section-panel">
+                      <div class="editor-grid">
+                        <wa-input id="editor-name" readonly></wa-input>
+                        <wa-input id="editor-id" readonly></wa-input>
+                        <wa-switch id="editor-disabled"></wa-switch>
+                      </div>
+                    </section>
+                  </wa-tab-panel>
+                  <wa-tab-panel name="editor-section-description">
+                    <section class="editor-section-panel">
+                      <wa-textarea id="editor-description" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
+                    </section>
+                  </wa-tab-panel>
+                  <wa-tab-panel name="editor-section-help">
+                    <section class="editor-section-panel">
+                      <wa-textarea id="editor-help-template" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
+                      <wa-textarea id="editor-help-strings" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
+                    </section>
+                  </wa-tab-panel>
+                  <wa-tab-panel name="editor-section-options">
+                    <section class="editor-section-panel">
+                      <wa-textarea id="editor-options" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
+                    </section>
+                  </wa-tab-panel>
+                  <wa-tab-panel name="editor-section-requires">
+                    <section class="editor-section-panel">
+                      <wa-textarea id="editor-requires" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
+                    </section>
+                  </wa-tab-panel>
+                  <wa-tab-panel name="editor-section-code">
+                    <section class="editor-section-panel editor-code-panel">
+                      <wa-textarea id="editor-code" class="editor-code" resize="none" spellcheck="false"></wa-textarea>
+                    </section>
+                  </wa-tab-panel>
+                </wa-tab-group>
               </form>
             </section>
           </section>

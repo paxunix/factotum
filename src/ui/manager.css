@@ -67,7 +67,7 @@
 }
 
 .manager-grid-main {
-  grid-template-columns: minmax(340px, 1fr) minmax(560px, 2.2fr);
+  grid-template-columns: minmax(280px, 0.8fr) minmax(760px, 3fr);
 }
 
 .manager-grid-utilities {
@@ -246,12 +246,11 @@
 
 .command-editor {
   flex: 1 1 auto;
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   min-height: 0;
-  overflow: auto;
-  padding-right: 2px;
+  overflow: hidden;
 }
 
 .editor-grid {
@@ -260,32 +259,83 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
-.editor-advanced {
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 18px;
+.editor-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.editor-section-tabs {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.editor-section-tabs::part(base) {
   display: grid;
-  gap: 14px;
-  padding: 14px;
+  grid-template-columns: minmax(170px, 0.24fr) minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
 }
 
-.editor-advanced[open] {
-  background: rgba(241, 245, 249, 0.72);
+.editor-section-tabs::part(nav) {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 8px;
 }
 
-.editor-advanced summary {
-  color: rgb(15, 23, 42);
-  cursor: pointer;
+.editor-section-tabs::part(active-tab-indicator) {
+  background: rgb(37, 99, 235);
+}
+
+.editor-section-tabs wa-tab {
   font-weight: 700;
 }
 
-.editor-advanced[open] summary {
-  margin-bottom: 14px;
+.editor-section-tabs wa-tab-panel {
+  padding-inline-start: 16px;
 }
 
-.editor-actions {
+.editor-section-tabs::part(body) {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.editor-section-tabs > wa-tab-panel {
+  height: 100%;
+  min-height: 0;
+}
+
+.editor-section-tabs > wa-tab-panel::part(base) {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+}
+
+.editor-section-panel {
+  box-sizing: border-box;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.editor-code-panel {
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding-bottom: 2px;
+}
+
+.editor-code {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 
 wa-textarea {
@@ -294,15 +344,20 @@ wa-textarea {
   width: 100%;
 }
 
-wa-textarea.editor-textarea-small::part(base) {
-  min-height: 96px;
+wa-textarea.editor-textarea-small::part(base),
+wa-textarea.editor-textarea-large::part(base) {
+  min-height: 112px;
+}
+
+wa-textarea.editor-textarea-large::part(base) {
+  max-height: 48vh;
 }
 
 wa-textarea.editor-code::part(base) {
   align-items: stretch;
-  height: clamp(280px, 48vh, 620px);
-  max-height: 620px;
-  min-height: 280px;
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
 }
 
 wa-textarea::part(base) {

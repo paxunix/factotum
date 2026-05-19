@@ -26,7 +26,6 @@ M4. Replace JSON textareas with friendlier structured editors over time for loca
 M6. Add ACE for the command code editor as a separate checkpoint from the structural manager layout pivot.
 M8. manager UX needs a separate tab to hold overall settings.
 M9. Fcommands need metadata indicating the user's preference for whether the overlay should be shown for the command or not.  This lets a user/author have fcommand behaviour that has no Factotum UI.  All the same information would be recorded and logged as usual, only the overlay would not show like it usually does during command invocation, execution, and completion. This setting can be modified by the user by editing the fcommand.
-M10. the Installed Commands panel needs its command-list tab-group to be vertically scrollable so it always fits on the visible page, but you can still scroll to see every installed command
 
 ### Overlay UX
 

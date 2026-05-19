@@ -68,10 +68,9 @@ If you try to run another command in the same tab while one is already running:
 
 ## Manager import/export
 
-The Manager page uses a wide three-panel layout:
-- left panel: installed commands
-- middle panel: bundle import/export tools
-- right panel: command editor
+The Manager page has top-level Manager and Utilities tabs:
+- Manager: installed commands on the left and a sectioned command editor on the right
+- Utilities: bundle import/export tools
 
 Use the Manager page to:
 - import command bundles
@@ -92,16 +91,9 @@ The current command editor supports existing valid commands. Select `Edit` on a 
 - options spec JSON
 - requires JSON array
 
-Name, ID, and world are read-only in the current editor. Use bundle import/export for rename-style changes until a dedicated rename/new-command flow exists.
+The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code. Select a tab to edit that part of the command while keeping the same whole-command Save and Reset actions.
 
-## Command worlds
-
-Most users do not need to choose a world. Valid fcommands run as `user_script` commands.
-
-When installing or troubleshooting a command:
-- `user_script` means the command runs in Factotum's isolated command runtime
-- `MAIN` means the page's own JavaScript environment
-- commands reach `MAIN` only through explicit bridge calls or MAIN-world requires
+Name and ID are read-only in the current editor. Use bundle import/export for rename-style changes until a dedicated rename/new-command flow exists.
 
 ## Current limitations
 
