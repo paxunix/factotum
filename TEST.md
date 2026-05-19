@@ -215,7 +215,7 @@ Each test lists: **Setup → Action → Expected**.
   * The command editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code.
   * The Code section gets the full editor pane height and scrolls code internally.
   * Editor fields use Web Awesome controls for simple field edits.
-  * Code editing remains a textarea in this checkpoint; ACE integration is a separate follow-up.
+  * Code editing uses the bundled ACE editor.
   * Existing import/export, enable/disable, and save behavior still works.
 
 ---

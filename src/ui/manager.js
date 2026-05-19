@@ -1,4 +1,7 @@
 import { setBasePath } from '@awesome.me/webawesome/dist/webawesome.js';
+import ace from 'ace-builds/src-noconflict/ace';
+import 'ace-builds/src-noconflict/mode-javascript';
+import 'ace-builds/src-noconflict/theme-textmate';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/switch/switch.js';
@@ -90,6 +93,7 @@ document.getElementById('command-editor-hint').textContent = editorHint;
 document.getElementById('command-editor-empty').textContent = editorEmptyMessage;
 document.getElementById('editor-save-button').textContent = editorSaveLabel;
 document.getElementById('editor-reset-button').textContent = editorResetLabel;
+document.getElementById('editor-code-label').textContent = editorCodeLabel;
 document.getElementById('editor-section-identity-tab').textContent = editorIdentitySectionLabel;
 document.getElementById('editor-section-description-tab').textContent = editorDescriptionSectionLabel;
 document.getElementById('editor-section-help-tab').textContent = editorHelpSectionLabel;
@@ -120,6 +124,17 @@ let selectedMenuCommandRef = null;
 let currentCommands = [];
 let currentAliases = {};
 let currentPanelRefs = new Map();
+const codeEditor = ace.edit(editorFields.code, {
+  fontSize: '14px',
+  mode: 'ace/mode/javascript',
+  showPrintMargin: false,
+  tabSize: 2,
+  theme: 'ace/theme/textmate',
+  useSoftTabs: true,
+  wrap: true
+});
+
+codeEditor.session.setUseWorker(false);
 
 editorFields.name.label = editorNameLabel;
 commandFilter.label = commandFilterLabel;
@@ -128,7 +143,6 @@ bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
 editorFields.disabled.textContent = editorDisabledLabel;
 editorFields.description.label = editorDescriptionLabel;
-editorFields.code.label = editorCodeLabel;
 editorFields.helpHtmlTemplate.label = editorHelpTemplateLabel;
 editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
@@ -261,7 +275,8 @@ function populateEditor(command) {
   editorFields.id.value = command.id;
   editorFields.disabled.checked = Boolean(command.disabled);
   editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
-  editorFields.code.value = command.code;
+  codeEditor.setValue(command.code, -1);
+  requestAnimationFrame(() => codeEditor.resize());
   editorFields.helpHtmlTemplate.value = command.helpHtmlTemplate || '';
   editorFields.helpHtmlStrings.value = stringifyJson(command.helpHtmlStrings);
   editorFields.optionsSpec.value = stringifyJson(command.optionsSpec);
@@ -287,7 +302,7 @@ function readEditedCommand() {
   const next = {
     ...selectedCommand,
     disabled: editorFields.disabled.checked,
-    code: editorFields.code.value,
+    code: codeEditor.getValue(),
     updatedAt: Date.now()
   };
 
@@ -613,6 +628,12 @@ document.getElementById('command-list').addEventListener('wa-tab-show', (event) 
   const commandRef = currentPanelRefs.get(event.detail.name);
   if (commandRef) {
     selectedMenuCommandRef = commandRef;
+  }
+});
+
+document.getElementById('editor-section-tabs').addEventListener('wa-tab-show', (event) => {
+  if (event.detail.name === 'editor-section-code') {
+    requestAnimationFrame(() => codeEditor.resize());
   }
 });
 

@@ -85,7 +85,7 @@ For maintained test fixtures, use:
 The current command editor supports existing valid commands. Select `Edit` on a command card to change:
 - disabled state
 - localized description JSON
-- command code
+- command code in the ACE editor
 - help HTML template
 - help strings JSON
 - options spec JSON

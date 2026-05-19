@@ -85,7 +85,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 **Include**
 - Manager layout iteration: filterable command navigation and the top-level Manager/Utilities tab split are implemented.
-- Manager editor iteration: ACE code editing, delete with undo, stronger command-card hierarchy, structured editors for localized text/help/options/requires, and overlay-backed help preview.
+- Manager editor iteration: delete with undo, stronger command-card hierarchy, structured editors for localized text/help/options/requires, and overlay-backed help preview.
 - Session-console bubble styling distinctions for output vs command-state/system entries.
 - Dev harness hooks/page for repeatable A1-A5 automation.
 - Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argv, ctx)`.
@@ -238,7 +238,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Provide a manager page listing installed commands (name/id/world/updated, disabled state). Current state: implemented.
 - Support enable/disable toggle (updates `disabled` flag). Current state: implemented.
 - Provide structured editing for existing valid command fields. Current state: body fields are editable; name/id/world are read-only.
-- Separate editors for code and help template/strings. Current state: implemented as textarea fields.
+- Separate editors for code and help template/strings. Current state: code uses ACE; help template/strings remain textarea fields.
 - Provide editing for `optionsSpec` (flags, descriptions, defaults) used for help generation. Current state: implemented as JSON textarea.
 - Manage aliases (add/remove alias keys for a command).
 - Import bundle with warnings for duplicates/alias collisions. Current state: implemented without per-command selection.
