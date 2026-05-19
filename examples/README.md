@@ -35,3 +35,19 @@ f bookmarks-dialog <word...>
 ```
 
 Matches are unchecked by default. Use the modal's All or None buttons to adjust selection, then Delete selected to remove only checked bookmarks or Cancel to make no changes.
+
+## `window-functions-panel.json`
+
+Command: `windowfuncs`
+
+Alias: `wfuncs`
+
+Runs page-context work in `MAIN` through `ctx.main.define()` and `ctx.main.call()`. It inspects enumerable properties on the page's `window` object, finds values whose type is `function`, and appends a dismissible panel to the page listing those function names.
+
+Usage:
+
+```text
+f windowfuncs
+```
+
+Use this as the minimal pattern for fcommands that need page globals or page DOM side effects but do not need privileged `chrome.*` APIs.

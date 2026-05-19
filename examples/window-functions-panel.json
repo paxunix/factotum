@@ -1,0 +1,34 @@
+{
+  "bundleSchemaVersion": 1,
+  "exportedAt": 1760100000000,
+  "commands": [
+    {
+      "schemaVersion": 1,
+      "name": "windowfuncs",
+      "id": "examples.window.functions",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { await ctx.main.define('showWindowFunctions', () => { const old = document.getElementById('factotum-window-functions-example'); if (old) { old.remove(); } const names = []; for (const key in window) { try { if (typeof window[key] === 'function') { names.push(key); } } catch (error) { } } names.sort((a, b) => a.localeCompare(b)); const root = document.createElement('aside'); root.id = 'factotum-window-functions-example'; Object.assign(root.style, { position: 'fixed', top: '24px', right: '24px', zIndex: '2147483647', width: 'min(520px, 42vw)', maxHeight: '72vh', overflow: 'auto', background: '#111827', color: '#f9fafb', border: '1px solid #93c5fd', borderRadius: '16px', boxShadow: '0 22px 70px rgba(0, 0, 0, 0.35)', padding: '18px', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' }); const header = document.createElement('div'); Object.assign(header.style, { display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'start', marginBottom: '12px' }); const title = document.createElement('h2'); title.textContent = 'Enumerable window functions'; Object.assign(title.style, { fontFamily: 'ui-sans-serif, system-ui, sans-serif', fontSize: '18px', margin: '0' }); const close = document.createElement('button'); close.type = 'button'; close.textContent = 'Close'; Object.assign(close.style, { border: '1px solid #93c5fd', borderRadius: '999px', background: '#1f2937', color: '#f9fafb', padding: '6px 10px', cursor: 'pointer' }); close.addEventListener('click', () => root.remove()); header.append(title, close); const summary = document.createElement('p'); summary.textContent = 'Found ' + names.length + ' enumerable function(s) on window.'; Object.assign(summary.style, { fontFamily: 'ui-sans-serif, system-ui, sans-serif', margin: '0 0 12px', color: '#bfdbfe' }); const list = document.createElement('ol'); Object.assign(list.style, { margin: '0', paddingLeft: '24px' }); for (const name of names) { const item = document.createElement('li'); item.textContent = name; item.style.padding = '2px 0'; list.append(item); } root.append(header, summary, list); document.documentElement.append(root); return { count: names.length }; }); const result = await ctx.main.call('showWindowFunctions'); ctx.out.info('Added page panel for ' + result.count + ' enumerable window function(s).'); return result; }",
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{summary}}</p><section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section><section><h2>{{examplesTitle}}</h2><pre>{{examples}}</pre></section>",
+      "helpHtmlStrings": {
+        "en-US": {
+          "title": "windowfuncs",
+          "summary": "Append a page panel listing enumerable function-valued properties from the page's window object.",
+          "usageTitle": "Usage",
+          "examplesTitle": "Examples",
+          "examples": "f windowfuncs\nf wfuncs"
+        }
+      },
+      "optionsSpec": {
+        "name": "windowfuncs"
+      },
+      "description": {
+        "en-US": "List enumerable window functions in a page panel"
+      },
+      "createdAt": 1760100000000,
+      "updatedAt": 1760100000000
+    }
+  ],
+  "aliases": {
+    "wfuncs": { "name": "windowfuncs", "id": "examples.window.functions" }
+  }
+}
