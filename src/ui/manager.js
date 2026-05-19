@@ -424,6 +424,7 @@ function buildCommandDetailCard(command) {
 
   if (aliases.length > 0) {
     const aliasesMeta = document.createElement('span');
+    aliasesMeta.className = 'command-aliases';
     aliasesMeta.textContent = `${aliasesLabel}: ${aliases.join(', ')}`;
     meta.append(aliasesMeta);
   }
