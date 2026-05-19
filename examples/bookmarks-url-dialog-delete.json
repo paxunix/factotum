@@ -1,0 +1,35 @@
+{
+  "bundleSchemaVersion": 1,
+  "exportedAt": 1760100000000,
+  "commands": [
+    {
+      "schemaVersion": 1,
+      "name": "bookmarks-dialog",
+      "id": "examples.bookmarks.dialog",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { const terms = argv.positionals.map((value) => String(value).trim()).filter(Boolean); if (terms.length === 0) { ctx.out.warn('Provide at least one URL substring to search for.'); ctx.out.write('Usage: f bookmarks-dialog <word...>'); return { matched: 0, deleted: 0 }; } const needles = terms.map((term) => term.toLowerCase()); const roots = await ctx.chrome.bookmarks.getTree(); const bookmarks = []; const visit = (node) => { if (!node) { return; } if (node.url) { bookmarks.push(node); } for (const child of node.children || []) { visit(child); } }; for (const root of roots || []) { visit(root); } const matches = bookmarks.filter((bookmark) => { const url = String(bookmark.url || '').toLowerCase(); return needles.some((needle) => url.includes(needle)); }).map((bookmark) => ({ id: bookmark.id, title: bookmark.title || '(untitled)', url: bookmark.url })); ctx.out.info('Matched ' + matches.length + ' bookmark(s) for: ' + terms.join(', ')); if (matches.length === 0) { return { matched: 0, deleted: 0 }; } await ctx.main.define('chooseBookmarksToDelete', (matchesForDialog, searchTerms) => new Promise((resolve) => { const old = document.getElementById('factotum-bookmarks-dialog-example'); if (old) { old.remove(); } const root = document.createElement('div'); root.id = 'factotum-bookmarks-dialog-example'; Object.assign(root.style, { position: 'fixed', inset: '0', zIndex: '2147483647', background: 'rgba(10, 14, 18, 0.55)', display: 'grid', placeItems: 'center', fontFamily: 'ui-sans-serif, system-ui, sans-serif' }); const panel = document.createElement('section'); Object.assign(panel.style, { width: 'min(920px, 92vw)', maxHeight: '80vh', overflow: 'auto', background: '#fffaf0', color: '#16130d', border: '1px solid #2d2616', borderRadius: '14px', boxShadow: '0 24px 80px rgba(0, 0, 0, 0.35)', padding: '20px' }); const title = document.createElement('h2'); title.textContent = 'Delete matching bookmarks'; title.style.margin = '0 0 8px'; const summary = document.createElement('p'); summary.textContent = 'Matches for: ' + searchTerms.join(', ') + '. Select bookmarks to delete.'; summary.style.margin = '0 0 16px'; const list = document.createElement('div'); Object.assign(list.style, { display: 'grid', gap: '10px', margin: '0 0 18px' }); for (const match of matchesForDialog) { const label = document.createElement('label'); Object.assign(label.style, { display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '10px', alignItems: 'start', border: '1px solid #d8c9a7', borderRadius: '10px', padding: '10px', background: '#fff' }); const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.value = match.id; checkbox.style.marginTop = '3px'; const text = document.createElement('span'); const strong = document.createElement('strong'); strong.textContent = match.title; const url = document.createElement('span'); url.textContent = match.url; Object.assign(url.style, { display: 'block', marginTop: '4px', overflowWrap: 'anywhere', color: '#5b4b24' }); text.append(strong, url); label.append(checkbox, text); list.append(label); } const actions = document.createElement('div'); Object.assign(actions.style, { display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'flex-end' }); const makeButton = (text) => { const button = document.createElement('button'); button.type = 'button'; button.textContent = text; Object.assign(button.style, { border: '1px solid #2d2616', borderRadius: '999px', background: '#16130d', color: '#fffaf0', padding: '8px 14px', cursor: 'pointer' }); return button; }; const all = makeButton('All'); const none = makeButton('None'); const cancel = makeButton('Cancel'); const del = makeButton('Delete selected'); const cleanup = (payload) => { root.remove(); resolve(payload); }; all.addEventListener('click', () => { for (const box of list.querySelectorAll('input[type=checkbox]')) { box.checked = true; } }); none.addEventListener('click', () => { for (const box of list.querySelectorAll('input[type=checkbox]')) { box.checked = false; } }); cancel.addEventListener('click', () => cleanup({ action: 'cancel', ids: [] })); del.addEventListener('click', () => cleanup({ action: 'delete', ids: Array.from(list.querySelectorAll('input[type=checkbox]:checked')).map((box) => box.value) })); actions.append(all, none, cancel, del); panel.append(title, summary, list, actions); root.append(panel); document.documentElement.append(root); })); const choice = await ctx.main.call('chooseBookmarksToDelete', [matches, terms]); if (!choice || choice.action !== 'delete') { ctx.out.info('Canceled. No bookmarks deleted.'); return { matched: matches.length, deleted: 0 }; } const selectedIds = new Set(Array.isArray(choice.ids) ? choice.ids : []); const selected = matches.filter((match) => selectedIds.has(match.id)); if (selected.length === 0) { ctx.out.warn('No bookmarks selected. No bookmarks deleted.'); return { matched: matches.length, deleted: 0 }; } ctx.out.info('Deleting ' + selected.length + ' of ' + matches.length + ' matched bookmark(s).'); for (const match of selected) { ctx.out.write(match.title + '\\n' + match.url); } let deleted = 0; for (const match of selected) { try { await ctx.chrome.bookmarks.remove(match.id); deleted += 1; } catch (error) { ctx.out.error('Failed to delete ' + (match.title || match.url) + ': ' + (error.message || String(error))); } } ctx.out.info('Deleted ' + deleted + ' bookmark(s).'); return { matched: matches.length, deleted }; }",
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{summary}}</p><section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section>{{args}}<section><h2>{{examplesTitle}}</h2><pre>{{examples}}</pre></section>",
+      "helpHtmlStrings": {
+        "en-US": {
+          "title": "bookmarks-dialog",
+          "summary": "Find bookmarks by URL substring, show matches in a page modal, and delete only the checked selections.",
+          "usageTitle": "Usage",
+          "examplesTitle": "Examples",
+          "examples": "f bookmarks-dialog github docs\nf bmdel example"
+        }
+      },
+      "optionsSpec": {
+        "name": "bookmarks-dialog",
+        "args": "<word...>"
+      },
+      "description": {
+        "en-US": "Select and delete matching bookmarks from a page modal"
+      },
+      "createdAt": 1760100000000,
+      "updatedAt": 1760100000000
+    }
+  ],
+  "aliases": {
+    "bmdel": { "name": "bookmarks-dialog", "id": "examples.bookmarks.dialog" }
+  }
+}
