@@ -5,15 +5,12 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 
 ## Rules
 - Keep entries concise and actionable.
-- Entries should be numbered.  No requirement the numbers remain monotonically increasing from entry to entry.
+- Entries should be prefix+numbered so it's clear what section they belong to and can be uniquely identified within this file.  No requirement the numbers remain monotonically increasing from entry to entry.
 - Remove entries when they are completed.
 - If an item changes active milestone direction, reflect that in `PLAN.md` and any authoritative docs as needed.
 - Do not treat TODO items as spec changes unless the authoritative docs are updated too.
 
 ## Current TODOs
-
-### Bugs
-B1. Remove remaining dead compatibility paths and scratch fixtures that still mention `world: "main"` as a command runtime. Validation already rejects this, but cleanup should finish converging code examples on USER_SCRIPT plus explicit MAIN bridge access.
 
 ### Omnibox / UX
 O1. Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.
@@ -26,7 +23,6 @@ M1. Add command deletion. Prefer an undoable deletion flow; decide whether this 
 M2. Add alias management to the manager editor so users can add/remove every alternate invocation name for a command.
 M3. Add help-template preview. Preferred direction: render preview through the same overlay UI used by command help, overlaying on the manager page and dismissible by the user.
 M4. Replace JSON textareas with friendlier structured editors over time for localized descriptions, help strings, optionsSpec, and requires. For localized text, prefer a locale selector plus add-locale flow over raw JSON editing.
-M5. Present `world` with an appropriate Web Awesome fixed-choice control instead of a free-text/read-only string once world editing/new-command flow exists.
 M6. Add ACE for the command code editor as a separate checkpoint from the structural manager layout pivot.
 M7. fix editor text area sizing and scrolling.  If you paste too many lines into it or load an fcommand whose code has many lines, the text area becomes too large and you can't scroll the rightmost panel to reach other content within it.
 M8. manager UX needs a separate tab to hold overall settings.

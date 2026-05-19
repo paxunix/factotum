@@ -103,8 +103,6 @@ When installing or troubleshooting a command:
 - `MAIN` means the page's own JavaScript environment
 - commands reach `MAIN` only through explicit bridge calls or MAIN-world requires
 
-If a stored command record says `world: "main"`, it is stale or invalid and should be quarantined by the manager instead of running.
-
 ## Current limitations
 
 - only one command can run at a time per tab
