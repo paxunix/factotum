@@ -26,6 +26,14 @@ M4. Replace JSON textareas with friendlier structured editors over time for loca
 M6. Add ACE for the command code editor as a separate checkpoint from the structural manager layout pivot.
 M8. manager UX needs a separate tab to hold overall settings.
 M9. Fcommands need metadata indicating the user's preference for whether the overlay should be shown for the command or not.  This lets a user/author have fcommand behaviour that has no Factotum UI.  All the same information would be recorded and logged as usual, only the overlay would not show like it usually does during command invocation, execution, and completion. This setting can be modified by the user by editing the fcommand.
+M10. if any unsaved edits exist when a new command is about to be edited, the user needs to be notified and the new edit action blocked until existing changes are saved or reset.  In that case, the display should reselect the command that was being edited and user prompted to save or reset.
+M11. in Identity editor section, need to be able to edit the set of aliases for the fcommand
+M12. No need to duplicate the Disabled toggle in the editor panel and in the Installed fcommand card panel.  Keep the toggle button that is in the card, drop the one in the editor.  The toggle in the card itself should just be the boolean toggle checkbox control currently in the editor panel.  It should continue to update the UI and whatever storage is needed to indicate to the extension that the fcommand is available or not.
+M13. don't need an actual Edit button.  As soon as the user clicks a card in the Installed list, load up its information in the editor panel.  Note that we have to account for behaviour if currently editing another command and it has unsaved changes (see M10).
+M14. need a sort pulldown menu (put it right-aligned to panel of the filter commands text entry, which can be shrunk to accomodate it).  Also need the usual icon indicating ascending or descending sort.  Sort options: by modified time, by name, by ID.  Default will be by descending modified time.
+M15. Save Command button should only be active if an edit has occurred.
+M16. Bundle json import textarea should fill the panel and of course have its own scrollbar so the page itseld doesn't scroll (similar to what was done for the code text widget).
+
 
 ### Overlay UX
 
