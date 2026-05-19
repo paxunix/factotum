@@ -101,7 +101,7 @@ Fields:
 - `disabled?: boolean` (default false; disabled commands are excluded from resolution)
 - `code: string`
 - `requires: RequireEntry[]` (optional)
-- `optionsSpec?: OptionsSpec` (optional; used to generate help tokens)
+- `optionsSpec?: OptionsSpec` (optional; used to generate help tokens and parse command options)
 - `helpHtmlTemplate?: HelpTemplate` (raw HTML template)
 - `helpHtmlStrings?: HelpStrings` (localized token values)
 - `description?: LocalizedText`
@@ -126,7 +126,7 @@ Duplicates of `(name,id)` allowed; warn on import/install. UI may suffix duplica
 
 OptionsSpec:
 - `name?: string` (display name for usage; defaults to command name)
-- `args?: string` (positional args usage string, e.g. `<input> [output]`)
+- `args?: string` (positional args usage string, e.g. `<input> [output]`; descriptive only)
 - `options?: OptionSpec[]`
 
 OptionSpec:
@@ -135,6 +135,8 @@ OptionSpec:
 - `description?: LocalizedText`
 - `required?: boolean`
 - `default?: string | number | boolean`
+
+`OptionsSpec` is the author-facing option contract. Parser libraries used by the runtime are implementation details; commands must rely only on the normalized `argv` object described in §4.1.
 
 ### 3.1 Localization data model (command‑authored)
 
@@ -240,6 +242,7 @@ If authors provide localized `description` for options, those should be used whe
 - The parser must support short/long flags, aliases declared by multiple `flags`, `--` end-of-options, and `--flag=value`.
 - When `optionsSpec.options` declares a closed option set, unknown flags fail before command execution.
 - Required options fail before command execution when missing.
+- `optionsSpec.args` is help/usage text only; it does not bind names to positional arguments or validate positional arity.
 - Pass to command:
   - `argv.tokens`: raw tokens after the command token
   - `argv.positionals`: parsed positional arguments

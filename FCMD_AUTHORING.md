@@ -122,11 +122,44 @@ Optional fields:
 - `helpHtmlStrings`
 - `optionsSpec`
 
+`optionsSpec` is Factotum's author-facing option contract. Factotum may use parser libraries internally, but commands should depend only on the normalized `argv` object passed to `main()`.
+
+Shape:
+
+```json
+{
+  "name": "bookmark-find",
+  "args": "<term> [more terms...]",
+  "options": [
+    {
+      "flags": ["-d", "--delete"],
+      "value": "boolean",
+      "description": { "en-US": "Delete matching bookmarks" }
+    }
+  ]
+}
+```
+
+Option behavior:
+- `flags` may declare short and long aliases for the same option.
+- The canonical key in `argv.options` is the first long flag without leading dashes, or the first flag when no long flag exists.
+- Supported values are `boolean`, `string`, and `number`; omitted `value` means `boolean`.
+- `default` supplies the option value when the option is not present.
+- `required: true` fails before `main()` runs when the option is missing.
+- When `options` declares an option set, unknown flags fail before `main()` runs.
+- `--help` and `-h` are reserved for Factotum help handling.
+
+Positional behavior:
+- `argv.positionals` is an ordered array.
+- `optionsSpec.args` is usage/help text only.
+- Factotum does not bind positional names, validate positional arity, or create named positional properties.
+- If `args` is `<verb> <object>`, the command must read `argv.positionals[0]` and `argv.positionals[1]` itself.
+
 `f cmd --help`:
 - skips normal command execution
 - renders help in the session console
 - may use generated `usage`, `options`, and `args` tokens from `optionsSpec`
-- uses `optionsSpec` to parse command input before `main()` runs; unknown declared-option flags and missing required options fail before command execution
+- uses `optionsSpec` to parse command input before `main()` runs; unknown flags and missing required options fail before command execution when an option set is declared
 
 ## Requires
 

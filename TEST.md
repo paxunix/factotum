@@ -222,7 +222,7 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T4f: optionsSpec drives parsed argv contract
 
-* Setup: use a command with `optionsSpec` declaring `["-d", "--delete"]` as a boolean option.
+* Setup: use a command with `optionsSpec` declaring `["-d", "--delete"]` as a boolean option and `args` usage text.
 * Action:
 
   1. run the command with positional args and `--delete`
@@ -233,7 +233,8 @@ Each test lists: **Setup → Action → Expected**.
   * `main(argv, ctx)` receives `argv.tokens` as the raw post-command tokens
   * `main(argv, ctx)` receives `argv.positionals` as parsed positional args
   * `main(argv, ctx)` receives `argv.options.delete === true` for both `--delete` and `-d`
-  * unknown declared-option flags fail before `main()` executes
+  * `optionsSpec.args` is help/usage text only and does not create named positional properties
+  * unknown flags fail before `main()` executes when `optionsSpec.options` declares an option set
 
 ---
 
