@@ -29,6 +29,12 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 - Add ACE for the command code editor as a separate checkpoint from the structural manager layout pivot.
 - fix editor text area sizing and scrolling.  If you paste too many lines into it or load an fcommand whose code has many lines, the text area becomes too large and you can't scroll the rightmost panel to reach other content within it.
 - manager UX needs a separate tab to hold overall settings.
+- Fcommands need metadata indicating the user's preference for whether the
+  overlay should be shown for the command or not.  This lets a user/author
+  have fcommand behaviour that has no Factotum UI.  All the same information
+  would be recorded and logged as usual, only the overlay would not show
+  like it usually does during command invocation, execution, and completion.
+  This setting can be modified by the user by editing the fcommand.
 
 ### Overlay UX
 
