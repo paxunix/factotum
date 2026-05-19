@@ -1246,14 +1246,13 @@ function buildExecuteCode(invocation) {
 }
 
 async function executeUserScript(invocation) {
-  const world = invocation.command.world === 'main' ? 'MAIN' : 'USER_SCRIPT';
   return chrome.userScripts.execute({
     target: {
       tabId: invocation.tabId,
       frameIds: [0]
     },
     js: [{ code: buildExecuteCode(invocation) }],
-    world
+    world: 'USER_SCRIPT'
   });
 }
 

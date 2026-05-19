@@ -23,7 +23,7 @@ const commands = {
   'cmd-1': {
     name: 'clip.clean',
     id: 'demo.clip.clean',
-    world: 'isolated',
+    world: 'user_script',
     enabled: true,
     description: 'Normalize clipboard text into a cleaned snippet.',
     help: '<h1>clip.clean</h1>\n<p>Clean clipboard text.</p>',
@@ -32,7 +32,7 @@ const commands = {
   'cmd-2': {
     name: 'bmk.clean',
     id: 'demo.bmk.clean',
-    world: 'main',
+    world: 'user_script',
     enabled: false,
     description: 'Remove stale bookmarks by URL pattern.',
     help: '<h1>bmk.clean</h1>\n<p>Remove stale bookmarks.</p>',
@@ -41,7 +41,7 @@ const commands = {
   'cmd-3': {
     name: 'json.view',
     id: 'demo.json.view',
-    world: 'isolated',
+    world: 'user_script',
     enabled: true,
     description: 'Render JSON with a focus on large payloads.',
     help: '<h1>json.view</h1>\n<p>Render JSON in a readable format.</p>',
@@ -52,7 +52,7 @@ const commands = {
 const editorPane = document.getElementById('editor-pane');
 const nameInput = document.querySelector('wa-input[label="Name"]');
 const idInput = document.querySelector('wa-input[label="Id"]');
-const worldSelect = document.querySelector('wa-select[label="World"]');
+const worldInput = document.querySelector('wa-input[label="World"]');
 const descArea = document.querySelector('wa-textarea[label="Description"]');
 const helpArea = document.querySelector('wa-textarea[label="Help HTML"]');
 const codeBox = document.querySelector('.code-box pre');
@@ -74,7 +74,7 @@ const applyCommand = (key) => {
   enableToggle.checked = cmd.enabled;
   nameInput.value = cmd.name;
   idInput.value = cmd.id;
-  worldSelect.value = cmd.world;
+  worldInput.value = cmd.world;
   descArea.value = cmd.description;
   helpArea.value = cmd.help;
   codeBox.textContent = cmd.code;
