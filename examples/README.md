@@ -34,7 +34,7 @@ Command: `bookmarks-dialog`
 
 Alias: `bmdel`
 
-Finds bookmarks whose URLs contain any supplied substring, then opens a plain DOM modal in the current page with one checkbox per matched bookmark. The command queries and deletes bookmarks from `USER_SCRIPT` through `ctx.chrome.bookmarks`; the modal UI runs in `MAIN` through `ctx.main.define()` and `ctx.main.call()`.
+Finds bookmarks whose URLs contain any supplied substring, then opens a plain DOM modal in the current page with one checkbox per matched bookmark. The modal UI is isolated in a shadow root so page CSS cannot hide or restyle its controls. The command queries and deletes bookmarks from `USER_SCRIPT` through `ctx.chrome.bookmarks`; the modal UI runs in `MAIN` through `ctx.main.define()` and `ctx.main.call()`.
 
 Usage:
 
