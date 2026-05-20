@@ -199,6 +199,12 @@ wa-textarea.bundle-textarea::part(textarea) {
   letter-spacing: -0.01em;
 }
 
+.command-tabs wa-tab.command-tab-disabled {
+  color: rgb(100, 116, 139);
+  font-style: italic;
+  opacity: 0.72;
+}
+
 .command-tabs wa-tab-panel {
   padding-inline-start: 14px;
 }
@@ -217,6 +223,19 @@ wa-textarea.bundle-textarea::part(textarea) {
   background: rgba(248, 250, 252, 0.94);
 }
 
+.command-card-disabled {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(148, 163, 184, 0.09) 0,
+      rgba(148, 163, 184, 0.09) 8px,
+      rgba(248, 250, 252, 0.72) 8px,
+      rgba(248, 250, 252, 0.72) 18px
+    );
+  border-color: rgba(100, 116, 139, 0.28);
+  box-shadow: none;
+}
+
 .command-card-header {
   align-items: center;
   display: flex;
@@ -229,6 +248,11 @@ wa-textarea.bundle-textarea::part(textarea) {
   font-size: 18px;
   font-weight: 760;
   letter-spacing: -0.02em;
+}
+
+.command-card-disabled .command-name,
+.command-card-disabled .command-description {
+  color: rgb(71, 85, 105);
 }
 
 .command-meta {

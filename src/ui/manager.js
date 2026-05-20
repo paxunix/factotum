@@ -605,6 +605,9 @@ function buildCommandStatus(command) {
 function buildCommandDetailCard(command) {
   const card = document.createElement('article');
   card.className = 'command-card command-detail-card';
+  if (command.disabled) {
+    card.classList.add('command-card-disabled');
+  }
 
   const header = document.createElement('div');
   header.className = 'command-card-header';
@@ -695,6 +698,9 @@ function renderCommands(commands) {
     tab.slot = 'nav';
     tab.panel = panelName;
     tab.textContent = command.name;
+    if (command.disabled) {
+      tab.classList.add('command-tab-disabled');
+    }
 
     const panel = document.createElement('wa-tab-panel');
     panel.name = panelName;

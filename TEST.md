@@ -224,6 +224,7 @@ Each test lists: **Setup → Action → Expected**.
   * Code editing uses the bundled CodeMirror JavaScript editor with the default `basicSetup` editing affordances.
   * Help HTML template editing uses the bundled CodeMirror HTML editor with the default `basicSetup` editing affordances.
   * Undo in either CodeMirror editor stops at the loaded command content and does not walk backward through prior command selections or the initial empty editor.
+  * Disabled commands are visually muted in both the command menu and selected-command detail card while keeping the Disabled status pill clickable.
   * Existing import/export, enable/disable, and save behavior still works.
 
 ---
