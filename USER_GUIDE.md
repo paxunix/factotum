@@ -95,6 +95,7 @@ The current command editor supports existing valid commands. Select `Edit` on a 
 Use the Enabled/Disabled status pill on the selected command card to enable or disable that command.
 
 The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code. Select a tab to edit that part of the command while keeping the same whole-command Save and Reset actions.
+Save Command is enabled only after an editable field changes; Reset returns the editor to the stored command and disables Save again.
 
 Name and ID are read-only in the current editor. Use bundle import/export for rename-style changes until a dedicated rename/new-command flow exists.
 

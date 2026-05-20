@@ -197,6 +197,7 @@ Each test lists: **Setup → Action → Expected**.
   * The selected command card has a clickable Enabled/Disabled status pill for toggling command availability.
   * Editable body fields include description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
   * Save reports `Saved command: name@id`
+  * Save Command is disabled until an editable field differs from the loaded command, and Reset disables it again.
   * Invalid JSON in JSON fields reports an inline editor error and does not save
   * Exported JSON contains the saved edits
 

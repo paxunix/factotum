@@ -110,6 +110,8 @@ const bundleStatus = document.getElementById('bundle-status');
 const commandFilter = document.getElementById('command-filter');
 const commandSort = document.getElementById('command-sort');
 const commandSortDirection = document.getElementById('command-sort-direction');
+const editorSaveButton = document.getElementById('editor-save-button');
+const editorResetButton = document.getElementById('editor-reset-button');
 const editorForm = document.getElementById('command-editor');
 const editorEmpty = document.getElementById('command-editor-empty');
 const editorStatus = document.getElementById('editor-status');
@@ -131,6 +133,7 @@ let currentAliases = {};
 let currentPanelRefs = new Map();
 let commandSortKey = 'updatedAt';
 let commandSortDirectionValue = 'desc';
+let editorBaseline = null;
 const codeEditor = ace.edit(editorFields.code, {
   fontSize: '14px',
   mode: 'ace/mode/javascript',
@@ -320,6 +323,29 @@ function parseOptionalJson(label, value) {
 function setEditorVisible(visible) {
   editorForm.hidden = !visible;
   editorEmpty.hidden = visible;
+  if (!visible) {
+    editorBaseline = null;
+    updateEditorDirtyState();
+  }
+}
+
+function getEditorSnapshot() {
+  return {
+    description: editorFields.description.value,
+    code: codeEditor.getValue(),
+    helpHtmlTemplate: editorFields.helpHtmlTemplate.value,
+    helpHtmlStrings: editorFields.helpHtmlStrings.value,
+    optionsSpec: editorFields.optionsSpec.value,
+    requires: editorFields.requires.value
+  };
+}
+
+function snapshotsMatch(left, right) {
+  return Boolean(left && right && Object.keys(left).every((key) => left[key] === right[key]));
+}
+
+function updateEditorDirtyState() {
+  editorSaveButton.disabled = !editorBaseline || snapshotsMatch(getEditorSnapshot(), editorBaseline);
 }
 
 function populateEditor(command) {
@@ -335,6 +361,8 @@ function populateEditor(command) {
   editorFields.optionsSpec.value = stringifyJson(command.optionsSpec);
   editorFields.requires.value = stringifyJson(command.requires);
   setEditorVisible(true);
+  editorBaseline = getEditorSnapshot();
+  updateEditorDirtyState();
 }
 
 async function selectCommandForEdit(commandRef) {
@@ -398,6 +426,9 @@ function readEditedCommand() {
 
 async function saveEditedCommand() {
   clearEditorStatus();
+  if (editorSaveButton.disabled) {
+    return;
+  }
   const saved = await saveCommand(readEditedCommand());
   populateEditor(saved);
   setEditorStatus('success', formatMessage('managerEditorSaved', editorSavedLabel, commandRefKey(saved)));
@@ -714,7 +745,16 @@ editorForm.addEventListener('submit', (event) => {
   });
 });
 
-document.getElementById('editor-save-button').addEventListener('click', (event) => {
+Object.values(editorFields)
+  .filter((field) => field !== editorFields.name && field !== editorFields.id && field !== editorFields.code)
+  .forEach((field) => {
+    field.addEventListener('input', updateEditorDirtyState);
+    field.addEventListener('change', updateEditorDirtyState);
+  });
+
+codeEditor.session.on('change', updateEditorDirtyState);
+
+editorSaveButton.addEventListener('click', (event) => {
   event.preventDefault();
   saveEditedCommand().catch((error) => {
     console.error('[factotum] save command failed', error);
@@ -722,7 +762,7 @@ document.getElementById('editor-save-button').addEventListener('click', (event) 
   });
 });
 
-document.getElementById('editor-reset-button').addEventListener('click', () => {
+editorResetButton.addEventListener('click', () => {
   if (!selectedCommandRef) {
     return;
   }
