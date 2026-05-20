@@ -158,6 +158,11 @@ wa-textarea.bundle-textarea::part(textarea) {
   color: rgb(185, 28, 28);
 }
 
+.bundle-status-warning {
+  background: rgba(245, 158, 11, 0.14);
+  color: rgb(146, 64, 14);
+}
+
 .command-list {
   flex: 1 1 auto;
   min-height: 0;
@@ -217,12 +222,6 @@ wa-textarea.bundle-textarea::part(textarea) {
   display: flex;
   gap: 12px;
   justify-content: space-between;
-}
-
-.command-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 
 .command-name {

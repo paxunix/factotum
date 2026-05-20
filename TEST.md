@@ -186,18 +186,21 @@ Each test lists: **Setup → Action → Expected**.
 * Action:
 
   1. open the manager UI
-  2. click `Edit` on a valid command
+  2. select a valid command card
   3. change the description JSON and command code
   4. save the command
   5. export the bundle
 * Expected:
 
-  * Editor opens with name and ID visible but read-only
+  * Selecting a valid command card opens the editor with name and ID visible but read-only
   * Editor sections include Identity, Description, Help, Options, Requires, and Code
   * The selected command card has a clickable Enabled/Disabled status pill for toggling command availability.
   * Editable body fields include description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
   * Save reports `Saved command: name@id`
   * Save Command is disabled until an editable field differs from the loaded command, and Reset disables it again.
+  * Trying to select a different command while unsaved edits exist keeps the current command loaded and shows a save-or-reset warning.
+  * Returning the editor contents to the loaded state disables Save Command and dismisses the save-or-reset warning.
+  * Reloading or navigating away while unsaved edits exist triggers the browser's unsaved-changes prompt.
   * Invalid JSON in JSON fields reports an inline editor error and does not save
   * Exported JSON contains the saved edits
 

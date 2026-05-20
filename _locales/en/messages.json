@@ -150,10 +150,6 @@
       }
     }
   },
-  "managerEditCommand": {
-    "message": "Edit",
-    "description": "Manager button label to edit a command"
-  },
   "managerEditorTitle": {
     "message": "Command Editor",
     "description": "Manager command editor section title"
@@ -214,6 +210,10 @@
         "content": "$1"
       }
     }
+  },
+  "managerEditorUnsavedChanges": {
+    "message": "Save or reset the current command before editing another command.",
+    "description": "Manager warning shown when unsaved editor changes block selecting a different command"
   },
   "managerEditorSectionIdentity": {
     "message": "Identity",

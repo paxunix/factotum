@@ -57,7 +57,6 @@ const disabledLabel = getMessage('managerCommandDisabled', 'Disabled');
 const invalidLabel = getMessage('managerCommandInvalid', 'Invalid');
 const validationIssueLabel = getMessage('managerCommandValidationIssue', 'Validation issue');
 const invalidDescriptionLabel = getMessage('managerCommandInvalidDescription', 'This command is quarantined and excluded from resolution, invocation, and normal export.');
-const editCommandLabel = getMessage('managerEditCommand', 'Edit');
 const editorTitle = getMessage('managerEditorTitle', 'Command Editor');
 const editorHint = getMessage('managerEditorHint', 'Edit an installed valid command. Name and ID are read-only in this first editor slice.');
 const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command to edit.');
@@ -72,6 +71,7 @@ const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires JSON a
 const editorSaveLabel = getMessage('managerEditorSave', 'Save Command');
 const editorResetLabel = getMessage('managerEditorReset', 'Reset');
 const editorSavedLabel = getMessage('managerEditorSaved', 'Saved command: $COMMAND$');
+const editorUnsavedChangesLabel = getMessage('managerEditorUnsavedChanges', 'Save or reset the current command before editing another command.');
 const editorIdentitySectionLabel = getMessage('managerEditorSectionIdentity', 'Identity');
 const editorDescriptionSectionLabel = getMessage('managerEditorSectionDescription', 'Description');
 const editorHelpSectionLabel = getMessage('managerEditorSectionHelp', 'Help');
@@ -345,7 +345,93 @@ function snapshotsMatch(left, right) {
 }
 
 function updateEditorDirtyState() {
-  editorSaveButton.disabled = !editorBaseline || snapshotsMatch(getEditorSnapshot(), editorBaseline);
+  const isDirty = Boolean(editorBaseline && !snapshotsMatch(getEditorSnapshot(), editorBaseline));
+  editorSaveButton.disabled = !isDirty;
+  if (!isDirty && editorStatus.classList.contains('bundle-status-warning')) {
+    clearEditorStatus();
+  }
+}
+
+function editorHasUnsavedChanges() {
+  return Boolean(editorBaseline && !snapshotsMatch(getEditorSnapshot(), editorBaseline));
+}
+
+function restoreEditedCommandSelection() {
+  if (!selectedCommandRef) {
+    return;
+  }
+  if (commandRefsMatch(selectedMenuCommandRef, selectedCommandRef)) {
+    return;
+  }
+  selectedMenuCommandRef = { ...selectedCommandRef };
+  renderCommands(currentCommands);
+}
+
+function blockCommandSelection() {
+  restoreEditedCommandSelection();
+  setEditorStatus('warning', editorUnsavedChangesLabel);
+}
+
+function canSelectCommand(commandRef) {
+  if (commandRefsMatch(commandRef, selectedCommandRef)) {
+    return true;
+  }
+  if (!editorHasUnsavedChanges()) {
+    return true;
+  }
+  blockCommandSelection();
+  return false;
+}
+
+function applySelectedCommand(commandRef) {
+  if (!canSelectCommand(commandRef)) {
+    return;
+  }
+
+  selectedMenuCommandRef = commandRef;
+  selectCommandForEdit(commandRef).catch((error) => {
+    console.error('[factotum] select command failed', error);
+    setEditorStatus('error', error.message || String(error));
+  });
+}
+
+function commandRefForTabElement(tab) {
+  return tab?.panel ? currentPanelRefs.get(tab.panel) : null;
+}
+
+function guardCommandTabActivation(event) {
+  const tab = event.target.closest?.('wa-tab');
+  if (!tab || tab.closest('wa-tab-group') !== document.getElementById('command-list')) {
+    return;
+  }
+
+  const commandRef = commandRefForTabElement(tab);
+  if (!commandRef || canSelectCommand(commandRef)) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}
+
+function guardCommandTabKeyboard(event) {
+  const guardedKeys = new Set(['Enter', ' ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']);
+  if (!guardedKeys.has(event.key)) {
+    return;
+  }
+  if (!editorHasUnsavedChanges()) {
+    return;
+  }
+
+  const activeTab = document.getElementById('command-list').querySelector('wa-tab[active]');
+  const commandRef = commandRefForTabElement(activeTab);
+  if (!commandRef || commandRefsMatch(commandRef, selectedCommandRef)) {
+    return;
+  }
+
+  blockCommandSelection();
+  event.preventDefault();
+  event.stopImmediatePropagation();
 }
 
 function populateEditor(command) {
@@ -366,7 +452,16 @@ function populateEditor(command) {
 }
 
 async function selectCommandForEdit(commandRef) {
+  if (!canSelectCommand(commandRef)) {
+    return;
+  }
+
   clearEditorStatus();
+  if (commandRef.invalid) {
+    setEditorVisible(false);
+    return;
+  }
+
   const command = await getCommand(commandRef.name, commandRef.id);
   if (!command) {
     setEditorVisible(false);
@@ -446,34 +541,6 @@ async function setCommandDisabled(commandRef, disabled) {
     disabled,
     updatedAt: Date.now()
   });
-}
-
-function buildCommandActions(command) {
-  const actions = document.createElement('div');
-  actions.className = 'command-card-actions';
-
-  if (command.invalid) {
-    return actions;
-  }
-
-  const editButton = document.createElement('wa-button');
-  editButton.setAttribute('variant', 'neutral');
-  editButton.textContent = editCommandLabel;
-  editButton.addEventListener('click', () => {
-    editButton.disabled = true;
-    selectCommandForEdit(command)
-      .then(loadCommands)
-      .catch((error) => {
-        console.error('[factotum] select command failed', error);
-        setBundleStatus('error', error.message || String(error));
-      })
-      .finally(() => {
-        editButton.disabled = false;
-      });
-  });
-
-  actions.append(editButton);
-  return actions;
 }
 
 function buildCommandStatus(command) {
@@ -556,11 +623,6 @@ function buildCommandDetailCard(command) {
     card.append(invalidDetail);
   }
 
-  const actions = buildCommandActions(command);
-  if (actions.childElementCount > 0) {
-    card.append(actions);
-  }
-
   return card;
 }
 
@@ -599,7 +661,7 @@ function renderCommands(commands) {
 
   for (const [index, command] of filteredCommands.entries()) {
     const panelName = `command-${index}`;
-    currentPanelRefs.set(panelName, { name: command.name, id: command.id });
+    currentPanelRefs.set(panelName, { name: command.name, id: command.id, invalid: Boolean(command.invalid) });
 
     const tab = document.createElement('wa-tab');
     tab.slot = 'nav';
@@ -622,6 +684,10 @@ function renderCommands(commands) {
   container.active = activePanelName;
   container.updateComplete?.then(() => {
     container.active = activePanelName;
+    const activeRef = currentPanelRefs.get(activePanelName);
+    if (activeRef && !selectedCommandRef && !editorHasUnsavedChanges()) {
+      applySelectedCommand(activeRef);
+    }
   });
 }
 
@@ -724,11 +790,22 @@ commandSortDirection.addEventListener('click', () => {
   renderCommands(currentCommands);
 });
 
+document.getElementById('command-list').addEventListener('click', guardCommandTabActivation, { capture: true });
+document.getElementById('command-list').addEventListener('keydown', guardCommandTabKeyboard, { capture: true });
+
 document.getElementById('command-list').addEventListener('wa-tab-show', (event) => {
   const commandRef = currentPanelRefs.get(event.detail.name);
   if (commandRef) {
-    selectedMenuCommandRef = commandRef;
+    applySelectedCommand(commandRef);
   }
+});
+
+window.addEventListener('beforeunload', (event) => {
+  if (!editorHasUnsavedChanges()) {
+    return;
+  }
+  event.preventDefault();
+  event.returnValue = '';
 });
 
 document.getElementById('editor-section-tabs').addEventListener('wa-tab-show', (event) => {

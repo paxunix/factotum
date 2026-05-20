@@ -84,7 +84,7 @@ For maintained test fixtures, use:
 - `fixtures/fixtures-v1.json`
 - `fixtures/smoke-v1.json`
 
-The current command editor supports existing valid commands. Select `Edit` on a command card to change:
+The current command editor supports existing valid commands. Select a command card to change:
 - localized description JSON
 - command code in the ACE editor
 - help HTML template
@@ -96,6 +96,8 @@ Use the Enabled/Disabled status pill on the selected command card to enable or d
 
 The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code. Select a tab to edit that part of the command while keeping the same whole-command Save and Reset actions.
 Save Command is enabled only after an editable field changes; Reset returns the editor to the stored command and disables Save again.
+If unsaved edits exist, selecting another command is blocked until you save or reset the current command. Reloading or navigating away from the manager page also triggers the browser's unsaved-changes prompt.
+If you manually return the edited fields to their loaded values, Save Command disables again and the save-or-reset warning is dismissed.
 
 Name and ID are read-only in the current editor. Use bundle import/export for rename-style changes until a dedicated rename/new-command flow exists.
 

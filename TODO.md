@@ -25,10 +25,10 @@ M3. Add help-template preview. Preferred direction: render preview through the s
 M4. Replace JSON textareas with friendlier structured editors over time for localized descriptions, help strings, optionsSpec, and requires. For localized text, prefer a locale selector plus add-locale flow over raw JSON editing.
 M8. manager UX needs a separate tab to hold overall settings.
 M9. Fcommands need metadata indicating the user's preference for whether the overlay should be shown for the command or not.  This lets a user/author have fcommand behaviour that has no Factotum UI.  All the same information would be recorded and logged as usual, only the overlay would not show like it usually does during command invocation, execution, and completion. This setting can be modified by the user by editing the fcommand.
-M10. if any unsaved edits exist when a new command is about to be edited, the user needs to be notified and the new edit action blocked until existing changes are saved or reset.  In that case, the display should reselect the command that was being edited and user prompted to save or reset.
 M11. in Identity editor section, need to be able to edit the set of aliases for the fcommand
-M13. don't need an actual Edit button.  As soon as the user clicks a card in the Installed list, load up its information in the editor panel.  Note that we have to account for behaviour if currently editing another command and it has unsaved changes (see M10).
 M17. ACE code editor should support user-specific configuration of its options (like paste in a JSON config blob that is passed to the ACE setup)
+M18. when Code is selected in 2nd panel, focus should be moved to current cursor position in the editor.  This should also be done for each other editor control (if more than one, like for identiy, focus should be set to first control in the pane)
+M19. disabled fcommands should be indicated differently in the command list (greyed out or some kind of visual distinction)
 
 
 ### Overlay UX
