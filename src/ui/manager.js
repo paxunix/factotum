@@ -1,9 +1,9 @@
 import { setBasePath } from '@awesome.me/webawesome/dist/webawesome.js';
 import { html as htmlLanguage } from '@codemirror/lang-html';
 import { javascript } from '@codemirror/lang-javascript';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { EditorState } from '@codemirror/state';
-import { EditorView, keymap } from '@codemirror/view';
+import { EditorView } from '@codemirror/view';
+import { basicSetup } from 'codemirror';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -156,8 +156,7 @@ function createCodeMirrorEditor(parent, languageExtension) {
     state: EditorState.create({
       doc: '',
       extensions: [
-        history(),
-        keymap.of([...defaultKeymap, ...historyKeymap]),
+        basicSetup,
         languageExtension,
         EditorView.lineWrapping,
         EditorView.updateListener.of((update) => {

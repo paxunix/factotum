@@ -221,8 +221,8 @@ Each test lists: **Setup → Action → Expected**.
   * The command editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code.
   * The Code section gets the full editor pane height and scrolls code internally.
   * Editor fields use Web Awesome controls for simple field edits.
-  * Code editing uses the bundled CodeMirror JavaScript editor.
-  * Help HTML template editing uses the bundled CodeMirror HTML editor.
+  * Code editing uses the bundled CodeMirror JavaScript editor with the default `basicSetup` editing affordances.
+  * Help HTML template editing uses the bundled CodeMirror HTML editor with the default `basicSetup` editing affordances.
   * Existing import/export, enable/disable, and save behavior still works.
 
 ---

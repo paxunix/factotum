@@ -86,8 +86,8 @@ For maintained test fixtures, use:
 
 The current command editor supports existing valid commands. Select a command card to change:
 - localized description JSON
-- command code in the CodeMirror JavaScript editor
-- help HTML template in the CodeMirror HTML editor
+- command code in the CodeMirror JavaScript editor, including standard editor affordances such as line numbers, folding, and bracket matching
+- help HTML template in the CodeMirror HTML editor, including standard editor affordances such as line numbers, folding, and bracket matching
 - help strings JSON
 - options spec JSON
 - requires JSON array
