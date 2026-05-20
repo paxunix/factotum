@@ -214,14 +214,9 @@ wa-textarea.bundle-textarea::part(textarea) {
 
 .command-meta {
   color: rgb(71, 85, 105);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  display: grid;
+  gap: 6px;
   font-size: 13px;
-}
-
-.command-aliases {
-  flex-basis: 100%;
 }
 
 .command-description {
