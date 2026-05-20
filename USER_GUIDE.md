@@ -70,7 +70,7 @@ If you try to run another command in the same tab while one is already running:
 
 The Manager page has top-level Manager and Utilities tabs:
 - Manager: installed commands on the left and a sectioned command editor on the right
-- Utilities: bundle import/export tools
+- Utilities: bundle import/export tools with a full-height, internally scrolling bundle JSON field
 
 Use the Manager page to:
 - import command bundles

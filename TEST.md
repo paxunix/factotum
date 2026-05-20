@@ -207,7 +207,7 @@ Each test lists: **Setup → Action → Expected**.
 
   * Manager presents top-level Manager and Utilities tabs.
   * The Manager tab contains command navigation and a wide command editor pane.
-  * The Utilities tab contains bundle import/export tools.
+  * The Utilities tab contains bundle import/export tools, and the bundle JSON field fills the pane with its own scrollbar.
   * Each pane scrolls independently; the whole manager page does not jump while browsing long pane contents.
   * The command list is a concise vertical tab menu of command names with one detail card for the selected command.
   * The filter input matches substrings in command name, command ID, or command aliases.

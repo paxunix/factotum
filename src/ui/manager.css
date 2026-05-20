@@ -112,14 +112,33 @@
 }
 
 .bundle-textarea {
+  display: flex;
   flex: 1 1 auto;
-  min-height: 220px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+wa-textarea.bundle-textarea::part(base) {
+  align-items: stretch;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+}
+
+wa-textarea.bundle-textarea::part(textarea) {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
 }
 
 .bundle-status {
   border-radius: 18px;
   display: grid;
+  flex: 0 0 auto;
   gap: 8px;
+  max-height: 30%;
   padding: 14px 16px;
   overflow: auto;
 }
