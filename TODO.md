@@ -28,7 +28,6 @@ M8. manager UX needs a separate tab to hold overall settings.
 M9. Fcommands need metadata indicating the user's preference for whether the overlay should be shown for the command or not.  This lets a user/author have fcommand behaviour that has no Factotum UI.  All the same information would be recorded and logged as usual, only the overlay would not show like it usually does during command invocation, execution, and completion. This setting can be modified by the user by editing the fcommand.
 M11. in Identity editor section, need to be able to edit the set of aliases for the fcommand
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
-M18. when Code is selected in 2nd panel, focus should be moved to current cursor position in the editor.  This should also be done for each other editor control (if more than one, like for identiy, focus should be set to first control in the pane)
 
 
 ### Overlay UX

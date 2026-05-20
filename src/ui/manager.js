@@ -385,6 +385,42 @@ function editorHasUnsavedChanges() {
   return Boolean(editorBaseline && !snapshotsMatch(getEditorSnapshot(), editorBaseline));
 }
 
+function focusField(field) {
+  field?.focus?.({ preventScroll: true });
+}
+
+function focusCodeMirrorEditor(editor) {
+  editor.requestMeasure();
+  editor.focus();
+}
+
+function focusEditorSection(sectionName) {
+  requestAnimationFrame(() => {
+    switch (sectionName) {
+      case 'editor-section-identity':
+        focusField(editorFields.name);
+        break;
+      case 'editor-section-description':
+        focusField(editorFields.description);
+        break;
+      case 'editor-section-help':
+        focusCodeMirrorEditor(helpTemplateEditor);
+        break;
+      case 'editor-section-options':
+        focusField(editorFields.optionsSpec);
+        break;
+      case 'editor-section-requires':
+        focusField(editorFields.requires);
+        break;
+      case 'editor-section-code':
+        focusCodeMirrorEditor(codeEditor);
+        break;
+      default:
+        break;
+    }
+  });
+}
+
 function restoreEditedCommandSelection() {
   if (!selectedCommandRef) {
     return;
@@ -843,12 +879,7 @@ window.addEventListener('beforeunload', (event) => {
 });
 
 document.getElementById('editor-section-tabs').addEventListener('wa-tab-show', (event) => {
-  if (event.detail.name === 'editor-section-code') {
-    requestAnimationFrame(() => codeEditor.requestMeasure());
-  }
-  if (event.detail.name === 'editor-section-help') {
-    requestAnimationFrame(() => helpTemplateEditor.requestMeasure());
-  }
+  focusEditorSection(event.detail.name);
 });
 
 editorForm.addEventListener('submit', (event) => {
