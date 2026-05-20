@@ -49,6 +49,8 @@ If a change affects either audience directly, update the matching guide in the s
 
 UI pages should use Web Awesome web components as much as possible. Web Awesome must be bundled locally (no CDN runtime dependencies) to comply with v1 build constraints.
 
+Manager command code and help-template editors use CodeMirror 6 packages bundled through npm/esbuild. Do not load editor assets from a CDN at extension runtime.
+
 Icons should use Material Symbols in the Google Fonts web pattern: self-host the Material Symbols font, render icons with the `material-symbols-outlined` class, and use the icon's snake_case ligature text in the DOM. Do not load Material Symbols from the Google Fonts CDN at extension runtime.
 
 ---

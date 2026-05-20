@@ -238,7 +238,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Provide a manager page listing installed commands (name/id/world/updated, disabled state). Current state: implemented.
 - Support enable/disable toggle (updates `disabled` flag). Current state: implemented.
 - Provide structured editing for existing valid command fields. Current state: body fields are editable; name/id/world are read-only.
-- Separate editors for code and help template/strings. Current state: code uses ACE; help template/strings remain textarea fields.
+- Separate editors for code and help template/strings. Current state: code and help HTML template use CodeMirror; help strings remain a textarea field.
 - Provide editing for `optionsSpec` (flags, descriptions, defaults) used for help generation. Current state: implemented as JSON textarea.
 - Manage aliases (add/remove alias keys for a command).
 - Import bundle with warnings for duplicates/alias collisions. Current state: implemented without per-command selection.

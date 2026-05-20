@@ -1,7 +1,9 @@
 import { setBasePath } from '@awesome.me/webawesome/dist/webawesome.js';
-import ace from 'ace-builds/src-noconflict/ace';
-import 'ace-builds/src-noconflict/mode-javascript';
-import 'ace-builds/src-noconflict/theme-textmate';
+import { html as htmlLanguage } from '@codemirror/lang-html';
+import { javascript } from '@codemirror/lang-javascript';
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { EditorState } from '@codemirror/state';
+import { EditorView, keymap } from '@codemirror/view';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -98,6 +100,7 @@ document.getElementById('command-editor-empty').textContent = editorEmptyMessage
 document.getElementById('editor-save-button').textContent = editorSaveLabel;
 document.getElementById('editor-reset-button').textContent = editorResetLabel;
 document.getElementById('editor-code-label').textContent = editorCodeLabel;
+document.getElementById('editor-help-template-label').textContent = editorHelpTemplateLabel;
 document.getElementById('editor-section-identity-tab').textContent = editorIdentitySectionLabel;
 document.getElementById('editor-section-description-tab').textContent = editorDescriptionSectionLabel;
 document.getElementById('editor-section-help-tab').textContent = editorHelpSectionLabel;
@@ -134,17 +137,7 @@ let currentPanelRefs = new Map();
 let commandSortKey = 'updatedAt';
 let commandSortDirectionValue = 'desc';
 let editorBaseline = null;
-const codeEditor = ace.edit(editorFields.code, {
-  fontSize: '14px',
-  mode: 'ace/mode/javascript',
-  showPrintMargin: false,
-  tabSize: 2,
-  theme: 'ace/theme/textmate',
-  useSoftTabs: true,
-  wrap: true
-});
-
-codeEditor.session.setUseWorker(false);
+let suppressEditorChange = false;
 
 editorFields.name.label = editorNameLabel;
 commandFilter.label = commandFilterLabel;
@@ -153,10 +146,32 @@ commandSort.label = commandSortLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
 editorFields.description.label = editorDescriptionLabel;
-editorFields.helpHtmlTemplate.label = editorHelpTemplateLabel;
 editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
 editorFields.requires.label = editorRequiresLabel;
+
+function createCodeMirrorEditor(parent, languageExtension) {
+  return new EditorView({
+    parent,
+    state: EditorState.create({
+      doc: '',
+      extensions: [
+        history(),
+        keymap.of([...defaultKeymap, ...historyKeymap]),
+        languageExtension,
+        EditorView.lineWrapping,
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged && !suppressEditorChange) {
+            updateEditorDirtyState();
+          }
+        })
+      ]
+    })
+  });
+}
+
+const codeEditor = createCodeMirrorEditor(editorFields.code, javascript());
+const helpTemplateEditor = createCodeMirrorEditor(editorFields.helpHtmlTemplate, htmlLanguage());
 
 commandSort.append(
   buildOption('updatedAt', sortByModifiedLabel),
@@ -332,8 +347,8 @@ function setEditorVisible(visible) {
 function getEditorSnapshot() {
   return {
     description: editorFields.description.value,
-    code: codeEditor.getValue(),
-    helpHtmlTemplate: editorFields.helpHtmlTemplate.value,
+    code: codeEditor.state.doc.toString(),
+    helpHtmlTemplate: helpTemplateEditor.state.doc.toString(),
     helpHtmlStrings: editorFields.helpHtmlStrings.value,
     optionsSpec: editorFields.optionsSpec.value,
     requires: editorFields.requires.value
@@ -349,6 +364,21 @@ function updateEditorDirtyState() {
   editorSaveButton.disabled = !isDirty;
   if (!isDirty && editorStatus.classList.contains('bundle-status-warning')) {
     clearEditorStatus();
+  }
+}
+
+function setCodeMirrorValue(editor, value) {
+  suppressEditorChange = true;
+  try {
+    editor.dispatch({
+      changes: {
+        from: 0,
+        to: editor.state.doc.length,
+        insert: value || ''
+      }
+    });
+  } finally {
+    suppressEditorChange = false;
   }
 }
 
@@ -440,9 +470,8 @@ function populateEditor(command) {
   editorFields.name.value = command.name;
   editorFields.id.value = command.id;
   editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
-  codeEditor.setValue(command.code, -1);
-  requestAnimationFrame(() => codeEditor.resize());
-  editorFields.helpHtmlTemplate.value = command.helpHtmlTemplate || '';
+  setCodeMirrorValue(codeEditor, command.code);
+  setCodeMirrorValue(helpTemplateEditor, command.helpHtmlTemplate || '');
   editorFields.helpHtmlStrings.value = stringifyJson(command.helpHtmlStrings);
   editorFields.optionsSpec.value = stringifyJson(command.optionsSpec);
   editorFields.requires.value = stringifyJson(command.requires);
@@ -477,7 +506,7 @@ function readEditedCommand() {
 
   const next = {
     ...selectedCommand,
-    code: codeEditor.getValue(),
+    code: codeEditor.state.doc.toString(),
     updatedAt: Date.now()
   };
 
@@ -488,7 +517,7 @@ function readEditedCommand() {
     next.description = description;
   }
 
-  const helpHtmlTemplate = editorFields.helpHtmlTemplate.value;
+  const helpHtmlTemplate = helpTemplateEditor.state.doc.toString();
   if (helpHtmlTemplate.trim()) {
     next.helpHtmlTemplate = helpHtmlTemplate;
   } else {
@@ -810,7 +839,10 @@ window.addEventListener('beforeunload', (event) => {
 
 document.getElementById('editor-section-tabs').addEventListener('wa-tab-show', (event) => {
   if (event.detail.name === 'editor-section-code') {
-    requestAnimationFrame(() => codeEditor.resize());
+    requestAnimationFrame(() => codeEditor.requestMeasure());
+  }
+  if (event.detail.name === 'editor-section-help') {
+    requestAnimationFrame(() => helpTemplateEditor.requestMeasure());
   }
 });
 
@@ -823,13 +855,11 @@ editorForm.addEventListener('submit', (event) => {
 });
 
 Object.values(editorFields)
-  .filter((field) => field !== editorFields.name && field !== editorFields.id && field !== editorFields.code)
+  .filter((field) => field !== editorFields.name && field !== editorFields.id && field !== editorFields.code && field !== editorFields.helpHtmlTemplate)
   .forEach((field) => {
     field.addEventListener('input', updateEditorDirtyState);
     field.addEventListener('change', updateEditorDirtyState);
   });
-
-codeEditor.session.on('change', updateEditorDirtyState);
 
 editorSaveButton.addEventListener('click', (event) => {
   event.preventDefault();

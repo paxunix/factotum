@@ -391,7 +391,7 @@ button.command-status:focus-visible {
   font-weight: 650;
 }
 
-.editor-code {
+.editor-codemirror {
   flex: 1 1 auto;
   height: 100%;
   min-height: 0;
@@ -399,19 +399,22 @@ button.command-status:focus-visible {
   width: 100%;
 }
 
-.editor-code.ace_editor {
+.editor-codemirror .cm-editor {
   border: 1px solid rgba(15, 23, 42, 0.14);
   border-radius: 14px;
   box-sizing: border-box;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+  height: 100%;
 }
 
-.editor-code .ace_scroller {
-  border-radius: 0 14px 14px 0;
+.editor-codemirror .cm-scroller {
+  border-radius: 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
 }
 
-.editor-code .ace_gutter {
-  border-radius: 14px 0 0 14px;
+.editor-help-template {
+  flex: 0 0 min(260px, 42%);
+  min-height: 180px;
 }
 
 wa-textarea {

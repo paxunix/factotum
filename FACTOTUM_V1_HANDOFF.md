@@ -500,7 +500,7 @@ Recommended entrypoints:
 * SW: `src/sw/sw.js` → `dist/sw/sw.js`
 * Injected: `overlay.js`, `main_host.js`
 * User-script execution: command code dispatched via `chrome.userScripts.execute()` in USER_SCRIPT world
-* UI pages: `manager.js`, `editor.js` (ACE bundled), and the current `log.js` page for internal diagnostics
+* UI pages: `manager.js` (CodeMirror bundled for command code and help-template editing), and the current `log.js` page for internal diagnostics
 
 UI access:
 

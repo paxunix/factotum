@@ -76,7 +76,8 @@
                   </wa-tab-panel>
                   <wa-tab-panel name="editor-section-help">
                     <section class="editor-section-panel">
-                      <wa-textarea id="editor-help-template" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
+                      <div id="editor-help-template-label" class="editor-field-label"></div>
+                      <div id="editor-help-template" class="editor-codemirror editor-help-template" role="textbox" aria-labelledby="editor-help-template-label"></div>
                       <wa-textarea id="editor-help-strings" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
                     </section>
                   </wa-tab-panel>
@@ -93,7 +94,7 @@
                   <wa-tab-panel name="editor-section-code">
                     <section class="editor-section-panel editor-code-panel">
                       <div id="editor-code-label" class="editor-field-label"></div>
-                      <div id="editor-code" class="editor-code" role="textbox" aria-labelledby="editor-code-label"></div>
+                      <div id="editor-code" class="editor-codemirror editor-code" role="textbox" aria-labelledby="editor-code-label"></div>
                     </section>
                   </wa-tab-panel>
                 </wa-tab-group>
