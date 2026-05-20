@@ -92,6 +92,8 @@ The current command editor supports existing valid commands. Select a command ca
 - options spec JSON
 - requires JSON array
 
+The Code and Help HTML template editors include an icon-only `code_xml` toolbar button. It reformats the current editor selection with Prettier using the JavaScript or HTML parser for that editor.
+
 Use the Enabled/Disabled status pill on the selected command card to enable or disable that command.
 
 The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code. Select a tab to edit that part of the command while keeping the same whole-command Save and Reset actions.

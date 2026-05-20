@@ -4,6 +4,10 @@ import { javascript } from '@codemirror/lang-javascript';
 import { EditorState } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
+import * as prettier from 'prettier/standalone';
+import * as prettierPluginBabel from 'prettier/plugins/babel';
+import * as prettierPluginEstree from 'prettier/plugins/estree';
+import * as prettierPluginHtml from 'prettier/plugins/html';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -80,6 +84,7 @@ const editorHelpSectionLabel = getMessage('managerEditorSectionHelp', 'Help');
 const editorOptionsSectionLabel = getMessage('managerEditorSectionOptions', 'Options');
 const editorRequiresSectionLabel = getMessage('managerEditorSectionRequires', 'Requires');
 const editorCodeSectionLabel = getMessage('managerEditorSectionCode', 'Code');
+const editorFormatSelectionLabel = getMessage('managerEditorFormatSelection', 'Reformat selection');
 
 document.title = title;
 document.getElementById('manager-title').textContent = title;
@@ -113,6 +118,8 @@ const bundleStatus = document.getElementById('bundle-status');
 const commandFilter = document.getElementById('command-filter');
 const commandSort = document.getElementById('command-sort');
 const commandSortDirection = document.getElementById('command-sort-direction');
+const editorCodeFormatButton = document.getElementById('editor-code-format');
+const editorHelpTemplateFormatButton = document.getElementById('editor-help-template-format');
 const editorSaveButton = document.getElementById('editor-save-button');
 const editorResetButton = document.getElementById('editor-reset-button');
 const editorForm = document.getElementById('command-editor');
@@ -216,6 +223,16 @@ function updateSortDirectionButton() {
   commandSortDirection.setAttribute('aria-label', label);
   commandSortDirection.title = label;
 }
+
+function setupEditorToolButton(button, label, iconName) {
+  button.textContent = '';
+  button.append(createMaterialIcon(iconName));
+  button.setAttribute('aria-label', label);
+  button.title = label;
+}
+
+setupEditorToolButton(editorCodeFormatButton, editorFormatSelectionLabel, 'code_xml');
+setupEditorToolButton(editorHelpTemplateFormatButton, editorFormatSelectionLabel, 'code_xml');
 
 function compareCommandValues(left, right) {
   if (commandSortKey === 'name') {
@@ -391,6 +408,28 @@ function focusField(field) {
 
 function focusCodeMirrorEditor(editor) {
   editor.requestMeasure();
+  editor.focus();
+}
+
+async function formatCodeMirrorSelection(editor, prettierOptions) {
+  const doc = editor.state.doc.toString();
+  const range = editor.state.selection.main;
+  const formatted = await prettier.format(doc, {
+    ...prettierOptions,
+    rangeStart: range.from,
+    rangeEnd: range.to
+  });
+  editor.dispatch({
+    changes: {
+      from: 0,
+      to: editor.state.doc.length,
+      insert: formatted
+    },
+    selection: {
+      anchor: Math.min(range.from, formatted.length),
+      head: Math.min(range.to, formatted.length)
+    }
+  });
   editor.focus();
 }
 
@@ -880,6 +919,34 @@ window.addEventListener('beforeunload', (event) => {
 
 document.getElementById('editor-section-tabs').addEventListener('wa-tab-show', (event) => {
   focusEditorSection(event.detail.name);
+});
+
+editorCodeFormatButton.addEventListener('mousedown', (event) => {
+  event.preventDefault();
+});
+
+editorHelpTemplateFormatButton.addEventListener('mousedown', (event) => {
+  event.preventDefault();
+});
+
+editorCodeFormatButton.addEventListener('click', () => {
+  formatCodeMirrorSelection(codeEditor, {
+    parser: 'babel',
+    plugins: [prettierPluginBabel, prettierPluginEstree]
+  }).catch((error) => {
+    console.error('[factotum] format code failed', error);
+    setEditorStatus('error', error.message || String(error));
+  });
+});
+
+editorHelpTemplateFormatButton.addEventListener('click', () => {
+  formatCodeMirrorSelection(helpTemplateEditor, {
+    parser: 'html',
+    plugins: [prettierPluginHtml]
+  }).catch((error) => {
+    console.error('[factotum] format help template failed', error);
+    setEditorStatus('error', error.message || String(error));
+  });
 });
 
 editorForm.addEventListener('submit', (event) => {

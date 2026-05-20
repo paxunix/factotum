@@ -415,6 +415,17 @@ button.command-status:focus-visible {
   font-weight: 650;
 }
 
+.editor-toolstrip {
+  align-items: center;
+  background: rgba(241, 245, 249, 0.74);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 12px;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  padding: 6px;
+}
+
 .editor-codemirror {
   flex: 1 1 auto;
   height: 100%;

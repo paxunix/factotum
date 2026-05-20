@@ -223,6 +223,7 @@ Each test lists: **Setup → Action → Expected**.
   * Editor fields use Web Awesome controls for simple field edits.
   * Code editing uses the bundled CodeMirror JavaScript editor with the default `basicSetup` editing affordances.
   * Help HTML template editing uses the bundled CodeMirror HTML editor with the default `basicSetup` editing affordances.
+  * The Code and Help template editors have an icon-only `code_xml` toolbar button that reformats the current CodeMirror selection with Prettier using the editor language parser.
   * Undo in either CodeMirror editor stops at the loaded command content and does not walk backward through prior command selections or the initial empty editor.
   * Disabled commands are visually muted in both the command menu and selected-command detail card while keeping the Disabled status pill clickable.
   * Selecting an editor section moves focus into that section: first field for form sections, Help template editor for Help, and current cursor position for Code.

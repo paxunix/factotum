@@ -194,6 +194,10 @@
     "message": "Requires JSON array",
     "description": "Manager command editor requires JSON field label"
   },
+  "managerEditorFormatSelection": {
+    "message": "Reformat selection",
+    "description": "Manager command editor toolbar button label for reindenting selected editor text"
+  },
   "managerEditorSave": {
     "message": "Save Command",
     "description": "Manager command editor save button label"
