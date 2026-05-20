@@ -194,6 +194,10 @@
     "message": "Requires JSON array",
     "description": "Manager command editor requires JSON field label"
   },
+  "managerEditorCommandExport": {
+    "message": "Command export JSON",
+    "description": "Manager command editor per-command export textarea label"
+  },
   "managerEditorFormatSelection": {
     "message": "Reformat selection",
     "description": "Manager command editor toolbar button label for reindenting selected editor text"
@@ -242,6 +246,10 @@
   "managerEditorSectionCode": {
     "message": "Code",
     "description": "Manager command editor code section tab label"
+  },
+  "managerEditorSectionExport": {
+    "message": "Export",
+    "description": "Manager command editor export section tab label"
   },
   "overlayCancel": {
     "message": "Cancel",

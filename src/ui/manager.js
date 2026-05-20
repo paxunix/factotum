@@ -84,6 +84,8 @@ const editorHelpSectionLabel = getMessage('managerEditorSectionHelp', 'Help');
 const editorOptionsSectionLabel = getMessage('managerEditorSectionOptions', 'Options');
 const editorRequiresSectionLabel = getMessage('managerEditorSectionRequires', 'Requires');
 const editorCodeSectionLabel = getMessage('managerEditorSectionCode', 'Code');
+const editorExportSectionLabel = getMessage('managerEditorSectionExport', 'Export');
+const editorCommandExportLabel = getMessage('managerEditorCommandExport', 'Command export JSON');
 const editorFormatSelectionLabel = getMessage('managerEditorFormatSelection', 'Reformat selection');
 
 document.title = title;
@@ -112,6 +114,7 @@ document.getElementById('editor-section-help-tab').textContent = editorHelpSecti
 document.getElementById('editor-section-options-tab').textContent = editorOptionsSectionLabel;
 document.getElementById('editor-section-requires-tab').textContent = editorRequiresSectionLabel;
 document.getElementById('editor-section-code-tab').textContent = editorCodeSectionLabel;
+document.getElementById('editor-section-export-tab').textContent = editorExportSectionLabel;
 
 const bundleTextarea = document.getElementById('bundle-textarea');
 const bundleStatus = document.getElementById('bundle-status');
@@ -125,6 +128,7 @@ const editorResetButton = document.getElementById('editor-reset-button');
 const editorForm = document.getElementById('command-editor');
 const editorEmpty = document.getElementById('command-editor-empty');
 const editorStatus = document.getElementById('editor-status');
+const editorCommandExport = document.getElementById('editor-command-export');
 const editorFields = {
   name: document.getElementById('editor-name'),
   id: document.getElementById('editor-id'),
@@ -156,6 +160,7 @@ editorFields.description.label = editorDescriptionLabel;
 editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
 editorFields.requires.label = editorRequiresLabel;
+editorCommandExport.label = editorCommandExportLabel;
 
 function createCodeMirrorState(doc, languageExtension) {
   return EditorState.create({
@@ -402,6 +407,39 @@ function editorHasUnsavedChanges() {
   return Boolean(editorBaseline && !snapshotsMatch(getEditorSnapshot(), editorBaseline));
 }
 
+function aliasesForCommandMap(command) {
+  const aliases = {};
+  for (const [alias, target] of Object.entries(currentAliases)) {
+    if (target?.name === command.name && target?.id === command.id) {
+      aliases[alias] = {
+        name: command.name,
+        id: command.id
+      };
+    }
+  }
+  return aliases;
+}
+
+function buildCommandExportBundle(command) {
+  return {
+    bundleSchemaVersion: 1,
+    exportedAt: Date.now(),
+    commands: [command],
+    aliases: aliasesForCommandMap(command)
+  };
+}
+
+function refreshCommandExport() {
+  clearEditorStatus();
+  try {
+    const command = readEditedCommand();
+    editorCommandExport.value = JSON.stringify(buildCommandExportBundle(command), null, 2);
+  } catch (error) {
+    editorCommandExport.value = '';
+    setEditorStatus('error', error.message || String(error));
+  }
+}
+
 function focusField(field) {
   field?.focus?.({ preventScroll: true });
 }
@@ -453,6 +491,10 @@ function focusEditorSection(sectionName) {
         break;
       case 'editor-section-code':
         focusCodeMirrorEditor(codeEditor);
+        break;
+      case 'editor-section-export':
+        refreshCommandExport();
+        focusField(editorCommandExport);
         break;
       default:
         break;

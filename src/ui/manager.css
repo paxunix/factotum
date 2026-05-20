@@ -408,6 +408,10 @@ button.command-status:focus-visible {
   padding-bottom: 2px;
 }
 
+.editor-export-panel {
+  overflow: hidden;
+}
+
 .editor-field-label {
   color: rgb(51, 65, 85);
   flex: 0 0 auto;
@@ -467,13 +471,29 @@ wa-textarea.editor-textarea-large::part(base) {
   max-height: 48vh;
 }
 
+.editor-textarea-fill {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.editor-textarea-fill::part(base) {
+  height: 100%;
+  max-height: none;
+  min-height: 0;
+}
+
+.editor-textarea-fill::part(textarea) {
+  height: 100%;
+  overflow: auto;
+}
+
 wa-textarea::part(base) {
   align-items: flex-start;
 }
 
 wa-textarea::part(textarea) {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
-  overflow: hidden;
+  overflow: auto;
 }
 
 @media (max-width: 1200px) {

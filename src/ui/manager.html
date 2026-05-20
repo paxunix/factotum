@@ -60,6 +60,7 @@
                   <wa-tab slot="nav" panel="editor-section-options" id="editor-section-options-tab"></wa-tab>
                   <wa-tab slot="nav" panel="editor-section-requires" id="editor-section-requires-tab"></wa-tab>
                   <wa-tab slot="nav" panel="editor-section-code" id="editor-section-code-tab"></wa-tab>
+                  <wa-tab slot="nav" panel="editor-section-export" id="editor-section-export-tab"></wa-tab>
 
                   <wa-tab-panel name="editor-section-identity" active>
                     <section class="editor-section-panel">
@@ -101,6 +102,11 @@
                         <wa-button id="editor-code-format" class="icon-button editor-tool-button" variant="neutral" size="small" type="button"></wa-button>
                       </div>
                       <div id="editor-code" class="editor-codemirror editor-code" role="textbox" aria-labelledby="editor-code-label"></div>
+                    </section>
+                  </wa-tab-panel>
+                  <wa-tab-panel name="editor-section-export">
+                    <section class="editor-section-panel editor-export-panel">
+                      <wa-textarea id="editor-command-export" class="editor-textarea-large editor-textarea-fill" resize="none" readonly spellcheck="false"></wa-textarea>
                     </section>
                   </wa-tab-panel>
                 </wa-tab-group>

@@ -94,9 +94,11 @@ The current command editor supports existing valid commands. Select a command ca
 
 The Code and Help HTML template editors include an icon-only `code_xml` toolbar button. It reformats the current editor selection with Prettier using the JavaScript or HTML parser for that editor.
 
+The Export section shows a read-only bundle for the selected command. The JSON includes the current editor contents and aliases that point to that command, and can be pasted into Bundle Tools for import.
+
 Use the Enabled/Disabled status pill on the selected command card to enable or disable that command.
 
-The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code. Select a tab to edit that part of the command while keeping the same whole-command Save and Reset actions.
+The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, Code, and Export. Select a tab to edit or inspect that part of the command while keeping the same whole-command Save and Reset actions.
 Save Command is enabled only after an editable field changes; Reset returns the editor to the stored command and disables Save again.
 If unsaved edits exist, selecting another command is blocked until you save or reset the current command. Reloading or navigating away from the manager page also triggers the browser's unsaved-changes prompt.
 If you manually return the edited fields to their loaded values, Save Command disables again and the save-or-reset warning is dismissed.

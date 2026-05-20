@@ -193,7 +193,7 @@ Each test lists: **Setup → Action → Expected**.
 * Expected:
 
   * Selecting a valid command card opens the editor with name and ID visible but read-only
-  * Editor sections include Identity, Description, Help, Options, Requires, and Code
+  * Editor sections include Identity, Description, Help, Options, Requires, Code, and Export
   * The selected command card has a clickable Enabled/Disabled status pill for toggling command availability.
   * Editable body fields include description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
   * Save reports `Saved command: name@id`
@@ -218,12 +218,13 @@ Each test lists: **Setup → Action → Expected**.
   * The filter input matches substrings in command name, command ID, or command aliases.
   * The sort selector supports Modified time, Name, and ID, defaults to descending Modified time, and uses a Material Symbols direction icon.
   * The selected command detail card shows command name as the primary title and command ID as secondary metadata.
-  * The command editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code.
+  * The command editor uses vertical section tabs for Identity, Description, Help, Options, Requires, Code, and Export.
   * The Code section gets the full editor pane height and scrolls code internally.
   * Editor fields use Web Awesome controls for simple field edits.
   * Code editing uses the bundled CodeMirror JavaScript editor with the default `basicSetup` editing affordances.
   * Help HTML template editing uses the bundled CodeMirror HTML editor with the default `basicSetup` editing affordances.
   * The Code and Help template editors have an icon-only `code_xml` toolbar button that reformats the current CodeMirror selection with Prettier using the editor language parser.
+  * The Export section shows a read-only v1 bundle containing the current edited command and aliases pointing to that command; the JSON can be imported through Bundle Tools.
   * Undo in either CodeMirror editor stops at the loaded command content and does not walk backward through prior command selections or the initial empty editor.
   * Disabled commands are visually muted in both the command menu and selected-command detail card while keeping the Disabled status pill clickable.
   * Selecting an editor section moves focus into that section: first field for form sections, Help template editor for Help, and current cursor position for Code.
