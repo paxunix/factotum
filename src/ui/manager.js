@@ -4,7 +4,8 @@ import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-textmate';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
-import '@awesome.me/webawesome/dist/components/switch/switch.js';
+import '@awesome.me/webawesome/dist/components/option/option.js';
+import '@awesome.me/webawesome/dist/components/select/select.js';
 import '@awesome.me/webawesome/dist/components/tab/tab.js';
 import '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
 import '@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js';
@@ -40,6 +41,12 @@ const commandListHint = getMessage('managerCommandsHint', 'M1 shows the stored c
 const managerTabLabel = getMessage('managerTabManager', 'Manager');
 const utilitiesTabLabel = getMessage('managerTabUtilities', 'Utilities');
 const commandFilterLabel = getMessage('managerCommandFilter', 'Filter commands');
+const commandSortLabel = getMessage('managerCommandSort', 'Sort commands');
+const sortByModifiedLabel = getMessage('managerCommandSortModified', 'Modified time');
+const sortByNameLabel = getMessage('managerCommandSortName', 'Name');
+const sortByIdLabel = getMessage('managerCommandSortId', 'ID');
+const sortAscendingLabel = getMessage('managerCommandSortAscending', 'Ascending');
+const sortDescendingLabel = getMessage('managerCommandSortDescending', 'Descending');
 const emptyMessage = getMessage('managerCommandsEmpty', 'No commands are installed.');
 const noMatchesMessage = getMessage('managerCommandsNoMatches', 'No commands match the filter.');
 const idLabel = getMessage('managerCommandId', 'ID');
@@ -101,6 +108,8 @@ document.getElementById('editor-section-code-tab').textContent = editorCodeSecti
 const bundleTextarea = document.getElementById('bundle-textarea');
 const bundleStatus = document.getElementById('bundle-status');
 const commandFilter = document.getElementById('command-filter');
+const commandSort = document.getElementById('command-sort');
+const commandSortDirection = document.getElementById('command-sort-direction');
 const editorForm = document.getElementById('command-editor');
 const editorEmpty = document.getElementById('command-editor-empty');
 const editorStatus = document.getElementById('editor-status');
@@ -120,6 +129,8 @@ let selectedMenuCommandRef = null;
 let currentCommands = [];
 let currentAliases = {};
 let currentPanelRefs = new Map();
+let commandSortKey = 'updatedAt';
+let commandSortDirectionValue = 'desc';
 const codeEditor = ace.edit(editorFields.code, {
   fontSize: '14px',
   mode: 'ace/mode/javascript',
@@ -135,6 +146,7 @@ codeEditor.session.setUseWorker(false);
 editorFields.name.label = editorNameLabel;
 commandFilter.label = commandFilterLabel;
 commandFilter.placeholder = commandFilterLabel;
+commandSort.label = commandSortLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
 editorFields.description.label = editorDescriptionLabel;
@@ -143,11 +155,58 @@ editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
 editorFields.requires.label = editorRequiresLabel;
 
+commandSort.append(
+  buildOption('updatedAt', sortByModifiedLabel),
+  buildOption('name', sortByNameLabel),
+  buildOption('id', sortByIdLabel)
+);
+commandSort.value = commandSortKey;
+updateSortDirectionButton();
+
 function formatDateTime(value) {
   return new Intl.DateTimeFormat(navigator.language || 'en-US', {
     dateStyle: 'medium',
     timeStyle: 'short'
   }).format(new Date(value));
+}
+
+function buildOption(value, label) {
+  const option = document.createElement('wa-option');
+  option.value = value;
+  option.textContent = label;
+  return option;
+}
+
+function createMaterialIcon(name) {
+  const icon = document.createElement('span');
+  icon.className = 'material-symbols-outlined material-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.textContent = name;
+  return icon;
+}
+
+function updateSortDirectionButton() {
+  const label = commandSortDirectionValue === 'asc' ? sortAscendingLabel : sortDescendingLabel;
+  const iconName = commandSortDirectionValue === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  commandSortDirection.textContent = '';
+  commandSortDirection.append(createMaterialIcon(iconName));
+  commandSortDirection.setAttribute('aria-label', label);
+  commandSortDirection.title = label;
+}
+
+function compareCommandValues(left, right) {
+  if (commandSortKey === 'name') {
+    return left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
+  }
+  if (commandSortKey === 'id') {
+    return left.id.localeCompare(right.id) || left.name.localeCompare(right.name);
+  }
+  return (left.updatedAt || 0) - (right.updatedAt || 0) || left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
+}
+
+function getSortedCommands(commands) {
+  const direction = commandSortDirectionValue === 'asc' ? 1 : -1;
+  return [...commands].sort((left, right) => compareCommandValues(left, right) * direction);
 }
 
 function setStatus(container, kind, messages) {
@@ -477,7 +536,7 @@ function buildCommandDetailCard(command) {
 function renderCommands(commands) {
   const container = document.getElementById('command-list');
   const emptyState = document.getElementById('command-list-empty');
-  const filteredCommands = commands.filter((command) => commandMatchesFilter(command, getCommandFilterValue()));
+  const filteredCommands = getSortedCommands(commands.filter((command) => commandMatchesFilter(command, getCommandFilterValue())));
 
   container.active = '';
   container.textContent = '';
@@ -540,14 +599,6 @@ async function loadCommands() {
     listCommandIndex({ includeInvalid: true }),
     getAliasMap()
   ]);
-  commands.sort((left, right) => {
-    const leftMru = Number.isFinite(left.mruAt) ? left.mruAt : -1;
-    const rightMru = Number.isFinite(right.mruAt) ? right.mruAt : -1;
-    if (leftMru !== rightMru) {
-      return rightMru - leftMru;
-    }
-    return right.updatedAt - left.updatedAt;
-  });
   currentCommands = commands;
   currentAliases = aliases;
   renderCommands(currentCommands);
@@ -630,6 +681,17 @@ commandFilter.updateComplete?.then(() => {
 });
 commandFilter.addEventListener('wa-clear', renderFilteredCommandsFromInput);
 commandFilter.addEventListener('change', renderFilteredCommandsFromInput);
+
+commandSort.addEventListener('change', () => {
+  commandSortKey = commandSort.value || 'updatedAt';
+  renderCommands(currentCommands);
+});
+
+commandSortDirection.addEventListener('click', () => {
+  commandSortDirectionValue = commandSortDirectionValue === 'asc' ? 'desc' : 'asc';
+  updateSortDirectionButton();
+  renderCommands(currentCommands);
+});
 
 document.getElementById('command-list').addEventListener('wa-tab-show', (event) => {
   const commandRef = currentPanelRefs.get(event.detail.name);

@@ -28,7 +28,6 @@ M9. Fcommands need metadata indicating the user's preference for whether the ove
 M10. if any unsaved edits exist when a new command is about to be edited, the user needs to be notified and the new edit action blocked until existing changes are saved or reset.  In that case, the display should reselect the command that was being edited and user prompted to save or reset.
 M11. in Identity editor section, need to be able to edit the set of aliases for the fcommand
 M13. don't need an actual Edit button.  As soon as the user clicks a card in the Installed list, load up its information in the editor panel.  Note that we have to account for behaviour if currently editing another command and it has unsaved changes (see M10).
-M14. need a sort pulldown menu (put it right-aligned to panel of the filter commands text entry, which can be shrunk to accomodate it).  Also need the usual icon indicating ascending or descending sort.  Sort options: by modified time, by name, by ID.  Default will be by descending modified time.
 M15. Save Command button should only be active if an edit has occurred.
 M17. ACE code editor should support user-specific configuration of its options (like paste in a JSON config blob that is passed to the ACE setup)
 

@@ -72,6 +72,8 @@ The Manager page has top-level Manager and Utilities tabs:
 - Manager: installed commands on the left and a sectioned command editor on the right
 - Utilities: bundle import/export tools with a full-height, internally scrolling bundle JSON field
 
+In the Manager command list, use the filter field to match by command name, command ID, or alias. Use the Sort selector to order by modified time, name, or ID; the direction button uses Material Symbols `arrow_upward` and `arrow_downward`.
+
 Use the Manager page to:
 - import command bundles
 - export current commands

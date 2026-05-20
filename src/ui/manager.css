@@ -165,6 +165,26 @@ wa-textarea.bundle-textarea::part(textarea) {
   padding-right: 2px;
 }
 
+.command-list-controls {
+  align-items: end;
+  display: grid;
+  flex: 0 0 auto;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 0.62fr) auto;
+}
+
+.icon-button::part(base) {
+  aspect-ratio: 1;
+  padding-inline: 0;
+}
+
+.material-icon {
+  display: block;
+  height: 20px;
+  font-size: 20px;
+  width: 20px;
+}
+
 .command-tabs::part(active-tab-indicator) {
   background: rgb(37, 99, 235);
 }

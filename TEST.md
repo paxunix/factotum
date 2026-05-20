@@ -212,6 +212,7 @@ Each test lists: **Setup → Action → Expected**.
   * Each pane scrolls independently; the whole manager page does not jump while browsing long pane contents.
   * The command list is a concise vertical tab menu of command names with one detail card for the selected command.
   * The filter input matches substrings in command name, command ID, or command aliases.
+  * The sort selector supports Modified time, Name, and ID, defaults to descending Modified time, and uses a Material Symbols direction icon.
   * The selected command detail card shows command name as the primary title and command ID as secondary metadata.
   * The command editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code.
   * The Code section gets the full editor pane height and scrolls code internally.

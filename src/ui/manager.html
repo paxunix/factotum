@@ -32,7 +32,11 @@
                 <h2 id="command-list-title"></h2>
                 <p class="hint" id="command-list-hint"></p>
               </div>
-              <wa-input id="command-filter" size="small" clearable></wa-input>
+              <div class="command-list-controls">
+                <wa-input id="command-filter" size="small" clearable></wa-input>
+                <wa-select id="command-sort" size="small"></wa-select>
+                <wa-button id="command-sort-direction" class="icon-button" variant="neutral" size="small" type="button"></wa-button>
+              </div>
               <div class="empty-state" id="command-list-empty" hidden></div>
               <wa-tab-group placement="start" class="command-list command-tabs" id="command-list"></wa-tab-group>
             </aside>

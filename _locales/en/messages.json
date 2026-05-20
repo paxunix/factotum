@@ -59,6 +59,30 @@
     "message": "Filter commands",
     "description": "Manager command-list filter input label and placeholder"
   },
+  "managerCommandSort": {
+    "message": "Sort",
+    "description": "Manager command-list sort selector label"
+  },
+  "managerCommandSortModified": {
+    "message": "Modified time",
+    "description": "Manager command-list sort option for modified time"
+  },
+  "managerCommandSortName": {
+    "message": "Name",
+    "description": "Manager command-list sort option for command name"
+  },
+  "managerCommandSortId": {
+    "message": "ID",
+    "description": "Manager command-list sort option for command ID"
+  },
+  "managerCommandSortAscending": {
+    "message": "Ascending",
+    "description": "Manager command-list sort direction label for ascending order"
+  },
+  "managerCommandSortDescending": {
+    "message": "Descending",
+    "description": "Manager command-list sort direction label for descending order"
+  },
   "managerCommandsEmpty": {
     "message": "No commands are installed.",
     "description": "Empty state for the manager command list"

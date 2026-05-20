@@ -66,6 +66,20 @@ function copyWebAwesomeAssets() {
   walk(webAwesomeDist);
 }
 
+function copyMaterialSymbolsAssets() {
+  const materialSymbolsDir = path.join(root, 'node_modules', 'material-symbols');
+  const out = path.join(outDir, 'vendor', 'material-symbols');
+  const files = ['material-symbols-outlined.woff2'];
+  if (!fs.existsSync(materialSymbolsDir)) {
+    console.warn('Material Symbols assets not found. Run npm install before build.');
+    return;
+  }
+
+  for (const file of files) {
+    copyFile(path.join(materialSymbolsDir, file), path.join(out, file));
+  }
+}
+
 function copyRootAssets() {
   copyFile(path.join(root, 'manifest.json'), path.join(outDir, 'manifest.json'));
 
@@ -150,6 +164,7 @@ async function buildMain() {
   copyStaticFiles();
   copyRootAssets();
   copyWebAwesomeAssets();
+  copyMaterialSymbolsAssets();
 }
 
 async function buildScratch() {
