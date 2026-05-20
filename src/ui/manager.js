@@ -35,8 +35,6 @@ const bundleToolsHint = getMessage('managerBundleToolsHint', 'Import or export t
 const importBundleLabel = getMessage('managerImportBundle', 'Import Bundle');
 const exportBundleLabel = getMessage('managerExportBundle', 'Export Bundle');
 const bundleLabel = getMessage('managerBundleTextareaLabel', 'Bundle JSON');
-const disableCommandLabel = getMessage('managerDisableCommand', 'Disable');
-const enableCommandLabel = getMessage('managerEnableCommand', 'Enable');
 const commandListTitle = getMessage('managerCommandsTitle', 'Installed Commands');
 const commandListHint = getMessage('managerCommandsHint', 'M1 shows the stored command index and localized descriptions.');
 const managerTabLabel = getMessage('managerTabManager', 'Manager');
@@ -58,7 +56,6 @@ const editorHint = getMessage('managerEditorHint', 'Edit an installed valid comm
 const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command to edit.');
 const editorNameLabel = getMessage('managerEditorName', 'Name');
 const editorIdLabel = getMessage('managerEditorId', 'ID');
-const editorDisabledLabel = getMessage('managerEditorDisabled', 'Disabled');
 const editorDescriptionLabel = getMessage('managerEditorDescription', 'Description JSON');
 const editorCodeLabel = getMessage('managerEditorCode', 'Code');
 const editorHelpTemplateLabel = getMessage('managerEditorHelpTemplate', 'Help HTML template');
@@ -110,7 +107,6 @@ const editorStatus = document.getElementById('editor-status');
 const editorFields = {
   name: document.getElementById('editor-name'),
   id: document.getElementById('editor-id'),
-  disabled: document.getElementById('editor-disabled'),
   description: document.getElementById('editor-description'),
   code: document.getElementById('editor-code'),
   helpHtmlTemplate: document.getElementById('editor-help-template'),
@@ -141,7 +137,6 @@ commandFilter.label = commandFilterLabel;
 commandFilter.placeholder = commandFilterLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
-editorFields.disabled.textContent = editorDisabledLabel;
 editorFields.description.label = editorDescriptionLabel;
 editorFields.helpHtmlTemplate.label = editorHelpTemplateLabel;
 editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
@@ -273,7 +268,6 @@ function populateEditor(command) {
   selectedCommandRef = { name: command.name, id: command.id };
   editorFields.name.value = command.name;
   editorFields.id.value = command.id;
-  editorFields.disabled.checked = Boolean(command.disabled);
   editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
   codeEditor.setValue(command.code, -1);
   requestAnimationFrame(() => codeEditor.resize());
@@ -301,7 +295,6 @@ function readEditedCommand() {
 
   const next = {
     ...selectedCommand,
-    disabled: editorFields.disabled.checked,
     code: codeEditor.getValue(),
     updatedAt: Date.now()
   };
@@ -352,7 +345,7 @@ async function saveEditedCommand() {
   await loadCommands();
 }
 
-async function toggleDisabled(commandRef) {
+async function setCommandDisabled(commandRef, disabled) {
   const command = await getCommand(commandRef.name, commandRef.id);
   if (!command) {
     throw new Error(`Command not found: ${commandRef.name}@${commandRef.id}`);
@@ -360,7 +353,7 @@ async function toggleDisabled(commandRef) {
 
   await saveCommand({
     ...command,
-    disabled: !command.disabled,
+    disabled,
     updatedAt: Date.now()
   });
 }
@@ -389,23 +382,39 @@ function buildCommandActions(command) {
       });
   });
 
-  const toggleButton = document.createElement('wa-button');
-  toggleButton.setAttribute('variant', 'neutral');
-  toggleButton.textContent = command.disabled ? enableCommandLabel : disableCommandLabel;
-  toggleButton.addEventListener('click', () => {
-    toggleButton.disabled = true;
-    toggleDisabled(command)
+  actions.append(editButton);
+  return actions;
+}
+
+function buildCommandStatus(command) {
+  const status = document.createElement(command.invalid ? 'span' : 'button');
+  status.className = `command-status ${command.invalid ? 'command-status-invalid' : command.disabled ? 'command-status-disabled' : 'command-status-enabled'}`;
+  status.textContent = command.invalid ? invalidLabel : command.disabled ? disabledLabel : enabledLabel;
+
+  if (command.invalid) {
+    return status;
+  }
+
+  status.type = 'button';
+  status.addEventListener('click', () => {
+    status.disabled = true;
+    setCommandDisabled(command, !command.disabled)
+      .then(async () => {
+        if (commandRefsMatch(command, selectedCommandRef)) {
+          selectedCommand = await getCommand(command.name, command.id);
+        }
+        await loadCommands();
+      })
       .catch((error) => {
         console.error('[factotum] toggle disabled failed', error);
         setBundleStatus('error', error.message || String(error));
       })
       .finally(() => {
-        toggleButton.disabled = false;
+        status.disabled = false;
       });
   });
 
-  actions.append(editButton, toggleButton);
-  return actions;
+  return status;
 }
 
 function buildCommandDetailCard(command) {
@@ -419,9 +428,7 @@ function buildCommandDetailCard(command) {
   name.className = 'command-name';
   name.textContent = command.name;
 
-  const status = document.createElement('span');
-  status.className = `command-status ${command.invalid ? 'command-status-invalid' : command.disabled ? 'command-status-disabled' : 'command-status-enabled'}`;
-  status.textContent = command.invalid ? invalidLabel : command.disabled ? disabledLabel : enabledLabel;
+  const status = buildCommandStatus(command);
 
   header.append(name, status);
 

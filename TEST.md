@@ -194,7 +194,8 @@ Each test lists: **Setup → Action → Expected**.
 
   * Editor opens with name and ID visible but read-only
   * Editor sections include Identity, Description, Help, Options, Requires, and Code
-  * Editable body fields include disabled state, description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
+  * The selected command card has a clickable Enabled/Disabled status pill for toggling command availability.
+  * Editable body fields include description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
   * Save reports `Saved command: name@id`
   * Invalid JSON in JSON fields reports an inline editor error and does not save
   * Exported JSON contains the saved edits

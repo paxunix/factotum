@@ -83,13 +83,14 @@ For maintained test fixtures, use:
 - `fixtures/smoke-v1.json`
 
 The current command editor supports existing valid commands. Select `Edit` on a command card to change:
-- disabled state
 - localized description JSON
 - command code in the ACE editor
 - help HTML template
 - help strings JSON
 - options spec JSON
 - requires JSON array
+
+Use the Enabled/Disabled status pill on the selected command card to enable or disable that command.
 
 The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, and Code. Select a tab to edit that part of the command while keeping the same whole-command Save and Reset actions.
 

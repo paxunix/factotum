@@ -39,14 +39,6 @@
     "message": "Bundle JSON",
     "description": "Manager label for the bundle textarea"
   },
-  "managerDisableCommand": {
-    "message": "Disable",
-    "description": "Manager button label to disable a command"
-  },
-  "managerEnableCommand": {
-    "message": "Enable",
-    "description": "Manager button label to enable a command"
-  },
   "managerCommandsTitle": {
     "message": "Installed Commands",
     "description": "Manager section title for the command list"
@@ -157,10 +149,6 @@
   "managerEditorId": {
     "message": "ID",
     "description": "Manager command editor ID field label"
-  },
-  "managerEditorDisabled": {
-    "message": "Disabled",
-    "description": "Manager command editor disabled field label"
   },
   "managerEditorDescription": {
     "message": "Description JSON",
