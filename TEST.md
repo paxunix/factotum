@@ -223,6 +223,7 @@ Each test lists: **Setup → Action → Expected**.
   * Editor fields use Web Awesome controls for simple field edits.
   * Code editing uses the bundled CodeMirror JavaScript editor with the default `basicSetup` editing affordances.
   * Help HTML template editing uses the bundled CodeMirror HTML editor with the default `basicSetup` editing affordances.
+  * Undo in either CodeMirror editor stops at the loaded command content and does not walk backward through prior command selections or the initial empty editor.
   * Existing import/export, enable/disable, and save behavior still works.
 
 ---

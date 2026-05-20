@@ -150,27 +150,33 @@ editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
 editorFields.requires.label = editorRequiresLabel;
 
-function createCodeMirrorEditor(parent, languageExtension) {
-  return new EditorView({
-    parent,
-    state: EditorState.create({
-      doc: '',
-      extensions: [
-        basicSetup,
-        languageExtension,
-        EditorView.lineWrapping,
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged && !suppressEditorChange) {
-            updateEditorDirtyState();
-          }
-        })
-      ]
-    })
+function createCodeMirrorState(doc, languageExtension) {
+  return EditorState.create({
+    doc: doc || '',
+    extensions: [
+      basicSetup,
+      languageExtension,
+      EditorView.lineWrapping,
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged && !suppressEditorChange) {
+          updateEditorDirtyState();
+        }
+      })
+    ]
   });
 }
 
-const codeEditor = createCodeMirrorEditor(editorFields.code, javascript());
-const helpTemplateEditor = createCodeMirrorEditor(editorFields.helpHtmlTemplate, htmlLanguage());
+function createCodeMirrorEditor(parent, languageExtension) {
+  return new EditorView({
+    parent,
+    state: createCodeMirrorState('', languageExtension)
+  });
+}
+
+const codeLanguage = javascript();
+const helpTemplateLanguage = htmlLanguage();
+const codeEditor = createCodeMirrorEditor(editorFields.code, codeLanguage);
+const helpTemplateEditor = createCodeMirrorEditor(editorFields.helpHtmlTemplate, helpTemplateLanguage);
 
 commandSort.append(
   buildOption('updatedAt', sortByModifiedLabel),
@@ -366,16 +372,10 @@ function updateEditorDirtyState() {
   }
 }
 
-function setCodeMirrorValue(editor, value) {
+function setCodeMirrorValue(editor, value, languageExtension) {
   suppressEditorChange = true;
   try {
-    editor.dispatch({
-      changes: {
-        from: 0,
-        to: editor.state.doc.length,
-        insert: value || ''
-      }
-    });
+    editor.setState(createCodeMirrorState(value, languageExtension));
   } finally {
     suppressEditorChange = false;
   }
@@ -469,8 +469,8 @@ function populateEditor(command) {
   editorFields.name.value = command.name;
   editorFields.id.value = command.id;
   editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
-  setCodeMirrorValue(codeEditor, command.code);
-  setCodeMirrorValue(helpTemplateEditor, command.helpHtmlTemplate || '');
+  setCodeMirrorValue(codeEditor, command.code, codeLanguage);
+  setCodeMirrorValue(helpTemplateEditor, command.helpHtmlTemplate || '', helpTemplateLanguage);
   editorFields.helpHtmlStrings.value = stringifyJson(command.helpHtmlStrings);
   editorFields.optionsSpec.value = stringifyJson(command.optionsSpec);
   editorFields.requires.value = stringifyJson(command.requires);

@@ -30,7 +30,6 @@ M11. in Identity editor section, need to be able to edit the set of aliases for 
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
 M18. when Code is selected in 2nd panel, focus should be moved to current cursor position in the editor.  This should also be done for each other editor control (if more than one, like for identiy, focus should be set to first control in the pane)
 M19. disabled fcommands should be indicated differently in the command list (greyed out or some kind of visual distinction)
-M21. Undo in the editor will also undo through all text changes that were done when a new Fcommand was selected (so you can always undo back to a completely empty editor when the page was loaded).  Undo in the editor should stop at the point that command's code editing was started.
 
 
 ### Overlay UX
