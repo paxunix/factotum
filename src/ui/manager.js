@@ -60,6 +60,7 @@ const sortDescendingLabel = getMessage('managerCommandSortDescending', 'Descendi
 const emptyMessage = getMessage('managerCommandsEmpty', 'No commands are installed.');
 const noMatchesMessage = getMessage('managerCommandsNoMatches', 'No commands match the filter.');
 const idLabel = getMessage('managerCommandId', 'ID');
+const versionLabel = getMessage('managerCommandVersion', 'Version');
 const aliasesLabel = getMessage('managerCommandAliases', 'Aliases');
 const updatedLabel = getMessage('managerCommandUpdated', 'Updated');
 const enabledLabel = getMessage('managerCommandEnabled', 'Enabled');
@@ -75,6 +76,7 @@ const editorHint = getMessage('managerEditorHint', 'Edit an installed valid comm
 const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command to edit.');
 const editorNameLabel = getMessage('managerEditorName', 'Name');
 const editorIdLabel = getMessage('managerEditorId', 'ID');
+const editorVersionLabel = getMessage('managerEditorVersion', 'Version');
 const editorDescriptionLabel = getMessage('managerEditorDescription', 'Description JSON');
 const editorAliasesLabel = getMessage('managerEditorAliases', 'Aliases');
 const editorCodeLabel = getMessage('managerEditorCode', 'Code');
@@ -141,6 +143,7 @@ const editorCommandExport = document.getElementById('editor-command-export');
 const editorFields = {
   name: document.getElementById('editor-name'),
   id: document.getElementById('editor-id'),
+  version: document.getElementById('editor-version'),
   description: document.getElementById('editor-description'),
   aliases: document.getElementById('editor-aliases'),
   code: document.getElementById('editor-code'),
@@ -166,6 +169,7 @@ commandFilter.placeholder = commandFilterLabel;
 commandSort.label = commandSortLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
+editorFields.version.label = editorVersionLabel;
 editorFields.description.label = editorDescriptionLabel;
 editorFields.aliases.label = editorAliasesLabel;
 editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
@@ -444,6 +448,7 @@ function clearSelectedCommandState() {
 
 function getEditorSnapshot() {
   return {
+    version: editorFields.version.value,
     description: editorFields.description.value,
     aliases: editorFields.aliases.value,
     code: codeEditor.state.doc.toString(),
@@ -535,7 +540,7 @@ function focusEditorSection(sectionName) {
   requestAnimationFrame(() => {
     switch (sectionName) {
       case 'editor-section-identity':
-        focusField(editorFields.name);
+        focusField(editorFields.version);
         break;
       case 'editor-section-description':
         focusField(editorFields.description);
@@ -645,6 +650,7 @@ function populateEditor(command) {
   selectedCommandRef = { name: command.name, id: command.id };
   editorFields.name.value = command.name;
   editorFields.id.value = command.id;
+  editorFields.version.value = command.version || '1';
   editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
   editorFields.aliases.value = aliasesForCommand(command).join(' ');
   setCodeMirrorValue(codeEditor, command.code, codeLanguage);
@@ -683,6 +689,7 @@ function readEditedCommand() {
 
   const next = {
     ...selectedCommand,
+    version: editorFields.version.value || '1',
     code: codeEditor.state.doc.toString(),
     updatedAt: Date.now()
   };
@@ -892,10 +899,13 @@ function buildCommandDetailCard(command) {
   const idMeta = document.createElement('span');
   idMeta.textContent = `${idLabel}: ${command.id}`;
 
+  const versionMeta = document.createElement('span');
+  versionMeta.textContent = `${versionLabel}: ${command.version || '1'}`;
+
   const updatedMeta = document.createElement('span');
   updatedMeta.textContent = `${updatedLabel}: ${formatDateTime(command.updatedAt)}`;
 
-  meta.append(idMeta, updatedMeta);
+  meta.append(idMeta, versionMeta, updatedMeta);
 
   if (aliases.length > 0) {
     const aliasesMeta = document.createElement('span');

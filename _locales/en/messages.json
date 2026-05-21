@@ -95,6 +95,10 @@
     "message": "ID",
     "description": "Label for command ID metadata in the manager command list"
   },
+  "managerCommandVersion": {
+    "message": "Version",
+    "description": "Label for command version metadata in the manager command list"
+  },
   "managerCommandAliases": {
     "message": "Aliases",
     "description": "Label for command aliases metadata in the manager command list"
@@ -167,7 +171,7 @@
     "description": "Manager command editor section title"
   },
   "managerEditorHint": {
-    "message": "Edit an installed valid command. Name and ID are read-only in this first editor slice.",
+    "message": "Edit an installed valid command. Name and ID are read-only; version and aliases are editable in the Identity section.",
     "description": "Manager command editor section hint"
   },
   "managerEditorEmpty": {
@@ -181,6 +185,10 @@
   "managerEditorId": {
     "message": "ID",
     "description": "Manager command editor ID field label"
+  },
+  "managerEditorVersion": {
+    "message": "Version",
+    "description": "Manager command editor version field label"
   },
   "managerEditorDescription": {
     "message": "Description JSON",

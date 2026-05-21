@@ -17,6 +17,7 @@ An fcommand record must use `world: "user_script"` and define an async `main()` 
   "schemaVersion": 1,
   "name": "ok",
   "id": "demo.ok",
+  "version": "1",
   "world": "user_script",
   "code": "async function main(argv, ctx) { return 42; }",
   "description": { "en-US": "Simple success fixture" },
@@ -31,6 +32,8 @@ From an author's perspective, this means command discovery in the omnibox is dri
 - command names
 - user-defined aliases for those commands
 - case-insensitive prefix matching across both
+
+`version` is optional informational metadata for the command itself. Factotum defaults it to `"1"` when it is omitted and does not currently assign any runtime semantics to it.
 
 ## Runtime model
 

@@ -102,6 +102,13 @@ function normalizeOptionSpec(option) {
   return normalized;
 }
 
+function normalizeCommandVersion(version) {
+  if (version == null) {
+    return '1';
+  }
+  return String(version);
+}
+
 export function normalizeCommandRecord(record, now = Date.now()) {
   assert(record && typeof record === 'object', 'Command record must be an object', 'INVALID_COMMAND');
 
@@ -109,6 +116,7 @@ export function normalizeCommandRecord(record, now = Date.now()) {
   const id = validateCommandId(record.id);
   const world = validateWorld(record.world);
   assert(typeof record.code === 'string', 'Command code must be a string', 'INVALID_COMMAND');
+  const version = normalizeCommandVersion(record.version);
 
   const createdAt = Number.isFinite(record.createdAt) ? record.createdAt : now;
   const updatedAt = Number.isFinite(record.updatedAt) ? record.updatedAt : now;
@@ -120,6 +128,7 @@ export function normalizeCommandRecord(record, now = Date.now()) {
     schemaVersion: 1,
     name,
     id,
+    version,
     world,
     disabled: Boolean(record.disabled),
     code: record.code,

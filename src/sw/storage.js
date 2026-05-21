@@ -41,6 +41,7 @@ function toIndexEntry(command, previousEntry) {
   return {
     name: command.name,
     id: command.id,
+    version: command.version,
     world: command.world,
     updatedAt: command.updatedAt,
     disabled: Boolean(command.disabled),
@@ -71,12 +72,14 @@ function normalizeLocalizedTextBestEffort(value) {
 function toRawIndexEntry(record, previousEntry, fallback = {}) {
   const name = validateCommandName(fallback.name ?? record?.name);
   const id = validateCommandId(fallback.id ?? record?.id);
+  const version = record?.version == null ? String(previousEntry?.version ?? '1') : String(record.version);
   const description = normalizeLocalizedTextBestEffort(record?.description)
     || normalizeLocalizedTextBestEffort(previousEntry?.description);
 
   return {
     name,
     id,
+    version,
     world: sanitizeIndexWorld(record?.world ?? previousEntry?.world),
     updatedAt: Number.isFinite(record?.updatedAt) ? record.updatedAt : Number.isFinite(previousEntry?.updatedAt) ? previousEntry.updatedAt : Date.now(),
     disabled: Boolean(record?.disabled ?? previousEntry?.disabled),
@@ -117,6 +120,7 @@ async function readStoredCommands() {
       invalidCommands.push(toQuarantinedEntry(entry, {
         name: entry.name,
         id: entry.id,
+        version: entry.version,
         world: entry.world,
         updatedAt: entry.updatedAt,
         disabled: entry.disabled,
@@ -226,6 +230,7 @@ export async function getIndexRecord() {
     commands: index.commands.map((entry) => ({
       name: validateCommandName(entry.name),
       id: validateCommandId(entry.id),
+      version: entry.version == null ? '1' : String(entry.version),
       world: sanitizeIndexWorld(entry.world),
       updatedAt: entry.updatedAt,
       ...(entry.description ? { description: normalizeLocalizedText(entry.description) } : {}),

@@ -98,6 +98,7 @@ For maintained test fixtures, use:
 - `fixtures/smoke-v1.json`
 
 The current command editor supports existing valid commands. Select a command card to change:
+- version in the Identity section as informational command metadata
 - aliases in the Identity section as a space-delimited list, for example `123 abc d-ef`
 - localized description JSON
 - command code in the CodeMirror JavaScript editor, including standard editor affordances such as line numbers, folding, and bracket matching
@@ -118,7 +119,7 @@ Save Command is enabled only after an editable field changes; Reset returns the 
 If unsaved edits exist, selecting another command is blocked until you save or reset the current command. Reloading or navigating away from the manager page also triggers the browser's unsaved-changes prompt.
 If you manually return the edited fields to their loaded values, Save Command disables again and the save-or-reset warning is dismissed.
 
-Name and ID are read-only in the current editor. Use bundle import/export for rename-style changes until a dedicated rename/new-command flow exists.
+Name and ID are read-only in the current editor. Version is editable. Use bundle import/export for rename-style changes until a dedicated rename/new-command flow exists.
 
 ## Current limitations
 

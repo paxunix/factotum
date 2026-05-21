@@ -91,12 +91,13 @@ The main remaining follow-ups in this area are presentation refinements rather t
 - `fcmd:cmd:<name>@<id>` → full command record
 
 ### Index record (schemaVersion 1)
-`commands[]` entries contain: `{ name, id, description?, world, disabled?, mruAt?, updatedAt }`
+`commands[]` entries contain: `{ name, id, version, description?, world, disabled?, mruAt?, updatedAt }`
 
 ### Command record (schemaVersion 1)
 Fields:
 - `schemaVersion: 1`
 - `name`, `id`
+- `version: string` (informational command revision; defaults to `"1"` when omitted)
 - `world: "user_script"`
 - `disabled?: boolean` (default false; disabled commands are excluded from resolution)
 - `code: string`
@@ -191,6 +192,7 @@ Example command record (excerpt):
   "schemaVersion": 1,
   "name": "pick",
   "id": "demo.pick",
+  "version": "1",
   "world": "user_script",
   "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{summary}}</p><section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section>",
   "helpHtmlStrings": {
