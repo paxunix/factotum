@@ -203,7 +203,7 @@ Each test lists: **Setup → Action → Expected**.
   * Selecting a valid command card opens the editor with name and ID visible but read-only
   * Editor sections include Identity, Description, Help, Options, Requires, Code, and Export
   * The Identity section includes an editable single-line alias field using a space-delimited list of alias keys.
-  * The selected command card has a clickable Enabled/Disabled status pill for toggling command availability.
+  * The selected command card has both an enable/disable switch and a clickable Enabled/Disabled status pill, and either control toggles command availability.
   * The selected command card has a trash button that is disabled for enabled commands, becomes active after disabling, and permanently deletes the command while removing any alias targets pointing at it.
   * Editable body fields include description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
   * Save reports `Saved command: name@id`

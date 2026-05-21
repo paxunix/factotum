@@ -12,6 +12,7 @@ import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
 import '@awesome.me/webawesome/dist/components/select/select.js';
+import '@awesome.me/webawesome/dist/components/switch/switch.js';
 import '@awesome.me/webawesome/dist/components/tab/tab.js';
 import '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
 import '@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js';
@@ -63,6 +64,7 @@ const aliasesLabel = getMessage('managerCommandAliases', 'Aliases');
 const updatedLabel = getMessage('managerCommandUpdated', 'Updated');
 const enabledLabel = getMessage('managerCommandEnabled', 'Enabled');
 const disabledLabel = getMessage('managerCommandDisabled', 'Disabled');
+const commandToggleLabel = getMessage('managerCommandToggle', 'Enabled');
 const invalidLabel = getMessage('managerCommandInvalid', 'Invalid');
 const validationIssueLabel = getMessage('managerCommandValidationIssue', 'Validation issue');
 const invalidDescriptionLabel = getMessage('managerCommandInvalidDescription', 'This command is quarantined and excluded from resolution, invocation, and normal export.');
@@ -765,6 +767,14 @@ async function setCommandDisabled(commandRef, disabled) {
   });
 }
 
+async function toggleCommandDisabled(commandRef, disabled) {
+  await setCommandDisabled(commandRef, disabled);
+  if (commandRefsMatch(commandRef, selectedCommandRef)) {
+    selectedCommand = await getCommand(commandRef.name, commandRef.id);
+  }
+  await loadCommands();
+}
+
 function buildCommandStatus(command) {
   const status = document.createElement(command.invalid ? 'span' : 'button');
   status.className = `command-status ${command.invalid ? 'command-status-invalid' : command.disabled ? 'command-status-disabled' : 'command-status-enabled'}`;
@@ -777,13 +787,7 @@ function buildCommandStatus(command) {
   status.type = 'button';
   status.addEventListener('click', () => {
     status.disabled = true;
-    setCommandDisabled(command, !command.disabled)
-      .then(async () => {
-        if (commandRefsMatch(command, selectedCommandRef)) {
-          selectedCommand = await getCommand(command.name, command.id);
-        }
-        await loadCommands();
-      })
+    toggleCommandDisabled(command, !command.disabled)
       .catch((error) => {
         console.error('[factotum] toggle disabled failed', error);
         setBundleStatus('error', error.message || String(error));
@@ -794,6 +798,32 @@ function buildCommandStatus(command) {
   });
 
   return status;
+}
+
+function buildCommandToggle(command) {
+  if (command.invalid) {
+    return null;
+  }
+
+  const toggle = document.createElement('wa-switch');
+  toggle.className = 'command-toggle';
+  toggle.size = 'small';
+  toggle.checked = !command.disabled;
+  toggle.toggleAttribute('checked', !command.disabled);
+  toggle.setAttribute('aria-label', commandToggleLabel);
+  toggle.title = commandToggleLabel;
+  toggle.addEventListener('change', () => {
+    toggle.disabled = true;
+    toggleCommandDisabled(command, !command.disabled)
+      .catch((error) => {
+        console.error('[factotum] toggle disabled failed', error);
+        setBundleStatus('error', error.message || String(error));
+      })
+      .finally(() => {
+        toggle.disabled = false;
+      });
+  });
+  return toggle;
 }
 
 function buildCommandDeleteButton(command) {
@@ -846,7 +876,11 @@ function buildCommandDetailCard(command) {
   actions.className = 'command-card-actions';
 
   const status = buildCommandStatus(command);
+  const toggle = buildCommandToggle(command);
   const deleteButton = buildCommandDeleteButton(command);
+  if (toggle) {
+    actions.append(toggle);
+  }
   actions.append(status, deleteButton);
 
   header.append(name, actions);

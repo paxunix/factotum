@@ -111,6 +111,10 @@
     "message": "Disabled",
     "description": "Label for disabled command status"
   },
+  "managerCommandToggle": {
+    "message": "Enabled",
+    "description": "Accessible label for the manager command enable or disable switch"
+  },
   "managerCommandInvalid": {
     "message": "Invalid",
     "description": "Label for quarantined invalid command status"

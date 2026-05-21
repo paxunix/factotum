@@ -53,7 +53,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Omnibox suggestion UX where the first suggestion is the default executable target and other suggestions disambiguate alternate matches.
 - Manager bundle import/export and enable/disable controls to make M1 manually testable.
 - Quarantine handling for invalid stored commands, with separate `invalidCommands[]` export/import preservation and manager visibility.
-- Existing valid command editor for description JSON, code, help template/strings, optionsSpec, and requires, plus command-card enablement switching, presented in the Manager tab's two-pane layout with filterable command-name navigation.
+- Existing valid command editor for description JSON, code, help template/strings, optionsSpec, and requires, plus command-card enablement switching through both a switch and a status pill, presented in the Manager tab's two-pane layout with filterable command-name navigation.
 
 **Verified**
 - T1, T2, T3, T3b, T4b

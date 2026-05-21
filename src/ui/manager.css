@@ -249,6 +249,10 @@ wa-textarea.bundle-textarea::part(textarea) {
   gap: 8px;
 }
 
+.command-toggle {
+  align-self: center;
+}
+
 .command-name {
   color: rgb(15, 23, 42);
   font-size: 18px;
