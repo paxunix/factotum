@@ -264,7 +264,7 @@ Each test lists: **Setup → Action → Expected**.
 #### T5: Non-injectable page hard error
 
 * Setup: open `chrome://extensions/`
-* Action: `f ok@demo.ok`
+* Action: `f ok`
 * Expected:
 
   * Command does not run
@@ -286,7 +286,7 @@ Each test lists: **Setup → Action → Expected**.
 
 #### T7: Overlay always appears and signals completion
 
-* Action: `f ok@demo.ok`
+* Action: `f ok`
 * Expected:
 
   * Overlay appears once in the top frame, horizontally centered near the top of the page
@@ -537,9 +537,9 @@ Create a dedicated extension page (internal) `harness.html` that can:
 #### A1: Resolution + MRU update on start
 
 * Install two commands with same name.
-* Trigger fully qualified B.
-* Trigger bare name.
-* Assert bare name resolves to B.
+* Trigger command `pick` and arrow-select the B suggestion.
+* Trigger `pick` again without changing the default suggestion.
+* Assert the second run resolves to B.
 * Assert MRU timestamps updated on invocation start.
 
 #### A2: Cancel on navigation
@@ -833,9 +833,9 @@ Reset should:
 
 #### A1: Resolution + MRU
 
-* Start fully qualified command B.
-* Start bare name.
-* Assert second run chose B (by checking overlay log entries or invocation metadata).
+* Start `pick` and choose B from the omnibox suggestions.
+* Start `pick` again without changing the default suggestion.
+* Assert the second run chose B (by checking overlay log entries or invocation metadata).
 
 #### A2: Cancel on navigation
 

@@ -367,7 +367,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Tasks**
 - Import canonical `fixtures-v1.json` bundle.
 - Ensure fixtures: pick@fixture.A/B, alias cmd1 → pick@fixture.B, longrun cancel, requires T11-T14, bridge, denylisted, events unsupported, RPC clone failure, and localized help/options.
-- Maintain a separate smoke bundle for ad hoc manual checks such as `ok@demo.ok` and `longrun@demo.cancel`.
+- Maintain a separate smoke bundle for ad hoc manual checks such as `ok`, `okcmd`, and `canceldemo`.
 
 **Files (expected)**
 - `fixtures/fixtures-v1.json`
