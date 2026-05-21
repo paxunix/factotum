@@ -214,6 +214,7 @@ Each test lists: **Setup → Action → Expected**.
   * Saving after changing Name or ID moves the command to the new identity and does not leave the old command behind.
   * Saving is blocked if another command already uses the edited `name@id`.
   * Invalid JSON in JSON fields reports an inline editor error and does not save
+  * Warning and error status messages in the manager can be dismissed directly from the status area.
   * Exported JSON contains the saved edits
 
 #### T4d2: Manager creates a new valid command
@@ -253,7 +254,10 @@ Each test lists: **Setup → Action → Expected**.
   * Editor fields use Web Awesome controls for simple field edits.
   * Code editing uses the bundled CodeMirror JavaScript editor with the default `basicSetup` editing affordances.
   * Help HTML template editing uses the bundled CodeMirror HTML editor with the default `basicSetup` editing affordances.
-  * The Code and Help template editors have an icon-only `code_xml` toolbar button that reformats the current CodeMirror selection with Prettier using the editor language parser.
+  * The Code and Help template editors have explicit `JS`, `HTML`, and `CSS` toolbar buttons that reformat the current CodeMirror selection with the chosen Prettier parser.
+  * With no selection, the chosen formatter applies to the whole editor document.
+  * With a selection, the chosen formatter applies only to that selected text, so embedded snippets can be reformatted independently of the surrounding editor language.
+  * Invalid content for a chosen parser reports an inline editor error and does not mutate the editor contents.
   * The Export section shows a read-only v1 bundle containing the current edited command and only the alias entries that target that command; the JSON can be imported through Bundle Tools.
   * Undo in either CodeMirror editor stops at the loaded command content and does not walk backward through prior command selections or the initial empty editor.
   * Disabled commands are visually muted in both the command menu and selected-command detail card while keeping the Disabled status pill clickable.

@@ -23,7 +23,6 @@ M5. Revisit the Help editor layout now that the help HTML template uses CodeMirr
 M8. manager UX needs a separate tab to hold overall settings.
 M9. Fcommands need metadata indicating the user's preference for whether the overlay should be shown for the command or not.  This lets a user/author have fcommand behaviour that has no Factotum UI.  All the same information would be recorded and logged as usual, only the overlay would not show like it usually does during command invocation, execution, and completion. This setting can be modified by the user by editing the fcommand.
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
-M18. Useul to support 3 different selection reformatters:  one each for Javsacript, HTML, and CSS.  Three separate buttons, maybe with a small badge that shows JS, HTML, CSS so you know which does what.
 M19. THe export and import need work.  For the per-command Export, it should only export the JSON representing the Fcommand itself.  The Utilities import should support either single-command import, or bundle import, and it should only export all settings and Fcommands.
 ### Overlay UX
 

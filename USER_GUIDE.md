@@ -109,7 +109,7 @@ The current command editor supports both creating new commands and editing exist
 - options spec JSON
 - requires JSON array
 
-The Code and Help HTML template editors include an icon-only `code_xml` toolbar button. It reformats the current editor selection with Prettier using the JavaScript or HTML parser for that editor.
+The Code and Help HTML template editors include `JS`, `HTML`, and `CSS` toolbar buttons. With no selection, the chosen button reformats the whole editor document. With a selection, it reformats only the selected text with the chosen Prettier parser, which is useful for embedded snippets. If the selected parser does not match valid content, the editor shows an inline error and leaves the text unchanged.
 
 The Export section shows a read-only bundle for the selected command. The JSON includes the current editor contents and only the alias entries that target that command, so it can be pasted into Bundle Tools and imported directly.
 
@@ -122,8 +122,7 @@ If you rename a command by changing its Name or ID, saving moves the command to 
 Save Command is enabled only after an editable field changes; Reset returns the editor to the stored command and disables Save again.
 If unsaved edits exist, selecting another command is blocked until you save or reset the current command. Reloading or navigating away from the manager page also triggers the browser's unsaved-changes prompt.
 If you manually return the edited fields to their loaded values, Save Command disables again and the save-or-reset warning is dismissed.
-
-Name and ID are read-only in the current editor. Version is editable. Use bundle import/export for rename-style changes until a dedicated rename/new-command flow exists.
+Warning and error status messages in the manager can be dismissed directly from their status area.
 
 ## Current limitations
 

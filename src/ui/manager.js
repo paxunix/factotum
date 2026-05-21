@@ -8,6 +8,7 @@ import * as prettier from 'prettier/standalone';
 import * as prettierPluginBabel from 'prettier/plugins/babel';
 import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as prettierPluginHtml from 'prettier/plugins/html';
+import * as prettierPluginPostcss from 'prettier/plugins/postcss';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -90,6 +91,7 @@ const editorSaveLabel = getMessage('managerEditorSave', 'Save Command');
 const editorResetLabel = getMessage('managerEditorReset', 'Reset');
 const editorSavedLabel = getMessage('managerEditorSaved', 'Saved command: $COMMAND$');
 const editorDeletedLabel = getMessage('managerEditorDeleted', 'Deleted command: $COMMAND$');
+const statusDismissLabel = getMessage('managerStatusDismiss', 'Dismiss status');
 const editorUnsavedChangesLabel = getMessage('managerEditorUnsavedChanges', 'Save or reset the current command before editing another command.');
 const editorIdentitySectionLabel = getMessage('managerEditorSectionIdentity', 'Identity');
 const editorDescriptionSectionLabel = getMessage('managerEditorSectionDescription', 'Description');
@@ -99,7 +101,9 @@ const editorRequiresSectionLabel = getMessage('managerEditorSectionRequires', 'R
 const editorCodeSectionLabel = getMessage('managerEditorSectionCode', 'Code');
 const editorExportSectionLabel = getMessage('managerEditorSectionExport', 'Export');
 const editorCommandExportLabel = getMessage('managerEditorCommandExport', 'Command export JSON');
-const editorFormatSelectionLabel = getMessage('managerEditorFormatSelection', 'Reformat selection');
+const editorFormatSelectionJsLabel = getMessage('managerEditorFormatSelectionJs', 'Reformat selection as JavaScript');
+const editorFormatSelectionHtmlLabel = getMessage('managerEditorFormatSelectionHtml', 'Reformat selection as HTML');
+const editorFormatSelectionCssLabel = getMessage('managerEditorFormatSelectionCss', 'Reformat selection as CSS');
 
 document.title = title;
 document.getElementById('manager-title').textContent = title;
@@ -136,8 +140,16 @@ const commandFilter = document.getElementById('command-filter');
 const commandSort = document.getElementById('command-sort');
 const commandSortDirection = document.getElementById('command-sort-direction');
 const commandNewButton = document.getElementById('command-new-button');
-const editorCodeFormatButton = document.getElementById('editor-code-format');
-const editorHelpTemplateFormatButton = document.getElementById('editor-help-template-format');
+const editorCodeFormatButtons = {
+  js: document.getElementById('editor-code-format-js'),
+  html: document.getElementById('editor-code-format-html'),
+  css: document.getElementById('editor-code-format-css')
+};
+const editorHelpTemplateFormatButtons = {
+  js: document.getElementById('editor-help-template-format-js'),
+  html: document.getElementById('editor-help-template-format-html'),
+  css: document.getElementById('editor-help-template-format-css')
+};
 const editorSaveButton = document.getElementById('editor-save-button');
 const editorResetButton = document.getElementById('editor-reset-button');
 const editorForm = document.getElementById('command-editor');
@@ -249,15 +261,18 @@ function updateSortDirectionButton() {
   commandSortDirection.title = label;
 }
 
-function setupEditorToolButton(button, label, iconName) {
-  button.textContent = '';
-  button.append(createMaterialIcon(iconName));
+function setupEditorToolButton(button, shortLabel, label) {
+  button.textContent = shortLabel;
   button.setAttribute('aria-label', label);
   button.title = label;
 }
 
-setupEditorToolButton(editorCodeFormatButton, editorFormatSelectionLabel, 'code_xml');
-setupEditorToolButton(editorHelpTemplateFormatButton, editorFormatSelectionLabel, 'code_xml');
+setupEditorToolButton(editorCodeFormatButtons.js, 'JS', editorFormatSelectionJsLabel);
+setupEditorToolButton(editorCodeFormatButtons.html, 'HTML', editorFormatSelectionHtmlLabel);
+setupEditorToolButton(editorCodeFormatButtons.css, 'CSS', editorFormatSelectionCssLabel);
+setupEditorToolButton(editorHelpTemplateFormatButtons.js, 'JS', editorFormatSelectionJsLabel);
+setupEditorToolButton(editorHelpTemplateFormatButtons.html, 'HTML', editorFormatSelectionHtmlLabel);
+setupEditorToolButton(editorHelpTemplateFormatButtons.css, 'CSS', editorFormatSelectionCssLabel);
 
 function compareCommandValues(left, right) {
   if (commandSortKey === 'name') {
@@ -280,12 +295,33 @@ function setStatus(container, kind, messages) {
   container.className = `bundle-status bundle-status-${kind}`;
   container.textContent = '';
 
+  const header = document.createElement('div');
+  header.className = 'bundle-status-header';
+
+  const linesContainer = document.createElement('div');
+  linesContainer.className = 'bundle-status-lines';
+
   for (const line of lines) {
     const item = document.createElement('div');
     item.className = 'bundle-status-line';
     item.textContent = line;
-    container.append(item);
+    linesContainer.append(item);
   }
+
+  const dismissButton = document.createElement('button');
+  dismissButton.type = 'button';
+  dismissButton.className = 'bundle-status-dismiss';
+  dismissButton.setAttribute('aria-label', statusDismissLabel);
+  dismissButton.title = statusDismissLabel;
+  dismissButton.textContent = '×';
+  dismissButton.addEventListener('click', () => {
+    container.hidden = true;
+    container.className = 'bundle-status';
+    container.textContent = '';
+  });
+
+  header.append(linesContainer, dismissButton);
+  container.append(header);
 }
 
 function setBundleStatus(kind, messages) {
@@ -525,20 +561,18 @@ function focusCodeMirrorEditor(editor) {
 async function formatCodeMirrorSelection(editor, prettierOptions) {
   const doc = editor.state.doc.toString();
   const range = editor.state.selection.main;
-  const formatted = await prettier.format(doc, {
-    ...prettierOptions,
-    rangeStart: range.from,
-    rangeEnd: range.to
-  });
+  const hasSelection = range.from !== range.to;
+  const source = hasSelection ? doc.slice(range.from, range.to) : doc;
+  const formatted = await prettier.format(source, prettierOptions);
   editor.dispatch({
     changes: {
-      from: 0,
-      to: editor.state.doc.length,
+      from: hasSelection ? range.from : 0,
+      to: hasSelection ? range.to : editor.state.doc.length,
       insert: formatted
     },
     selection: {
-      anchor: Math.min(range.from, formatted.length),
-      head: Math.min(range.to, formatted.length)
+      anchor: hasSelection ? range.from : 0,
+      head: (hasSelection ? range.from : 0) + formatted.length
     }
   });
   editor.focus();
@@ -1201,33 +1235,42 @@ document.getElementById('editor-section-tabs').addEventListener('wa-tab-show', (
   focusEditorSection(event.detail.name);
 });
 
-editorCodeFormatButton.addEventListener('mousedown', (event) => {
-  event.preventDefault();
-});
-
-editorHelpTemplateFormatButton.addEventListener('mousedown', (event) => {
-  event.preventDefault();
-});
-
-editorCodeFormatButton.addEventListener('click', () => {
-  formatCodeMirrorSelection(codeEditor, {
-    parser: 'babel',
-    plugins: [prettierPluginBabel, prettierPluginEstree]
-  }).catch((error) => {
-    console.error('[factotum] format code failed', error);
-    setEditorStatus('error', error.message || String(error));
+function bindFormatterButton(button, editor, options, errorPrefix) {
+  button.addEventListener('mousedown', (event) => {
+    event.preventDefault();
   });
-});
-
-editorHelpTemplateFormatButton.addEventListener('click', () => {
-  formatCodeMirrorSelection(helpTemplateEditor, {
-    parser: 'html',
-    plugins: [prettierPluginHtml]
-  }).catch((error) => {
-    console.error('[factotum] format help template failed', error);
-    setEditorStatus('error', error.message || String(error));
+  button.addEventListener('click', () => {
+    formatCodeMirrorSelection(editor, options).catch((error) => {
+      console.error(`[factotum] ${errorPrefix} failed`, error);
+      setEditorStatus('error', error.message || String(error));
+    });
   });
-});
+}
+
+bindFormatterButton(editorCodeFormatButtons.js, codeEditor, {
+  parser: 'babel',
+  plugins: [prettierPluginBabel, prettierPluginEstree]
+}, 'format code as js');
+bindFormatterButton(editorCodeFormatButtons.html, codeEditor, {
+  parser: 'html',
+  plugins: [prettierPluginHtml]
+}, 'format code as html');
+bindFormatterButton(editorCodeFormatButtons.css, codeEditor, {
+  parser: 'css',
+  plugins: [prettierPluginPostcss]
+}, 'format code as css');
+bindFormatterButton(editorHelpTemplateFormatButtons.js, helpTemplateEditor, {
+  parser: 'babel',
+  plugins: [prettierPluginBabel, prettierPluginEstree]
+}, 'format help template as js');
+bindFormatterButton(editorHelpTemplateFormatButtons.html, helpTemplateEditor, {
+  parser: 'html',
+  plugins: [prettierPluginHtml]
+}, 'format help template as html');
+bindFormatterButton(editorHelpTemplateFormatButtons.css, helpTemplateEditor, {
+  parser: 'css',
+  plugins: [prettierPluginPostcss]
+}, 'format help template as css');
 
 editorForm.addEventListener('submit', (event) => {
   event.preventDefault();

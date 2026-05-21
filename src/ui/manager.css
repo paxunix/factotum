@@ -143,6 +143,38 @@ wa-textarea.bundle-textarea::part(textarea) {
   overflow: auto;
 }
 
+.bundle-status-header {
+  align-items: start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.bundle-status-lines {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.bundle-status-dismiss {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: inherit;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.bundle-status-dismiss:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 .bundle-status-line {
   line-height: 1.5;
   white-space: pre-wrap;
@@ -200,6 +232,11 @@ wa-textarea.bundle-textarea::part(textarea) {
 .icon-button::part(base) {
   aspect-ratio: 1;
   padding-inline: 0;
+}
+
+.editor-tool-button::part(base) {
+  min-width: 44px;
+  padding-inline: 10px;
 }
 
 .material-icon {
