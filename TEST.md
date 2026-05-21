@@ -84,25 +84,28 @@ Each test lists: **Setup → Action → Expected**.
   * The current tab’s existing Factotum session console reappears
   * Prior scrollback bubbles for that tab are still present
 
-#### T1: Exact alias expansion wins over command name
+#### T1: Exact name outranks exact alias and prefix matches
 
-* Setup: define alias `okcmd → ok@demo.ok`
-* Action: omnibox `f okcmd`
+* Setup:
+
+  * install `ok@demo.ok`
+  * define alias `ok → pick@fixture.B`
+* Action: omnibox `f ok`
 * Expected:
 
-  * Omnibox suggestions may preview the resolved command and its description
   * Runs `ok@demo.ok` (overlay shows that)
-  * If an alias key points to multiple enabled commands, the MRU target is selected
+  * Omnibox suggestions rank the exact command-name match ahead of alias and prefix matches
   * MRU for that command updates immediately
   * Log includes at least one entry (even if command does nothing visible)
 
-#### T2: Fully qualified command runs exact match
+#### T2: Exact alias resolves MRU-first among alias targets
 
-* Action: `f ok@demo.ok`
+* Setup: define alias `okcmd` targeting `ok@demo.ok` and another enabled command with a lower `mruAt`
+* Action: `f okcmd`
 * Expected:
 
-  * Correct command runs
-  * Overlay shows `ok@demo.ok`
+  * Runs the highest-MRU enabled command among the alias targets
+  * Omnibox suggestions list the alias-target candidates in rank order
 
 #### T3: Bare name resolves MRU-first
 
@@ -140,15 +143,19 @@ Each test lists: **Setup → Action → Expected**.
   * Instead, a separate no-such-command system bubble is appended while the running command remains active/cancelable.
   * The active invocation should remain cancelable and the tab should become runnable again once that invocation ends or is canceled.
 
-#### T4a: Prefix-matched command suggestions are informational
+#### T4a: Prefix-matched name and alias suggestions drive default execution
 
-* Setup: installed commands include `pick@fixture.A` and `pick@fixture.B`
+* Setup:
+
+  * installed commands include `pick@fixture.A`, `pick@fixture.B`, and an alias `piquick -> pick@fixture.B`
+  * `pick@fixture.B` has the newer MRU
 * Action: type `f pi`
 * Expected:
 
-  * Omnibox suggestions include distinct `pick@fixture.A` and `pick@fixture.B` entries with description text
-  * Selecting a suggestion inserts or executes that suggestion content
-  * If the user simply presses Enter on the unmatched free-typed text, normal v1 resolution rules still apply
+  * Omnibox suggestions include case-insensitive matches from both command names and alias keys
+  * Suggestions are ordered by exact-name, exact-alias, name-prefix, alias-prefix, then MRU within each bucket
+  * Pressing Enter without changing selection runs the first suggestion
+  * Arrow-selecting another suggestion runs that selected command instead
 
 #### T4b: Localized description in UI
 

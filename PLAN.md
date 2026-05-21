@@ -49,8 +49,8 @@ Each milestone should end with a runnable subset and the matching manual tests f
 **Delivered**
 - Storage layer CRUD (`fcmd:index`, `fcmd:aliases`, `fcmd:cmd:<name>@<id>`) with import/export.
 - Validation for name/id and `disabled` support in storage.
-- Omnibox resolution with MRU + disabled filtering and no‑such‑command handling.
-- Omnibox suggestion UX for exact-resolution previews and prefix-matched command-name suggestions.
+- Omnibox resolution with ranked case-insensitive name/alias prefix candidates, disabled filtering, and no‑such‑command handling.
+- Omnibox suggestion UX where the first suggestion is the default executable target and other suggestions disambiguate alternate matches.
 - Manager bundle import/export and enable/disable controls to make M1 manually testable.
 - Quarantine handling for invalid stored commands, with separate `invalidCommands[]` export/import preservation and manager visibility.
 - Existing valid command editor for description JSON, code, help template/strings, optionsSpec, and requires, plus command-card enablement switching, presented in the Manager tab's two-pane layout with filterable command-name navigation.
@@ -431,7 +431,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 # Test Plan (Manual + Harness)
 
 ## Manual Smoke Suite (required)
-- Alias wins; `name@id`; bare name MRU‑first; no‑such‑command behavior.
+- Ranked exact/prefix name and alias matching, MRU tie-breaking, and no-such-command behavior.
 - Non‑injectable page hard error.
 - Overlay appears and status transitions.
 - Cancel button; cancel‑on‑navigation; cancel‑on‑tab‑close.

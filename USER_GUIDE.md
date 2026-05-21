@@ -10,18 +10,28 @@ Current interaction model:
 - open the omnibox keyword, then run a command
 - command output appears in the per-tab session console overlay
 - `f -` reopens the current tab's hidden session console
+- typing a name or alias prefix shows matching commands in the omnibox, and Enter runs the first suggestion by default
 
 ## Basic usage
 
 1. Type the omnibox keyword, for example `f`
-2. Enter a command such as `ok@demo.ok`
+2. Enter a command name or alias, or enough of a prefix to surface the command you want
 3. Press Enter
 
 Examples:
-- `f ok@demo.ok`
+- `f ok`
+- `f okcmd`
 - `f pick`
 - `f helpdemo --help`
 - `f -`
+
+Matching in the omnibox is case-insensitive. Factotum ranks matches in this order:
+- exact command name
+- exact alias
+- command-name prefix
+- alias prefix
+
+Within the same bucket, the most recently run command comes first.
 
 ## What the overlay shows
 

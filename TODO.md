@@ -13,8 +13,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 ## Current TODOs
 
 ### Omnibox / UX
-O1. Manually verify the new prefix-suggestion UX in Chrome once suggestion-driven execution lands, including alias/name ranking and `--help` suggestions.
-O2. Rework omnibox execution around ranked case-insensitive name/alias prefix candidates, with the first suggestion as the default target on Enter.
 O3. Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
 O4. If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
 

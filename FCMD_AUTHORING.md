@@ -27,6 +27,11 @@ An fcommand record must use `world: "user_script"` and define an async `main()` 
 
 Aliases are not part of the command record schema. Users assign aliases separately in the Manager UI, and the extension stores them in the global alias map.
 
+From an author's perspective, this means command discovery in the omnibox is driven by:
+- command names
+- user-defined aliases for those commands
+- case-insensitive prefix matching across both
+
 ## Runtime model
 
 - Commands run tab-bound in `USER_SCRIPT`.

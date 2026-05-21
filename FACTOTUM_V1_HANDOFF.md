@@ -51,7 +51,7 @@ The main remaining follow-ups in this area are presentation refinements rather t
 - Fcommand: user-installed command definition (metadata + JS).
 - name: single token command word.
 - id: canonical disambiguator.
-- Fully-qualified token: `name@id`.
+- Fully-qualified token: `name@id` used internally when a selected omnibox suggestion must disambiguate a specific command.
 - Alias: user-defined mapping from token → one or more `{name,id}` command refs (no args).
 - SW: MV3 service worker.
 - OR: overlay runner (ISOLATED, top frame).
@@ -76,7 +76,7 @@ The main remaining follow-ups in this area are presentation refinements rather t
 
 ### 2.3 Alias key
 - Regex: `^[A-Za-z0-9_-]+$`
-- Alias wins over command names on exact match
+- Alias keys participate in omnibox candidate ranking and may point to one or more commands
 
 ### 2.4 Fully-qualified parsing
 - Split on first `@` only.
@@ -256,33 +256,33 @@ If authors provide localized `description` for options, those should be used whe
 
 ### 4.2 Resolution algorithm
 1) cmdToken = first token; argvTokens = rest
-2) If cmdToken matches alias key exactly:
-   - gather enabled commands referenced by that alias key
-   - select MRU-first among those targets
-3) If cmdToken is `name@id`:
-   - run exact match; if duplicates, select MRU-first among duplicates
-4) If cmdToken is bare `name`:
-   - select MRU-first among commands with that name
-   - skip commands with `disabled: true`
-5) If no match:
+2) Omit commands with `disabled: true` from all candidate generation.
+3) Build a candidate set from enabled commands whose `name` or any alias key starts with `cmdToken`, using case-insensitive comparison.
+4) Rank candidates by:
+   - exact full `name` match
+   - exact full alias match
+   - prefix-of-`name` match
+   - prefix-of-alias match
+   - MRU-first within the same rank bucket
+5) The first ranked candidate is the default command that runs if the user presses Enter without arrow-selecting another suggestion.
+6) If the user arrow-selects another suggestion, that exact suggestion target runs with the same trailing args.
+7) A selected suggestion may submit an internal fully-qualified token (`name@id`) so the chosen command remains deterministic even when multiple commands share the same name.
+8) If no match:
    - show omnibox suggestion “No such command: …”
    - on execute: overlay error
 
 ### 4.2a Omnibox suggestion UX
 - `onInputStarted` may preload command index and alias data for the current omnibox session.
-- `onInputChanged` may present informational suggestions derived from the current input.
+- `onInputChanged` may present executable suggestions derived from the current input.
 - Suggestions may include:
-  - the exact command that would run
-  - whether the resolution came from alias, exact `name@id`, or bare-name MRU resolution
+  - the exact command that would run if Enter is pressed immediately
+  - whether the candidate came from exact name, exact alias, name prefix, or alias prefix matching
   - localized command description text
-  - disabled-state feedback
-  - prefix-matched command-name suggestions when the typed first token is a prefix of installed command names
+  - additional command-name and alias-prefix matches beyond the default first suggestion
   - a `--help` suggestion for a resolved command
-- Prefix suggestions are informational only and must not change execution semantics:
-  - free-typed execution still follows the resolution algorithm in §4.2
-  - no fuzzy matching, typo correction, or semantic alternates in v1
-  - no suggestion may override alias precedence or bare-name MRU behavior
-- Disabled commands may be shown in suggestions for feedback, but remain excluded from invocation.
+- Prefix suggestions participate directly in execution semantics through the default selected suggestion.
+- No fuzzy matching, typo correction, or semantic alternates in v1.
+- Disabled commands are omitted from suggestions and invocation.
 
 ### 4.3 MRU update
 - MRU updates on invocation start (regardless of success/failure), consistent with shell history.
@@ -577,7 +577,7 @@ Error codes:
 
 Covers:
 
-* alias wins, fully qualified, bare name MRU-first, no-such-command behavior
+* ranked exact/prefix name and alias matching, MRU tie-breaking, and no-such-command behavior
 * non-injectable page hard error
 * overlay appears and status transitions
 * cancel button, cancel-on-navigation, cancel-on-tab-close

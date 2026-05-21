@@ -31,36 +31,41 @@ function getSessionState() {
   return null;
 }
 
-function splitInput(text) {
-  const trimmed = String(text || '').trim();
-  const firstWhitespace = trimmed.search(/\s/);
-  if (firstWhitespace < 0) {
-    return {
-      cmdToken: trimmed,
-      remainder: ''
-    };
+function buildResolutionLabel(matchKind) {
+  switch (matchKind) {
+    case 'qualified':
+      return 'selected';
+    case 'exact-name':
+      return 'name';
+    case 'exact-alias':
+      return 'alias';
+    case 'prefix-name':
+      return 'name prefix';
+    case 'prefix-alias':
+      return 'alias prefix';
+    default:
+      return 'match';
   }
-
-  return {
-    cmdToken: trimmed.slice(0, firstWhitespace),
-    remainder: trimmed.slice(firstWhitespace)
-  };
 }
 
-function buildResolvedSuggestion(resolution) {
-  const description = resolveLocalizedText(resolution.command.description, 'en-US');
+function buildResolvedSuggestion(candidate, argvTokens) {
+  const description = resolveLocalizedText(candidate.command.description, 'en-US');
   const detailParts = [
-    `${resolution.command.name}@${resolution.command.id}`,
-    resolution.resolutionType === 'alias' ? 'alias' : resolution.resolutionType === 'qualified' ? 'exact' : 'MRU'
+    `${candidate.command.name}@${candidate.command.id}`,
+    buildResolutionLabel(candidate.matchKind)
   ];
 
-  if (resolution.command.disabled) {
+  if (candidate.matchedAlias) {
+    detailParts.push(candidate.matchedAlias);
+  }
+
+  if (candidate.command.disabled) {
     detailParts.push('disabled');
   }
 
   const suffix = description ? ` - ${description}` : '';
   return {
-    content: `${resolution.command.name}@${resolution.command.id}${resolution.argvTokens.length > 0 ? ` ${resolution.argvTokens.join(' ')}` : ''}`,
+    content: `${candidate.command.name}@${candidate.command.id}${argvTokens.length > 0 ? ` ${argvTokens.join(' ')}` : ''}`,
     description: `${escapeHtml(detailParts.join(' · '))}${escapeHtml(suffix)}`
   };
 }
@@ -74,38 +79,6 @@ function buildHelpSuggestion(resolution) {
     content: `${resolution.command.name}@${resolution.command.id} --help`,
     description: `${escapeHtml(`${resolution.command.name}@${resolution.command.id} · help preview`)}`
   };
-}
-
-function buildPrefixSuggestions(indexCommands, text) {
-  const { cmdToken, remainder } = splitInput(text);
-  if (!cmdToken || cmdToken.includes('@')) {
-    return [];
-  }
-  return indexCommands
-    .filter((entry) => entry.name.startsWith(cmdToken))
-    .sort((left, right) => {
-      const leftMru = Number.isFinite(left.mruAt) ? left.mruAt : -1;
-      const rightMru = Number.isFinite(right.mruAt) ? right.mruAt : -1;
-      if (leftMru !== rightMru) {
-        return rightMru - leftMru;
-      }
-      return right.updatedAt - left.updatedAt;
-    })
-    .slice(0, 6)
-    .map((entry) => {
-      const description = resolveLocalizedText(entry.description, 'en-US');
-      const parts = [`${entry.name}@${entry.id}`];
-      if (entry.disabled) {
-        parts.push('disabled');
-      }
-      if (description) {
-        parts.push(description);
-      }
-      return {
-        content: `${entry.name}@${entry.id}${remainder}`,
-        description: escapeHtml(parts.join(' · '))
-      };
-    });
 }
 
 export async function preloadOmniboxSession() {
@@ -171,23 +144,28 @@ export async function getOmniboxSuggestions(text) {
   }
 
   const state = getSessionState() || await loadOmniboxState();
-  const resolution = await resolveInvocationInput(trimmed);
-  if (resolution.ok) {
-    const suggestions = [buildResolvedSuggestion(resolution)];
-    const helpSuggestion = buildHelpSuggestion(resolution);
+  const resolution = resolveCommand(state.indexCommands, state.aliases, trimmed);
+  if (!resolution.ok) {
+    return [{
+      content: trimmed,
+      description: formatNoSuchCommandSuggestion(trimmed)
+    }];
+  }
+
+  const suggestions = resolution.candidates
+    .slice(0, 6)
+    .map((candidate) => buildResolvedSuggestion(candidate, resolution.argvTokens));
+
+  const fullCommand = await getCommand(resolution.command.name, resolution.command.id);
+  if (fullCommand) {
+    const helpSuggestion = buildHelpSuggestion({
+      ...resolution,
+      command: fullCommand
+    });
     if (helpSuggestion) {
       suggestions.push(helpSuggestion);
     }
-    return suggestions;
   }
 
-  const prefixSuggestions = buildPrefixSuggestions(state.indexCommands, trimmed);
-  if (prefixSuggestions.length > 0) {
-    return prefixSuggestions;
-  }
-
-  return [{
-    content: trimmed,
-    description: formatNoSuchCommandSuggestion(trimmed)
-  }];
+  return suggestions;
 }
