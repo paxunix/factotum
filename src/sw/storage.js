@@ -210,6 +210,10 @@ async function setMany(values) {
   return chrome.storage.local.set(values);
 }
 
+async function removeMany(keys) {
+  return chrome.storage.local.remove(keys);
+}
+
 export async function getIndexRecord() {
   const result = await getMany([INDEX_KEY]);
   const index = result[INDEX_KEY];
@@ -282,6 +286,37 @@ export async function saveCommand(record, options = {}) {
   });
 
   return normalized;
+}
+
+export async function deleteCommand(name, id) {
+  const normalizedName = validateCommandName(name);
+  const normalizedId = validateCommandId(id);
+  const key = commandStorageKey(normalizedName, normalizedId);
+  const index = await getIndexRecord();
+  const nextCommands = index.commands.filter((entry) => !(entry.name === normalizedName && entry.id === normalizedId));
+  const aliases = await getAliasMap();
+  const nextAliases = {};
+
+  for (const [alias, targets] of Object.entries(aliases)) {
+    const remainingTargets = targets.filter((target) => !(target.name === normalizedName && target.id === normalizedId));
+    if (remainingTargets.length > 0) {
+      nextAliases[alias] = remainingTargets;
+    }
+  }
+
+  await setMany({
+    [INDEX_KEY]: {
+      schemaVersion: INDEX_SCHEMA_VERSION,
+      commands: nextCommands
+    },
+    [ALIASES_KEY]: nextAliases
+  });
+  await removeMany([key]);
+
+  return {
+    name: normalizedName,
+    id: normalizedId
+  };
 }
 
 export async function updateCommandMru(name, id, mruAt = Date.now()) {

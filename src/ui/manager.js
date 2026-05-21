@@ -17,6 +17,7 @@ import '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
 import '@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js';
 import '@awesome.me/webawesome/dist/components/textarea/textarea.js';
 import {
+  deleteCommand,
   exportBundle,
   getAliasMap,
   getCommand,
@@ -65,6 +66,8 @@ const disabledLabel = getMessage('managerCommandDisabled', 'Disabled');
 const invalidLabel = getMessage('managerCommandInvalid', 'Invalid');
 const validationIssueLabel = getMessage('managerCommandValidationIssue', 'Validation issue');
 const invalidDescriptionLabel = getMessage('managerCommandInvalidDescription', 'This command is quarantined and excluded from resolution, invocation, and normal export.');
+const commandDeleteLabel = getMessage('managerCommandDelete', 'Delete command');
+const commandDeleteDisableFirstLabel = getMessage('managerCommandDeleteDisableFirst', 'Disable the command before deleting it');
 const editorTitle = getMessage('managerEditorTitle', 'Command Editor');
 const editorHint = getMessage('managerEditorHint', 'Edit an installed valid command. Name and ID are read-only in this first editor slice.');
 const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command to edit.');
@@ -80,6 +83,7 @@ const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires JSON a
 const editorSaveLabel = getMessage('managerEditorSave', 'Save Command');
 const editorResetLabel = getMessage('managerEditorReset', 'Reset');
 const editorSavedLabel = getMessage('managerEditorSaved', 'Saved command: $COMMAND$');
+const editorDeletedLabel = getMessage('managerEditorDeleted', 'Deleted command: $COMMAND$');
 const editorUnsavedChangesLabel = getMessage('managerEditorUnsavedChanges', 'Save or reset the current command before editing another command.');
 const editorIdentitySectionLabel = getMessage('managerEditorSectionIdentity', 'Identity');
 const editorDescriptionSectionLabel = getMessage('managerEditorSectionDescription', 'Description');
@@ -428,6 +432,14 @@ function setEditorVisible(visible) {
   }
 }
 
+function clearSelectedCommandState() {
+  selectedCommandRef = null;
+  selectedCommand = null;
+  selectedMenuCommandRef = null;
+  setEditorVisible(false);
+  clearEditorStatus();
+}
+
 function getEditorSnapshot() {
   return {
     description: editorFields.description.value,
@@ -730,6 +742,16 @@ async function saveEditedCommand() {
   await loadCommands();
 }
 
+async function handleDeleteCommand(commandRef) {
+  clearBundleStatus();
+  await deleteCommand(commandRef.name, commandRef.id);
+  if (commandRefsMatch(commandRef, selectedCommandRef)) {
+    clearSelectedCommandState();
+  }
+  await loadCommands();
+  setBundleStatus('success', formatMessage('managerEditorDeleted', editorDeletedLabel, commandRefKey(commandRef)));
+}
+
 async function setCommandDisabled(commandRef, disabled) {
   const command = await getCommand(commandRef.name, commandRef.id);
   if (!command) {
@@ -774,6 +796,38 @@ function buildCommandStatus(command) {
   return status;
 }
 
+function buildCommandDeleteButton(command) {
+  const button = document.createElement('wa-button');
+  button.className = 'icon-button command-delete-button';
+  button.variant = 'neutral';
+  button.size = 'small';
+  button.type = 'button';
+  button.append(createMaterialIcon('delete'));
+  const canDelete = command.invalid || command.disabled;
+  const label = canDelete ? commandDeleteLabel : commandDeleteDisableFirstLabel;
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  button.disabled = !canDelete;
+  if (!canDelete) {
+    button.classList.add('command-delete-button-disabled');
+  }
+  button.addEventListener('click', () => {
+    if (!canDelete) {
+      return;
+    }
+    button.disabled = true;
+    handleDeleteCommand(command)
+      .catch((error) => {
+        console.error('[factotum] delete command failed', error);
+        setBundleStatus('error', error.message || String(error));
+      })
+      .finally(() => {
+        button.disabled = false;
+      });
+  });
+  return button;
+}
+
 function buildCommandDetailCard(command) {
   const card = document.createElement('article');
   card.className = 'command-card command-detail-card';
@@ -788,9 +842,14 @@ function buildCommandDetailCard(command) {
   name.className = 'command-name';
   name.textContent = command.name;
 
-  const status = buildCommandStatus(command);
+  const actions = document.createElement('div');
+  actions.className = 'command-card-actions';
 
-  header.append(name, status);
+  const status = buildCommandStatus(command);
+  const deleteButton = buildCommandDeleteButton(command);
+  actions.append(status, deleteButton);
+
+  header.append(name, actions);
 
   const aliases = aliasesForCommand(command);
   const meta = document.createElement('div');
@@ -920,11 +979,7 @@ async function handleImportBundle() {
 
   try {
     const result = await importBundle(parsed);
-    selectedCommandRef = null;
-    selectedCommand = null;
-    selectedMenuCommandRef = null;
-    setEditorVisible(false);
-    clearEditorStatus();
+    clearSelectedCommandState();
     const statusLines = [`Imported ${result.importedCommands.length} command(s).`];
     for (const command of result.importedCommands) {
       statusLines.push(formatImportCommandMessage(command));

@@ -91,6 +91,7 @@ Use the Manager page to:
 - export current commands
 - review quarantined invalid commands
 - edit installed valid commands
+- delete installed commands from the selected command card with the trash button
 
 For maintained test fixtures, use:
 - `fixtures/fixtures-v1.json`
@@ -110,6 +111,7 @@ The Code and Help HTML template editors include an icon-only `code_xml` toolbar 
 The Export section shows a read-only bundle for the selected command. The JSON includes the current editor contents and only the alias entries that target that command, so it can be pasted into Bundle Tools and imported directly.
 
 Use the Enabled/Disabled status pill on the selected command card to enable or disable that command.
+Use the trash button on the selected command card to permanently delete that command. There is no undo. Enabled commands must be disabled before deletion; quarantined invalid commands can be deleted directly.
 
 The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, Code, and Export. Select a tab to edit or inspect that part of the command while keeping the same whole-command Save and Reset actions.
 Save Command is enabled only after an editable field changes; Reset returns the editor to the stored command and disables Save again.

@@ -123,6 +123,14 @@
     "message": "This command is quarantined and excluded from resolution, invocation, and normal export.",
     "description": "Description shown for quarantined invalid commands"
   },
+  "managerCommandDelete": {
+    "message": "Delete command",
+    "description": "Label for the manager command delete button"
+  },
+  "managerCommandDeleteDisableFirst": {
+    "message": "Disable the command before deleting it",
+    "description": "Tooltip for the manager command delete button when deletion is blocked until disable"
+  },
   "managerExportInvalidSummary": {
     "message": "Preserved $COUNT$ invalid command(s).",
     "description": "Manager export success summary for quarantined invalid commands",
@@ -217,6 +225,15 @@
   "managerEditorSaved": {
     "message": "Saved command: $COMMAND$",
     "description": "Manager command editor success message",
+    "placeholders": {
+      "command": {
+        "content": "$1"
+      }
+    }
+  },
+  "managerEditorDeleted": {
+    "message": "Deleted command: $COMMAND$",
+    "description": "Manager command delete success message",
     "placeholders": {
       "command": {
         "content": "$1"

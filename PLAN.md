@@ -39,7 +39,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current RPC state: `ctx.chrome` now works for the v1 one-shot surface, including callback-style methods like `tabs.query`/`bookmarks.search`, namespace denylist rejection, and event/listener-shape rejection.
 - Current bridge state: `ctx.main.define/call` works with nonce-scoped responses, and spoofed nonce messages are ignored.
 - Current requires state: sequential MAIN script loads, MAIN module imports, `data:` rejection, and best-effort USER_SCRIPT module failure paths are implemented and manually verified.
-- Current manager state: the page uses top-level Manager and Utilities tabs. The Manager tab is a two-pane command navigation plus editor view; the Utilities tab contains bundle import/export with a full-height, internally scrolling bundle JSON field. The command panel has a filterable and sortable vertical command-name tab menu plus one selected-command detail card, including alias display. Bundle import/export, enable/disable, quarantine visibility, per-command import diagnostics, editable alias lists in the Identity section, and editing existing valid command body fields are implemented.
+- Current manager state: the page uses top-level Manager and Utilities tabs. The Manager tab is a two-pane command navigation plus editor view; the Utilities tab contains bundle import/export with a full-height, internally scrolling bundle JSON field. The command panel has a filterable and sortable vertical command-name tab menu plus one selected-command detail card, including alias display. Bundle import/export, enable/disable, disable-before-delete hard delete, quarantine visibility, per-command import diagnostics, editable alias lists in the Identity section, and editing existing valid command body fields are implemented.
 - Current near-term follow-ups: visual distinction between output/result/system bubbles, full manager/editor UX, dev harness automation, and a cleaner future `--debug` wrapper boundary.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
@@ -85,7 +85,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 
 **Include**
 - Manager layout iteration: filterable command navigation and the top-level Manager/Utilities tab split are implemented.
-- Manager editor iteration: delete with undo, stronger command-card hierarchy, structured editors for localized text/help/options/requires, and overlay-backed help preview.
+- Manager editor iteration: stronger command-card hierarchy, structured editors for localized text/help/options/requires, and overlay-backed help preview.
 - Session-console bubble styling distinctions for output vs command-state/system entries.
 - Dev harness hooks/page for repeatable A1-A5 automation.
 - Wrapper cleanup so a future `--debug` mode has a stable boundary before `main(argv, ctx)`.

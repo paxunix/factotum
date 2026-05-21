@@ -243,6 +243,12 @@ wa-textarea.bundle-textarea::part(textarea) {
   justify-content: space-between;
 }
 
+.command-card-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
 .command-name {
   color: rgb(15, 23, 42);
   font-size: 18px;
@@ -303,6 +309,23 @@ button.command-status:focus-visible {
 .command-status-invalid {
   background: rgba(245, 158, 11, 0.16);
   color: rgb(146, 64, 14);
+}
+
+.command-delete-button::part(base) {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.16);
+  color: rgb(185, 28, 28);
+}
+
+.command-delete-button:hover::part(base),
+.command-delete-button:focus-visible::part(base) {
+  background: rgba(220, 38, 38, 0.14);
+}
+
+.command-delete-button-disabled::part(base) {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.16);
+  color: rgb(100, 116, 139);
 }
 
 .empty-state {
