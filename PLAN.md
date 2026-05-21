@@ -242,7 +242,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Provide editing for `optionsSpec` (flags, descriptions, defaults) used for help generation. Current state: implemented as JSON textarea.
 - Manage aliases (add/remove alias keys for a command). Current state: implemented through the Identity editor section over the global alias map.
 - Import bundle with warnings for duplicates/alias collisions. Current state: implemented without per-command selection.
-- Export all to bundleSchemaVersion 1. Current state: implemented.
+- Export all to bundleSchemaVersion 1 from Utilities. Current state: implemented; per-command Export now emits only the single command record.
 - Provide richer structured creation/editing flows beyond the current raw JSON/code fields.
 
 **Files (expected)**

@@ -24,11 +24,11 @@
     "description": "Manager section title for import and export"
   },
   "managerBundleToolsHint": {
-    "message": "Import or export the v1 bundle format to populate storage for manual smoke testing.",
+    "message": "Import a single command JSON record or a full bundle, or export the current full extension bundle.",
     "description": "Manager section hint for import and export"
   },
   "managerImportBundle": {
-    "message": "Import Bundle",
+    "message": "Import JSON",
     "description": "Manager button label for importing a bundle"
   },
   "managerExportBundle": {
@@ -36,7 +36,7 @@
     "description": "Manager button label for exporting a bundle"
   },
   "managerBundleTextareaLabel": {
-    "message": "Bundle JSON",
+    "message": "Bundle or command JSON",
     "description": "Manager label for the bundle textarea"
   },
   "managerCommandsTitle": {

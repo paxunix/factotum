@@ -111,7 +111,7 @@ The current command editor supports both creating new commands and editing exist
 
 The Code and Help HTML template editors include `JS`, `HTML`, and `CSS` toolbar buttons. With no selection, the chosen button reformats the whole editor document. With a selection, it reformats only the selected text with the chosen Prettier parser, which is useful for embedded snippets. If the selected parser does not match valid content, the editor shows an inline error and leaves the text unchanged.
 
-The Export section shows a read-only bundle for the selected command. The JSON includes the current editor contents and only the alias entries that target that command, so it can be pasted into Bundle Tools and imported directly.
+The Export section shows a read-only JSON representation of the selected fcommand itself. It does not include alias data or a bundle wrapper.
 
 Use the switch or the Enabled/Disabled status pill on the selected command card to enable or disable that command.
 Use the trash button on the selected command card to permanently delete that command. There is no undo. Enabled commands must be disabled before deletion; quarantined invalid commands can be deleted directly.
@@ -123,6 +123,8 @@ Save Command is enabled only after an editable field changes; Reset returns the 
 If unsaved edits exist, selecting another command is blocked until you save or reset the current command. Reloading or navigating away from the manager page also triggers the browser's unsaved-changes prompt.
 If you manually return the edited fields to their loaded values, Save Command disables again and the save-or-reset warning is dismissed.
 Warning and error status messages in the manager can be dismissed directly from their status area.
+
+Utilities import accepts either a single fcommand JSON record or a full Factotum bundle JSON object. When importing a single command record, Factotum refuses to overwrite a different installed command with the same `name@id`; resolve that conflict manually first. Utilities export remains the whole-extension bundle export surface.
 
 ## Current limitations
 

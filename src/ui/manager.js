@@ -29,7 +29,7 @@ import {
   saveCommand,
   setAliases
 } from '../sw/storage.js';
-import { validateAliasKey } from '../sw/validation.js';
+import { normalizeCommandRecord, validateAliasKey } from '../sw/validation.js';
 
 // Ensure Web Awesome assets resolve inside the extension bundle.
 setBasePath(chrome.runtime.getURL('vendor/webawesome'));
@@ -415,17 +415,6 @@ function buildAliasMapForCommand(command, aliasNames, previousCommandRef = comma
   return next;
 }
 
-function buildAliasExportMapForCommand(command, aliasNames) {
-  const aliases = {};
-  for (const alias of aliasNames) {
-    aliases[alias] = [{
-      name: command.name,
-      id: command.id
-    }];
-  }
-  return aliases;
-}
-
 function commandMatchesFilter(command, filterText) {
   const query = filterText.trim().toLowerCase();
   if (!query) {
@@ -528,21 +517,11 @@ function editorHasUnsavedChanges() {
   return Boolean(editorBaseline && !snapshotsMatch(getEditorSnapshot(), editorBaseline));
 }
 
-function buildCommandExportBundle(command, aliasNames) {
-  return {
-    bundleSchemaVersion: 1,
-    exportedAt: Date.now(),
-    commands: [command],
-    aliases: buildAliasExportMapForCommand(command, aliasNames)
-  };
-}
-
 function refreshCommandExport() {
   clearEditorStatus();
   try {
     const command = readEditedCommand();
-    const aliasNames = parseEditorAliases(editorFields.aliases.value);
-    editorCommandExport.value = JSON.stringify(buildCommandExportBundle(command, aliasNames), null, 2);
+    editorCommandExport.value = JSON.stringify(command, null, 2);
   } catch (error) {
     editorCommandExport.value = '';
     setEditorStatus('error', error.message || String(error));
@@ -1124,6 +1103,40 @@ async function loadCommands() {
   renderCommands(currentCommands);
 }
 
+function looksLikeBundleImport(value) {
+  return Boolean(value && typeof value === 'object' && value.bundleSchemaVersion != null);
+}
+
+function looksLikeCommandImport(value) {
+  return Boolean(
+    value
+    && typeof value === 'object'
+    && !Array.isArray(value)
+    && typeof value.name === 'string'
+    && typeof value.id === 'string'
+    && typeof value.world === 'string'
+    && typeof value.code === 'string'
+  );
+}
+
+function commandRecordsMatch(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+async function importSingleCommand(commandRecord) {
+  const normalized = normalizeCommandRecord(commandRecord);
+  const existing = await getCommand(normalized.name, normalized.id);
+  if (existing && !commandRecordsMatch(existing, normalized)) {
+    throw new Error(`Refusing to overwrite different installed command: ${commandRefKey(normalized)}`);
+  }
+  const saved = await saveCommand(normalized);
+  return {
+    importedCommands: [saved],
+    quarantinedCommands: 0,
+    warnings: []
+  };
+}
+
 async function handleImportBundle() {
   clearBundleStatus();
 
@@ -1136,7 +1149,11 @@ async function handleImportBundle() {
   }
 
   try {
-    const result = await importBundle(parsed);
+    const result = looksLikeBundleImport(parsed)
+      ? await importBundle(parsed)
+      : looksLikeCommandImport(parsed)
+        ? await importSingleCommand(parsed)
+        : (() => { throw new Error('Import JSON must be a bundle or a single command record'); })();
     clearSelectedCommandState();
     const statusLines = [`Imported ${result.importedCommands.length} command(s).`];
     for (const command of result.importedCommands) {

@@ -232,7 +232,7 @@ Each test lists: **Setup → Action → Expected**.
   * Draft Identity fields are editable and Save stays disabled until the draft is changed.
   * Reset restores the initial draft defaults instead of closing the editor.
   * Saving a valid draft adds the new command to the installed command list and selects it.
-  * The saved command can be exported from the per-command Export section and from Utilities export.
+  * The saved command can be exported from the per-command Export section as a single command record and from Utilities export as part of the full bundle.
 
 #### T4e: Manager uses the tabbed two-pane editor layout
 
@@ -242,7 +242,7 @@ Each test lists: **Setup → Action → Expected**.
 
   * Manager presents top-level Manager and Utilities tabs.
   * The Manager tab contains command navigation and a wide command editor pane.
-  * The Utilities tab contains bundle import/export tools, and the bundle JSON field fills the pane with its own scrollbar.
+  * The Utilities tab contains import/export tools, and the JSON field fills the pane with its own scrollbar.
   * Each pane scrolls independently; the whole manager page does not jump while browsing long pane contents.
   * The command list is a concise vertical tab menu of command names with one detail card for the selected command.
   * The filter input matches substrings in command name, command ID, or command aliases.
@@ -258,7 +258,9 @@ Each test lists: **Setup → Action → Expected**.
   * With no selection, the chosen formatter applies to the whole editor document.
   * With a selection, the chosen formatter applies only to that selected text, so embedded snippets can be reformatted independently of the surrounding editor language.
   * Invalid content for a chosen parser reports an inline editor error and does not mutate the editor contents.
-  * The Export section shows a read-only v1 bundle containing the current edited command and only the alias entries that target that command; the JSON can be imported through Bundle Tools.
+  * The Export section shows a read-only JSON object for the current edited command only, with no alias data and no bundle wrapper.
+  * Utilities import accepts either that single command JSON object or a full bundle JSON object.
+  * Importing a single command JSON object aborts with an error instead of overwriting if an installed command with the same `name@id` already exists and differs from the input JSON.
   * Undo in either CodeMirror editor stops at the loaded command content and does not walk backward through prior command selections or the initial empty editor.
   * Disabled commands are visually muted in both the command menu and selected-command detail card while keeping the Disabled status pill clickable.
   * Selecting an editor section moves focus into that section: first field for form sections, Help template editor for Help, and current cursor position for Code.
