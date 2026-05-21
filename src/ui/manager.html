@@ -38,7 +38,10 @@
                 <wa-button id="command-sort-direction" class="icon-button" variant="neutral" size="small" type="button"></wa-button>
               </div>
               <div class="empty-state" id="command-list-empty" hidden></div>
-              <wa-tab-group placement="start" class="command-list command-tabs" id="command-list"></wa-tab-group>
+              <div class="command-list-body" id="command-list-body">
+                <wa-tab-group placement="start" class="command-list command-tabs" id="command-list"></wa-tab-group>
+                <div class="command-selected-card" id="command-selected-card" hidden></div>
+              </div>
             </aside>
 
             <section class="manager-pane command-editor-section" aria-labelledby="command-editor-title">

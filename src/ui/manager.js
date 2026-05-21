@@ -594,12 +594,35 @@ function canSelectCommand(commandRef) {
   return false;
 }
 
+function renderSelectedCommandCard(commands) {
+  const selectedCardContainer = document.getElementById('command-selected-card');
+  if (!selectedCardContainer) {
+    return;
+  }
+
+  if (!commands.length) {
+    selectedCardContainer.hidden = true;
+    selectedCardContainer.textContent = '';
+    return;
+  }
+
+  if (!commands.some((command) => commandRefsMatch(command, selectedMenuCommandRef))) {
+    selectedMenuCommandRef = { name: commands[0].name, id: commands[0].id };
+  }
+
+  const selectedCommandCard = commands.find((command) => commandRefsMatch(command, selectedMenuCommandRef)) || commands[0];
+  selectedCardContainer.hidden = false;
+  selectedCardContainer.textContent = '';
+  selectedCardContainer.append(buildCommandDetailCard(selectedCommandCard));
+}
+
 function applySelectedCommand(commandRef) {
   if (!canSelectCommand(commandRef)) {
     return;
   }
 
   selectedMenuCommandRef = commandRef;
+  renderSelectedCommandCard(getSortedCommands(currentCommands.filter((command) => commandMatchesFilter(command, getCommandFilterValue()))));
   selectCommandForEdit(commandRef).catch((error) => {
     console.error('[factotum] select command failed', error);
     setEditorStatus('error', error.message || String(error));
@@ -935,6 +958,7 @@ function buildCommandDetailCard(command) {
 function renderCommands(commands) {
   const container = document.getElementById('command-list');
   const emptyState = document.getElementById('command-list-empty');
+  const listBody = document.getElementById('command-list-body');
   const filteredCommands = getSortedCommands(commands.filter((command) => commandMatchesFilter(command, getCommandFilterValue())));
 
   container.active = '';
@@ -942,6 +966,8 @@ function renderCommands(commands) {
   if (commands.length === 0) {
     emptyState.hidden = false;
     emptyState.textContent = emptyMessage;
+    listBody.hidden = true;
+    renderSelectedCommandCard([]);
     container.hidden = true;
     currentPanelRefs = new Map();
     return;
@@ -950,17 +976,18 @@ function renderCommands(commands) {
   if (filteredCommands.length === 0) {
     emptyState.hidden = false;
     emptyState.textContent = noMatchesMessage;
+    listBody.hidden = true;
+    renderSelectedCommandCard([]);
     container.hidden = true;
     currentPanelRefs = new Map();
     return;
   }
 
   emptyState.hidden = true;
+  listBody.hidden = false;
   container.hidden = false;
 
-  if (!filteredCommands.some((command) => commandRefsMatch(command, selectedMenuCommandRef))) {
-    selectedMenuCommandRef = { name: filteredCommands[0].name, id: filteredCommands[0].id };
-  }
+  renderSelectedCommandCard(filteredCommands);
 
   currentPanelRefs = new Map();
   let activePanelName = '';
@@ -979,7 +1006,6 @@ function renderCommands(commands) {
 
     const panel = document.createElement('wa-tab-panel');
     panel.name = panelName;
-    panel.append(buildCommandDetailCard(command));
 
     if (commandRefsMatch(command, selectedMenuCommandRef)) {
       activePanelName = panelName;

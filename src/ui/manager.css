@@ -163,11 +163,30 @@ wa-textarea.bundle-textarea::part(textarea) {
   color: rgb(146, 64, 14);
 }
 
-.command-list {
+.command-list-body {
+  display: grid;
   flex: 1 1 auto;
+  gap: 14px;
+  grid-template-columns: minmax(120px, 0.62fr) minmax(240px, 1.38fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.command-list {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   min-height: 0;
   overflow: auto;
-  padding-right: 2px;
+  padding-right: 0;
+}
+
+.command-list::-webkit-scrollbar {
+  display: none;
+}
+
+.command-selected-card {
+  min-height: 0;
+  overflow: auto;
 }
 
 .command-list-controls {
@@ -194,6 +213,20 @@ wa-textarea.bundle-textarea::part(textarea) {
   background: rgb(37, 99, 235);
 }
 
+.command-tabs::part(base) {
+  min-height: 100%;
+}
+
+.command-tabs::part(body) {
+  display: none;
+}
+
+.command-tabs::part(nav) {
+  margin-inline-end: 0;
+  padding-inline-end: 0;
+  width: 100%;
+}
+
 .command-tabs wa-tab {
   font-weight: 680;
   letter-spacing: -0.01em;
@@ -203,10 +236,6 @@ wa-textarea.bundle-textarea::part(textarea) {
   color: rgb(100, 116, 139);
   font-style: italic;
   opacity: 0.72;
-}
-
-.command-tabs wa-tab-panel {
-  padding-inline-start: 14px;
 }
 
 .command-card {
