@@ -23,8 +23,10 @@ import {
   importBundle,
   listCommandIndex,
   resolveLocalizedText,
-  saveCommand
+  saveCommand,
+  setAliases
 } from '../sw/storage.js';
+import { validateAliasKey } from '../sw/validation.js';
 
 // Ensure Web Awesome assets resolve inside the extension bundle.
 setBasePath(chrome.runtime.getURL('vendor/webawesome'));
@@ -69,6 +71,7 @@ const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid comm
 const editorNameLabel = getMessage('managerEditorName', 'Name');
 const editorIdLabel = getMessage('managerEditorId', 'ID');
 const editorDescriptionLabel = getMessage('managerEditorDescription', 'Description JSON');
+const editorAliasesLabel = getMessage('managerEditorAliases', 'Aliases');
 const editorCodeLabel = getMessage('managerEditorCode', 'Code');
 const editorHelpTemplateLabel = getMessage('managerEditorHelpTemplate', 'Help HTML template');
 const editorHelpStringsLabel = getMessage('managerEditorHelpStrings', 'Help strings JSON');
@@ -133,6 +136,7 @@ const editorFields = {
   name: document.getElementById('editor-name'),
   id: document.getElementById('editor-id'),
   description: document.getElementById('editor-description'),
+  aliases: document.getElementById('editor-aliases'),
   code: document.getElementById('editor-code'),
   helpHtmlTemplate: document.getElementById('editor-help-template'),
   helpHtmlStrings: document.getElementById('editor-help-strings'),
@@ -157,6 +161,7 @@ commandSort.label = commandSortLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
 editorFields.description.label = editorDescriptionLabel;
+editorFields.aliases.label = editorAliasesLabel;
 editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
 editorFields.requires.label = editorRequiresLabel;
@@ -313,9 +318,61 @@ function commandRefsMatch(left, right) {
 
 function aliasesForCommand(command, aliases = currentAliases) {
   return Object.entries(aliases)
-    .filter(([, target]) => target.name === command.name && target.id === command.id)
+    .filter(([, targets]) => Array.isArray(targets) && targets.some((target) => commandRefsMatch(target, command)))
     .map(([alias]) => alias)
     .sort((left, right) => left.localeCompare(right));
+}
+
+function parseEditorAliases(value) {
+  const aliasNames = [];
+  const seen = new Set();
+  for (const token of value.split(/\s+/)) {
+    const alias = token.trim();
+    if (!alias || seen.has(alias)) {
+      continue;
+    }
+    validateAliasKey(alias);
+    seen.add(alias);
+    aliasNames.push(alias);
+  }
+  return aliasNames;
+}
+
+function buildAliasMapForCommand(command, aliasNames) {
+  const next = {};
+  for (const [alias, targets] of Object.entries(currentAliases)) {
+    const remainingTargets = Array.isArray(targets)
+      ? targets.filter((target) => !commandRefsMatch(target, command))
+      : [];
+    if (remainingTargets.length === 0) {
+      continue;
+    }
+    next[alias] = remainingTargets;
+  }
+
+  for (const alias of aliasNames) {
+    const targets = next[alias] ? [...next[alias]] : [];
+    if (!targets.some((target) => commandRefsMatch(target, command))) {
+      targets.push({
+        name: command.name,
+        id: command.id
+      });
+    }
+    next[alias] = targets;
+  }
+
+  return next;
+}
+
+function buildAliasExportMapForCommand(command, aliasNames) {
+  const aliases = {};
+  for (const alias of aliasNames) {
+    aliases[alias] = [{
+      name: command.name,
+      id: command.id
+    }];
+  }
+  return aliases;
 }
 
 function commandMatchesFilter(command, filterText) {
@@ -374,6 +431,7 @@ function setEditorVisible(visible) {
 function getEditorSnapshot() {
   return {
     description: editorFields.description.value,
+    aliases: editorFields.aliases.value,
     code: codeEditor.state.doc.toString(),
     helpHtmlTemplate: helpTemplateEditor.state.doc.toString(),
     helpHtmlStrings: editorFields.helpHtmlStrings.value,
@@ -407,25 +465,12 @@ function editorHasUnsavedChanges() {
   return Boolean(editorBaseline && !snapshotsMatch(getEditorSnapshot(), editorBaseline));
 }
 
-function aliasesForCommandMap(command) {
-  const aliases = {};
-  for (const [alias, target] of Object.entries(currentAliases)) {
-    if (target?.name === command.name && target?.id === command.id) {
-      aliases[alias] = {
-        name: command.name,
-        id: command.id
-      };
-    }
-  }
-  return aliases;
-}
-
-function buildCommandExportBundle(command) {
+function buildCommandExportBundle(command, aliasNames) {
   return {
     bundleSchemaVersion: 1,
     exportedAt: Date.now(),
     commands: [command],
-    aliases: aliasesForCommandMap(command)
+    aliases: buildAliasExportMapForCommand(command, aliasNames)
   };
 }
 
@@ -433,7 +478,8 @@ function refreshCommandExport() {
   clearEditorStatus();
   try {
     const command = readEditedCommand();
-    editorCommandExport.value = JSON.stringify(buildCommandExportBundle(command), null, 2);
+    const aliasNames = parseEditorAliases(editorFields.aliases.value);
+    editorCommandExport.value = JSON.stringify(buildCommandExportBundle(command, aliasNames), null, 2);
   } catch (error) {
     editorCommandExport.value = '';
     setEditorStatus('error', error.message || String(error));
@@ -586,6 +632,7 @@ function populateEditor(command) {
   editorFields.name.value = command.name;
   editorFields.id.value = command.id;
   editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
+  editorFields.aliases.value = aliasesForCommand(command).join(' ');
   setCodeMirrorValue(codeEditor, command.code, codeLanguage);
   setCodeMirrorValue(helpTemplateEditor, command.helpHtmlTemplate || '', helpTemplateLanguage);
   editorFields.helpHtmlStrings.value = stringifyJson(command.helpHtmlStrings);
@@ -664,12 +711,20 @@ function readEditedCommand() {
   return next;
 }
 
+function readEditedAliases() {
+  return parseEditorAliases(editorFields.aliases.value);
+}
+
 async function saveEditedCommand() {
   clearEditorStatus();
   if (editorSaveButton.disabled) {
     return;
   }
+  const aliasNames = readEditedAliases();
   const saved = await saveCommand(readEditedCommand());
+  const nextAliases = buildAliasMapForCommand(saved, aliasNames);
+  await setAliases(nextAliases);
+  currentAliases = nextAliases;
   populateEditor(saved);
   setEditorStatus('success', formatMessage('managerEditorSaved', editorSavedLabel, commandRefKey(saved)));
   await loadCommands();

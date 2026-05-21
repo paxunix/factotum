@@ -92,6 +92,7 @@ Each test lists: **Setup → Action → Expected**.
 
   * Omnibox suggestions may preview the resolved command and its description
   * Runs `ok@demo.ok` (overlay shows that)
+  * If an alias key points to multiple enabled commands, the MRU target is selected
   * MRU for that command updates immediately
   * Log includes at least one entry (even if command does nothing visible)
 
@@ -194,6 +195,7 @@ Each test lists: **Setup → Action → Expected**.
 
   * Selecting a valid command card opens the editor with name and ID visible but read-only
   * Editor sections include Identity, Description, Help, Options, Requires, Code, and Export
+  * The Identity section includes an editable single-line alias field using a space-delimited list of alias keys.
   * The selected command card has a clickable Enabled/Disabled status pill for toggling command availability.
   * Editable body fields include description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
   * Save reports `Saved command: name@id`
@@ -224,7 +226,7 @@ Each test lists: **Setup → Action → Expected**.
   * Code editing uses the bundled CodeMirror JavaScript editor with the default `basicSetup` editing affordances.
   * Help HTML template editing uses the bundled CodeMirror HTML editor with the default `basicSetup` editing affordances.
   * The Code and Help template editors have an icon-only `code_xml` toolbar button that reformats the current CodeMirror selection with Prettier using the editor language parser.
-  * The Export section shows a read-only v1 bundle containing the current edited command and aliases pointing to that command; the JSON can be imported through Bundle Tools.
+  * The Export section shows a read-only v1 bundle containing the current edited command and only the alias entries that target that command; the JSON can be imported through Bundle Tools.
   * Undo in either CodeMirror editor stops at the loaded command content and does not walk backward through prior command selections or the initial empty editor.
   * Disabled commands are visually muted in both the command menu and selected-command detail card while keeping the Disabled status pill clickable.
   * Selecting an editor section moves focus into that section: first field for form sections, Help template editor for Help, and current cursor position for Code.

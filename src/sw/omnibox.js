@@ -70,18 +70,20 @@ export function resolveCommand(indexCommands, aliases, input) {
   }
 
   const [initialCmdToken, ...argvTokens] = rawTokens;
-  const aliasTarget = aliases[initialCmdToken];
-  const effectiveCmdToken = aliasTarget ? `${aliasTarget.name}@${aliasTarget.id}` : initialCmdToken;
-  const parsedRef = splitCommandToken(effectiveCmdToken);
+  const aliasTargets = Array.isArray(aliases[initialCmdToken]) ? aliases[initialCmdToken] : null;
+  const parsedRef = splitCommandToken(initialCmdToken);
 
   let matches;
   let resolutionType;
 
-  if (parsedRef) {
+  if (aliasTargets && aliasTargets.length > 0) {
+    matches = sortCandidates(indexCommands.filter((entry) => aliasTargets.some((target) => entry.name === target.name && entry.id === target.id) && !entry.disabled));
+    resolutionType = 'alias';
+  } else if (parsedRef) {
     matches = sortCandidates(indexCommands.filter((entry) => entry.name === parsedRef.name && entry.id === parsedRef.id));
-    resolutionType = aliasTarget ? 'alias' : 'qualified';
+    resolutionType = 'qualified';
   } else {
-    matches = sortCandidates(indexCommands.filter((entry) => entry.name === effectiveCmdToken && !entry.disabled));
+    matches = sortCandidates(indexCommands.filter((entry) => entry.name === initialCmdToken && !entry.disabled));
     resolutionType = 'bare';
   }
 
@@ -101,7 +103,7 @@ export function resolveCommand(indexCommands, aliases, input) {
     ok: true,
     command,
     cmdToken: initialCmdToken,
-    effectiveCmdToken,
+    effectiveCmdToken: `${command.name}@${command.id}`,
     argvTokens,
     rawTokens,
     resolutionType

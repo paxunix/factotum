@@ -72,6 +72,8 @@ The Manager page has top-level Manager and Utilities tabs:
 - Manager: installed commands on the left and a sectioned command editor on the right
 - Utilities: bundle import/export tools with a full-height, internally scrolling bundle JSON field
 
+Aliases are user-defined shortcuts over the installed command set. They are stored globally, not inside command records, and one alias may point to more than one command.
+
 In the Manager command list, use the filter field to match by command name, command ID, or alias. Use the Sort selector to order by modified time, name, or ID; the direction button uses Material Symbols `arrow_upward` and `arrow_downward`.
 
 Use the Manager page to:
@@ -85,6 +87,7 @@ For maintained test fixtures, use:
 - `fixtures/smoke-v1.json`
 
 The current command editor supports existing valid commands. Select a command card to change:
+- aliases in the Identity section as a space-delimited list, for example `123 abc d-ef`
 - localized description JSON
 - command code in the CodeMirror JavaScript editor, including standard editor affordances such as line numbers, folding, and bracket matching
 - help HTML template in the CodeMirror HTML editor, including standard editor affordances such as line numbers, folding, and bracket matching
@@ -94,7 +97,7 @@ The current command editor supports existing valid commands. Select a command ca
 
 The Code and Help HTML template editors include an icon-only `code_xml` toolbar button. It reformats the current editor selection with Prettier using the JavaScript or HTML parser for that editor.
 
-The Export section shows a read-only bundle for the selected command. The JSON includes the current editor contents and aliases that point to that command, and can be pasted into Bundle Tools for import.
+The Export section shows a read-only bundle for the selected command. The JSON includes the current editor contents and only the alias entries that target that command, so it can be pasted into Bundle Tools and imported directly.
 
 Use the Enabled/Disabled status pill on the selected command card to enable or disable that command.
 

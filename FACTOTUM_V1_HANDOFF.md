@@ -52,7 +52,7 @@ The main remaining follow-ups in this area are presentation refinements rather t
 - name: single token command word.
 - id: canonical disambiguator.
 - Fully-qualified token: `name@id`.
-- Alias: user-defined mapping from token → `{name,id}` (no args).
+- Alias: user-defined mapping from token → one or more `{name,id}` command refs (no args).
 - SW: MV3 service worker.
 - OR: overlay runner (ISOLATED, top frame).
 - USR: command runtime executed via `chrome.userScripts` in USER_SCRIPT world.
@@ -123,6 +123,12 @@ RequireEntry:
 - `world?: "main" | "user_script"` (default main; user_script allowed only if kind=module)
 
 Duplicates of `(name,id)` allowed; warn on import/install. UI may suffix duplicates for display.
+
+Alias map:
+- alias keys use the alias regex in §2.3
+- each alias key maps to one or more command refs: `[{ name, id }, ...]`
+- alias keys are user-managed shell-like shortcuts; they are not stored on command records
+- exact alias execution selects the highest-MRU enabled command among the alias targets
 
 OptionsSpec:
 - `name?: string` (display name for usage; defaults to command name)
@@ -250,7 +256,9 @@ If authors provide localized `description` for options, those should be used whe
 
 ### 4.2 Resolution algorithm
 1) cmdToken = first token; argvTokens = rest
-2) If cmdToken matches alias key exactly → replace with `name@id`
+2) If cmdToken matches alias key exactly:
+   - gather enabled commands referenced by that alias key
+   - select MRU-first among those targets
 3) If cmdToken is `name@id`:
    - run exact match; if duplicates, select MRU-first among duplicates
 4) If cmdToken is bare `name`:
@@ -454,7 +462,9 @@ Bundle format:
   "exportedAt": 1760000000000,
   "commands": [ ... ],
   "invalidCommands": [ ... ],
-  "aliases": { ... }
+  "aliases": {
+    "cmd1": [{ "name": "pick", "id": "fixture.B" }]
+  }
 }
 ````
 
@@ -606,7 +616,7 @@ Dev-mode gating required.
 Use a normal import bundle named `fixtures-v1.json` with:
 
 * [pick@fixture.A](mailto:pick@fixture.A) and [pick@fixture.B](mailto:pick@fixture.B) (MRU tests)
-* alias cmd1 → [pick@fixture.B](mailto:pick@fixture.B)
+* alias `cmd1` targeting one or more commands for alias-resolution tests
 * [longrun@fixture.cancel.nav](mailto:longrun@fixture.cancel.nav) (cancel tests)
 * [badreq@fixture.requires.fail](mailto:badreq@fixture.requires.fail) (external requires failure)
 * [reqorder@fixture.requires.order](mailto:reqorder@fixture.requires.order) (sequential MAIN script requires)

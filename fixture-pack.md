@@ -67,6 +67,7 @@ Use checked-in import bundles for manual and harness testing rather than copying
 
 ## Maintenance rules
 - Keep fixture JSON importable under the current command schema.
+- Keep alias bundle data in the canonical one-to-many form: each alias key maps to an array of `{ name, id }` command refs, even when there is only one target.
 - Keep fixture command records on the current valid command `world`.
 - Keep fixture code snippets aligned with the current runtime entrypoint contract.
 - Prefer changing the checked-in `.json` files and updating this index doc, rather than embedding large JSON blobs here.

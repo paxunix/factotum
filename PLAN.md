@@ -39,7 +39,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Current RPC state: `ctx.chrome` now works for the v1 one-shot surface, including callback-style methods like `tabs.query`/`bookmarks.search`, namespace denylist rejection, and event/listener-shape rejection.
 - Current bridge state: `ctx.main.define/call` works with nonce-scoped responses, and spoofed nonce messages are ignored.
 - Current requires state: sequential MAIN script loads, MAIN module imports, `data:` rejection, and best-effort USER_SCRIPT module failure paths are implemented and manually verified.
-- Current manager state: the page uses top-level Manager and Utilities tabs. The Manager tab is a two-pane command navigation plus editor view; the Utilities tab contains bundle import/export with a full-height, internally scrolling bundle JSON field. The command panel has a filterable and sortable vertical command-name tab menu plus one selected-command detail card, including alias display. Bundle import/export, enable/disable, quarantine visibility, per-command import diagnostics, and editing existing valid command body fields are implemented.
+- Current manager state: the page uses top-level Manager and Utilities tabs. The Manager tab is a two-pane command navigation plus editor view; the Utilities tab contains bundle import/export with a full-height, internally scrolling bundle JSON field. The command panel has a filterable and sortable vertical command-name tab menu plus one selected-command detail card, including alias display. Bundle import/export, enable/disable, quarantine visibility, per-command import diagnostics, editable alias lists in the Identity section, and editing existing valid command body fields are implemented.
 - Current near-term follow-ups: visual distinction between output/result/system bubbles, full manager/editor UX, dev harness automation, and a cleaner future `--debug` wrapper boundary.
 
 ### M1 — Storage + Omnibox Resolution (no execution)
@@ -149,7 +149,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - `src/sw/validation.js` (regex validation helpers)
 
 **Notes**
-- Import/export warnings for duplicate commands and alias collisions are implemented.
+- Import/export warnings for duplicate commands and alias collisions are implemented. Alias storage is global and may point one alias key at multiple commands.
 - Invalid stored commands are preserved in quarantined form and excluded from normal resolution/export paths.
 - Locale resolution follows exact match, primary-language fallback, `en-US`, then first available key.
 
@@ -240,7 +240,7 @@ Each milestone should end with a runnable subset and the matching manual tests f
 - Provide structured editing for existing valid command fields. Current state: body fields are editable; name/id/world are read-only.
 - Separate editors for code and help template/strings. Current state: code and help HTML template use CodeMirror; help strings remain a textarea field.
 - Provide editing for `optionsSpec` (flags, descriptions, defaults) used for help generation. Current state: implemented as JSON textarea.
-- Manage aliases (add/remove alias keys for a command).
+- Manage aliases (add/remove alias keys for a command). Current state: implemented through the Identity editor section over the global alias map.
 - Import bundle with warnings for duplicates/alias collisions. Current state: implemented without per-command selection.
 - Export all to bundleSchemaVersion 1. Current state: implemented.
 - Provide “new command” flow with sensible defaults.

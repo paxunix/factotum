@@ -179,13 +179,25 @@ export function normalizeAliasMap(aliases) {
     return normalized;
   }
 
-  for (const [alias, target] of Object.entries(aliases)) {
+  for (const [alias, rawTargets] of Object.entries(aliases)) {
     validateAliasKey(alias);
-    assert(target && typeof target === 'object', `Alias target for ${alias} must be an object`, 'INVALID_ALIAS');
-    normalized[alias] = {
-      name: validateCommandName(target.name),
-      id: validateCommandId(target.id)
-    };
+    const values = Array.isArray(rawTargets) ? rawTargets : rawTargets ? [rawTargets] : [];
+    const seen = new Set();
+    const targets = [];
+    for (const target of values) {
+      assert(target && typeof target === 'object', `Alias target for ${alias} must be an object`, 'INVALID_ALIAS');
+      const normalizedTarget = {
+        name: validateCommandName(target.name),
+        id: validateCommandId(target.id)
+      };
+      const key = `${normalizedTarget.name}@${normalizedTarget.id}`;
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      targets.push(normalizedTarget);
+    }
+    normalized[alias] = targets;
   }
 
   return normalized;

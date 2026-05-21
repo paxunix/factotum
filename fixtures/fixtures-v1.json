@@ -265,6 +265,6 @@
     }
   ],
   "aliases": {
-    "cmd1": { "name": "pick", "id": "fixture.B" }
+    "cmd1": [{ "name": "pick", "id": "fixture.B" }]
   }
 }

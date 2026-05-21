@@ -399,13 +399,13 @@ export async function importBundle(bundle, options = {}) {
   }
 
   const nextAliases = { ...existingAliases };
-  for (const [alias, target] of Object.entries(incomingAliases)) {
+  for (const [alias, targets] of Object.entries(incomingAliases)) {
     validateAliasKey(alias);
     if (nextAliases[alias] && aliasMode === 'skip') {
       warnings.push({ code: 'ALIAS_COLLISION', alias, message: `Skipping alias collision: ${alias}` });
       continue;
     }
-    nextAliases[alias] = target;
+    nextAliases[alias] = targets;
   }
 
   await setAliases(nextAliases);

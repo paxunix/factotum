@@ -13,20 +13,18 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 ## Current TODOs
 
 ### Omnibox / UX
-O1. Manually verify the new prefix-suggestion UX in Chrome, including exact-resolution previews and `--help` suggestions.
-O2. Allow omnibox execution from unique prefixes of command names and aliases, resolving the correct MRU command when a prefix is ambiguous but runnable by MRU.
+O1. Manually verify the new prefix-suggestion UX in Chrome once suggestion-driven execution lands, including alias/name ranking and `--help` suggestions.
+O2. Rework omnibox execution around ranked case-insensitive name/alias prefix candidates, with the first suggestion as the default target on Enter.
 O3. Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
 O4. If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
 
 ### Manager / editor UX
 M1. Add command deletion. Prefer an undoable deletion flow; decide whether this means soft-delete until page close, a trash/undo queue, or another reversible model.
-M2. Add alias management to the manager editor so users can add/remove every alternate invocation name for a command.
 M3. Add help-template preview. Preferred direction: render preview through the same overlay UI used by command help, overlaying on the manager page and dismissible by the user.
 M4. Replace JSON textareas with friendlier structured editors over time for localized descriptions, help strings, optionsSpec, and requires. For localized text, prefer a locale selector plus add-locale flow over raw JSON editing.
 M5. Revisit the Help editor layout now that the help HTML template uses CodeMirror. Decide whether the template editor should expand, collapse, or sit beside the Help strings JSON editor.
 M8. manager UX needs a separate tab to hold overall settings.
 M9. Fcommands need metadata indicating the user's preference for whether the overlay should be shown for the command or not.  This lets a user/author have fcommand behaviour that has no Factotum UI.  All the same information would be recorded and logged as usual, only the overlay would not show like it usually does during command invocation, execution, and completion. This setting can be modified by the user by editing the fcommand.
-M11. in Identity editor section, need to be able to edit the set of aliases for the fcommand
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
 
 
