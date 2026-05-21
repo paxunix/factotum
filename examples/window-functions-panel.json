@@ -29,6 +29,6 @@
     }
   ],
   "aliases": {
-    "wfuncs": { "name": "windowfuncs", "id": "examples.window.functions" }
+    "wfuncs": [{ "name": "windowfuncs", "id": "examples.window.functions" }]
   }
 }

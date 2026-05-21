@@ -38,6 +38,6 @@
     }
   ],
   "aliases": {
-    "bmurl": { "name": "bookmarks-url", "id": "examples.bookmarks.url" }
+    "bmurl": [{ "name": "bookmarks-url", "id": "examples.bookmarks.url" }]
   }
 }
