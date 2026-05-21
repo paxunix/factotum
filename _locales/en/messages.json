@@ -83,6 +83,10 @@
     "message": "Descending",
     "description": "Manager command-list sort direction label for descending order"
   },
+  "managerCommandNew": {
+    "message": "New Command",
+    "description": "Manager button label for creating a new command draft"
+  },
   "managerCommandsEmpty": {
     "message": "No commands are installed.",
     "description": "Empty state for the manager command list"
@@ -171,12 +175,21 @@
     "description": "Manager command editor section title"
   },
   "managerEditorHint": {
-    "message": "Edit an installed valid command. Name and ID are read-only; version and aliases are editable in the Identity section.",
+    "message": "Create a new command or edit an installed valid command. Name, ID, version, and aliases are edited in the Identity section.",
     "description": "Manager command editor section hint"
   },
   "managerEditorEmpty": {
-    "message": "Select a valid command to edit.",
+    "message": "Select a valid command or create a new one.",
     "description": "Manager command editor empty state"
+  },
+  "managerEditorDuplicateIdentity": {
+    "message": "Another command already uses $COMMAND$.",
+    "description": "Manager command editor error when a name and ID are already in use",
+    "placeholders": {
+      "command": {
+        "content": "$1"
+      }
+    }
   },
   "managerEditorName": {
     "message": "Name",

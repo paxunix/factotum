@@ -36,6 +36,7 @@
                 <wa-input id="command-filter" size="small" clearable></wa-input>
                 <wa-select id="command-sort" size="small"></wa-select>
                 <wa-button id="command-sort-direction" class="icon-button" variant="neutral" size="small" type="button"></wa-button>
+                <wa-button id="command-new-button" variant="brand" size="small" type="button"></wa-button>
               </div>
               <div class="empty-state" id="command-list-empty" hidden></div>
               <div class="command-list-body" id="command-list-body">
@@ -68,8 +69,8 @@
                   <wa-tab-panel name="editor-section-identity" active>
                     <section class="editor-section-panel">
                       <div class="editor-grid">
-                        <wa-input id="editor-name" readonly></wa-input>
-                        <wa-input id="editor-id" readonly></wa-input>
+                        <wa-input id="editor-name"></wa-input>
+                        <wa-input id="editor-id"></wa-input>
                         <wa-input id="editor-version"></wa-input>
                         <wa-input id="editor-aliases"></wa-input>
                       </div>

@@ -25,10 +25,6 @@ M9. Fcommands need metadata indicating the user's preference for whether the ove
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
 M18. Useul to support 3 different selection reformatters:  one each for Javsacript, HTML, and CSS.  Three separate buttons, maybe with a small badge that shows JS, HTML, CSS so you know which does what.
 M19. THe export and import need work.  For the per-command Export, it should only export the JSON representing the Fcommand itself.  The Utilities import should support either single-command import, or bundle import, and it should only export all settings and Fcommands.
-M20. Name and ID have to be editable fields also.
-M21. Need to support creating a new Fcommand entirely in the manager UX. (This requires M20).
-
-
 ### Overlay UX
 
 OU1. an additional settings toggle area at the bottom of the overlay that houses buttons for adjusting overlay settings.  The settings are persisted for the extension beyond current page and session..

@@ -194,7 +194,7 @@ wa-textarea.bundle-textarea::part(textarea) {
   display: grid;
   flex: 0 0 auto;
   gap: 10px;
-  grid-template-columns: minmax(0, 1fr) minmax(120px, 0.62fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 0.62fr) auto auto;
 }
 
 .icon-button::part(base) {

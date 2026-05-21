@@ -52,6 +52,7 @@ const managerTabLabel = getMessage('managerTabManager', 'Manager');
 const utilitiesTabLabel = getMessage('managerTabUtilities', 'Utilities');
 const commandFilterLabel = getMessage('managerCommandFilter', 'Filter commands');
 const commandSortLabel = getMessage('managerCommandSort', 'Sort commands');
+const commandNewLabel = getMessage('managerCommandNew', 'New Command');
 const sortByModifiedLabel = getMessage('managerCommandSortModified', 'Modified time');
 const sortByNameLabel = getMessage('managerCommandSortName', 'Name');
 const sortByIdLabel = getMessage('managerCommandSortId', 'ID');
@@ -72,8 +73,9 @@ const invalidDescriptionLabel = getMessage('managerCommandInvalidDescription', '
 const commandDeleteLabel = getMessage('managerCommandDelete', 'Delete command');
 const commandDeleteDisableFirstLabel = getMessage('managerCommandDeleteDisableFirst', 'Disable the command before deleting it');
 const editorTitle = getMessage('managerEditorTitle', 'Command Editor');
-const editorHint = getMessage('managerEditorHint', 'Edit an installed valid command. Name and ID are read-only in this first editor slice.');
-const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command to edit.');
+const editorHint = getMessage('managerEditorHint', 'Create a new command or edit an installed valid command. Name, ID, version, and aliases are edited in the Identity section.');
+const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command or create a new one.');
+const editorDuplicateIdentityLabel = getMessage('managerEditorDuplicateIdentity', 'Another command already uses $COMMAND$.');
 const editorNameLabel = getMessage('managerEditorName', 'Name');
 const editorIdLabel = getMessage('managerEditorId', 'ID');
 const editorVersionLabel = getMessage('managerEditorVersion', 'Version');
@@ -112,6 +114,7 @@ document.getElementById('command-list-title').textContent = commandListTitle;
 document.getElementById('command-list-hint').textContent = commandListHint;
 document.getElementById('manager-tab-manager').textContent = managerTabLabel;
 document.getElementById('manager-tab-utilities').textContent = utilitiesTabLabel;
+document.getElementById('command-new-button').textContent = commandNewLabel;
 document.getElementById('command-editor-title').textContent = editorTitle;
 document.getElementById('command-editor-hint').textContent = editorHint;
 document.getElementById('command-editor-empty').textContent = editorEmptyMessage;
@@ -132,6 +135,7 @@ const bundleStatus = document.getElementById('bundle-status');
 const commandFilter = document.getElementById('command-filter');
 const commandSort = document.getElementById('command-sort');
 const commandSortDirection = document.getElementById('command-sort-direction');
+const commandNewButton = document.getElementById('command-new-button');
 const editorCodeFormatButton = document.getElementById('editor-code-format');
 const editorHelpTemplateFormatButton = document.getElementById('editor-help-template-format');
 const editorSaveButton = document.getElementById('editor-save-button');
@@ -154,6 +158,7 @@ const editorFields = {
 };
 let selectedCommandRef = null;
 let selectedCommand = null;
+let selectedCommandIsDraft = false;
 let selectedMenuCommandRef = null;
 let currentCommands = [];
 let currentAliases = {};
@@ -348,11 +353,11 @@ function parseEditorAliases(value) {
   return aliasNames;
 }
 
-function buildAliasMapForCommand(command, aliasNames) {
+function buildAliasMapForCommand(command, aliasNames, previousCommandRef = command) {
   const next = {};
   for (const [alias, targets] of Object.entries(currentAliases)) {
     const remainingTargets = Array.isArray(targets)
-      ? targets.filter((target) => !commandRefsMatch(target, command))
+      ? targets.filter((target) => !commandRefsMatch(target, previousCommandRef) && !commandRefsMatch(target, command))
       : [];
     if (remainingTargets.length === 0) {
       continue;
@@ -441,6 +446,7 @@ function setEditorVisible(visible) {
 function clearSelectedCommandState() {
   selectedCommandRef = null;
   selectedCommand = null;
+  selectedCommandIsDraft = false;
   selectedMenuCommandRef = null;
   setEditorVisible(false);
   clearEditorStatus();
@@ -448,6 +454,8 @@ function clearSelectedCommandState() {
 
 function getEditorSnapshot() {
   return {
+    name: editorFields.name.value,
+    id: editorFields.id.value,
     version: editorFields.version.value,
     description: editorFields.description.value,
     aliases: editorFields.aliases.value,
@@ -540,7 +548,7 @@ function focusEditorSection(sectionName) {
   requestAnimationFrame(() => {
     switch (sectionName) {
       case 'editor-section-identity':
-        focusField(editorFields.version);
+        focusField(editorFields.name);
         break;
       case 'editor-section-description':
         focusField(editorFields.description);
@@ -668,9 +676,10 @@ function guardCommandTabKeyboard(event) {
   event.stopImmediatePropagation();
 }
 
-function populateEditor(command) {
+function populateEditor(command, options = {}) {
   selectedCommand = command;
-  selectedCommandRef = { name: command.name, id: command.id };
+  selectedCommandRef = options.draft ? null : { name: command.name, id: command.id };
+  selectedCommandIsDraft = Boolean(options.draft);
   editorFields.name.value = command.name;
   editorFields.id.value = command.id;
   editorFields.version.value = command.version || '1';
@@ -684,6 +693,32 @@ function populateEditor(command) {
   setEditorVisible(true);
   editorBaseline = getEditorSnapshot();
   updateEditorDirtyState();
+}
+
+function createDraftCommand() {
+  const now = Date.now();
+  return {
+    schemaVersion: 1,
+    name: '',
+    id: '',
+    version: '1',
+    world: 'user_script',
+    disabled: false,
+    code: 'async function main(argv, ctx) {\n}\n',
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function startNewCommandDraft() {
+  if (editorHasUnsavedChanges()) {
+    blockCommandSelection();
+    return;
+  }
+  clearEditorStatus();
+  populateEditor(createDraftCommand(), { draft: true });
+  document.getElementById('editor-section-tabs').active = 'editor-section-identity';
+  focusEditorSection('editor-section-identity');
 }
 
 async function selectCommandForEdit(commandRef) {
@@ -712,6 +747,8 @@ function readEditedCommand() {
 
   const next = {
     ...selectedCommand,
+    name: editorFields.name.value,
+    id: editorFields.id.value,
     version: editorFields.version.value || '1',
     code: codeEditor.state.doc.toString(),
     updatedAt: Date.now()
@@ -759,16 +796,33 @@ function readEditedAliases() {
   return parseEditorAliases(editorFields.aliases.value);
 }
 
+function commandIdentityExists(name, id, originalRef = selectedCommandRef) {
+  return currentCommands.some((command) => (
+    command.name === name
+    && command.id === id
+    && !commandRefsMatch(command, originalRef)
+  ));
+}
+
 async function saveEditedCommand() {
   clearEditorStatus();
   if (editorSaveButton.disabled) {
     return;
   }
+  const edited = readEditedCommand();
+  const originalRef = selectedCommandRef ? { ...selectedCommandRef } : null;
+  if (commandIdentityExists(edited.name, edited.id, originalRef)) {
+    throw new Error(formatMessage('managerEditorDuplicateIdentity', editorDuplicateIdentityLabel, commandRefKey(edited)));
+  }
   const aliasNames = readEditedAliases();
-  const saved = await saveCommand(readEditedCommand());
-  const nextAliases = buildAliasMapForCommand(saved, aliasNames);
+  const saved = await saveCommand(edited);
+  if (originalRef && !commandRefsMatch(originalRef, saved)) {
+    await deleteCommand(originalRef.name, originalRef.id);
+  }
+  const nextAliases = buildAliasMapForCommand(saved, aliasNames, originalRef || saved);
   await setAliases(nextAliases);
   currentAliases = nextAliases;
+  selectedMenuCommandRef = { name: saved.name, id: saved.id };
   populateEditor(saved);
   setEditorStatus('success', formatMessage('managerEditorSaved', editorSavedLabel, commandRefKey(saved)));
   await loadCommands();
@@ -1020,7 +1074,7 @@ function renderCommands(commands) {
   container.updateComplete?.then(() => {
     container.active = activePanelName;
     const activeRef = currentPanelRefs.get(activePanelName);
-    if (activeRef && !selectedCommandRef && !editorHasUnsavedChanges()) {
+    if (activeRef && !selectedCommandRef && !selectedCommandIsDraft && !editorHasUnsavedChanges()) {
       applySelectedCommand(activeRef);
     }
   });
@@ -1121,6 +1175,10 @@ commandSortDirection.addEventListener('click', () => {
   renderCommands(currentCommands);
 });
 
+commandNewButton.addEventListener('click', () => {
+  startNewCommandDraft();
+});
+
 document.getElementById('command-list').addEventListener('click', guardCommandTabActivation, { capture: true });
 document.getElementById('command-list').addEventListener('keydown', guardCommandTabKeyboard, { capture: true });
 
@@ -1180,7 +1238,7 @@ editorForm.addEventListener('submit', (event) => {
 });
 
 Object.values(editorFields)
-  .filter((field) => field !== editorFields.name && field !== editorFields.id && field !== editorFields.code && field !== editorFields.helpHtmlTemplate)
+  .filter((field) => field !== editorFields.code && field !== editorFields.helpHtmlTemplate)
   .forEach((field) => {
     field.addEventListener('input', updateEditorDirtyState);
     field.addEventListener('change', updateEditorDirtyState);
@@ -1195,7 +1253,12 @@ editorSaveButton.addEventListener('click', (event) => {
 });
 
 editorResetButton.addEventListener('click', () => {
-  if (!selectedCommandRef) {
+  if (!selectedCommandRef && !selectedCommandIsDraft) {
+    return;
+  }
+  if (selectedCommandIsDraft) {
+    clearEditorStatus();
+    populateEditor(selectedCommand, { draft: true });
     return;
   }
   selectCommandForEdit(selectedCommandRef).catch((error) => {

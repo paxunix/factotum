@@ -97,9 +97,11 @@ For maintained test fixtures, use:
 - `fixtures/fixtures-v1.json`
 - `fixtures/smoke-v1.json`
 
-The current command editor supports existing valid commands. Select a command card to change:
-- version in the Identity section as informational command metadata
-- aliases in the Identity section as a space-delimited list, for example `123 abc d-ef`
+The current command editor supports both creating new commands and editing existing valid commands. Use `New Command` to open a draft, or select an installed command to edit it. In the Identity section you can change:
+- name
+- ID
+- version as informational command metadata
+- aliases as a space-delimited list, for example `123 abc d-ef`
 - localized description JSON
 - command code in the CodeMirror JavaScript editor, including standard editor affordances such as line numbers, folding, and bracket matching
 - help HTML template in the CodeMirror HTML editor, including standard editor affordances such as line numbers, folding, and bracket matching
@@ -115,6 +117,8 @@ Use the switch or the Enabled/Disabled status pill on the selected command card 
 Use the trash button on the selected command card to permanently delete that command. There is no undo. Enabled commands must be disabled before deletion; quarantined invalid commands can be deleted directly.
 
 The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, Code, and Export. Select a tab to edit or inspect that part of the command while keeping the same whole-command Save and Reset actions.
+
+If you rename a command by changing its Name or ID, saving moves the command to the new identity instead of creating a duplicate under the old one. Save is blocked when another command already uses the same `name@id`.
 Save Command is enabled only after an editable field changes; Reset returns the editor to the stored command and disables Save again.
 If unsaved edits exist, selecting another command is blocked until you save or reset the current command. Reloading or navigating away from the manager page also triggers the browser's unsaved-changes prompt.
 If you manually return the edited fields to their loaded values, Save Command disables again and the save-or-reset warning is dismissed.

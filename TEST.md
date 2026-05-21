@@ -200,9 +200,9 @@ Each test lists: **Setup → Action → Expected**.
   5. export the bundle
 * Expected:
 
-  * Selecting a valid command card opens the editor with name and ID visible but read-only, and version visible as editable command metadata.
+  * Selecting a valid command card opens the editor with editable Name, ID, and Version fields in the Identity section.
   * Editor sections include Identity, Description, Help, Options, Requires, Code, and Export
-  * The Identity section includes an editable Version field and an editable single-line alias field using a space-delimited list of alias keys.
+  * The Identity section includes editable Name, ID, and Version fields plus an editable single-line alias field using a space-delimited list of alias keys.
   * The selected command card has both an enable/disable switch and a clickable Enabled/Disabled status pill, and either control toggles command availability.
   * The selected command card has a trash button that is disabled for enabled commands, becomes active after disabling, and permanently deletes the command while removing any alias targets pointing at it.
   * Editable body fields include description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
@@ -211,8 +211,27 @@ Each test lists: **Setup → Action → Expected**.
   * Trying to select a different command while unsaved edits exist keeps the current command loaded and shows a save-or-reset warning.
   * Returning the editor contents to the loaded state disables Save Command and dismisses the save-or-reset warning.
   * Reloading or navigating away while unsaved edits exist triggers the browser's unsaved-changes prompt.
+  * Saving after changing Name or ID moves the command to the new identity and does not leave the old command behind.
+  * Saving is blocked if another command already uses the edited `name@id`.
   * Invalid JSON in JSON fields reports an inline editor error and does not save
   * Exported JSON contains the saved edits
+
+#### T4d2: Manager creates a new valid command
+
+* Setup: open the manager UI.
+* Action:
+
+  1. click `New Command`
+  2. fill in Name and ID
+  3. optionally add version, aliases, description, or code edits
+  4. save the command
+* Expected:
+
+  * The editor opens a new-command draft without requiring bundle import first.
+  * Draft Identity fields are editable and Save stays disabled until the draft is changed.
+  * Reset restores the initial draft defaults instead of closing the editor.
+  * Saving a valid draft adds the new command to the installed command list and selects it.
+  * The saved command can be exported from the per-command Export section and from Utilities export.
 
 #### T4e: Manager uses the tabbed two-pane editor layout
 
@@ -229,6 +248,7 @@ Each test lists: **Setup → Action → Expected**.
   * The sort selector supports Modified time, Name, and ID, defaults to descending Modified time, and uses a Material Symbols direction icon.
   * The selected command detail card shows command name as the primary title and command ID as secondary metadata.
   * The command editor uses vertical section tabs for Identity, Description, Help, Options, Requires, Code, and Export.
+  * The command list controls include a `New Command` action that opens a draft in the editor pane.
   * The Code section gets the full editor pane height and scrolls code internally.
   * Editor fields use Web Awesome controls for simple field edits.
   * Code editing uses the bundled CodeMirror JavaScript editor with the default `basicSetup` editing affordances.
