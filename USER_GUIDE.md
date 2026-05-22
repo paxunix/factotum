@@ -135,4 +135,3 @@ Utilities import accepts either a single fcommand JSON record or a full Factotum
 ## Current limitations
 
 - only one command can run at a time per tab
-- session console layout is still being refined

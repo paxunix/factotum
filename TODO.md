@@ -7,7 +7,7 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 - Keep entries concise and actionable.
 - Entries should be prefix+numbered so it's clear what section they belong to and can be uniquely identified within this file.  No requirement the numbers remain monotonically increasing from entry to entry.
 - Remove entries when they are completed.
-- If an item changes active milestone direction, reflect that in `PLAN.md` and any authoritative docs as needed.
+- If an item changes intended behavior, reflect that in `FACTOTUM_V1_HANDOFF.md` and any relevant audience docs as needed.
 - Do not treat TODO items as spec changes unless the authoritative docs are updated too.
 
 ## Current TODOs
@@ -38,7 +38,11 @@ SC5. Refactor the generated user-script wrapper so future `--debug` support has 
 
 ### Tooling / verification
 TV1. Once Chrome MCP is available, use it to automate more of the manual smoke path and reduce reliance on service worker console inspection.
+TV2. Do a focused conformance pass on storage/import/export edge cases to verify the current implementation still matches `FACTOTUM_V1_HANDOFF.md` after the manager and bundle UX iterations.
+TV3. Do a focused conformance pass on omnibox and runtime behavior to verify the checked-in implementation still matches `FACTOTUM_V1_HANDOFF.md` after the recent resolution and session-console changes.
 
+### Docs / product direction
+DP1. Decide whether the separate internal diagnostics/log page remains part of the intended long-term product shape or should eventually be retired once the session console is sufficient.
 
 ### Fcommand internals
 

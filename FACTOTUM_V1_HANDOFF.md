@@ -6,7 +6,6 @@ It consolidates: runtime semantics, protocols, storage schema, build approach, t
 ---
 ## Related docs (when to consult)
 - `AGENTS.md`: Mandatory guardrails for any automated change; consult before edits.
-- `PLAN.md`: Implementation sequencing aligned to this spec; consult for milestone scope and file targets.
 - `TEST.md`: Manual smoke suite + harness tests; consult when planning or verifying changes.
 - `DEVELOPING.md`: RPC exposure guidance and troubleshooting; consult when touching `ctx.chrome` or RPC plumbing.
 - `fixture-pack.md`: Fixture bundle definition; consult when adding/importing test fixtures.
@@ -643,21 +642,7 @@ See `fixture-pack.md` for the maintained canonical fixture pack and ad hoc manua
 
 ---
 
-## 19) Implementation milestone plan (recommended)
-
-1. Storage layer (index + per-command keys + aliases + import/export)
-2. Omnibox resolution + MRU update on start
-3. Injection pipeline (overlay + USER_SCRIPT runtime + MH) and busy-tab guard
-4. Per-tab session console + command-visible output sink (cap/clear)
-5. RPC core (dispatch + promisify + denylist + clone errors)
-6. MAIN bridge host + define/call protocol + nonce scoping + MAIN import/script_load ops
-7. Requires loader (sequential; MAIN script inject; MAIN import; USER_SCRIPT import best-effort)
-8. Cancel-on-tab-close + cancel-on-navigation commit
-9. `--help` and `--debug`
-
----
-
-## 20) Drift prevention rules (hard requirements)
+## 19) Drift prevention rules (hard requirements)
 
 1. All cross-context messages include invocationId.
 2. MAIN bridge messages must include invocationId + nonce.

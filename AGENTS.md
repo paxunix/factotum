@@ -5,7 +5,6 @@ This checklist is the contract for all automated changes.
 
 ## Related docs (when to consult)
 - `FACTOTUM_V1_HANDOFF.md`: Source of truth for all behavior and schema; always read before implementing.
-- `PLAN.md`: Use for sequencing work and mapping to spec sections/tests.
 - `TEST.md`: Use to select manual smoke tests and harness checks for your change.
 - `DEVELOPING.md`: Use when modifying RPC exposure or debugging RPC/bridge/requires behavior.
 - `fixture-pack.md`: Use when installing or validating fixtures for tests.
@@ -44,11 +43,11 @@ Must be preserved exactly:
 ### Omnibox resolution
 - POSIX-like tokenization (`shell-quote`)
 - Option parsing (`mri`)
-- Alias (exact match) wins over command names
-- `name@id` resolves exact
-- bare `name` resolves MRU-first
+- Case-insensitive candidate matching across command names and alias keys
+- Candidate ranking: exact name, exact alias, name prefix, alias prefix, then MRU within each bucket
+- Pressing Enter runs the first suggestion by default; user selection may choose another candidate
 - MRU updates on invocation start (not completion)
-- No alternates/smart suggestions in v1 (“No such command” only)
+- Disabled commands are omitted from suggestions and execution
 
 ### Execution model
 - MV3, tab-bound

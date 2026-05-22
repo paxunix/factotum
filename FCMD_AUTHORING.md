@@ -83,7 +83,6 @@ async function main(argv, ctx) {
 - `ctx.out.write/info/warn/error(value)`: append user-visible output bubbles to the session console
 - `ctx.chrome.ns.method(...args)`: Promise-based access to the supported one-shot `chrome.*` surface
 
-Current status:
 - `ctx.chrome.ns.method(...args)` is available for the v1 one-shot Chrome API surface
 - denylisted namespaces like `chrome.management` reject with `UNSUPPORTED_MEMBER`
 - event/listener shapes reject with `UNSUPPORTED_API_SHAPE`

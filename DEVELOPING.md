@@ -15,7 +15,7 @@ Current implementation note:
 
 This document explains how to add/maintain RPC exposure safely.
 
-## Current execution direction
+## Execution direction
 
 Command runtime now lives in `USER_SCRIPT` via `chrome.userScripts`. `MAIN` should be treated as a page bridge target reached through `ctx.main`, not as a symmetric top-level runtime. When making RPC or bridge changes, optimize for:
 
@@ -23,7 +23,7 @@ Command runtime now lives in `USER_SCRIPT` via `chrome.userScripts`. `MAIN` shou
 * SW as the privileged/RPC control plane
 * MAIN only for explicit page-context access
 
-## Current UI direction
+## UI direction
 
 The current implementation now uses a per-tab session console overlay for command-facing output, while a separate log page still exists for internal diagnostics. When touching command-facing output or invocation UX, optimize for:
 
@@ -37,7 +37,6 @@ The current implementation now uses a per-tab session console overlay for comman
 - `FACTOTUM_V1_HANDOFF.md`: Authoritative RPC policy and error codes; defer to it on conflicts.
 - `AGENTS.md`: Mandatory guardrails for any change; read before editing.
 - `TEST.md`: Required RPC/bridge/requires tests (T17–T20, T15–T16, T11–T14) after changes.
-- `PLAN.md`: Milestone scope for RPC, bridge, requires, and logging work.
 - `USER_GUIDE.md`: end-user-facing behavior to preserve when changing UX.
 - `FCMD_AUTHORING.md`: author-facing behavior to preserve when changing fcommand APIs.
 

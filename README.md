@@ -21,14 +21,12 @@ npm run build
 - UI pages live under `dist/ui/`.
 - Service worker entrypoint is `dist/sw/sw.js`.
 
-## Status
+## Current implementation
 
-- M1 is complete: storage, bundle import/export, omnibox resolution, MRU updates, and manager command listing are in place.
-- The manager page now provides a `Bundle JSON` import/export flow for loading manual smoke-test fixtures.
-- Current architecture direction: command runtime lives in USER_SCRIPT and accesses MAIN only through the explicit bridge.
-- Core execution and session-console work are now in place: per-tab session reopen via `f -`, append-only bubble history, `ctx.out.*` command-visible output, non-auto-dismissing terminal states, busy/no-such-command system bubbles, and a wider resizable desktop console.
-- Requires, MAIN bridge, and `ctx.chrome` RPC are implemented and manually verified through T11-T20.
-- Current near-term work is narrower: manager/editor import UX, dev harness automation, and session-console visual refinement.
+- Command runtime lives in `USER_SCRIPT` and reaches page context only through `ctx.main`.
+- The per-tab session console is reopened with `f -` and holds command output, help, and terminal state history for that tab.
+- The manager provides command editing, import/export, aliases, enable/disable, deletion, and per-command export.
+- The remaining forward-looking work lives in [TODO.md](/home/paxunix/repos/factotum/TODO.md).
 
 ## Guides
 

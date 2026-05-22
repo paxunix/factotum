@@ -5,7 +5,6 @@ Use checked-in import bundles for manual and harness testing rather than copying
 ## Related docs
 - `FACTOTUM_V1_HANDOFF.md`: Canonical fixture requirements and bundle schema.
 - `TEST.md`: Manual and harness assertions that reference these fixtures.
-- `PLAN.md`: M6 milestone for fixtures and harness integration.
 
 ## Bundles
 
