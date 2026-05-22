@@ -32,6 +32,7 @@ The current implementation uses a per-tab session console overlay for command-fa
 * omnibox as the only input surface
 * explicit command-facing output APIs (`ctx.out.*`) instead of relying on incidental `console.*` output
 * keeping `ctx.log/warn/error` as diagnostics rather than aliases of `ctx.out.*`
+* remembering that those diagnostics are currently DevTools-console-only, not surfaced in the session console
 
 ## Related docs (when to consult)
 - `FACTOTUM_V1_HANDOFF.md`: Authoritative RPC policy and error codes; defer to it on conflicts.

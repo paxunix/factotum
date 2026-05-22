@@ -426,33 +426,24 @@ SW rejects RPC if:
 
 ---
 
-## 11) Session log (single sink)
+## 11) Command output vs diagnostics
 
-Commands get:
+Commands get two different channels:
+
+- `ctx.out.write`, `ctx.out.info`, `ctx.out.warn`, `ctx.out.error`
 - `ctx.log`, `ctx.warn`, `ctx.error`
 
-All logs (runtime and command) go into one session-only sink:
-- Max 1000 entries; drop oldest on overflow
-- Display oldest→newest
-- Remove entry (no undo), clear all
+Command-facing output:
+- `ctx.out.*` writes append-only entries into the per-tab session console.
+- This is the API authors should use for anything the user should see.
+- `ctx.out.write(...)` and `ctx.out.info(...)` currently behave the same way and both write `info`-level output entries; `write` is the preferred default for ordinary output.
+- Output may be a plain value or a localized payload such as `{ l10n: LocalizedText, data?: any }`.
+- Values are serialized safely for display; circular references are replaced, and Error objects retain name/message/stack/code fields when serialized.
 
-Localization support (command‑authored):
-
-- `ctx.log/warn/error` accept either:
-  - a regular value (string/object/etc.), or
-  - an object `{ l10n: LocalizedText, data?: any }`
-- When `l10n` is present, the UI displays the localized string using §3.1.
-- `data` (optional) is displayed in the log detail view (stringified) for debugging.
-
-Serialization:
-- Safe JSON stringify with circular replacer
-- No truncation
-- Capture stack traces when logging Error objects; runtime may attach a stack for error-string logs when useful.
-
-UI:
-
-- Command-facing output appears in the per-tab session console via `ctx.out.write/info/warn/error`.
-- `ctx.log/warn/error` remain diagnostics and are not aliases of `ctx.out.*`.
+Diagnostics:
+- `ctx.log/warn/error` are internal diagnostics only and are not aliases of `ctx.out.*`.
+- In the current implementation they write to the relevant DevTools console with a `[factotum command]` prefix.
+- They do not appear in the per-tab session console.
 
 ---
 

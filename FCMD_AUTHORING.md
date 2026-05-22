@@ -107,6 +107,11 @@ async function main(argv, ctx) {
 
 Use `ctx.out.*` for user-visible output.
 
+Current behavior:
+- `ctx.out.write(value)` and `ctx.out.info(value)` currently behave the same way: both append an `info`-level output bubble to the session console.
+- Prefer `ctx.out.write(...)` for ordinary command output.
+- Use `ctx.out.warn(...)` and `ctx.out.error(...)` when the output should carry warning or error intent.
+
 Examples:
 
 ```js
@@ -124,6 +129,11 @@ Notes:
 - output is appended in order
 - localized payloads use the tab/page language
 - previously written output remains as it was when emitted
+
+Diagnostic logging is separate from user-visible output:
+- use `ctx.out.write/info/warn/error(...)` when the user should see the message in the session console
+- use `ctx.log/warn/error(...)` only for debugging
+- today `ctx.log/warn/error(...)` go to the relevant DevTools console with a `[factotum command]` prefix and do not appear in the session console
 
 ## Help and options
 
