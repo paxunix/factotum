@@ -502,6 +502,8 @@ Each test lists: **Setup → Action → Expected**.
 * Expected:
 
   * Session console shows “a” then “b”
+  * The fixture's plain object output is pretty-printed by default
+  * The fixture's compact object output remains on one line because it uses `{ pretty: false }`
 
 #### T21b: Localized output entry display
 

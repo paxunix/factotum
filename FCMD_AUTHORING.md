@@ -80,7 +80,7 @@ async function main(argv, ctx) {
 - `ctx.signal.aborted`: cooperative cancel flag
 - `ctx.main.define(name, fn)`: expose a named `MAIN` entrypoint for this invocation
 - `ctx.main.call(name, args)`: call a named `MAIN` entrypoint for this invocation
-- `ctx.out.write/info/warn/error(value)`: append user-visible output bubbles to the session console
+- `ctx.out.write/info/warn/error(value, options?)`: append user-visible output bubbles to the session console
 - `ctx.chrome.ns.method(...args)`: Promise-based access to the supported one-shot `chrome.*` surface
 
 - `ctx.chrome.ns.method(...args)` is available for the v1 one-shot Chrome API surface
@@ -111,6 +111,9 @@ Current behavior:
 - `ctx.out.write(value)` and `ctx.out.info(value)` currently behave the same way: both append an `info`-level output bubble to the session console.
 - Prefer `ctx.out.write(...)` for ordinary command output.
 - Use `ctx.out.warn(...)` and `ctx.out.error(...)` when the output should carry warning or error intent.
+- `options` currently supports `{ pretty?: boolean }` for object-like output formatting.
+- For objects, arrays, and normalized `Error` output, pretty-printing defaults to `true`.
+- Use `{ pretty: false }` when you want compact one-line JSON instead.
 
 Examples:
 
@@ -118,6 +121,8 @@ Examples:
 async function main(argv, ctx) {
   ctx.out.write('a');
   ctx.out.write('b');
+  ctx.out.write({ nested: { ok: true }, values: [1, 2] });
+  ctx.out.write({ nested: { ok: true }, values: [1, 2] }, { pretty: false });
   ctx.out.info({
     l10n: { 'en-US': 'Hello', 'fr': 'Bonjour' },
     data: { n: 1 }
@@ -129,6 +134,8 @@ Notes:
 - output is appended in order
 - localized payloads use the tab/page language
 - previously written output remains as it was when emitted
+- object-like output is pretty-printed by default
+- pass `{ pretty: false }` as the optional second argument for compact JSON output
 
 Diagnostic logging is separate from user-visible output:
 - use `ctx.out.write/info/warn/error(...)` when the user should see the message in the session console

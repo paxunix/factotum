@@ -61,7 +61,7 @@ function createRpcError(code, message, details) {
   return error;
 }
 
-function safeStringify(value) {
+function safeStringify(value, space = 0) {
   const seen = new WeakSet();
   return JSON.stringify(value, (_key, current) => {
     if (typeof current === 'object' && current !== null) {
@@ -79,7 +79,23 @@ function safeStringify(value) {
       };
     }
     return current;
-  });
+  }, space);
+}
+
+function normalizeOutputOptions(rawOptions) {
+  if (!rawOptions || typeof rawOptions !== 'object' || Array.isArray(rawOptions)) {
+    return {};
+  }
+  return {
+    ...(rawOptions.pretty == null ? {} : { pretty: Boolean(rawOptions.pretty) })
+  };
+}
+
+function shouldPrettyPrint(value, options = {}) {
+  if (options.pretty != null) {
+    return Boolean(options.pretty);
+  }
+  return Boolean(value && typeof value === 'object');
 }
 
 function isThenable(value) {
@@ -379,7 +395,9 @@ async function appendCommandOutputEntry(tabId, invocation, rawEntry) {
   const payload = rawEntry && typeof rawEntry === 'object' && Object.prototype.hasOwnProperty.call(rawEntry, 'value')
     ? rawEntry.value
     : rawEntry;
+  const outputOptions = normalizeOutputOptions(rawEntry?.options);
   let message = '';
+  const stringify = (value) => safeStringify(value, shouldPrettyPrint(value, outputOptions) ? 2 : 0);
 
   if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
     if (payload.l10n && typeof payload.l10n === 'object') {
@@ -388,19 +406,19 @@ async function appendCommandOutputEntry(tabId, invocation, rawEntry) {
         message = String(localized);
       }
     } else if (Object.prototype.hasOwnProperty.call(payload, 'message')) {
-      message = typeof payload.message === 'string' ? payload.message : safeStringify(payload.message);
+      message = typeof payload.message === 'string' ? payload.message : stringify(payload.message);
     } else {
-      message = safeStringify(payload);
+      message = stringify(payload);
     }
 
     if (Object.prototype.hasOwnProperty.call(payload, 'data')) {
-      const serializedData = safeStringify(payload.data);
+      const serializedData = stringify(payload.data);
       message = message ? `${message}\n${serializedData}` : serializedData;
     }
   } else if (typeof payload === 'string') {
     message = payload;
   } else {
-    message = safeStringify(payload);
+    message = stringify(payload);
   }
 
   appendSessionEntry(tabId, {
@@ -1184,17 +1202,17 @@ function buildExecuteCode(invocation) {
           }
         },
         out: {
-          write(value) {
-            __factotumAppendOutput({ level: 'info', value });
+          write(value, options) {
+            __factotumAppendOutput({ level: 'info', value, options });
           },
-          info(value) {
-            __factotumAppendOutput({ level: 'info', value });
+          info(value, options) {
+            __factotumAppendOutput({ level: 'info', value, options });
           },
-          warn(value) {
-            __factotumAppendOutput({ level: 'warn', value });
+          warn(value, options) {
+            __factotumAppendOutput({ level: 'warn', value, options });
           },
-          error(value) {
-            __factotumAppendOutput({ level: 'error', value });
+          error(value, options) {
+            __factotumAppendOutput({ level: 'error', value, options });
           }
         },
         log(...args) {

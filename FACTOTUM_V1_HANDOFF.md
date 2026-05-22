@@ -437,6 +437,8 @@ Command-facing output:
 - `ctx.out.*` writes append-only entries into the per-tab session console.
 - This is the API authors should use for anything the user should see.
 - `ctx.out.write(...)` and `ctx.out.info(...)` currently behave the same way and both write `info`-level output entries; `write` is the preferred default for ordinary output.
+- `ctx.out.*` accepts an optional second argument `{ pretty?: boolean }`.
+- For object-like values, arrays, and normalized Error output, pretty-printing defaults to `true`.
 - Output may be a plain value or a localized payload such as `{ l10n: LocalizedText, data?: any }`.
 - Values are serialized safely for display; circular references are replaced, and Error objects retain name/message/stack/code fields when serialized.
 

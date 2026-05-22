@@ -27,7 +27,7 @@
       "name": "outputdemo",
       "id": "demo.output",
       "world": "user_script",
-      "code": "async function main(argv, ctx) { ctx.out.write('a'); ctx.out.write('b'); ctx.out.info({ l10n: { 'en-US': 'Hello', 'fr': 'Bonjour' }, data: { n: 1 } }); return 42; }",
+      "code": "async function main(argv, ctx) { ctx.out.write('a'); ctx.out.write('b'); ctx.out.write({ nested: { ok: true }, values: [1, 2] }); ctx.out.write({ nested: { ok: true }, values: [1, 2] }, { pretty: false }); ctx.out.info({ l10n: { 'en-US': 'Hello', 'fr': 'Bonjour' }, data: { n: 1 } }); return 42; }",
       "description": { "en-US": "Command-visible output fixture" },
       "createdAt": 1760100000000,
       "updatedAt": 1760100000000
