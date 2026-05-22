@@ -177,8 +177,8 @@ let selectedMenuCommandRef = null;
 let currentCommands = [];
 let currentAliases = {};
 let currentPanelRefs = new Map();
-let commandSortKey = 'updatedAt';
-let commandSortDirectionValue = 'desc';
+let commandSortKey = 'name';
+let commandSortDirectionValue = 'asc';
 let editorBaseline = null;
 let suppressEditorChange = false;
 
