@@ -130,6 +130,7 @@ export function normalizeCommandRecord(record, now = Date.now()) {
     id,
     version,
     world,
+    showOverlay: record.showOverlay == null ? true : Boolean(record.showOverlay),
     disabled: Boolean(record.disabled),
     code: record.code,
     createdAt,

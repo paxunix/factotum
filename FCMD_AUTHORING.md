@@ -34,6 +34,7 @@ From an author's perspective, this means command discovery in the omnibox is dri
 - case-insensitive prefix matching across both
 
 `version` is optional informational metadata for the command itself. Factotum defaults it to `"1"` when it is omitted and does not currently assign any runtime semantics to it.
+`showOverlay` is optional command metadata controlling whether normal command execution auto-shows the session console. It defaults to `true`. When set to `false`, normal running/output/completion/help stays hidden until the user explicitly reopens the tab's session console with `f -`, but hard execution errors still force it visible.
 
 ## Runtime model
 

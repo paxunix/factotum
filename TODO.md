@@ -21,7 +21,6 @@ M3. Add help-template preview. Preferred direction: render preview through the s
 M4. Replace JSON textareas with friendlier structured editors over time for localized descriptions, help strings, optionsSpec, and requires. For localized text, prefer a locale selector plus add-locale flow over raw JSON editing.
 M5. Revisit the Help editor layout now that the help HTML template uses CodeMirror. Decide whether the template editor should expand, collapse, or sit beside the Help strings JSON editor.
 M8. manager UX needs a separate tab to hold overall settings.
-M9. Fcommands need metadata indicating the user's preference for whether the overlay should be shown for the command or not.  This lets a user/author have fcommand behaviour that has no Factotum UI.  All the same information would be recorded and logged as usual, only the overlay would not show like it usually does during command invocation, execution, and completion. This setting can be modified by the user by editing the fcommand.
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
 M18. A better bundle import UX that allows the user to select what commands and what aliases (and in the future, what global settings) they want to import from the bundle, and an indication if anything would be overwritten.
 ### Overlay UX

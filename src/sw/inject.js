@@ -309,8 +309,18 @@ function buildSessionView(tabId, snapshot = null) {
   };
 }
 
-async function refreshSessionView(tabId, snapshot = null) {
-  setSessionVisibility(tabId, true);
+function shouldAutoShowOverlay(command) {
+  return command?.showOverlay !== false;
+}
+
+async function refreshSessionView(tabId, snapshot = null, forceVisible = false) {
+  const session = getSession(tabId) || ensureSession(tabId);
+  if (forceVisible) {
+    setSessionVisibility(tabId, true);
+  }
+  if (!session.visible) {
+    return;
+  }
   await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
   await sendControlMessage(tabId, {
     op: 'SHOW_SESSION',
@@ -326,7 +336,7 @@ async function injectScript(tabId, file, world = 'ISOLATED') {
   });
 }
 
-async function ensureOverlay(tabId, invocation, state = 'RUNNING', message = '') {
+async function ensureOverlay(tabId, invocation, state = 'RUNNING', message = '', forceVisible = true) {
   const snapshot = {
     invocationId: invocation.invocationId,
     commandRef: `${invocation.command.name}@${invocation.command.id}`,
@@ -336,13 +346,8 @@ async function ensureOverlay(tabId, invocation, state = 'RUNNING', message = '')
     dismissible: state !== 'RUNNING'
   };
   setSessionSnapshot(tabId, snapshot);
-  setSessionVisibility(tabId, true);
   setSessionActiveInvocation(tabId, invocation.invocationId);
-  await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
-  await sendControlMessage(tabId, {
-    op: 'SHOW_SESSION',
-    ...buildSessionView(tabId, snapshot)
-  });
+  await refreshSessionView(tabId, snapshot, forceVisible);
 }
 
 function snapshotToEntry(snapshot) {
@@ -409,7 +414,7 @@ async function appendCommandOutputEntry(tabId, invocation, rawEntry) {
   });
 }
 
-async function setOverlayStatus(tabId, invocationId, state, message = '') {
+async function setOverlayStatus(tabId, invocationId, state, message = '', forceVisible = false) {
   const session = ensureSession(tabId);
   const snapshot = session.snapshot || {};
   const nextSnapshot = {
@@ -421,14 +426,10 @@ async function setOverlayStatus(tabId, invocationId, state, message = '') {
     dismissible: state !== 'RUNNING'
   };
   setSessionSnapshot(tabId, nextSnapshot);
-  setSessionVisibility(tabId, true);
-  await sendControlMessage(tabId, {
-    op: 'SHOW_SESSION',
-    ...buildSessionView(tabId, nextSnapshot)
-  });
+  await refreshSessionView(tabId, nextSnapshot, forceVisible);
 }
 
-async function setOverlayHelp(tabId, invocationId, commandRef, html) {
+async function setOverlayHelp(tabId, invocationId, commandRef, html, forceVisible = false) {
   const snapshot = {
     invocationId,
     commandRef,
@@ -438,11 +439,7 @@ async function setOverlayHelp(tabId, invocationId, commandRef, html) {
     dismissible: true
   };
   setSessionSnapshot(tabId, snapshot);
-  setSessionVisibility(tabId, true);
-  await sendControlMessage(tabId, {
-    op: 'SHOW_SESSION',
-    ...buildSessionView(tabId, snapshot)
-  });
+  await refreshSessionView(tabId, snapshot, forceVisible);
 }
 
 async function teardownOverlay(tabId, invocationId) {
@@ -483,13 +480,19 @@ async function showSessionOverlay(tabId) {
             dismissible: true
           });
 
-  await refreshSessionView(tabId, snapshot);
+  await refreshSessionView(tabId, snapshot, true);
 }
 
-async function showHistoryOnly(tabId) {
+async function showHistoryOnly(tabId, forceVisible = false) {
   setSessionSnapshot(tabId, null);
-  setSessionVisibility(tabId, true);
+  if (forceVisible) {
+    setSessionVisibility(tabId, true);
+  }
   clearSessionActiveInvocation(tabId);
+  const session = getSession(tabId) || ensureSession(tabId);
+  if (!session.visible) {
+    return;
+  }
   await sendControlMessage(tabId, {
     op: 'TEARDOWN',
     invocationId: null
@@ -889,7 +892,8 @@ async function showHelpOverlay(invocation) {
     message: '',
     html
   });
-  await showHistoryOnly(invocation.tabId);
+  await setOverlayHelp(invocation.tabId, invocation.invocationId, commandRef, html, shouldAutoShowOverlay(invocation.command));
+  await showHistoryOnly(invocation.tabId, shouldAutoShowOverlay(invocation.command));
 }
 
 function buildExecuteCode(invocation) {
@@ -1268,7 +1272,7 @@ async function handleResolutionFailure(tab, resolution) {
   }
 
   appendSystemEntry(tab.id, 'ERROR', resolution.message);
-  await showHistoryOnly(tab.id);
+  await showHistoryOnly(tab.id, true);
 }
 
 async function handleBusyTab(tabId, message = '') {
@@ -1286,7 +1290,7 @@ async function handleBusyTab(tabId, message = '') {
     );
   appendSystemEntry(tabId, 'BUSY', busyMessage);
   const session = getSession(tabId) || ensureSession(tabId);
-  await refreshSessionView(tabId, session.snapshot || null);
+  await refreshSessionView(tabId, session.snapshot || null, true);
 }
 
 async function finalizeInvocationSuccess(invocation, result) {
@@ -1308,7 +1312,7 @@ async function finalizeInvocationSuccess(invocation, result) {
     });
     await removeInvocationMarkers(current.tabId, current.invocationId);
     clearInvocation(current.invocationId);
-    await showHistoryOnly(current.tabId);
+    await showHistoryOnly(current.tabId, shouldAutoShowOverlay(current.command));
     return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
   }
 
@@ -1323,7 +1327,7 @@ async function finalizeInvocationSuccess(invocation, result) {
   releaseTabBusy(current.invocationId);
   await removeInvocationMarkers(current.tabId, current.invocationId);
   clearInvocation(current.invocationId);
-  await showHistoryOnly(current.tabId);
+  await showHistoryOnly(current.tabId, shouldAutoShowOverlay(current.command));
   return { ok: true, invocation: current, result };
 }
 
@@ -1345,7 +1349,7 @@ async function finalizeInvocationError(invocation, error) {
   releaseTabBusy(current.invocationId);
   await removeInvocationMarkers(current.tabId, current.invocationId);
   clearInvocation(current.invocationId);
-  await showHistoryOnly(current.tabId);
+  await showHistoryOnly(current.tabId, true);
   return { ok: false, code: serialized.code, message: serialized.message };
 }
 
@@ -1385,7 +1389,7 @@ async function executeResolvedInvocation(tab, resolution) {
 
   invocation.mruAt = await markInvocationStart(resolution.command);
 
-  await ensureOverlay(tab.id, invocation, 'RUNNING', '');
+  await ensureOverlay(tab.id, invocation, 'RUNNING', '', shouldAutoShowOverlay(invocation.command));
 
   const wantsHelp = Boolean(resolution.argv?.options?.help);
   if (wantsHelp) {

@@ -99,6 +99,7 @@ Fields:
 - `name`, `id`
 - `version: string` (informational command revision; defaults to `"1"` when omitted)
 - `world: "user_script"`
+- `showOverlay?: boolean` (defaults to `true`; when `false`, normal execution/help/output stays hidden until explicitly reopened, but hard errors still force the session console visible)
 - `disabled?: boolean` (default false; disabled commands are excluded from resolution)
 - `code: string`
 - `requires: RequireEntry[]` (optional)
@@ -417,9 +418,11 @@ SW rejects RPC if:
 - Always in ISOLATED top frame (shadow DOM).
 - The command-facing UI is a per-tab session console overlay.
 - It shows append-only bubbles for command start/progress, `ctx.out.*` output, help, and terminal states such as done/error/canceled/busy/no-such-command.
+- Commands may opt out of automatic session-console visibility with `showOverlay: false`; the same session entries are still recorded and become visible when the user reopens the console with `f -`.
 - `--help` shows raw rendered help HTML inline in the session console, skips requires and main execution, and requires explicit user dismissal.
 - Help HTML is rendered from `helpHtmlTemplate` + localized `helpHtmlStrings` per §3.2.
 - `f -` reopens the hidden session console for the current tab without starting a command.
+- Hard execution errors still force the session console visible even when `showOverlay: false`.
 - The desktop console uses a wider default presentation and a vertically resizable scrollback region.
 
 ---

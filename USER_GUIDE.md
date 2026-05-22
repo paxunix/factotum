@@ -43,6 +43,11 @@ It keeps:
 - system notice bubbles like busy/no-such-command
 - command-visible output from `ctx.out.*`
 
+Commands can also be configured so the overlay does not auto-show during normal runs. In that mode:
+- the command still records the same session history
+- `f -` reopens that tab's hidden history later
+- hard execution errors still force the overlay visible
+
 On desktop:
 - the console opens wider than the original narrow card layout
 - the scrollback region can be resized vertically
@@ -102,6 +107,7 @@ The current command editor supports both creating new commands and editing exist
 - ID
 - version as informational command metadata
 - aliases as a space-delimited list, for example `123 abc d-ef`
+- whether the command shows the overlay by default during normal runs
 - localized description JSON
 - command code in the CodeMirror JavaScript editor, including standard editor affordances such as line numbers, folding, and bracket matching
 - help HTML template in the CodeMirror HTML editor, including standard editor affordances such as line numbers, folding, and bracket matching

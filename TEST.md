@@ -203,6 +203,7 @@ Each test lists: **Setup → Action → Expected**.
   * Selecting a valid command card opens the editor with editable Name, ID, and Version fields in the Identity section.
   * Editor sections include Identity, Description, Help, Options, Requires, Code, and Export
   * The Identity section includes editable Name, ID, and Version fields plus an editable single-line alias field using a space-delimited list of alias keys.
+  * The Identity section also includes an overlay-visibility toggle that controls whether normal runs auto-show the session console for that command.
   * The selected command card has both an enable/disable switch and a clickable Enabled/Disabled status pill, and either control toggles command availability.
   * The selected command card has a trash button that is disabled for enabled commands, becomes active after disabling, and permanently deletes the command while removing any alias targets pointing at it.
   * Editable body fields include description JSON, code, help template, help strings JSON, optionsSpec JSON, and requires JSON
@@ -258,6 +259,21 @@ Each test lists: **Setup → Action → Expected**.
   * With no selection, the chosen formatter applies to the whole editor document.
   * With a selection, the chosen formatter applies only to that selected text, so embedded snippets can be reformatted independently of the surrounding editor language.
   * Invalid content for a chosen parser reports an inline editor error and does not mutate the editor contents.
+
+#### T4f: Per-command overlay auto-show preference
+
+* Setup: open the manager UI and set `showOverlay` off for a command that writes visible output, for example `outputdemo@demo.output`.
+* Action:
+
+  1. run that command normally
+  2. confirm no session console auto-appears
+  3. enter `f -`
+  4. run a command with `showOverlay: false` that fails with a hard execution error
+* Expected:
+
+  * The normal run stays hidden but still records its output and result in the current tab's session history.
+  * `f -` reopens the session console and shows the hidden run's stored bubbles.
+  * A hard execution error still forces the session console visible even when `showOverlay` is off.
   * The Export section shows a read-only JSON object for the current edited command only, with no alias data and no bundle wrapper.
   * Utilities import accepts either that single command JSON object or a full bundle JSON object.
   * Importing a single command JSON object aborts with an error instead of overwriting if an installed command with the same `name@id` already exists and differs from the input JSON.

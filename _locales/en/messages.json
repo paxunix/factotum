@@ -175,7 +175,7 @@
     "description": "Manager command editor section title"
   },
   "managerEditorHint": {
-    "message": "Create a new command or edit an installed valid command. Name, ID, version, and aliases are edited in the Identity section.",
+    "message": "Create a new command or edit an installed valid command. Name, ID, version, aliases, and overlay preference are edited in the Identity section.",
     "description": "Manager command editor section hint"
   },
   "managerEditorEmpty": {
@@ -210,6 +210,10 @@
   "managerEditorAliases": {
     "message": "Aliases",
     "description": "Manager command editor aliases field label"
+  },
+  "managerEditorShowOverlay": {
+    "message": "Show overlay by default",
+    "description": "Manager command editor overlay visibility preference field label"
   },
   "managerEditorCode": {
     "message": "Code",

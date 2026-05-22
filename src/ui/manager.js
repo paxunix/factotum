@@ -74,7 +74,7 @@ const invalidDescriptionLabel = getMessage('managerCommandInvalidDescription', '
 const commandDeleteLabel = getMessage('managerCommandDelete', 'Delete command');
 const commandDeleteDisableFirstLabel = getMessage('managerCommandDeleteDisableFirst', 'Disable the command before deleting it');
 const editorTitle = getMessage('managerEditorTitle', 'Command Editor');
-const editorHint = getMessage('managerEditorHint', 'Create a new command or edit an installed valid command. Name, ID, version, and aliases are edited in the Identity section.');
+const editorHint = getMessage('managerEditorHint', 'Create a new command or edit an installed valid command. Name, ID, version, aliases, and overlay preference are edited in the Identity section.');
 const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command or create a new one.');
 const editorDuplicateIdentityLabel = getMessage('managerEditorDuplicateIdentity', 'Another command already uses $COMMAND$.');
 const editorNameLabel = getMessage('managerEditorName', 'Name');
@@ -82,6 +82,7 @@ const editorIdLabel = getMessage('managerEditorId', 'ID');
 const editorVersionLabel = getMessage('managerEditorVersion', 'Version');
 const editorDescriptionLabel = getMessage('managerEditorDescription', 'Description JSON');
 const editorAliasesLabel = getMessage('managerEditorAliases', 'Aliases');
+const editorShowOverlayLabel = getMessage('managerEditorShowOverlay', 'Show overlay by default');
 const editorCodeLabel = getMessage('managerEditorCode', 'Code');
 const editorHelpTemplateLabel = getMessage('managerEditorHelpTemplate', 'Help HTML template');
 const editorHelpStringsLabel = getMessage('managerEditorHelpStrings', 'Help strings JSON');
@@ -162,6 +163,7 @@ const editorFields = {
   version: document.getElementById('editor-version'),
   description: document.getElementById('editor-description'),
   aliases: document.getElementById('editor-aliases'),
+  showOverlay: document.getElementById('editor-show-overlay'),
   code: document.getElementById('editor-code'),
   helpHtmlTemplate: document.getElementById('editor-help-template'),
   helpHtmlStrings: document.getElementById('editor-help-strings'),
@@ -189,6 +191,7 @@ editorFields.id.label = editorIdLabel;
 editorFields.version.label = editorVersionLabel;
 editorFields.description.label = editorDescriptionLabel;
 editorFields.aliases.label = editorAliasesLabel;
+editorFields.showOverlay.textContent = editorShowOverlayLabel;
 editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
 editorFields.requires.label = editorRequiresLabel;
@@ -484,6 +487,7 @@ function getEditorSnapshot() {
     version: editorFields.version.value,
     description: editorFields.description.value,
     aliases: editorFields.aliases.value,
+    showOverlay: editorFields.showOverlay.checked,
     code: codeEditor.state.doc.toString(),
     helpHtmlTemplate: helpTemplateEditor.state.doc.toString(),
     helpHtmlStrings: editorFields.helpHtmlStrings.value,
@@ -698,6 +702,7 @@ function populateEditor(command, options = {}) {
   editorFields.version.value = command.version || '1';
   editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
   editorFields.aliases.value = aliasesForCommand(command).join(' ');
+  editorFields.showOverlay.checked = command.showOverlay !== false;
   setCodeMirrorValue(codeEditor, command.code, codeLanguage);
   setCodeMirrorValue(helpTemplateEditor, command.helpHtmlTemplate || '', helpTemplateLanguage);
   editorFields.helpHtmlStrings.value = stringifyJson(command.helpHtmlStrings);
@@ -716,6 +721,7 @@ function createDraftCommand() {
     id: '',
     version: '1',
     world: 'user_script',
+    showOverlay: true,
     disabled: false,
     code: 'async function main(argv, ctx) {\n}\n',
     createdAt: now,
@@ -763,6 +769,7 @@ function readEditedCommand() {
     name: editorFields.name.value,
     id: editorFields.id.value,
     version: editorFields.version.value || '1',
+    showOverlay: editorFields.showOverlay.checked,
     code: codeEditor.state.doc.toString(),
     updatedAt: Date.now()
   };

@@ -27,3 +27,28 @@ test('preserves command version as a string', () => {
 
   assert.equal(command.version, '7');
 });
+
+test('defaults showOverlay to true when omitted', () => {
+  const command = normalizeCommandRecord({
+    schemaVersion: 1,
+    name: 'ok',
+    id: 'demo.ok',
+    world: 'user_script',
+    code: 'async function main() { return 42; }'
+  }, 1760100000000);
+
+  assert.equal(command.showOverlay, true);
+});
+
+test('preserves explicit showOverlay false', () => {
+  const command = normalizeCommandRecord({
+    schemaVersion: 1,
+    name: 'ok',
+    id: 'demo.ok',
+    world: 'user_script',
+    showOverlay: false,
+    code: 'async function main() { return 42; }'
+  }, 1760100000000);
+
+  assert.equal(command.showOverlay, false);
+});
