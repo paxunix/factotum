@@ -43,6 +43,10 @@ It keeps:
 - system notice bubbles like busy/no-such-command
 - command-visible output from `ctx.out.*`
 
+Bubble styling:
+- output bubbles use a left-edge severity bar: green for ordinary/info output, yellow for warnings, red for errors
+- command-state and system-result bubbles use their own left-edge bars and tinted backgrounds so running/help, done, canceled/busy, and error states are easier to distinguish at a glance
+
 Commands can also be configured so the overlay does not auto-show during normal runs. In that mode:
 - the command still records the same session history
 - `f -` reopens that tab's hidden history later

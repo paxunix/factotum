@@ -32,8 +32,6 @@ OU1. an additional settings toggle area at the bottom of the overlay that houses
 ### Session console redesign
 SC1. Auto-scroll the session console to the bottom after each new write only when the user is already at the bottom; if the scroll thumb is away from the end, preserve the user's scroll position so history inspection is not interrupted.
 SC2. Keep `ctx.log/warn/error` as internal diagnostics only; do not alias them to `ctx.out.*`.
-SC3. Add stronger visual distinctions between `ctx.out` output bubble levels (`info`, `warn`, `error`).
-SC4. Add stronger visual distinctions between command-output bubbles and command-state/result bubbles (`done`, `error`, `canceled`, help, system notices).
 SC5. Refactor the generated user-script wrapper so future `--debug` support has an obvious, stable boundary immediately before `main(argvTokens, ctx)` and makes it clear to the user where their command code starts and what to inspect next.
 
 ### Tooling / verification

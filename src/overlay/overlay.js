@@ -62,19 +62,79 @@ const STYLE_TEXT = `
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
-    padding: 10px 12px;
+    overflow: hidden;
+    padding: 10px 12px 10px 18px;
+    position: relative;
+  }
+
+  .factotum-entry::before {
+    background: rgba(148, 163, 184, 0.5);
+    border-radius: 999px;
+    bottom: 8px;
+    content: '';
+    left: 8px;
+    position: absolute;
+    top: 8px;
+    width: 4px;
   }
 
   .factotum-entry[data-kind="output"] {
     background: rgba(148, 163, 184, 0.12);
   }
 
+  .factotum-entry[data-kind="output"][data-level="info"]::before,
+  .factotum-entry[data-state="DONE"]::before {
+    background: rgba(74, 222, 128, 0.95);
+  }
+
   .factotum-entry[data-level="warn"] {
     border-color: rgba(251, 191, 36, 0.35);
   }
 
+  .factotum-entry[data-kind="output"][data-level="warn"]::before,
+  .factotum-entry[data-state="CANCELED"]::before,
+  .factotum-entry[data-state="BUSY"]::before {
+    background: rgba(251, 191, 36, 0.95);
+  }
+
   .factotum-entry[data-level="error"] {
     border-color: rgba(248, 113, 113, 0.35);
+  }
+
+  .factotum-entry[data-kind="output"][data-level="error"]::before,
+  .factotum-entry[data-state="ERROR"]::before {
+    background: rgba(248, 113, 113, 0.95);
+  }
+
+  .factotum-entry[data-state="RUNNING"]::before,
+  .factotum-entry[data-state="HELP"]::before {
+    background: rgba(96, 165, 250, 0.95);
+  }
+
+  .factotum-entry:not([data-kind="output"]) {
+    background: rgba(30, 41, 59, 0.72);
+  }
+
+  .factotum-entry[data-state="DONE"] {
+    background: rgba(21, 128, 61, 0.16);
+    border-color: rgba(74, 222, 128, 0.22);
+  }
+
+  .factotum-entry[data-state="ERROR"] {
+    background: rgba(127, 29, 29, 0.24);
+    border-color: rgba(248, 113, 113, 0.28);
+  }
+
+  .factotum-entry[data-state="CANCELED"],
+  .factotum-entry[data-state="BUSY"] {
+    background: rgba(133, 77, 14, 0.18);
+    border-color: rgba(251, 191, 36, 0.24);
+  }
+
+  .factotum-entry[data-state="RUNNING"],
+  .factotum-entry[data-state="HELP"] {
+    background: rgba(30, 64, 175, 0.18);
+    border-color: rgba(96, 165, 250, 0.24);
   }
 
   .factotum-entry-title {
@@ -229,6 +289,9 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     }
     if (entry.level) {
       item.dataset.level = entry.level;
+    }
+    if (entry.state) {
+      item.dataset.state = entry.state;
     }
 
     const title = document.createElement('p');

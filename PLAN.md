@@ -52,8 +52,6 @@ This is a live orientation doc for future changes. It describes the current impl
 ## Active priorities
 
 ### Session console polish
-- Distinguish output levels more clearly.
-- Distinguish command-state/system bubbles more clearly.
 - Auto-scroll only when the user is already at the bottom.
 - Keep the generated wrapper boundary clean for future debug-oriented work.
 
