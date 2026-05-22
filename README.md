@@ -25,6 +25,7 @@ npm run build
 
 - Command runtime lives in `USER_SCRIPT` and reaches page context only through `ctx.main`.
 - The per-tab session console is reopened with `f -` and holds command output, help, and terminal state history for that tab.
+- There is no separate Logs page; the manager is the only extension page surfaced from the popup.
 - The manager provides command editing, import/export, aliases, enable/disable, deletion, and per-command export.
 - The remaining forward-looking work lives in [TODO.md](/home/paxunix/repos/factotum/TODO.md).
 

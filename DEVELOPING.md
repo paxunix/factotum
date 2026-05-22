@@ -25,7 +25,7 @@ Command runtime now lives in `USER_SCRIPT` via `chrome.userScripts`. `MAIN` shou
 
 ## UI direction
 
-The current implementation now uses a per-tab session console overlay for command-facing output, while a separate log page still exists for internal diagnostics. When touching command-facing output or invocation UX, optimize for:
+The current implementation uses a per-tab session console overlay for command-facing output. When touching command-facing output or invocation UX, optimize for:
 
 * per-tab session state, discarded on tab close, reopenable via `f -`
 * command-visible scrollback in the overlay

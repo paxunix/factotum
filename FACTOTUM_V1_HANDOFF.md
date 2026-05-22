@@ -36,7 +36,7 @@ When user-facing behavior or author-facing APIs change, keep those audience guid
 
 ### Current design direction
 
-The current checked-in implementation now uses a per-tab session console as the primary command-facing overlay surface: it is lazy-created on first use in a tab, hidden when dismissed rather than destroyed, reopenable via omnibox `f -`, preserved across navigation in the same tab, and discarded on tab close. Saved command outcomes, help, system notices, active invocation state, and `ctx.out.write/info/warn/error` output all render in the same append-only bubble stream. Terminal states do not auto-dismiss, the desktop console defaults to a wider presentation, and the scrollback region is vertically resizable. The separate log page still exists for internal diagnostics while the command-facing console continues to mature.
+The current checked-in implementation now uses a per-tab session console as the command-facing overlay surface: it is lazy-created on first use in a tab, hidden when dismissed rather than destroyed, reopenable via omnibox `f -`, preserved across navigation in the same tab, and discarded on tab close. Saved command outcomes, help, system notices, active invocation state, and `ctx.out.write/info/warn/error` output all render in the same append-only bubble stream. Terminal states do not auto-dismiss, the desktop console defaults to a wider presentation, and the scrollback region is vertically resizable.
 
 The main remaining follow-ups in this area are presentation refinements rather than a model change:
 
@@ -452,7 +452,6 @@ Serialization:
 UI:
 
 - Command-facing output appears in the per-tab session console via `ctx.out.write/info/warn/error`.
-- Internal diagnostics still have a separate current-session log page.
 - `ctx.log/warn/error` remain diagnostics and are not aliases of `ctx.out.*`.
 
 ---
@@ -514,12 +513,12 @@ Recommended entrypoints:
 * SW: `src/sw/sw.js` → `dist/sw/sw.js`
 * Injected: `overlay.js`, `main_host.js`
 * User-script execution: command code dispatched via `chrome.userScripts.execute()` in USER_SCRIPT world
-* UI pages: `manager.js` (CodeMirror bundled for command code and help-template editing), and the current `log.js` page for internal diagnostics
+* UI pages: `manager.js` (CodeMirror bundled for command code and help-template editing) and `popup.js`
 
 UI access:
 
 * Provide a full-size manager/editor UI via extension pages (recommended for editing code/help).
-* Popup (browser action) may act as a lightweight launcher that opens manager/editor pages; if the separate log page is retired later, preserve access to internal diagnostics somewhere explicit.
+* Popup (browser action) acts as a lightweight launcher for the manager page.
 
 ---
 

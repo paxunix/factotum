@@ -366,14 +366,6 @@
     "message": "User Scripts is not enabled for this extension.",
     "description": "Overlay error message when the userScripts API is unavailable"
   },
-  "logsTitle": {
-    "message": "Factotum Logs",
-    "description": "Logs page title"
-  },
-  "logsHint": {
-    "message": "Log UI skeleton.",
-    "description": "Logs page hint"
-  },
   "popupTitle": {
     "message": "Factotum",
     "description": "Popup title"
@@ -386,16 +378,8 @@
     "message": "Manager",
     "description": "Nav label for manager"
   },
-  "navLogs": {
-    "message": "Logs",
-    "description": "Nav label for logs"
-  },
   "menuManager": {
     "message": "Open Manager",
     "description": "Popup menu item to open manager"
-  },
-  "menuLogs": {
-    "message": "Open Logs",
-    "description": "Popup menu item to open logs"
   }
 }

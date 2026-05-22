@@ -29,6 +29,7 @@ This is a live orientation doc for future changes. It describes the current impl
 - `f -` reopens the current tab's hidden session console.
 - Help, command output, system notices, and terminal states share the same append-only bubble stream.
 - Commands may set `showOverlay: false` to suppress normal auto-show behavior while still recording session history; hard execution errors still force visibility.
+- `ctx.log/warn/error` remain internal diagnostics; there is no separate Logs page.
 
 ### Manager
 - The manager uses top-level `Manager` and `Utilities` tabs.
