@@ -31,6 +31,26 @@
       "description": { "en-US": "Command-visible output fixture" },
       "createdAt": 1760100000000,
       "updatedAt": 1760100000000
+    },
+    {
+      "schemaVersion": 1,
+      "name": "helpapi",
+      "id": "demo.help.api",
+      "world": "user_script",
+      "code": "async function main(argv, ctx) { if (!argv.positionals[0]) { ctx.help('Missing required target.', { level: 'error' }); } return argv.positionals[0]; }",
+      "description": { "en-US": "Command-triggered help fixture" },
+      "helpHtmlTemplate": "<h1>{{title}}</h1><p>{{summary}}</p><pre>{{usage}}</pre>{{args}}",
+      "helpHtmlStrings": {
+        "en-US": {
+          "title": "helpapi",
+          "summary": "Shows ctx.help() from inside main() when the target argument is missing."
+        }
+      },
+      "optionsSpec": {
+        "args": "<target>"
+      },
+      "createdAt": 1760100000000,
+      "updatedAt": 1760100000000
     }
   ],
   "aliases": {

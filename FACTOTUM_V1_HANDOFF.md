@@ -431,10 +431,13 @@ SW rejects RPC if:
 
 Commands get two different channels:
 
+- `ctx.help`
 - `ctx.out.write`, `ctx.out.info`, `ctx.out.warn`, `ctx.out.error`
 - `ctx.log`, `ctx.warn`, `ctx.error`
 
 Command-facing output:
+- `ctx.help(value?, options?)` optionally appends a user-visible message bubble, then ends the invocation by showing the command's rendered help bubble instead of an error bubble.
+- `ctx.help(...)` accepts the same payload shapes as `ctx.out.*`; `options` may include `{ level?: 'info' | 'warn' | 'error', pretty?: boolean }`, with `level` defaulting to `error`.
 - `ctx.out.*` writes append-only entries into the per-tab session console.
 - This is the API authors should use for anything the user should see.
 - `ctx.out.write(...)` and `ctx.out.info(...)` currently behave the same way and both write `info`-level output entries; `write` is the preferred default for ordinary output.

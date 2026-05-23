@@ -81,6 +81,7 @@ async function main(argv, ctx) {
 - `ctx.main.define(name, fn)`: expose a named `MAIN` entrypoint for this invocation
 - `ctx.main.call(name, args)`: call a named `MAIN` entrypoint for this invocation
 - `ctx.out.write/info/warn/error(value, options?)`: append user-visible output bubbles to the session console
+- `ctx.help(value?, options?)`: optionally append a message bubble, then show the command's help and stop execution
 - `ctx.chrome.ns.method(...args)`: Promise-based access to the supported one-shot `chrome.*` surface
 
 - `ctx.chrome.ns.method(...args)` is available for the v1 one-shot Chrome API surface
@@ -114,6 +115,7 @@ Current behavior:
 - `options` currently supports `{ pretty?: boolean }` for object-like output formatting.
 - For objects, arrays, and normalized `Error` output, pretty-printing defaults to `true`.
 - Use `{ pretty: false }` when you want compact one-line JSON instead.
+- `ctx.help(value?, options?)` also accepts `{ level?: 'info' | 'warn' | 'error', pretty?: boolean }`; `level` defaults to `error`.
 
 Examples:
 
@@ -138,6 +140,7 @@ Notes:
 - pass `{ pretty: false }` as the optional second argument for compact JSON output
 - a non-`undefined` value returned from `main(argv, ctx)` is shown in the terminal `Done` bubble using the same display formatting
 - a thrown or rejected error is shown in the terminal `Error` bubble using normalized error details
+- `ctx.help(...)` appends its optional message first, then terminates through the normal help bubble path instead of the error path
 
 Diagnostic logging is separate from user-visible output:
 - use `ctx.out.write/info/warn/error(...)` when the user should see the message in the session console

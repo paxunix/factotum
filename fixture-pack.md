@@ -36,6 +36,7 @@ Use checked-in import bundles for manual and harness testing rather than copying
   - `ok@demo.ok`
   - `canceldemo@demo.cancel`
   - `outputdemo@demo.output`
+  - `helpapi@demo.help.api`
 - Aliases:
   - `okcmd -> ok@demo.ok`
 
@@ -50,6 +51,7 @@ Use checked-in import bundles for manual and harness testing rather than copying
 - `ok@demo.ok`: T1, T2, T5, T7
 - `canceldemo@demo.cancel`: T8
 - `outputdemo@demo.output`: T21, T21b
+- `helpapi@demo.help.api`: T7f
 - `pick@fixture.A` and `pick@fixture.B`: T3, T3b, T4a, T4b
 - `longrun@fixture.cancel.nav`: T9, T10
 - `badreq@fixture.requires.fail`: external requires-failure check

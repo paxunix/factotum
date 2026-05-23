@@ -770,6 +770,10 @@ async function pollInvocationCompletion(invocation) {
         return settleCompletionWaiter(invocation.invocationId, { ok: true, result: marker.result });
       }
 
+      if (marker.status === 'help') {
+        return settleCompletionWaiter(invocation.invocationId, { ok: true, help: true, result: undefined });
+      }
+
       if (marker.status === 'failed') {
         const errorDetail = marker.error || {};
         return settleCompletionWaiter(invocation.invocationId, {
@@ -931,6 +935,12 @@ async function showHelpOverlay(invocation) {
   });
   await setOverlayHelp(invocation.tabId, invocation.invocationId, commandRef, html, shouldAutoShowOverlay(invocation.command));
   await showHistoryOnly(invocation.tabId, shouldAutoShowOverlay(invocation.command));
+}
+
+function createHelpRequestedError() {
+  const error = new Error('Help requested');
+  error.code = 'HELP_REQUESTED';
+  return error;
 }
 
 function buildExecuteCode(invocation) {
@@ -1260,6 +1270,22 @@ function buildExecuteCode(invocation) {
             __factotumAppendOutput({ level: 'error', value, options });
           }
         },
+        help(value, options = {}) {
+          const detail = options && typeof options === 'object' && !Array.isArray(options)
+            ? options
+            : {};
+          const level = ['info', 'warn', 'error'].includes(detail.level)
+            ? detail.level
+            : 'error';
+          const outputOptions = {};
+          if (detail.pretty != null) {
+            outputOptions.pretty = Boolean(detail.pretty);
+          }
+          if (value !== undefined) {
+            __factotumAppendOutput({ level, value, options: outputOptions });
+          }
+          throw (${createHelpRequestedError.toString()})();
+        },
         log(...args) {
           console.log('[factotum command]', ...args);
         },
@@ -1288,6 +1314,12 @@ function buildExecuteCode(invocation) {
         });
         return __factotumResult;
       } catch (error) {
+        if (error?.code === 'HELP_REQUESTED') {
+          __factotumWriteCompletion({
+            status: 'help'
+          });
+          return undefined;
+        }
         __factotumWriteCompletion({
           status: 'failed',
           error: {
@@ -1399,6 +1431,40 @@ async function finalizeInvocationSuccess(invocation, result) {
   return { ok: true, invocation: current, result };
 }
 
+async function finalizeInvocationHelp(invocation, removeMarkers = false) {
+  const current = getInvocationById(invocation.invocationId);
+  if (!current) {
+    return { ok: false, code: 'INVALID_INVOCATION', message: 'Invocation ended unexpectedly.' };
+  }
+
+  if (current.canceled) {
+    try {
+      await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', '');
+    } catch {}
+    appendSnapshotEntry(current.tabId, {
+      invocationId: current.invocationId,
+      commandRef: `${current.command.name}@${current.command.id}`,
+      state: 'CANCELED',
+      message: '',
+      html: ''
+    });
+    if (removeMarkers) {
+      await removeInvocationMarkers(current.tabId, current.invocationId);
+    }
+    clearInvocation(current.invocationId);
+    await showHistoryOnly(current.tabId, shouldAutoShowOverlay(current.command));
+    return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
+  }
+
+  finishInvocation(current.invocationId, 'HELP');
+  releaseTabBusy(current.invocationId);
+  if (removeMarkers) {
+    await removeInvocationMarkers(current.tabId, current.invocationId);
+  }
+  await showHelpOverlay(current);
+  return { ok: true, invocation: current, result: undefined, help: true };
+}
+
 async function finalizeInvocationError(invocation, error) {
   const current = getInvocationById(invocation.invocationId);
   if (!current) {
@@ -1461,10 +1527,7 @@ async function executeResolvedInvocation(tab, resolution) {
 
   const wantsHelp = Boolean(resolution.argv?.options?.help);
   if (wantsHelp) {
-    finishInvocation(invocation.invocationId, 'HELP');
-    releaseTabBusy(invocation.invocationId);
-    await showHelpOverlay(invocation);
-    return { ok: true, invocation, result: undefined };
+    return finalizeInvocationHelp(invocation, false);
   }
 
   await injectMainHost(tab.id);
@@ -1487,6 +1550,10 @@ async function executeResolvedInvocation(tab, resolution) {
         return finalizeInvocationSuccess(invocation, undefined);
       }
 
+      if (completion?.help) {
+        return finalizeInvocationHelp(invocation, true);
+      }
+
       if (completion?.ok) {
         return finalizeInvocationSuccess(invocation, completion.result);
       }
@@ -1506,6 +1573,10 @@ async function executeResolvedInvocation(tab, resolution) {
 
     if (completion?.canceled) {
       return finalizeInvocationSuccess(invocation, undefined);
+    }
+
+    if (completion?.help) {
+      return finalizeInvocationHelp(invocation, true);
     }
 
     if (completion?.ok) {

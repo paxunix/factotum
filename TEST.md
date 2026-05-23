@@ -43,6 +43,7 @@ Below is a **Test Plan v1** that mixes a small, reliable **manual smoke suite** 
   * `ok@demo.ok`
   * `canceldemo@demo.cancel`
   * `outputdemo@demo.output`
+  * `helpapi@demo.help.api`
 
 ### Fixture map
 
@@ -52,6 +53,7 @@ Use these fixtures for the following tests so the test plan stays aligned with t
 * `pick@fixture.A` and `pick@fixture.B`: T3, T3b, T4a, T4b
 * `canceldemo@demo.cancel`: T8
 * `outputdemo@demo.output`: T21, T21b
+* `helpapi@demo.help.api`: T7f
 * `longrun@fixture.cancel.nav`: T9, T10
 * `badreq@fixture.requires.fail`: external requires-failure check
 * `reqorder@fixture.requires.order`: T11
@@ -376,6 +378,16 @@ Each test lists: **Setup → Action → Expected**.
 
   * The success command's terminal `Done` bubble includes the returned value when it is not `undefined`.
   * The failing command's terminal `Error` bubble includes normalized error details rather than only a bare status label.
+
+#### T7f: `ctx.help(...)` appends a message and shows help from inside `main()`
+
+* Setup: import `helpapi@demo.help.api` from the smoke bundle.
+* Action: run `f helpapi`
+* Expected:
+
+  * The session stream first shows the command-authored error or warning bubble from `ctx.help(...)`.
+  * The command then terminates through the normal `Help` bubble path instead of the `Error` path.
+  * The rendered help content for that command is shown.
 
 #### T8: Cancel button cancels a running command
 
