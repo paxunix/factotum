@@ -248,6 +248,7 @@ Each test lists: **Setup → Action → Expected**.
   * Importing a full bundle opens a review panel in Utilities instead of importing immediately.
   * The review panel lets the user independently select commands, quarantined invalid records, and aliases to import.
   * The review panel marks each reviewed item as `New`, `Same`, or `Overwrite`.
+  * Exporting a full bundle opens a review panel in Utilities so the user can choose which commands, quarantined invalid records, and aliases to include before the bundle JSON is written.
   * Each pane scrolls independently; the whole manager page does not jump while browsing long pane contents.
   * The command list is a concise vertical tab menu of command names with one detail card for the selected command.
   * The filter input matches substrings in command name, command ID, or command aliases.
@@ -281,6 +282,7 @@ Each test lists: **Setup → Action → Expected**.
   * The Export section shows a read-only JSON object for the current edited command only, with no alias data and no bundle wrapper.
   * Utilities import accepts either that single command JSON object or a full bundle JSON object.
   * Full-bundle import uses the review panel before any selected data is imported.
+  * Full-bundle export uses the review panel before the selected bundle JSON is written.
   * Importing a single command JSON object aborts with an error instead of overwriting if an installed command with the same `name@id` already exists and differs from the input JSON.
   * Undo in either CodeMirror editor stops at the loaded command content and does not walk backward through prior command selections or the initial empty editor.
   * Disabled commands are visually muted in both the command menu and selected-command detail card while keeping the Disabled status pill clickable.

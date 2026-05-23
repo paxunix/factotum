@@ -153,6 +153,8 @@ Utilities import accepts either a single fcommand JSON record or a full Factotum
 - the review marks items as `New`, `Same`, or `Overwrite` so you can see what will replace installed data before importing
 
 Utilities export remains the whole-extension bundle export surface.
+- exporting a full bundle now opens a review step where you choose which commands, quarantined invalid records, and aliases to include
+- the bundle JSON is written only after you confirm the reviewed subset
 
 ## Current limitations
 

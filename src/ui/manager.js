@@ -48,6 +48,9 @@ const exportBundleLabel = getMessage('managerExportBundle', 'Export Bundle');
 const bundleReviewTitleLabel = getMessage('managerBundleReviewTitle', 'Review bundle import');
 const bundleReviewHintLabel = getMessage('managerBundleReviewHint', 'Choose which commands, quarantined invalid records, and aliases to import. Items marked Overwrite will replace existing installed data.');
 const bundleReviewImportLabel = getMessage('managerBundleReviewImport', 'Import selected');
+const bundleReviewExportTitleLabel = getMessage('managerBundleReviewExportTitle', 'Review bundle export');
+const bundleReviewExportHintLabel = getMessage('managerBundleReviewExportHint', 'Choose which commands, quarantined invalid records, and aliases to include in the exported bundle.');
+const bundleReviewExportLabel = getMessage('managerBundleReviewExport', 'Export selected');
 const bundleReviewCancelLabel = getMessage('managerBundleReviewCancel', 'Cancel review');
 const bundleReviewCommandsLabel = getMessage('managerBundleReviewCommands', 'Commands');
 const bundleReviewInvalidLabel = getMessage('managerBundleReviewInvalid', 'Quarantined invalid commands');
@@ -123,9 +126,6 @@ document.getElementById('bundle-tools-title').textContent = bundleToolsTitle;
 document.getElementById('bundle-tools-hint').textContent = bundleToolsHint;
 document.getElementById('import-bundle-button').textContent = importBundleLabel;
 document.getElementById('export-bundle-button').textContent = exportBundleLabel;
-document.getElementById('bundle-review-title').textContent = bundleReviewTitleLabel;
-document.getElementById('bundle-review-hint').textContent = bundleReviewHintLabel;
-document.getElementById('bundle-review-import-button').textContent = bundleReviewImportLabel;
 document.getElementById('bundle-review-cancel-button').textContent = bundleReviewCancelLabel;
 document.getElementById('bundle-review-commands-title').textContent = bundleReviewCommandsLabel;
 document.getElementById('bundle-review-invalid-title').textContent = bundleReviewInvalidLabel;
@@ -1269,7 +1269,7 @@ function hideBundleReview() {
   bundleReviewAliases.textContent = '';
 }
 
-function createBundleReviewItem(item) {
+function createBundleReviewItem(item, mode = 'import') {
   const row = document.createElement('label');
   row.className = 'bundle-review-item';
 
@@ -1297,15 +1297,17 @@ function createBundleReviewItem(item) {
     copy.append(detail);
   }
 
-  const pill = document.createElement('span');
-  pill.className = `bundle-review-pill bundle-review-pill-${item.state}`;
-  pill.textContent = reviewStateLabel(item.state);
-
-  row.append(checkbox, copy, pill);
+  row.append(checkbox, copy);
+  if (mode === 'import') {
+    const pill = document.createElement('span');
+    pill.className = `bundle-review-pill bundle-review-pill-${item.state}`;
+    pill.textContent = reviewStateLabel(item.state);
+    row.append(pill);
+  }
   return row;
 }
 
-function renderBundleReviewSection(section, container, items) {
+function renderBundleReviewSection(section, container, items, mode = 'import') {
   container.textContent = '';
   if (!items.length) {
     section.hidden = true;
@@ -1313,7 +1315,7 @@ function renderBundleReviewSection(section, container, items) {
   }
   section.hidden = false;
   for (const item of items) {
-    container.append(createBundleReviewItem(item));
+    container.append(createBundleReviewItem(item, mode));
   }
 }
 
@@ -1328,9 +1330,13 @@ function updateBundleReviewActions() {
 
 function showBundleReview(review) {
   pendingBundleReview = review;
-  renderBundleReviewSection(bundleReviewCommandsSection, bundleReviewCommands, review.commands);
-  renderBundleReviewSection(bundleReviewInvalidSection, bundleReviewInvalid, review.invalidCommands);
-  renderBundleReviewSection(bundleReviewAliasesSection, bundleReviewAliases, review.aliases);
+  const mode = review.mode || 'import';
+  document.getElementById('bundle-review-title').textContent = mode === 'export' ? bundleReviewExportTitleLabel : bundleReviewTitleLabel;
+  document.getElementById('bundle-review-hint').textContent = mode === 'export' ? bundleReviewExportHintLabel : bundleReviewHintLabel;
+  bundleReviewImportButton.textContent = mode === 'export' ? bundleReviewExportLabel : bundleReviewImportLabel;
+  renderBundleReviewSection(bundleReviewCommandsSection, bundleReviewCommands, review.commands, mode);
+  renderBundleReviewSection(bundleReviewInvalidSection, bundleReviewInvalid, review.invalidCommands, mode);
+  renderBundleReviewSection(bundleReviewAliasesSection, bundleReviewAliases, review.aliases, mode);
   bundleReview.hidden = !review.commands.length && !review.invalidCommands.length && !review.aliases.length;
   updateBundleReviewActions();
 }
@@ -1401,6 +1407,29 @@ async function executeBundleReviewImport() {
   await loadCommands();
 }
 
+function setExportStatusFromBundle(bundle) {
+  const aliasCount = Object.keys(bundle.aliases || {}).length;
+  const invalidCount = Array.isArray(bundle.invalidCommands) ? bundle.invalidCommands.length : 0;
+  bundleTextarea.value = JSON.stringify(bundle, null, 2);
+  const statusLines = [
+    `Exported ${bundle.commands.length} command(s).`,
+    `Exported ${aliasCount} alias(es).`
+  ];
+  if (invalidCount > 0) {
+    statusLines.push(formatInvalidSummaryMessage('managerExportInvalidSummary', 'Preserved $COUNT$ invalid command(s).', invalidCount));
+  }
+  setBundleStatus('success', statusLines);
+}
+
+async function executeBundleReviewExport() {
+  if (!pendingBundleReview) {
+    return;
+  }
+  const reviewedBundle = buildReviewedBundle(pendingBundleReview);
+  hideBundleReview();
+  setExportStatusFromBundle(reviewedBundle);
+}
+
 async function handleImportBundle() {
   clearBundleStatus();
   hideBundleReview();
@@ -1445,12 +1474,14 @@ async function handleExportBundle() {
   hideBundleReview();
   try {
     const bundle = await exportBundle();
-    bundleTextarea.value = JSON.stringify(bundle, null, 2);
-    const statusLines = [`Exported ${bundle.commands.length} command(s).`];
-    if (Array.isArray(bundle.invalidCommands) && bundle.invalidCommands.length > 0) {
-      statusLines.push(formatInvalidSummaryMessage('managerExportInvalidSummary', 'Preserved $COUNT$ invalid command(s).', bundle.invalidCommands.length));
+    const review = await buildBundleReview(bundle);
+    review.mode = 'export';
+    const hasReviewItems = review.commands.length || review.invalidCommands.length || review.aliases.length;
+    if (!hasReviewItems) {
+      setExportStatusFromBundle(bundle);
+      return;
     }
-    setBundleStatus('success', statusLines);
+    showBundleReview(review);
   } catch (error) {
     setBundleStatus('error', error.message || String(error));
   }
@@ -1477,7 +1508,10 @@ document.getElementById('export-bundle-button').addEventListener('click', () => 
 });
 
 bundleReviewImportButton.addEventListener('click', () => {
-  executeBundleReviewImport().catch((error) => {
+  const action = pendingBundleReview?.mode === 'export'
+    ? executeBundleReviewExport()
+    : executeBundleReviewImport();
+  Promise.resolve(action).catch((error) => {
     setBundleStatus('error', error.message || String(error));
   });
 });

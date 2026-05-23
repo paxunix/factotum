@@ -173,6 +173,18 @@
     "message": "Import selected",
     "description": "Utilities import review action button"
   },
+  "managerBundleReviewExportTitle": {
+    "message": "Review bundle export",
+    "description": "Utilities export review panel title"
+  },
+  "managerBundleReviewExportHint": {
+    "message": "Choose which commands, quarantined invalid records, and aliases to include in the exported bundle.",
+    "description": "Utilities export review panel hint"
+  },
+  "managerBundleReviewExport": {
+    "message": "Export selected",
+    "description": "Utilities export review action button"
+  },
   "managerBundleReviewCancel": {
     "message": "Cancel review",
     "description": "Utilities import review cancel button"
