@@ -175,6 +175,7 @@ Option behavior:
 - `required: true` fails before `main()` runs when the option is missing.
 - When `options` declares an option set, unknown flags fail before `main()` runs.
 - `--help` and `-h` are reserved for Factotum help handling.
+- `--debug` is reserved for Factotum runtime debugging and pauses on a `debugger;` statement immediately before `main(argv, ctx)` runs when DevTools is open.
 
 Positional behavior:
 - `argv.positionals` is an ordered array.
@@ -187,6 +188,11 @@ Positional behavior:
 - renders help in the session console
 - may use generated `usage`, `options`, and `args` tokens from `optionsSpec`
 - uses `optionsSpec` to parse command input before `main()` runs; unknown flags and missing required options fail before command execution when an option set is declared
+
+`f cmd --debug`:
+- still runs the command normally
+- inserts a `debugger;` stop immediately before `main(argv, ctx)` executes
+- is useful only when DevTools is open for the page/user-script context
 
 ## Requires
 

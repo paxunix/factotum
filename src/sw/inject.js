@@ -918,6 +918,7 @@ function buildExecuteCode(invocation) {
   const meta = JSON.stringify({
     invocationId: invocation.invocationId,
     argv: invocation.argv,
+    debug: Boolean(invocation.argv?.options?.debug),
     world: invocation.command.world,
     commandRef: `${invocation.command.name}@${invocation.command.id}`,
     nonce: invocation.nonce,
@@ -931,8 +932,33 @@ function buildExecuteCode(invocation) {
     eventMethods: Array.from(RPC_EVENT_METHODS),
     denylistedMethods: Array.from(RPC_DENYLIST_METHODS)
   });
+  const sourceUrl = `${invocation.command.name}@${invocation.command.id}`;
 
   const prefix = `
+    (() => {
+    /*
+     * BEGIN USER COMMAND SOURCE
+     *
+     * The fcommand body from extension storage is inserted directly below inside
+     * a factory function so DevTools shows the user source at the top of this
+     * generated script while preserving the normal require-then-execute order.
+     */
+    const __factotumBuildUserMain = () => {
+      if (${Boolean(invocation.argv?.options?.debug)}) {
+        /*
+         * Factotum built-in --debug stop.
+         * Step over once to continue through the fcommand source and then into
+         * the returned main(argv, ctx) call in the runtime wrapper below.
+         */
+        debugger;
+      }
+  `;
+
+  const infix = `
+    /*
+     * END USER COMMAND SOURCE
+     */
+
     (async () => {
       const __factotumMeta = ${meta};
       let __factotumCallSeq = 0;
@@ -1229,12 +1255,7 @@ function buildExecuteCode(invocation) {
       try {
         console.info('[factotum execute]', __factotumMeta.commandRef, __factotumMeta.world);
         await __factotumLoadRequires();
-        const __factotumMain = (() => {
-  `;
-
-  const suffix = `
-          return typeof main === 'function' ? main : undefined;
-        })();
+        const __factotumMain = __factotumBuildUserMain();
         if (typeof __factotumMain !== 'function') {
           __factotumWriteCompletion({
             status: 'no_main'
@@ -1262,9 +1283,16 @@ function buildExecuteCode(invocation) {
         window.removeEventListener('message', __factotumMainListener);
       }
     })();
+    })();
+    //# sourceURL=${sourceUrl}
   `;
 
-  return [prefix, String(invocation.command.code || ''), suffix].join('\n');
+  const suffix = `
+      return typeof main === 'function' ? main : undefined;
+    };
+  `;
+
+  return [prefix, String(invocation.command.code || ''), suffix, infix].join('\n');
 }
 
 async function executeUserScript(invocation) {

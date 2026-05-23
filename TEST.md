@@ -358,6 +358,16 @@ Each test lists: **Setup → Action → Expected**.
   * Author-provided tokens remain localized.
   * Help is shown as a bubble in the session stream, not a special takeover card.
 
+#### T7d: `--debug` pauses before command execution
+
+* Setup: open DevTools for the page where the command will run.
+* Action: run `f ok --debug`
+* Expected:
+
+  * Execution pauses on a `debugger;` stop immediately before the command's `main(argv, ctx)` runs.
+  * Resuming DevTools allows the command to complete normally.
+  * With DevTools closed, the same command still runs normally and does not fail because `--debug` was present.
+
 #### T8: Cancel button cancels a running command
 
 * Setup: install `canceldemo@demo.cancel`, a test command that loops with `await new Promise(r=>setTimeout(r,50))` and checks `ctx.signal.aborted`

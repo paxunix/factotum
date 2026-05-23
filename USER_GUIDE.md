@@ -23,6 +23,7 @@ Examples:
 - `f okcmd`
 - `f pick`
 - `f helpdemo --help`
+- `f ok --debug`
 - `f -`
 
 Matching in the omnibox is case-insensitive. Factotum ranks matches in this order:
@@ -73,6 +74,16 @@ f somecommand --help
 ```
 
 This shows the command's help content in the session console instead of running the command.
+
+## Debugging
+
+Use:
+
+```text
+f somecommand --debug
+```
+
+If DevTools is open for the page context, Factotum inserts a `debugger;` stop immediately before the command's `main(argv, ctx)` runs.
 
 ## Canceling
 

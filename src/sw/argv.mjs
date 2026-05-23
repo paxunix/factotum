@@ -21,13 +21,13 @@ function canonicalOptionName(option) {
 
 function buildMriConfig(optionsSpec = {}) {
   const declaredOptions = Array.isArray(optionsSpec.options) ? optionsSpec.options : [];
-  const alias = { help: ['h'] };
-  const boolean = ['help'];
+  const alias = { help: ['h'], debug: [] };
+  const boolean = ['help', 'debug'];
   const string = [];
   const number = [];
   const defaults = {};
   const required = new Set();
-  const canonicalNames = new Set(['help']);
+  const canonicalNames = new Set(['help', 'debug']);
 
   for (const option of declaredOptions) {
     const flags = Array.isArray(option.flags) ? option.flags.map(String) : [];

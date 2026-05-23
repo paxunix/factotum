@@ -33,6 +33,8 @@ The current implementation uses a per-tab session console overlay for command-fa
 * explicit command-facing output APIs (`ctx.out.*`) instead of relying on incidental `console.*` output
 * keeping `ctx.log/warn/error` as diagnostics rather than aliases of `ctx.out.*`
 * remembering that those diagnostics are currently DevTools-console-only, not surfaced in the session console
+* preserving the built-in `--debug` stop immediately before `main(argv, ctx)` when touching the generated runner wrapper
+* preserving the top-of-file user-command factory in the generated USER_SCRIPT so DevTools shows fcommand source before the runtime machinery while still deferring execution until after requires load
 
 ## Related docs (when to consult)
 - `FACTOTUM_V1_HANDOFF.md`: Authoritative RPC policy and error codes; defer to it on conflicts.

@@ -38,10 +38,9 @@ When user-facing behavior or author-facing APIs change, keep those audience guid
 
 The current checked-in implementation now uses a per-tab session console as the command-facing overlay surface: it is lazy-created on first use in a tab, hidden when dismissed rather than destroyed, reopenable via omnibox `f -`, preserved across navigation in the same tab, and discarded on tab close. Saved command outcomes, help, system notices, active invocation state, and `ctx.out.write/info/warn/error` output all render in the same append-only bubble stream. Terminal states do not auto-dismiss, the desktop console defaults to a wider presentation, and the scrollback region is vertically resizable.
 
-The main remaining follow-ups in this area are presentation refinements rather than a model change:
+The main remaining follow-up in this area is implementation cleanup rather than a model change:
 
-- stronger visual distinctions between output levels and command-state/system bubbles
-- a cleaner generated-wrapper boundary before `main(argv, ctx)` so future `--debug` support has an obvious insertion point
+- keep a clear generated-wrapper boundary immediately before `main(argv, ctx)` so the built-in `--debug` stop remains easy to preserve
 
 ---
 
@@ -250,6 +249,7 @@ If authors provide localized `description` for options, those should be used whe
 - The parser must support short/long flags, aliases declared by multiple `flags`, `--` end-of-options, and `--flag=value`.
 - When `optionsSpec.options` declares a closed option set, unknown flags fail before command execution.
 - Required options fail before command execution when missing.
+- `--help`/`-h` and `--debug` are reserved for Factotum runtime handling.
 - `optionsSpec.args` is help/usage text only; it does not bind names to positional arguments or validate positional arity.
 - Pass to command:
   - `argv.tokens`: raw tokens after the command token
@@ -316,7 +316,8 @@ If authors provide localized `description` for options, those should be used whe
 7) Ensure MH exists in top frame MAIN when bridge support is needed.
 8) Execute command code in USER_SCRIPT world using `chrome.userScripts.execute()` targeted to the top frame.
 9) Load requires sequentially (side-effect only).
-10) Execute `await main(argv, ctx)`.
+10) If `--debug` was supplied, execute a `debugger;` stop immediately before invoking command code.
+11) Execute `await main(argv, ctx)`.
 
 ### 5.3 End conditions
 Invocation ends when:

@@ -164,3 +164,22 @@ test('always allows help flags for runtime handling', () => {
     }
   });
 });
+
+test('always allows debug flag for runtime handling', () => {
+  const optionsSpec = {
+    options: [
+      {
+        flags: ['--delete'],
+        value: 'boolean'
+      }
+    ]
+  };
+
+  assert.deepEqual(parseCommandArgv(['--debug'], optionsSpec), {
+    tokens: ['--debug'],
+    positionals: [],
+    options: {
+      debug: true
+    }
+  });
+});
