@@ -15,9 +15,6 @@
           <h1 id="manager-title"></h1>
           <p class="hint" id="manager-hint"></p>
         </div>
-        <nav class="nav">
-          <wa-button variant="brand" href="manager.html" id="nav-manager"></wa-button>
-        </nav>
       </header>
 
       <wa-tab-group class="manager-tabs" id="manager-tabs">
@@ -34,8 +31,8 @@
               <div class="command-list-controls">
                 <wa-input id="command-filter" size="small" clearable></wa-input>
                 <wa-select id="command-sort" size="small"></wa-select>
-                <wa-button id="command-sort-direction" class="icon-button" variant="neutral" size="small" type="button"></wa-button>
-                <wa-button id="command-new-button" variant="brand" size="small" type="button"></wa-button>
+                <wa-button id="command-sort-direction" class="icon-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                <wa-button id="command-new-button" variant="brand" appearance="filled-outlined" size="small" type="button"></wa-button>
               </div>
               <div class="empty-state" id="command-list-empty" hidden></div>
               <div class="command-list-body" id="command-list-body">
@@ -52,8 +49,8 @@
               <div class="empty-state" id="command-editor-empty"></div>
               <form class="command-editor" id="command-editor" hidden>
                 <div class="editor-actions">
-                  <wa-button variant="brand" type="submit" id="editor-save-button"></wa-button>
-                  <wa-button variant="neutral" type="button" id="editor-reset-button"></wa-button>
+                  <wa-button variant="brand" appearance="filled-outlined" type="submit" id="editor-save-button"></wa-button>
+                  <wa-button variant="neutral" appearance="filled-outlined" type="button" id="editor-reset-button"></wa-button>
                 </div>
                 <div class="bundle-status" id="editor-status" hidden></div>
                 <wa-tab-group placement="start" class="editor-section-tabs" id="editor-section-tabs" active="editor-section-identity">
@@ -85,9 +82,9 @@
                     <section class="editor-section-panel">
                       <div id="editor-help-template-label" class="editor-field-label"></div>
                       <div class="editor-toolstrip">
-                        <wa-button id="editor-help-template-format-js" class="editor-tool-button" variant="neutral" size="small" type="button"></wa-button>
-                        <wa-button id="editor-help-template-format-html" class="editor-tool-button" variant="neutral" size="small" type="button"></wa-button>
-                        <wa-button id="editor-help-template-format-css" class="editor-tool-button" variant="neutral" size="small" type="button"></wa-button>
+                        <wa-button id="editor-help-template-format-js" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                        <wa-button id="editor-help-template-format-html" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                        <wa-button id="editor-help-template-format-css" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
                       </div>
                       <div id="editor-help-template" class="editor-codemirror editor-help-template" role="textbox" aria-labelledby="editor-help-template-label"></div>
                       <wa-textarea id="editor-help-strings" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
@@ -107,9 +104,9 @@
                     <section class="editor-section-panel editor-code-panel">
                       <div id="editor-code-label" class="editor-field-label"></div>
                       <div class="editor-toolstrip">
-                        <wa-button id="editor-code-format-js" class="editor-tool-button" variant="neutral" size="small" type="button"></wa-button>
-                        <wa-button id="editor-code-format-html" class="editor-tool-button" variant="neutral" size="small" type="button"></wa-button>
-                        <wa-button id="editor-code-format-css" class="editor-tool-button" variant="neutral" size="small" type="button"></wa-button>
+                        <wa-button id="editor-code-format-js" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                        <wa-button id="editor-code-format-html" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                        <wa-button id="editor-code-format-css" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
                       </div>
                       <div id="editor-code" class="editor-codemirror editor-code" role="textbox" aria-labelledby="editor-code-label"></div>
                     </section>
@@ -133,8 +130,8 @@
                 <p class="hint" id="bundle-tools-hint"></p>
               </div>
               <div class="bundle-actions">
-                <wa-button variant="brand" id="import-bundle-button"></wa-button>
-                <wa-button variant="neutral" id="export-bundle-button"></wa-button>
+                <wa-button variant="brand" appearance="filled-outlined" id="import-bundle-button"></wa-button>
+                <wa-button variant="neutral" appearance="filled-outlined" id="export-bundle-button"></wa-button>
               </div>
               <wa-textarea id="bundle-textarea" class="bundle-textarea" resize="none" spellcheck="false"></wa-textarea>
               <div class="bundle-status" id="bundle-status" hidden></div>
@@ -145,8 +142,8 @@
                     <p class="hint" id="bundle-review-hint"></p>
                   </div>
                   <div class="bundle-review-actions">
-                    <wa-button variant="brand" id="bundle-review-import-button" size="small" type="button"></wa-button>
-                    <wa-button variant="neutral" id="bundle-review-cancel-button" size="small" type="button"></wa-button>
+                    <wa-button variant="brand" appearance="filled-outlined" id="bundle-review-import-button" size="small" type="button"></wa-button>
+                    <wa-button variant="neutral" appearance="filled-outlined" id="bundle-review-cancel-button" size="small" type="button"></wa-button>
                   </div>
                 </div>
                 <div class="bundle-review-sections">

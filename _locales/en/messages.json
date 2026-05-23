@@ -16,7 +16,7 @@
     "description": "Manager page title"
   },
   "managerHint": {
-    "message": "UI skeleton. Wire up manager in v1 milestones.",
+    "message": "",
     "description": "Manager page hint"
   },
   "managerBundleToolsTitle": {
@@ -44,7 +44,7 @@
     "description": "Manager section title for the command list"
   },
   "managerCommandsHint": {
-    "message": "M1 shows the stored command index and localized descriptions.",
+    "message": "Select a command to load it for editing",
     "description": "Manager section hint for the command list"
   },
   "managerTabManager": {
@@ -219,7 +219,7 @@
     "description": "Manager command editor section title"
   },
   "managerEditorHint": {
-    "message": "Create a new command or edit an installed valid command. Name, ID, version, aliases, and overlay preference are edited in the Identity section.",
+    "message": "Create a new command or edit an existing command",
     "description": "Manager command editor section hint"
   },
   "managerEditorEmpty": {
@@ -413,10 +413,6 @@
   "popupTitle": {
     "message": "Factotum",
     "description": "Popup title"
-  },
-  "popupHint": {
-    "message": "Popup provides quick access to full pages.",
-    "description": "Popup hint"
   },
   "navManager": {
     "message": "Manager",

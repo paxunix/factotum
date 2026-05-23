@@ -4,12 +4,10 @@ import '@awesome.me/webawesome/dist/components/button/button.js';
 setBasePath(chrome.runtime.getURL('vendor/webawesome'));
 
 const title = chrome.i18n.getMessage('popupTitle');
-const hint = chrome.i18n.getMessage('popupHint');
 const menuManager = chrome.i18n.getMessage('menuManager');
 
 document.title = title;
 document.getElementById('popup-title').textContent = title;
-document.getElementById('popup-hint').textContent = hint;
 document.getElementById('nav-manager').textContent = menuManager;
 
 console.log('[factotum] popup loaded');
