@@ -136,6 +136,8 @@ Notes:
 - previously written output remains as it was when emitted
 - object-like output is pretty-printed by default
 - pass `{ pretty: false }` as the optional second argument for compact JSON output
+- a non-`undefined` value returned from `main(argv, ctx)` is shown in the terminal `Done` bubble using the same display formatting
+- a thrown or rejected error is shown in the terminal `Error` bubble using normalized error details
 
 Diagnostic logging is separate from user-visible output:
 - use `ctx.out.write/info/warn/error(...)` when the user should see the message in the session console

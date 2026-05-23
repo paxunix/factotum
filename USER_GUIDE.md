@@ -44,6 +44,8 @@ It keeps:
 - system notice bubbles like busy/no-such-command
 - command-visible output from `ctx.out.*`
 
+When a command returns a value, the terminal `Done` bubble includes it. When a command fails, the terminal `Error` bubble includes the normalized error details.
+
 Bubble styling:
 - output bubbles use a left-edge severity bar: green for ordinary/info output, yellow for warnings, red for errors
 - command-state and system-result bubbles use their own left-edge bars and tinted backgrounds so running/help, done, canceled/busy, and error states are easier to distinguish at a glance

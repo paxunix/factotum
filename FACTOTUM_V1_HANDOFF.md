@@ -442,6 +442,8 @@ Command-facing output:
 - For object-like values, arrays, and normalized Error output, pretty-printing defaults to `true`.
 - Output may be a plain value or a localized payload such as `{ l10n: LocalizedText, data?: any }`.
 - Values are serialized safely for display; circular references are replaced, and Error objects retain name/message/stack/code fields when serialized.
+- When a command completes with a non-`undefined` return value, the terminal `DONE` bubble includes that return value using the same safe display formatting.
+- When a command fails, the terminal `ERROR` bubble includes the normalized error details using the same safe display formatting.
 
 Diagnostics:
 - `ctx.log/warn/error` are internal diagnostics only and are not aliases of `ctx.out.*`.

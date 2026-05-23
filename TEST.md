@@ -368,6 +368,15 @@ Each test lists: **Setup → Action → Expected**.
   * Resuming DevTools allows the command to complete normally.
   * With DevTools closed, the same command still runs normally and does not fail because `--debug` was present.
 
+#### T7e: terminal bubbles include command return values and normalized error details
+
+* Setup: use a command that returns a value, such as `ok`, and a command that fails, such as `oops@demo.debug.error`.
+* Action: run the success command, then run the failing command.
+* Expected:
+
+  * The success command's terminal `Done` bubble includes the returned value when it is not `undefined`.
+  * The failing command's terminal `Error` bubble includes normalized error details rather than only a bare status label.
+
 #### T8: Cancel button cancels a running command
 
 * Setup: install `canceldemo@demo.cancel`, a test command that loops with `await new Promise(r=>setTimeout(r,50))` and checks `ctx.signal.aborted`

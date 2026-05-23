@@ -82,6 +82,10 @@ function safeStringify(value, space = 0) {
   }, space);
 }
 
+function stringifyDisplayValue(value, pretty = false) {
+  return safeStringify(value, pretty ? 2 : 0);
+}
+
 function normalizeOutputOptions(rawOptions) {
   if (!rawOptions || typeof rawOptions !== 'object' || Array.isArray(rawOptions)) {
     return {};
@@ -96,6 +100,44 @@ function shouldPrettyPrint(value, options = {}) {
     return Boolean(options.pretty);
   }
   return Boolean(value && typeof value === 'object');
+}
+
+function formatDisplayValue(value, options = {}) {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (value === undefined) {
+    return 'undefined';
+  }
+  return stringifyDisplayValue(value, shouldPrettyPrint(value, options));
+}
+
+function formatCommandOutputMessage(payload, locale, outputOptions = {}) {
+  let message = '';
+
+  if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+    if (payload.l10n && typeof payload.l10n === 'object') {
+      const localized = resolveLocaleMapEntry(payload.l10n, locale);
+      if (localized) {
+        message = String(localized);
+      }
+    } else if (Object.prototype.hasOwnProperty.call(payload, 'message')) {
+      message = typeof payload.message === 'string'
+        ? payload.message
+        : formatDisplayValue(payload.message, outputOptions);
+    } else {
+      message = formatDisplayValue(payload, outputOptions);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'data')) {
+      const serializedData = formatDisplayValue(payload.data, outputOptions);
+      message = message ? `${message}\n${serializedData}` : serializedData;
+    }
+
+    return message;
+  }
+
+  return formatDisplayValue(payload, outputOptions);
 }
 
 function isThenable(value) {
@@ -396,30 +438,7 @@ async function appendCommandOutputEntry(tabId, invocation, rawEntry) {
     ? rawEntry.value
     : rawEntry;
   const outputOptions = normalizeOutputOptions(rawEntry?.options);
-  let message = '';
-  const stringify = (value) => safeStringify(value, shouldPrettyPrint(value, outputOptions) ? 2 : 0);
-
-  if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
-    if (payload.l10n && typeof payload.l10n === 'object') {
-      const localized = resolveLocaleMapEntry(payload.l10n, locale);
-      if (localized) {
-        message = String(localized);
-      }
-    } else if (Object.prototype.hasOwnProperty.call(payload, 'message')) {
-      message = typeof payload.message === 'string' ? payload.message : stringify(payload.message);
-    } else {
-      message = stringify(payload);
-    }
-
-    if (Object.prototype.hasOwnProperty.call(payload, 'data')) {
-      const serializedData = stringify(payload.data);
-      message = message ? `${message}\n${serializedData}` : serializedData;
-    }
-  } else if (typeof payload === 'string') {
-    message = payload;
-  } else {
-    message = stringify(payload);
-  }
+  const message = formatCommandOutputMessage(payload, locale, outputOptions);
 
   appendSessionEntry(tabId, {
     invocationId: invocation.invocationId,
@@ -1363,11 +1382,14 @@ async function finalizeInvocationSuccess(invocation, result) {
   }
 
   finishInvocation(current.invocationId, 'DONE', { result });
+  const completionMessage = result === undefined
+    ? ''
+    : formatDisplayValue(result, { pretty: true });
   appendSnapshotEntry(current.tabId, {
     invocationId: current.invocationId,
     commandRef: `${current.command.name}@${current.command.id}`,
     state: 'DONE',
-    message: '',
+    message: completionMessage,
     html: ''
   });
   releaseTabBusy(current.invocationId);
@@ -1389,7 +1411,7 @@ async function finalizeInvocationError(invocation, error) {
     invocationId: current.invocationId,
     commandRef: `${current.command.name}@${current.command.id}`,
     state: 'ERROR',
-    message: serialized.message,
+    message: formatDisplayValue(serialized, { pretty: true }),
     html: ''
   });
   releaseTabBusy(current.invocationId);
