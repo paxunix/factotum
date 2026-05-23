@@ -161,6 +161,50 @@
       }
     }
   },
+  "managerBundleReviewTitle": {
+    "message": "Review bundle import",
+    "description": "Utilities import review panel title"
+  },
+  "managerBundleReviewHint": {
+    "message": "Choose which commands, quarantined invalid records, and aliases to import. Items marked Overwrite will replace existing installed data.",
+    "description": "Utilities import review panel hint"
+  },
+  "managerBundleReviewImport": {
+    "message": "Import selected",
+    "description": "Utilities import review action button"
+  },
+  "managerBundleReviewCancel": {
+    "message": "Cancel review",
+    "description": "Utilities import review cancel button"
+  },
+  "managerBundleReviewCommands": {
+    "message": "Commands",
+    "description": "Utilities import review commands section title"
+  },
+  "managerBundleReviewInvalid": {
+    "message": "Quarantined invalid commands",
+    "description": "Utilities import review invalid commands section title"
+  },
+  "managerBundleReviewAliases": {
+    "message": "Aliases",
+    "description": "Utilities import review aliases section title"
+  },
+  "managerBundleReviewEmpty": {
+    "message": "Nothing in this section.",
+    "description": "Utilities import review empty section text"
+  },
+  "managerBundleReviewStateNew": {
+    "message": "New",
+    "description": "Utilities import review badge for new item"
+  },
+  "managerBundleReviewStateOverwrite": {
+    "message": "Overwrite",
+    "description": "Utilities import review badge for overwrite item"
+  },
+  "managerBundleReviewStateSame": {
+    "message": "Same",
+    "description": "Utilities import review badge for identical item"
+  },
   "managerImportCommandLine": {
     "message": "Imported command: $COMMAND$",
     "description": "Manager import diagnostic line for each imported command",

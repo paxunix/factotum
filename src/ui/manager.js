@@ -25,11 +25,12 @@ import {
   getCommand,
   importBundle,
   listCommandIndex,
+  listCommands,
   resolveLocalizedText,
   saveCommand,
   setAliases
 } from '../sw/storage.js';
-import { normalizeCommandRecord, validateAliasKey } from '../sw/validation.js';
+import { normalizeAliasMap, normalizeCommandRecord, validateAliasKey } from '../sw/validation.js';
 
 // Ensure Web Awesome assets resolve inside the extension bundle.
 setBasePath(chrome.runtime.getURL('vendor/webawesome'));
@@ -45,6 +46,17 @@ const bundleToolsTitle = getMessage('managerBundleToolsTitle', 'Bundle Tools');
 const bundleToolsHint = getMessage('managerBundleToolsHint', 'Import or export the v1 bundle format to populate storage for manual smoke testing.');
 const importBundleLabel = getMessage('managerImportBundle', 'Import Bundle');
 const exportBundleLabel = getMessage('managerExportBundle', 'Export Bundle');
+const bundleReviewTitleLabel = getMessage('managerBundleReviewTitle', 'Review bundle import');
+const bundleReviewHintLabel = getMessage('managerBundleReviewHint', 'Choose which commands, quarantined invalid records, and aliases to import. Items marked Overwrite will replace existing installed data.');
+const bundleReviewImportLabel = getMessage('managerBundleReviewImport', 'Import selected');
+const bundleReviewCancelLabel = getMessage('managerBundleReviewCancel', 'Cancel review');
+const bundleReviewCommandsLabel = getMessage('managerBundleReviewCommands', 'Commands');
+const bundleReviewInvalidLabel = getMessage('managerBundleReviewInvalid', 'Quarantined invalid commands');
+const bundleReviewAliasesLabel = getMessage('managerBundleReviewAliases', 'Aliases');
+const bundleReviewEmptyLabel = getMessage('managerBundleReviewEmpty', 'Nothing in this section.');
+const bundleReviewStateNewLabel = getMessage('managerBundleReviewStateNew', 'New');
+const bundleReviewStateOverwriteLabel = getMessage('managerBundleReviewStateOverwrite', 'Overwrite');
+const bundleReviewStateSameLabel = getMessage('managerBundleReviewStateSame', 'Same');
 const bundleLabel = getMessage('managerBundleTextareaLabel', 'Bundle JSON');
 const commandListTitle = getMessage('managerCommandsTitle', 'Installed Commands');
 const commandListHint = getMessage('managerCommandsHint', 'M1 shows the stored command index and localized descriptions.');
@@ -113,6 +125,13 @@ document.getElementById('bundle-tools-title').textContent = bundleToolsTitle;
 document.getElementById('bundle-tools-hint').textContent = bundleToolsHint;
 document.getElementById('import-bundle-button').textContent = importBundleLabel;
 document.getElementById('export-bundle-button').textContent = exportBundleLabel;
+document.getElementById('bundle-review-title').textContent = bundleReviewTitleLabel;
+document.getElementById('bundle-review-hint').textContent = bundleReviewHintLabel;
+document.getElementById('bundle-review-import-button').textContent = bundleReviewImportLabel;
+document.getElementById('bundle-review-cancel-button').textContent = bundleReviewCancelLabel;
+document.getElementById('bundle-review-commands-title').textContent = bundleReviewCommandsLabel;
+document.getElementById('bundle-review-invalid-title').textContent = bundleReviewInvalidLabel;
+document.getElementById('bundle-review-aliases-title').textContent = bundleReviewAliasesLabel;
 document.getElementById('command-list-title').textContent = commandListTitle;
 document.getElementById('command-list-hint').textContent = commandListHint;
 document.getElementById('manager-tab-manager').textContent = managerTabLabel;
@@ -135,6 +154,15 @@ document.getElementById('editor-section-export-tab').textContent = editorExportS
 
 const bundleTextarea = document.getElementById('bundle-textarea');
 const bundleStatus = document.getElementById('bundle-status');
+const bundleReview = document.getElementById('bundle-review');
+const bundleReviewCommandsSection = document.getElementById('bundle-review-commands-section');
+const bundleReviewInvalidSection = document.getElementById('bundle-review-invalid-section');
+const bundleReviewAliasesSection = document.getElementById('bundle-review-aliases-section');
+const bundleReviewCommands = document.getElementById('bundle-review-commands');
+const bundleReviewInvalid = document.getElementById('bundle-review-invalid');
+const bundleReviewAliases = document.getElementById('bundle-review-aliases');
+const bundleReviewImportButton = document.getElementById('bundle-review-import-button');
+const bundleReviewCancelButton = document.getElementById('bundle-review-cancel-button');
 const commandFilter = document.getElementById('command-filter');
 const commandSort = document.getElementById('command-sort');
 const commandSortDirection = document.getElementById('command-sort-direction');
@@ -179,6 +207,7 @@ let commandSortKey = 'name';
 let commandSortDirectionValue = 'asc';
 let editorBaseline = null;
 let suppressEditorChange = false;
+let pendingBundleReview = null;
 
 editorFields.name.label = editorNameLabel;
 commandFilter.label = commandFilterLabel;
@@ -1128,6 +1157,186 @@ function commandRecordsMatch(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
+function aliasTargetsMatch(left, right) {
+  const normalizeTargets = (targets) => (Array.isArray(targets) ? targets : [])
+    .map((target) => `${target.name}@${target.id}`)
+    .sort((a, b) => a.localeCompare(b));
+  return JSON.stringify(normalizeTargets(left)) === JSON.stringify(normalizeTargets(right));
+}
+
+function buildBundleReviewCommandItems(bundle, installedCommandsByKey) {
+  return (Array.isArray(bundle.commands) ? bundle.commands : []).map((command) => {
+    const normalized = normalizeCommandRecord(command);
+    const key = commandRefKey(normalized);
+    const existing = installedCommandsByKey.get(key) || null;
+    const state = !existing
+      ? 'new'
+      : commandRecordsMatch(existing, normalized)
+        ? 'same'
+        : 'overwrite';
+    return {
+      kind: 'command',
+      key,
+      command: normalized,
+      title: key,
+      detail: normalized.description ? resolveLocalizedText(normalized.description, navigator.language || 'en-US') : '',
+      state,
+      selected: true
+    };
+  });
+}
+
+function buildBundleReviewInvalidItems(bundle, installedCommandsByKey) {
+  return (Array.isArray(bundle.invalidCommands) ? bundle.invalidCommands : []).map((entry) => {
+    const name = String(entry?.name ?? entry?.command?.name ?? '');
+    const id = String(entry?.id ?? entry?.command?.id ?? '');
+    const key = `${name}@${id}`;
+    const existing = installedCommandsByKey.get(key) || null;
+    const incomingRaw = entry?.command && typeof entry.command === 'object' ? entry.command : {};
+    const state = !existing
+      ? 'new'
+      : commandRecordsMatch(existing, incomingRaw)
+        ? 'same'
+        : 'overwrite';
+    return {
+      kind: 'invalid',
+      key,
+      entry: {
+        name,
+        id,
+        validationError: entry?.validationError,
+        command: incomingRaw
+      },
+      title: key,
+      detail: entry?.validationError?.message || invalidDescriptionLabel,
+      state,
+      selected: true
+    };
+  });
+}
+
+function buildBundleReviewAliasItems(bundle, installedAliases) {
+  return Object.entries(normalizeAliasMap(bundle.aliases)).map(([alias, targets]) => {
+    const existingTargets = installedAliases[alias] || null;
+    const state = !existingTargets
+      ? 'new'
+      : aliasTargetsMatch(existingTargets, targets)
+        ? 'same'
+        : 'overwrite';
+    const detail = (Array.isArray(targets) ? targets : [])
+      .map((target) => `${target.name}@${target.id}`)
+      .join(', ');
+    return {
+      kind: 'alias',
+      key: alias,
+      alias,
+      targets,
+      title: alias,
+      detail,
+      state,
+      selected: true
+    };
+  });
+}
+
+async function buildBundleReview(bundle) {
+  const [installedCommands, installedAliases] = await Promise.all([
+    listCommands(),
+    getAliasMap()
+  ]);
+  const installedCommandsByKey = new Map(installedCommands.map((command) => [commandRefKey(command), command]));
+  return {
+    bundle,
+    commands: buildBundleReviewCommandItems(bundle, installedCommandsByKey),
+    invalidCommands: buildBundleReviewInvalidItems(bundle, installedCommandsByKey),
+    aliases: buildBundleReviewAliasItems(bundle, installedAliases)
+  };
+}
+
+function reviewStateLabel(state) {
+  if (state === 'overwrite') {
+    return bundleReviewStateOverwriteLabel;
+  }
+  if (state === 'same') {
+    return bundleReviewStateSameLabel;
+  }
+  return bundleReviewStateNewLabel;
+}
+
+function hideBundleReview() {
+  pendingBundleReview = null;
+  bundleReview.hidden = true;
+  bundleReviewCommands.textContent = '';
+  bundleReviewInvalid.textContent = '';
+  bundleReviewAliases.textContent = '';
+}
+
+function createBundleReviewItem(item) {
+  const row = document.createElement('label');
+  row.className = 'bundle-review-item';
+
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = item.selected !== false;
+  checkbox.addEventListener('change', () => {
+    item.selected = checkbox.checked;
+    updateBundleReviewActions();
+  });
+
+  const copy = document.createElement('div');
+  copy.className = 'bundle-review-item-copy';
+
+  const title = document.createElement('div');
+  title.className = 'bundle-review-item-title';
+  title.textContent = item.title;
+
+  const detail = document.createElement('div');
+  detail.className = 'bundle-review-item-detail';
+  detail.textContent = item.detail || '';
+
+  copy.append(title);
+  if (item.detail) {
+    copy.append(detail);
+  }
+
+  const pill = document.createElement('span');
+  pill.className = `bundle-review-pill bundle-review-pill-${item.state}`;
+  pill.textContent = reviewStateLabel(item.state);
+
+  row.append(checkbox, copy, pill);
+  return row;
+}
+
+function renderBundleReviewSection(section, container, items) {
+  container.textContent = '';
+  if (!items.length) {
+    section.hidden = true;
+    return;
+  }
+  section.hidden = false;
+  for (const item of items) {
+    container.append(createBundleReviewItem(item));
+  }
+}
+
+function updateBundleReviewActions() {
+  const selectedCount = pendingBundleReview
+    ? [...pendingBundleReview.commands, ...pendingBundleReview.invalidCommands, ...pendingBundleReview.aliases]
+      .filter((item) => item.selected !== false)
+      .length
+    : 0;
+  bundleReviewImportButton.disabled = selectedCount === 0;
+}
+
+function showBundleReview(review) {
+  pendingBundleReview = review;
+  renderBundleReviewSection(bundleReviewCommandsSection, bundleReviewCommands, review.commands);
+  renderBundleReviewSection(bundleReviewInvalidSection, bundleReviewInvalid, review.invalidCommands);
+  renderBundleReviewSection(bundleReviewAliasesSection, bundleReviewAliases, review.aliases);
+  bundleReview.hidden = !review.commands.length && !review.invalidCommands.length && !review.aliases.length;
+  updateBundleReviewActions();
+}
+
 async function importSingleCommand(commandRecord) {
   const normalized = normalizeCommandRecord(commandRecord);
   const existing = await getCommand(normalized.name, normalized.id);
@@ -1142,8 +1351,61 @@ async function importSingleCommand(commandRecord) {
   };
 }
 
+function buildReviewedBundle(review) {
+  const aliases = {};
+  for (const item of review.aliases) {
+    if (item.selected !== false) {
+      aliases[item.alias] = item.targets;
+    }
+  }
+
+  return {
+    bundleSchemaVersion: 1,
+    exportedAt: review.bundle.exportedAt || Date.now(),
+    commands: review.commands.filter((item) => item.selected !== false).map((item) => item.command),
+    ...(review.invalidCommands.some((item) => item.selected !== false)
+      ? {
+          invalidCommands: review.invalidCommands
+            .filter((item) => item.selected !== false)
+            .map((item) => item.entry)
+        }
+      : {}),
+    aliases
+  };
+}
+
+async function executeBundleReviewImport() {
+  if (!pendingBundleReview) {
+    return;
+  }
+
+  const reviewedBundle = buildReviewedBundle(pendingBundleReview);
+  const selectedAliasCount = Object.keys(reviewedBundle.aliases || {}).length;
+  const selectedInvalidCount = Array.isArray(reviewedBundle.invalidCommands) ? reviewedBundle.invalidCommands.length : 0;
+  const result = await importBundle(reviewedBundle, { aliasMode: 'overwrite' });
+  hideBundleReview();
+  clearSelectedCommandState();
+  const statusLines = [
+    `Imported ${result.importedCommands.length} command(s).`,
+    `Imported ${selectedAliasCount} alias(es).`,
+    `Imported ${selectedInvalidCount} quarantined invalid command(s).`
+  ];
+  for (const command of result.importedCommands) {
+    statusLines.push(formatImportCommandMessage(command));
+  }
+  if (result.quarantinedCommands > 0) {
+    statusLines.push(formatInvalidSummaryMessage('managerImportInvalidSummary', 'Quarantined $COUNT$ invalid command(s).', result.quarantinedCommands));
+  }
+  for (const warning of result.warnings) {
+    statusLines.push(warning.message);
+  }
+  setBundleStatus('success', statusLines);
+  await loadCommands();
+}
+
 async function handleImportBundle() {
   clearBundleStatus();
+  hideBundleReview();
 
   let parsed;
   try {
@@ -1154,9 +1416,12 @@ async function handleImportBundle() {
   }
 
   try {
-    const result = looksLikeBundleImport(parsed)
-      ? await importBundle(parsed)
-      : looksLikeCommandImport(parsed)
+    if (looksLikeBundleImport(parsed)) {
+      showBundleReview(await buildBundleReview(parsed));
+      return;
+    }
+
+    const result = looksLikeCommandImport(parsed)
         ? await importSingleCommand(parsed)
         : (() => { throw new Error('Import JSON must be a bundle or a single command record'); })();
     clearSelectedCommandState();
@@ -1179,6 +1444,7 @@ async function handleImportBundle() {
 
 async function handleExportBundle() {
   clearBundleStatus();
+  hideBundleReview();
   try {
     const bundle = await exportBundle();
     bundleTextarea.value = JSON.stringify(bundle, null, 2);
@@ -1210,6 +1476,20 @@ document.getElementById('export-bundle-button').addEventListener('click', () => 
   handleExportBundle().catch((error) => {
     setBundleStatus('error', error.message || String(error));
   });
+});
+
+bundleReviewImportButton.addEventListener('click', () => {
+  executeBundleReviewImport().catch((error) => {
+    setBundleStatus('error', error.message || String(error));
+  });
+});
+
+bundleReviewCancelButton.addEventListener('click', () => {
+  hideBundleReview();
+});
+
+bundleTextarea.addEventListener('input', () => {
+  hideBundleReview();
 });
 
 commandFilter.updateComplete?.then(() => {

@@ -22,7 +22,6 @@ M4. Replace JSON textareas with friendlier structured editors over time for loca
 M5. Revisit the Help editor layout now that the help HTML template uses CodeMirror. Decide whether the template editor should expand, collapse, or sit beside the Help strings JSON editor.
 M8. manager UX needs a separate tab to hold overall settings.
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
-M18. A better bundle import UX that allows the user to select what commands and what aliases (and in the future, what global settings) they want to import from the bundle, and an indication if anything would be overwritten.
 ### Overlay UX
 
 OU1. an additional settings toggle area at the bottom of the overlay that houses buttons for adjusting overlay settings.  The settings are persisted for the extension beyond current page and session..

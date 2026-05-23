@@ -138,6 +138,38 @@
               </div>
               <wa-textarea id="bundle-textarea" class="bundle-textarea" resize="none" spellcheck="false"></wa-textarea>
               <div class="bundle-status" id="bundle-status" hidden></div>
+              <section class="bundle-review" id="bundle-review" hidden>
+                <div class="bundle-review-header">
+                  <div>
+                    <h3 id="bundle-review-title"></h3>
+                    <p class="hint" id="bundle-review-hint"></p>
+                  </div>
+                  <div class="bundle-review-actions">
+                    <wa-button variant="brand" id="bundle-review-import-button" size="small" type="button"></wa-button>
+                    <wa-button variant="neutral" id="bundle-review-cancel-button" size="small" type="button"></wa-button>
+                  </div>
+                </div>
+                <div class="bundle-review-sections">
+                  <section class="bundle-review-section" id="bundle-review-commands-section">
+                    <div class="bundle-review-section-header">
+                      <h4 id="bundle-review-commands-title"></h4>
+                    </div>
+                    <div class="bundle-review-list" id="bundle-review-commands"></div>
+                  </section>
+                  <section class="bundle-review-section" id="bundle-review-invalid-section">
+                    <div class="bundle-review-section-header">
+                      <h4 id="bundle-review-invalid-title"></h4>
+                    </div>
+                    <div class="bundle-review-list" id="bundle-review-invalid"></div>
+                  </section>
+                  <section class="bundle-review-section" id="bundle-review-aliases-section">
+                    <div class="bundle-review-section-header">
+                      <h4 id="bundle-review-aliases-title"></h4>
+                    </div>
+                    <div class="bundle-review-list" id="bundle-review-aliases"></div>
+                  </section>
+                </div>
+              </section>
             </aside>
           </section>
         </wa-tab-panel>

@@ -118,6 +118,120 @@
   overflow: hidden;
 }
 
+.bundle-review {
+  background: rgba(248, 250, 252, 0.94);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  display: grid;
+  flex: 0 0 auto;
+  gap: 16px;
+  max-height: 48vh;
+  min-height: 0;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.bundle-review[hidden],
+.bundle-review-section[hidden] {
+  display: none !important;
+}
+
+.bundle-review-header {
+  align-items: start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.bundle-review-header h3,
+.bundle-review-section-header h4 {
+  margin: 0;
+}
+
+.bundle-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.bundle-review-sections {
+  display: grid;
+  gap: 14px;
+  max-height: 32vh;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.bundle-review-section {
+  display: grid;
+  gap: 10px;
+}
+
+.bundle-review-list {
+  display: grid;
+  gap: 8px;
+}
+
+.bundle-review-item {
+  align-items: start;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 12px 14px;
+}
+
+.bundle-review-item-title {
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.bundle-review-item-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.bundle-review-item-detail {
+  color: rgb(71, 85, 105);
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.bundle-review-pill {
+  align-self: start;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 6px 10px;
+}
+
+.bundle-review-pill-new {
+  background: rgba(22, 163, 74, 0.12);
+  color: rgb(21, 128, 61);
+}
+
+.bundle-review-pill-overwrite {
+  background: rgba(245, 158, 11, 0.14);
+  color: rgb(146, 64, 14);
+}
+
+.bundle-review-pill-same {
+  background: rgba(148, 163, 184, 0.16);
+  color: rgb(71, 85, 105);
+}
+
+.bundle-review-empty {
+  color: rgb(100, 116, 139);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 wa-textarea.bundle-textarea::part(base) {
   align-items: stretch;
   box-sizing: border-box;

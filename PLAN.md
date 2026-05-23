@@ -37,7 +37,7 @@ This is a live orientation doc for future changes. It describes the current impl
 - The editor supports new-command drafts, rename-by-save, version editing, alias editing, overlay-preference editing, enable/disable, and disable-before-delete hard deletion.
 - Code and help-template editing use CodeMirror with explicit `JS`, `HTML`, and `CSS` formatting actions.
 - Per-command Export emits only the command record.
-- Utilities import accepts either a single command record or a full bundle.
+- Utilities import accepts either a single command record or a full bundle; full bundles go through an explicit review step with selectable commands, quarantined invalid records, and aliases plus overwrite indicators.
 - Utilities export emits the full bundle.
 
 ## Important code locations
@@ -58,7 +58,6 @@ This is a live orientation doc for future changes. It describes the current impl
 ### Manager UX
 - Add help-template preview through the same overlay used by command help.
 - Replace more raw JSON editing with structured editors where practical.
-- Improve bundle import UX with overwrite awareness and selective import.
 - Add editor-option configuration for CodeMirror.
 - Add overall settings UI.
 

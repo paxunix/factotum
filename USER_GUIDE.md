@@ -134,7 +134,12 @@ If unsaved edits exist, selecting another command is blocked until you save or r
 If you manually return the edited fields to their loaded values, Save Command disables again and the save-or-reset warning is dismissed.
 Warning and error status messages in the manager can be dismissed directly from their status area.
 
-Utilities import accepts either a single fcommand JSON record or a full Factotum bundle JSON object. When importing a single command record, Factotum refuses to overwrite a different installed command with the same `name@id`; resolve that conflict manually first. Utilities export remains the whole-extension bundle export surface.
+Utilities import accepts either a single fcommand JSON record or a full Factotum bundle JSON object.
+- importing a single command record still happens immediately, and Factotum refuses to overwrite a different installed command with the same `name@id`
+- importing a full bundle now opens a review step where you choose which commands, quarantined invalid records, and aliases to import
+- the review marks items as `New`, `Same`, or `Overwrite` so you can see what will replace installed data before importing
+
+Utilities export remains the whole-extension bundle export surface.
 
 ## Current limitations
 
