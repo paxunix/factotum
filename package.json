@@ -16,7 +16,7 @@
     "codemirror": "^6.0.2",
     "material-symbols": "^0.44.8",
     "mri": "^1.2.0",
-    "npm": "^11.9.0",
+    "npm": "^11.15.0",
     "prettier": "^3.8.3",
     "shell-quote": "^1.8.3"
   },
