@@ -258,11 +258,19 @@ commandSort.append(
 commandSort.value = commandSortKey;
 updateSortDirectionButton();
 
+const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const dateTimeFormatter = new Intl.DateTimeFormat(navigator.language || 'en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZone: localTimeZone,
+  timeZoneName: 'short'
+});
+
 function formatDateTime(value) {
-  return new Intl.DateTimeFormat(navigator.language || 'en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  }).format(new Date(value));
+  return dateTimeFormatter.format(new Date(value));
 }
 
 function buildOption(value, label) {
