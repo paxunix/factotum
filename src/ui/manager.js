@@ -25,7 +25,6 @@ import {
   getCommand,
   importBundle,
   listCommandIndex,
-  listCommands,
   resolveLocalizedText,
   saveCommand,
   setAliases
@@ -45,7 +44,7 @@ const bundleToolsTitle = getMessage('managerBundleToolsTitle', 'Bundle Tools');
 const bundleToolsHint = getMessage('managerBundleToolsHint', 'Import or export the v1 bundle format to populate storage for manual smoke testing.');
 const importBundleLabel = getMessage('managerImportBundle', 'Import Bundle');
 const exportBundleLabel = getMessage('managerExportBundle', 'Export Bundle');
-const bundleReviewTitleLabel = getMessage('managerBundleReviewTitle', 'Review bundle import');
+const bundleReviewTitleLabel = getMessage('managerBundleReviewTitle', 'Review import');
 const bundleReviewHintLabel = getMessage('managerBundleReviewHint', 'Choose which commands, quarantined invalid records, and aliases to import. Items marked Overwrite will replace existing installed data.');
 const bundleReviewImportLabel = getMessage('managerBundleReviewImport', 'Import selected');
 const bundleReviewExportTitleLabel = getMessage('managerBundleReviewExportTitle', 'Review bundle export');
@@ -58,6 +57,8 @@ const bundleReviewAliasesLabel = getMessage('managerBundleReviewAliases', 'Alias
 const bundleReviewEmptyLabel = getMessage('managerBundleReviewEmpty', 'Nothing in this section.');
 const bundleReviewStateNewLabel = getMessage('managerBundleReviewStateNew', 'New');
 const bundleReviewStateOverwriteLabel = getMessage('managerBundleReviewStateOverwrite', 'Overwrite');
+const bundleReviewStateOverwriteInvalidLabel = getMessage('managerBundleReviewStateOverwriteInvalid', 'Overwrites invalid');
+const bundleReviewStateOverwriteValidLabel = getMessage('managerBundleReviewStateOverwriteValid', 'Overwrites valid');
 const bundleReviewStateSameLabel = getMessage('managerBundleReviewStateSame', 'Same');
 const bundleLabel = getMessage('managerBundleTextareaLabel', 'Bundle JSON');
 const commandListTitle = getMessage('managerCommandsTitle', 'Installed Commands');
@@ -88,7 +89,7 @@ const commandDeleteLabel = getMessage('managerCommandDelete', 'Delete command');
 const commandDeleteDisableFirstLabel = getMessage('managerCommandDeleteDisableFirst', 'Disable the command before deleting it');
 const editorTitle = getMessage('managerEditorTitle', 'Command Editor');
 const editorHint = getMessage('managerEditorHint', 'Create a new command or edit an existing command');
-const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a valid command or create a new one.');
+const editorEmptyMessage = getMessage('managerEditorEmpty', 'Select a command or create a new one.');
 const editorDuplicateIdentityLabel = getMessage('managerEditorDuplicateIdentity', 'Another command already uses $COMMAND$.');
 const editorNameLabel = getMessage('managerEditorName', 'Name');
 const editorIdLabel = getMessage('managerEditorId', 'ID');
@@ -482,6 +483,31 @@ function stringifyJson(value, fallback = '') {
   return value == null ? fallback : JSON.stringify(value, null, 2);
 }
 
+function createEditableCommandRecord(command, now = Date.now()) {
+  const source = command?.invalid
+    ? (command.rawRecord && typeof command.rawRecord === 'object' ? command.rawRecord : {})
+    : (command || {});
+  return {
+    schemaVersion: 1,
+    name: typeof source.name === 'string' ? source.name : String(command?.name ?? source.name ?? ''),
+    id: typeof source.id === 'string' ? source.id : String(command?.id ?? source.id ?? ''),
+    version: source.version == null ? String(command?.version ?? '1') : String(source.version),
+    world: typeof source.world === 'string' && source.world.length > 0 ? source.world : 'user_script',
+    showOverlay: source.showOverlay == null ? true : Boolean(source.showOverlay),
+    disabled: Boolean(source.disabled),
+    code: typeof source.code === 'string' ? source.code : String(source.code ?? ''),
+    createdAt: Number.isFinite(source.createdAt) ? source.createdAt : now,
+    updatedAt: Number.isFinite(source.updatedAt) ? source.updatedAt : now,
+    ...(source.description !== undefined ? { description: source.description } : {}),
+    ...(source.helpHtmlTemplate !== undefined
+      ? { helpHtmlTemplate: typeof source.helpHtmlTemplate === 'string' ? source.helpHtmlTemplate : String(source.helpHtmlTemplate ?? '') }
+      : {}),
+    ...(source.helpHtmlStrings !== undefined ? { helpHtmlStrings: source.helpHtmlStrings } : {}),
+    ...(source.optionsSpec !== undefined ? { optionsSpec: source.optionsSpec } : {}),
+    ...(source.requires !== undefined ? { requires: source.requires } : {})
+  };
+}
+
 function parseOptionalJson(label, value) {
   const trimmed = value.trim();
   if (!trimmed) {
@@ -779,17 +805,12 @@ async function selectCommandForEdit(commandRef) {
   }
 
   clearEditorStatus();
-  if (commandRef.invalid) {
-    setEditorVisible(false);
-    return;
-  }
-
-  const command = await getCommand(commandRef.name, commandRef.id);
+  const command = await getCommand(commandRef.name, commandRef.id, { allowInvalid: Boolean(commandRef.invalid) });
   if (!command) {
     setEditorVisible(false);
     throw new Error(`Command not found: ${commandRef.name}@${commandRef.id}`);
   }
-  populateEditor(command);
+  populateEditor(createEditableCommandRecord(command));
 }
 
 function readEditedCommand() {
@@ -998,7 +1019,7 @@ function buildCommandDeleteButton(command) {
 function buildCommandDetailCard(command) {
   const card = document.createElement('article');
   card.className = 'command-card command-detail-card';
-  if (command.disabled) {
+  if (command.disabled && !command.invalid) {
     card.classList.add('command-card-disabled');
   }
 
@@ -1107,7 +1128,7 @@ function renderCommands(commands) {
     tab.slot = 'nav';
     tab.panel = panelName;
     tab.textContent = command.name;
-    if (command.disabled) {
+    if (command.disabled && !command.invalid) {
       tab.classList.add('command-tab-disabled');
     }
 
@@ -1163,6 +1184,25 @@ function commandRecordsMatch(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
+function determineReviewState(existingEntry, incomingRecord, incomingInvalid = false) {
+  if (!existingEntry) {
+    return 'new';
+  }
+
+  if (incomingInvalid) {
+    if (existingEntry.invalid) {
+      return commandRecordsMatch(existingEntry.rawRecord || {}, incomingRecord) ? 'same' : 'overwrite-invalid';
+    }
+    return 'overwrite-valid';
+  }
+
+  if (existingEntry.invalid) {
+    return 'overwrite-invalid';
+  }
+
+  return commandRecordsMatch(existingEntry.record, incomingRecord) ? 'same' : 'overwrite';
+}
+
 function aliasTargetsMatch(left, right) {
   const normalizeTargets = (targets) => (Array.isArray(targets) ? targets : [])
     .map((target) => `${target.name}@${target.id}`)
@@ -1170,16 +1210,12 @@ function aliasTargetsMatch(left, right) {
   return JSON.stringify(normalizeTargets(left)) === JSON.stringify(normalizeTargets(right));
 }
 
-function buildBundleReviewCommandItems(bundle, installedCommandsByKey) {
+function buildBundleReviewCommandItems(bundle, installedEntriesByKey) {
   return (Array.isArray(bundle.commands) ? bundle.commands : []).map((command) => {
     const normalized = normalizeCommandRecord(command);
     const key = commandRefKey(normalized);
-    const existing = installedCommandsByKey.get(key) || null;
-    const state = !existing
-      ? 'new'
-      : commandRecordsMatch(existing, normalized)
-        ? 'same'
-        : 'overwrite';
+    const existing = installedEntriesByKey.get(key) || null;
+    const state = determineReviewState(existing, normalized, false);
     return {
       kind: 'command',
       key,
@@ -1192,18 +1228,14 @@ function buildBundleReviewCommandItems(bundle, installedCommandsByKey) {
   });
 }
 
-function buildBundleReviewInvalidItems(bundle, installedCommandsByKey) {
+function buildBundleReviewInvalidItems(bundle, installedEntriesByKey) {
   return (Array.isArray(bundle.invalidCommands) ? bundle.invalidCommands : []).map((entry) => {
     const name = String(entry?.name ?? entry?.command?.name ?? '');
     const id = String(entry?.id ?? entry?.command?.id ?? '');
     const key = `${name}@${id}`;
-    const existing = installedCommandsByKey.get(key) || null;
+    const existing = installedEntriesByKey.get(key) || null;
     const incomingRaw = entry?.command && typeof entry.command === 'object' ? entry.command : {};
-    const state = !existing
-      ? 'new'
-      : commandRecordsMatch(existing, incomingRaw)
-        ? 'same'
-        : 'overwrite';
+    const state = determineReviewState(existing, incomingRaw, true);
     return {
       kind: 'invalid',
       key,
@@ -1246,20 +1278,35 @@ function buildBundleReviewAliasItems(bundle, installedAliases) {
 }
 
 async function buildBundleReview(bundle) {
-  const [installedCommands, installedAliases] = await Promise.all([
-    listCommands(),
+  const [installedIndex, installedAliases] = await Promise.all([
+    listCommandIndex({ includeInvalid: true }),
     getAliasMap()
   ]);
-  const installedCommandsByKey = new Map(installedCommands.map((command) => [commandRefKey(command), command]));
+  const installedEntries = await Promise.all(installedIndex.map(async (entry) => {
+    const record = await getCommand(entry.name, entry.id, { allowInvalid: Boolean(entry.invalid) });
+    return {
+      key: `${entry.name}@${entry.id}`,
+      invalid: Boolean(entry.invalid),
+      record: entry.invalid ? null : record,
+      rawRecord: entry.invalid ? record?.rawRecord || null : null
+    };
+  }));
+  const installedEntriesByKey = new Map(installedEntries.map((entry) => [entry.key, entry]));
   return {
     bundle,
-    commands: buildBundleReviewCommandItems(bundle, installedCommandsByKey),
-    invalidCommands: buildBundleReviewInvalidItems(bundle, installedCommandsByKey),
+    commands: buildBundleReviewCommandItems(bundle, installedEntriesByKey),
+    invalidCommands: buildBundleReviewInvalidItems(bundle, installedEntriesByKey),
     aliases: buildBundleReviewAliasItems(bundle, installedAliases)
   };
 }
 
 function reviewStateLabel(state) {
+  if (state === 'overwrite-invalid') {
+    return bundleReviewStateOverwriteInvalidLabel;
+  }
+  if (state === 'overwrite-valid') {
+    return bundleReviewStateOverwriteValidLabel;
+  }
   if (state === 'overwrite') {
     return bundleReviewStateOverwriteLabel;
   }
@@ -1347,20 +1394,6 @@ function showBundleReview(review) {
   renderBundleReviewSection(bundleReviewAliasesSection, bundleReviewAliases, review.aliases, mode);
   bundleReview.hidden = !review.commands.length && !review.invalidCommands.length && !review.aliases.length;
   updateBundleReviewActions();
-}
-
-async function importSingleCommand(commandRecord) {
-  const normalized = normalizeCommandRecord(commandRecord);
-  const existing = await getCommand(normalized.name, normalized.id);
-  if (existing && !commandRecordsMatch(existing, normalized)) {
-    throw new Error(`Refusing to overwrite different installed command: ${commandRefKey(normalized)}`);
-  }
-  const saved = await saveCommand(normalized);
-  return {
-    importedCommands: [saved],
-    quarantinedCommands: 0,
-    warnings: []
-  };
 }
 
 function buildReviewedBundle(review) {
@@ -1456,22 +1489,18 @@ async function handleImportBundle() {
       return;
     }
 
-    const result = looksLikeCommandImport(parsed)
-        ? await importSingleCommand(parsed)
-        : (() => { throw new Error('Import JSON must be a bundle or a single command record'); })();
-    clearSelectedCommandState();
-    const statusLines = [`Imported ${result.importedCommands.length} command(s).`];
-    for (const command of result.importedCommands) {
-      statusLines.push(formatImportCommandMessage(command));
+    if (looksLikeCommandImport(parsed)) {
+      const normalized = normalizeCommandRecord(parsed);
+      showBundleReview(await buildBundleReview({
+        bundleSchemaVersion: 1,
+        exportedAt: Date.now(),
+        commands: [normalized],
+        aliases: {}
+      }));
+      return;
     }
-    if (result.quarantinedCommands > 0) {
-      statusLines.push(formatInvalidSummaryMessage('managerImportInvalidSummary', 'Quarantined $COUNT$ invalid command(s).', result.quarantinedCommands));
-    }
-    for (const warning of result.warnings) {
-      statusLines.push(warning.message);
-    }
-    setBundleStatus('success', statusLines);
-    await loadCommands();
+
+    throw new Error('Import JSON must be a bundle or a single command record');
   } catch (error) {
     setBundleStatus('error', error.message || String(error));
   }

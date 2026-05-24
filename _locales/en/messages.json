@@ -162,7 +162,7 @@
     }
   },
   "managerBundleReviewTitle": {
-    "message": "Review bundle import",
+    "message": "Review import",
     "description": "Utilities import review panel title"
   },
   "managerBundleReviewHint": {
@@ -213,6 +213,14 @@
     "message": "Overwrite",
     "description": "Utilities import review badge for overwrite item"
   },
+  "managerBundleReviewStateOverwriteInvalid": {
+    "message": "Overwrites invalid",
+    "description": "Utilities import review badge for overwriting an installed invalid command"
+  },
+  "managerBundleReviewStateOverwriteValid": {
+    "message": "Overwrites valid",
+    "description": "Utilities import review badge for overwriting an installed valid command"
+  },
   "managerBundleReviewStateSame": {
     "message": "Same",
     "description": "Utilities import review badge for identical item"
@@ -235,7 +243,7 @@
     "description": "Manager command editor section hint"
   },
   "managerEditorEmpty": {
-    "message": "Select a valid command or create a new one.",
+    "message": "Select a command or create a new one.",
     "description": "Manager command editor empty state"
   },
   "managerEditorDuplicateIdentity": {

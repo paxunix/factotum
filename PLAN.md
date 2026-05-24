@@ -37,7 +37,7 @@ This is a live orientation doc for future changes. It describes the current impl
 - The editor supports new-command drafts, rename-by-save, version editing, alias editing, overlay-preference editing, enable/disable, and disable-before-delete hard deletion.
 - Code and help-template editing use CodeMirror with explicit `JS`, `HTML`, and `CSS` formatting actions.
 - Per-command Export emits only the command record.
-- Utilities import accepts either a single command record or a full bundle; full bundles go through an explicit review step with selectable commands, quarantined invalid records, and aliases plus overwrite indicators.
+- Utilities import accepts either a single command record or a full bundle; both go through an explicit review step with selectable commands, quarantined invalid records, and aliases plus overwrite indicators.
 - Utilities export also goes through an explicit review step so the user can select which commands, quarantined invalid records, and aliases to include before the bundle JSON is written.
 
 ## Important code locations

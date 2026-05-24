@@ -113,7 +113,7 @@ Fields:
 - Factotum must preserve the raw stored JSON for that record rather than silently deleting it.
 - Invalid stored commands are quarantined:
   - excluded from normal resolution, invocation, and `commands[]` bundle export
-  - surfaced in manager UI with validation details
+  - surfaced in manager UI with validation details and editable for repair
   - exportable only via the separate `invalidCommands[]` recovery bucket in bundle JSON
 - Re-importing an `invalidCommands[]` entry preserves the raw record in quarantined form; it remains ignored by normal runtime flows until repaired.
 

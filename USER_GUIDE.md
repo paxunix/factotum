@@ -138,6 +138,7 @@ The Export section shows a read-only JSON representation of the selected fcomman
 
 Use the switch or the Enabled/Disabled status pill on the selected command card to enable or disable that command.
 Use the trash button on the selected command card to permanently delete that command. There is no undo. Enabled commands must be disabled before deletion; quarantined invalid commands can be deleted directly.
+Quarantined invalid commands remain editable in the manager so you can repair and save them back into normal valid state.
 
 The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, Code, and Export. Select a tab to edit or inspect that part of the command while keeping the same whole-command Save and Reset actions.
 
@@ -148,9 +149,9 @@ If you manually return the edited fields to their loaded values, Save Command di
 Warning and error status messages in the manager can be dismissed directly from their status area.
 
 Utilities import accepts either a single fcommand JSON record or a full Factotum bundle JSON object.
-- importing a single command record still happens immediately, and Factotum refuses to overwrite a different installed command with the same `name@id`
-- importing a full bundle now opens a review step where you choose which commands, quarantined invalid records, and aliases to import
-- the review marks items as `New`, `Same`, or `Overwrite` so you can see what will replace installed data before importing
+- both single-command and full-bundle imports now open a review step before anything is written
+- the review lets you choose which commands, quarantined invalid records, and aliases to import
+- the review marks items as `New`, `Same`, `Overwrite`, `Overwrites invalid`, or `Overwrites valid` so you can see what will replace installed data before importing
 
 Utilities export remains the whole-extension bundle export surface.
 - exporting a full bundle now opens a review step where you choose which commands, quarantined invalid records, and aliases to include
