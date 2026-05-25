@@ -11,6 +11,42 @@ function serializeError(error, code = 'BRIDGE_FAILED') {
 
 if (!window.__factotumMainHostInstalled) {
   const handlersByInvocation = new Map();
+  let trustedScriptPolicy = undefined;
+
+  function getTrustedScriptPolicy() {
+    if (trustedScriptPolicy !== undefined) {
+      return trustedScriptPolicy;
+    }
+    if (!globalThis.trustedTypes || typeof globalThis.trustedTypes.createPolicy !== 'function') {
+      trustedScriptPolicy = null;
+      return trustedScriptPolicy;
+    }
+    try {
+      trustedScriptPolicy = globalThis.trustedTypes.createPolicy('__factotum_main_bridge__', {
+        createScript(source) {
+          return source;
+        }
+      });
+    } catch {
+      trustedScriptPolicy = null;
+    }
+    return trustedScriptPolicy;
+  }
+
+  function compileMainFunction(source) {
+    const wrappedSource = `(${source})`;
+    const policy = getTrustedScriptPolicy();
+    if (policy) {
+      return globalThis.eval(policy.createScript(wrappedSource));
+    }
+    if (globalThis.trustedTypes) {
+      throw Object.assign(
+        new Error('MAIN bridge define is blocked by Trusted Types on this page.'),
+        { code: 'BRIDGE_FAILED' }
+      );
+    }
+    return globalThis.eval(wrappedSource);
+  }
 
   function getInvocationHandlers(invocationId) {
     let handlers = handlersByInvocation.get(invocationId);
@@ -59,7 +95,7 @@ if (!window.__factotumMainHostInstalled) {
       if (data.op === 'DEFINE') {
         const handlers = getInvocationHandlers(data.invocationId);
         // Best-effort only; reconstructing functions in MAIN may fail on restrictive pages.
-        const fn = globalThis.eval(`(${data.source})`);
+        const fn = compileMainFunction(data.source);
         handlers.set(data.name, fn);
         postResponse(sourceWindow, { ...base, ok: true, result: true });
         return;

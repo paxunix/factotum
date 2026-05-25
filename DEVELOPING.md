@@ -35,6 +35,7 @@ The current implementation uses a per-tab session console overlay for command-fa
 * remembering that those diagnostics are currently DevTools-console-only, not surfaced in the session console
 * preserving the built-in `--debug` stop immediately before `main(argv, ctx)` when touching the generated runner wrapper
 * preserving the top-of-file user-command factory in the generated USER_SCRIPT so DevTools shows fcommand source before the runtime machinery while still deferring execution until after requires load
+* preserving the MAIN bridge's Trusted Types handling so `ctx.main.define()` can still work on pages that require `TrustedScript`, while still surfacing `BRIDGE_FAILED` when the page blocks extension policy creation entirely
 
 ## Related docs (when to consult)
 - `FACTOTUM_V1_HANDOFF.md`: Authoritative RPC policy and error codes; defer to it on conflicts.

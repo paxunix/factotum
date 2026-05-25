@@ -265,13 +265,23 @@ function getMessage(key, fallback) {
   return chrome.i18n.getMessage(key) || fallback;
 }
 
-function buildIconSvgMarkup(name) {
+function buildIconSvgElement(name) {
   const iconData = fontAwesomeIcons[name];
   if (!iconData) {
     throw new Error(`Unknown generated icon: ${name}`);
   }
-  const paths = iconData.paths.map((pathData) => `<path fill="currentColor" d="${pathData}"></path>`).join('');
-  return `<svg class="factotum-icon-svg" viewBox="0 0 ${iconData.width} ${iconData.height}" aria-hidden="true" focusable="false">${paths}</svg>`;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.classList.add('factotum-icon-svg');
+  svg.setAttribute('viewBox', `0 0 ${iconData.width} ${iconData.height}`);
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  for (const pathData of iconData.paths) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('fill', 'currentColor');
+    path.setAttribute('d', pathData);
+    svg.append(path);
+  }
+  return svg;
 }
 
 const stateLabels = {
@@ -317,21 +327,50 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
 
     const shell = document.createElement('section');
     shell.className = 'factotum-shell';
-    shell.innerHTML = `
-      <div class="factotum-history" id="factotum-history" hidden></div>
-      <div class="factotum-current" id="factotum-current" hidden></div>
-      <p class="factotum-empty" id="factotum-empty" hidden></p>
-      <div class="factotum-actions">
-        <div class="factotum-actions-leading">
-          <button class="factotum-button factotum-icon-button" id="factotum-theme-toggle" type="button">
-            <span id="factotum-theme-icon" aria-hidden="true"></span>
-          </button>
-        </div>
-        <div class="factotum-actions-trailing">
-          <button class="factotum-button" id="factotum-cancel" type="button"></button>
-        </div>
-      </div>
-    `;
+
+    const history = document.createElement('div');
+    history.className = 'factotum-history';
+    history.id = 'factotum-history';
+    history.hidden = true;
+
+    const current = document.createElement('div');
+    current.className = 'factotum-current';
+    current.id = 'factotum-current';
+    current.hidden = true;
+
+    const empty = document.createElement('p');
+    empty.className = 'factotum-empty';
+    empty.id = 'factotum-empty';
+    empty.hidden = true;
+
+    const actions = document.createElement('div');
+    actions.className = 'factotum-actions';
+
+    const leadingActions = document.createElement('div');
+    leadingActions.className = 'factotum-actions-leading';
+
+    const themeButton = document.createElement('button');
+    themeButton.className = 'factotum-button factotum-icon-button';
+    themeButton.id = 'factotum-theme-toggle';
+    themeButton.type = 'button';
+
+    const themeIcon = document.createElement('span');
+    themeIcon.id = 'factotum-theme-icon';
+    themeIcon.setAttribute('aria-hidden', 'true');
+    themeButton.append(themeIcon);
+    leadingActions.append(themeButton);
+
+    const trailingActions = document.createElement('div');
+    trailingActions.className = 'factotum-actions-trailing';
+
+    const cancelButton = document.createElement('button');
+    cancelButton.className = 'factotum-button';
+    cancelButton.id = 'factotum-cancel';
+    cancelButton.type = 'button';
+    trailingActions.append(cancelButton);
+
+    actions.append(leadingActions, trailingActions);
+    shell.append(history, current, empty, actions);
 
     controller.shadowRootRef.append(style, shell);
     document.documentElement.append(controller.overlayRoot);
@@ -368,12 +407,12 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     return controller.overlayRoot;
   }
 
-  function themeIconMarkup(theme) {
+  function buildThemeIcon(theme) {
     if (theme === 'dark') {
-      return buildIconSvgMarkup('moon');
+      return buildIconSvgElement('moon');
     }
 
-    return buildIconSvgMarkup('sun');
+    return buildIconSvgElement('sun');
   }
 
   function updateTheme() {
@@ -390,7 +429,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
 
     shell.dataset.theme = controller.theme;
     const nextTheme = controller.theme === 'dark' ? 'light' : 'dark';
-    themeIcon.innerHTML = themeIconMarkup(controller.theme);
+    themeIcon.replaceChildren(buildThemeIcon(controller.theme));
     const label = nextTheme === 'light'
       ? getMessage('overlayThemeLight', 'Switch overlay to light mode')
       : getMessage('overlayThemeDark', 'Switch overlay to dark mode');
@@ -449,13 +488,13 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     const emptyRoot = controller.shadowRootRef.getElementById('factotum-empty');
     const button = controller.shadowRootRef.getElementById('factotum-cancel');
 
-    historyRoot.innerHTML = '';
+    historyRoot.replaceChildren();
     historyRoot.hidden = controller.entries.length === 0;
     for (const entry of controller.entries) {
       historyRoot.append(buildEntryElement(entry));
     }
 
-    currentRoot.innerHTML = '';
+    currentRoot.replaceChildren();
     if (snapshot && snapshot.state && snapshot.state !== 'IDLE') {
       currentRoot.hidden = false;
       currentRoot.append(buildEntryElement(snapshot));
