@@ -3,8 +3,7 @@
   "version": "0.2.3",
   "private": true,
   "scripts": {
-    "build": "node scripts/build.js main",
-    "build:scratch": "node scripts/build.js scratch",
+    "build": "node scripts/build.js",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {

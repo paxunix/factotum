@@ -5,7 +5,6 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const srcDir = path.join(root, 'src');
 const outDir = path.join(root, 'dist');
-const scratchOutDir = path.join(root, 'scratch-test');
 
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -114,32 +113,6 @@ function copyRootAssets() {
   }
 }
 
-function copyWebAwesomeAssetsTo(targetDir) {
-  const webAwesomeDist = path.join(root, 'node_modules', '@awesome.me', 'webawesome', 'dist');
-  const out = path.join(targetDir, 'vendor', 'webawesome');
-  if (!fs.existsSync(webAwesomeDist)) {
-    console.warn('Web Awesome dist not found. Run npm install before build.');
-    return;
-  }
-
-  const walk = (dir) => {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        walk(full);
-        continue;
-      }
-      if (entry.isFile()) {
-        const rel = path.relative(webAwesomeDist, full);
-        const dest = path.join(out, rel);
-        copyFile(full, dest);
-      }
-    }
-  };
-
-  walk(webAwesomeDist);
-}
-
 async function buildMain() {
   fs.rmSync(outDir, { recursive: true, force: true });
   ensureDir(outDir);
@@ -165,29 +138,7 @@ async function buildMain() {
   copyWebAwesomeAssets();
   copyMaterialSymbolsAssets();
 }
-
-async function buildScratch() {
-  fs.rmSync(scratchOutDir, { recursive: true, force: true });
-  ensureDir(scratchOutDir);
-
-  await esbuild.build({
-    entryPoints: ['scratch/test-manager.js'],
-    outfile: 'scratch-test/test-manager.js',
-    bundle: true,
-    format: 'iife',
-    target: ['chrome114'],
-    sourcemap: true
-  });
-
-  copyFile('scratch/test-manager.html', 'scratch-test/test-manager.html');
-  copyFile('scratch/test-manager.css', 'scratch-test/test-manager.css');
-  copyWebAwesomeAssetsTo(scratchOutDir);
-}
-
-const target = process.argv[2] || 'main';
-const task = target === 'scratch' ? buildScratch : buildMain;
-
-task().catch((err) => {
+buildMain().catch((err) => {
   console.error(err);
   process.exit(1);
 });
