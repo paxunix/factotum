@@ -9,6 +9,7 @@ import * as prettierPluginBabel from 'prettier/plugins/babel';
 import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as prettierPluginHtml from 'prettier/plugins/html';
 import * as prettierPluginPostcss from 'prettier/plugins/postcss';
+import { fontAwesomeIcons } from '../generated/fontawesome-icons.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -286,19 +287,30 @@ function buildOption(value, label) {
   return option;
 }
 
-function createMaterialIcon(name) {
-  const icon = document.createElement('span');
-  icon.className = 'material-symbols-outlined material-icon';
+function createIcon(name) {
+  const iconData = fontAwesomeIcons[name];
+  if (!iconData) {
+    throw new Error(`Unknown generated icon: ${name}`);
+  }
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.classList.add('button-icon');
   icon.setAttribute('aria-hidden', 'true');
-  icon.textContent = name;
+  icon.setAttribute('viewBox', `0 0 ${iconData.width} ${iconData.height}`);
+  icon.setAttribute('focusable', 'false');
+  for (const pathData of iconData.paths) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('fill', 'currentColor');
+    path.setAttribute('d', pathData);
+    icon.append(path);
+  }
   return icon;
 }
 
 function updateSortDirectionButton() {
   const label = commandSortDirectionValue === 'asc' ? sortAscendingLabel : sortDescendingLabel;
-  const iconName = commandSortDirectionValue === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  const iconName = commandSortDirectionValue === 'asc' ? 'arrowUp' : 'arrowDown';
   commandSortDirection.textContent = '';
-  commandSortDirection.append(createMaterialIcon(iconName));
+  commandSortDirection.append(createIcon(iconName));
   commandSortDirection.setAttribute('aria-label', label);
   commandSortDirection.title = label;
 }
@@ -1000,7 +1012,7 @@ function buildCommandDeleteButton(command) {
   button.variant = 'neutral';
   button.size = 'small';
   button.type = 'button';
-  button.append(createMaterialIcon('delete'));
+  button.append(createIcon('trash'));
   const canDelete = command.invalid || command.disabled;
   const label = canDelete ? commandDeleteLabel : commandDeleteDisableFirstLabel;
   button.setAttribute('aria-label', label);

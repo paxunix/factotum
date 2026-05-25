@@ -363,10 +363,12 @@ wa-textarea.bundle-textarea::part(textarea) {
   padding-inline: 10px;
 }
 
-.material-icon {
+.button-icon {
   display: block;
+  fill: currentColor;
   height: 20px;
   font-size: 20px;
+  overflow: visible;
   width: 20px;
 }
 

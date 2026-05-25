@@ -53,7 +53,7 @@ UI pages should use Web Awesome web components as much as possible. Web Awesome 
 
 Manager command code and help-template editors use CodeMirror 6 packages bundled through npm/esbuild. Their format toolbar action uses locally bundled Prettier parser plugins for JavaScript and HTML. Do not load editor or formatter assets from a CDN at extension runtime.
 
-Icons should use Material Symbols in the Google Fonts web pattern: self-host the Material Symbols font, render icons with the `material-symbols-outlined` class, and use the icon's snake_case ligature text in the DOM. Do not load Material Symbols from the Google Fonts CDN at extension runtime.
+Icons should come from the locally installed Font Awesome npm package, following Font Awesome's package-manager setup model rather than CDN lookup or hand-coded SVG paths. Factotum's build generates the small shipped icon set from that local package and uses the generated inline SVGs in both extension-owned pages and the injected overlay. Keep the overlay SVG-based so it remains self-contained on arbitrary pages and does not depend on page-context font loading.
 
 ---
 

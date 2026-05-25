@@ -1,6 +1,8 @@
+import { fontAwesomeIcons } from '../generated/fontawesome-icons.js';
+
 const CONTROL_TYPE = 'fcmd_control';
 const CONTROLLER_KEY = '__factotumOverlayController';
-function buildStyleText(materialSymbolsUrl) {
+function buildStyleText() {
   return `
   :host {
     all: initial;
@@ -233,18 +235,27 @@ function buildStyleText(materialSymbolsUrl) {
 
   .factotum-icon-button {
     align-items: center;
+    aspect-ratio: 1;
+    block-size: 38px;
+    box-sizing: border-box;
     display: inline-flex;
+    height: 38px;
+    inline-size: 38px;
     justify-content: center;
+    max-height: 38px;
+    max-width: 38px;
     min-height: 38px;
     min-width: 38px;
     padding: 0;
+    flex: 0 0 auto;
+    width: 38px;
   }
 
   .factotum-icon-svg {
-    display: inline-block;
+    display: block;
     fill: currentColor;
     height: 20px;
-    line-height: 1;
+    margin: auto;
     width: 20px;
   }
 `;
@@ -252,6 +263,15 @@ function buildStyleText(materialSymbolsUrl) {
 
 function getMessage(key, fallback) {
   return chrome.i18n.getMessage(key) || fallback;
+}
+
+function buildIconSvgMarkup(name) {
+  const iconData = fontAwesomeIcons[name];
+  if (!iconData) {
+    throw new Error(`Unknown generated icon: ${name}`);
+  }
+  const paths = iconData.paths.map((pathData) => `<path fill="currentColor" d="${pathData}"></path>`).join('');
+  return `<svg class="factotum-icon-svg" viewBox="0 0 ${iconData.width} ${iconData.height}" aria-hidden="true" focusable="false">${paths}</svg>`;
 }
 
 const stateLabels = {
@@ -293,7 +313,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     controller.shadowRootRef = controller.overlayRoot.attachShadow({ mode: 'open' });
 
     const style = document.createElement('style');
-    style.textContent = buildStyleText(chrome.runtime.getURL('vendor/material-symbols/material-symbols-outlined.woff2'));
+    style.textContent = buildStyleText();
 
     const shell = document.createElement('section');
     shell.className = 'factotum-shell';
@@ -350,18 +370,10 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
 
   function themeIconMarkup(theme) {
     if (theme === 'dark') {
-      return `
-        <svg class="factotum-icon-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12.43 22q-2.93 0-5.18-1.76Q5 18.48 4.24 15.78 3.48 13.08 4.2 10.35q.72-2.72 3.02-4.68.39-.33.89-.2.5.13.69.62.56 1.46 1.54 2.73.98 1.26 2.3 2.2 1.31.94 2.89 1.44 1.57.49 3.3.42.53-.02.83.41.3.43.13.92-.89 2.55-3.13 4.39Q14.42 22 11.57 22h.86Z"/>
-        </svg>
-      `;
+      return buildIconSvgMarkup('moon');
     }
 
-    return `
-      <svg class="factotum-icon-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M11 5V1h2v4h-2Zm6.36 2.05-1.41-1.41 2.83-2.83 1.41 1.41-2.83 2.83ZM19 13v-2h4v2h-4Zm-7 6q-2.5 0-4.25-1.75T6 13q0-2.5 1.75-4.25T12 7q2.5 0 4.25 1.75T18 13q0 2.5-1.75 4.25T12 19Zm0-2q1.65 0 2.83-1.17Q16 14.65 16 13q0-1.65-1.17-2.83Q13.65 9 12 9q-1.65 0-2.83 1.17Q8 11.35 8 13q0 1.65 1.17 2.83Q10.35 17 12 17Zm-7-4v-2H1v2h4Zm1.64-5.95L3.81 4.22l1.41-1.41 2.83 2.83-1.41 1.41ZM19.78 21.19l-2.83-2.83 1.41-1.41 2.83 2.83-1.41 1.41ZM5.22 21.19l-1.41-1.41 2.83-2.83 1.41 1.41-2.83 2.83Z"/>
-      </svg>
-    `;
+    return buildIconSvgMarkup('sun');
   }
 
   function updateTheme() {

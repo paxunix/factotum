@@ -24,9 +24,8 @@ M8. manager UX needs a separate tab to hold overall settings.
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
 ### Overlay UX
 
-OU1. an additional settings toggle area at the bottom of the overlay that houses buttons for adjusting overlay settings.  The settings are persisted for the extension beyond current page and session..
-    - setting for toggling whether the overlay is light or dark, probably based on the page on which the overlay is loaded.
-    - setting for changing overlay opacity
+OU2. Persist overlay theme preference beyond the current page session and decide whether that preference should be global or page-sensitive.
+OU3. Add an overlay opacity control in the bottom action area and persist the chosen opacity with the rest of the overlay preferences.
 
 ### Session console redesign
 SC1. Auto-scroll the session console to the bottom after each new write only when the user is already at the bottom; if the scroll thumb is away from the end, preserve the user's scroll position so history inspection is not interrupted.

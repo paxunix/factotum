@@ -95,7 +95,7 @@ Each test lists: **Setup → Action → Expected**.
 * Expected:
 
   * The overlay switches immediately between the default dark appearance and a light appearance.
-  * The icon flips between `dark_mode` and `light_mode`.
+  * The theme-toggle icon changes with the current mode.
   * The current page session remembers the chosen mode while the overlay is reopened in that page.
 
 #### T1: Exact name outranks exact alias and prefix matches
@@ -267,7 +267,7 @@ Each test lists: **Setup → Action → Expected**.
   * Each pane scrolls independently; the whole manager page does not jump while browsing long pane contents.
   * The command list is a concise vertical tab menu of command names with one detail card for the selected command.
   * The filter input matches substrings in command name, command ID, or command aliases.
-  * The sort selector supports Modified time, Name, and ID, defaults to ascending Name order, and uses a Material Symbols direction icon.
+  * The sort selector supports Modified time, Name, and ID, defaults to ascending Name order, and has a visible direction-toggle icon.
   * The selected command detail card shows command name as the primary title and command ID as secondary metadata.
   * The command editor uses vertical section tabs for Identity, Description, Help, Options, Requires, Code, and Export.
   * The command list controls include a `New Command` action that opens a draft in the editor pane.

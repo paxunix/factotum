@@ -3,32 +3,6 @@
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-@font-face {
-  font-family: "Material Symbols Outlined";
-  font-style: normal;
-  font-weight: 100 700;
-  font-display: block;
-  src: url("../vendor/material-symbols/material-symbols-outlined.woff2") format("woff2");
-}
-
-.material-symbols-outlined {
-  direction: ltr;
-  display: inline-block;
-  font-family: "Material Symbols Outlined";
-  font-feature-settings: "liga";
-  font-size: 24px;
-  font-style: normal;
-  font-weight: normal;
-  letter-spacing: normal;
-  line-height: 1;
-  text-rendering: optimizeLegibility;
-  text-transform: none;
-  white-space: nowrap;
-  word-wrap: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 body {
   margin: 0;
   background: #f6f5f2;

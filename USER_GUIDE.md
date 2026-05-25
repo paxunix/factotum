@@ -49,7 +49,7 @@ When a command returns a value, the terminal `Done` bubble includes it. When a c
 Bubble styling:
 - output bubbles use a left-edge severity bar: green for ordinary/info output, yellow for warnings, red for errors
 - command-state and system-result bubbles use their own left-edge bars and tinted backgrounds so running/help, done, canceled/busy, and error states are easier to distinguish at a glance
-- the bottom action bar includes a theme toggle: `dark_mode` for the default dark console and `light_mode` for the light console
+- the bottom action bar includes a theme toggle that switches between the default dark console and a light console
 - the theme toggle applies immediately and lasts for the current page session only
 
 Commands can also be configured so the overlay does not auto-show during normal runs. In that mode:
@@ -108,7 +108,7 @@ The Manager page has top-level Manager and Utilities tabs:
 
 Aliases are user-defined shortcuts over the installed command set. They are stored globally, not inside command records, and one alias may point to more than one command.
 
-In the Manager command list, use the filter field to match by command name, command ID, or alias. Use the Sort selector to order by modified time, name, or ID; the direction button uses Material Symbols `arrow_upward` and `arrow_downward`.
+In the Manager command list, use the filter field to match by command name, command ID, or alias. Use the Sort selector to order by modified time, name, or ID; the direction button toggles ascending vs descending order.
 
 Use the Manager page to:
 - import command bundles
