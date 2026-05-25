@@ -176,7 +176,16 @@ async function buildMain() {
   copyRootAssets();
   copyWebAwesomeAssets();
 }
-buildMain().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+
+module.exports = {
+  buildMain,
+  outDir,
+  root
+};
+
+if (require.main === module) {
+  buildMain().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

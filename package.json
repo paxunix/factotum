@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.js",
+    "build:tarball": "node scripts/build-tarball.js",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {

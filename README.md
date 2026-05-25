@@ -44,12 +44,23 @@ who gave you a free gun full of free bullets.**
 npm run build
 ```
 
+### Build tarball
+
+```bash
+npm run build:tarball
+```
+
+This creates `release/factotum-<version>.tar.gz`. Expanding that tarball
+produces a `factotum-<version>/` directory containing the unpacked extension
+root, ready to load in Chrome.
+
 ### Load in Chrome (unpacked)
 
 1. Open `chrome://extensions`.
 2. Enable Developer mode.
 3. Click "Load unpacked".
-4. Select the `dist/` directory from this repo.
+4. Select the `dist/` directory from this repo, or the extracted
+   `factotum-<version>/` directory from `release/factotum-<version>.tar.gz`.
 
 ## Notes
 
