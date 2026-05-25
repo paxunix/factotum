@@ -248,6 +248,7 @@ Each test lists: **Setup → Action → Expected**.
   * The Utilities tab contains import/export tools, and the JSON field fills the pane with its own scrollbar.
   * Importing a full bundle opens a review panel in Utilities instead of importing immediately.
   * The review panel lets the user independently select commands, quarantined invalid records, and aliases to import.
+  * The review panel includes a filter input that matches command names, IDs, `name@id`, aliases, and alias targets using the same substring behavior as the Installed Commands filter.
   * The review panel marks each reviewed item as `New`, `Same`, `Overwrite`, `Overwrites invalid`, or `Overwrites valid`, depending on the installed-state collision.
   * Exporting a full bundle opens a review panel in Utilities so the user can choose which commands, quarantined invalid records, and aliases to include before the bundle JSON is written.
   * Each pane scrolls independently; the whole manager page does not jump while browsing long pane contents.

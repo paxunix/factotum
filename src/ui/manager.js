@@ -54,7 +54,8 @@ const bundleReviewCancelLabel = getMessage('managerBundleReviewCancel', 'Cancel 
 const bundleReviewCommandsLabel = getMessage('managerBundleReviewCommands', 'Commands');
 const bundleReviewInvalidLabel = getMessage('managerBundleReviewInvalid', 'Quarantined invalid commands');
 const bundleReviewAliasesLabel = getMessage('managerBundleReviewAliases', 'Aliases');
-const bundleReviewEmptyLabel = getMessage('managerBundleReviewEmpty', 'Nothing in this section.');
+const bundleReviewFilterLabel = getMessage('managerBundleReviewFilter', 'Filter review items');
+const bundleReviewEmptyLabel = getMessage('managerBundleReviewEmpty', 'No review items match the filter.');
 const bundleReviewStateNewLabel = getMessage('managerBundleReviewStateNew', 'New');
 const bundleReviewStateOverwriteLabel = getMessage('managerBundleReviewStateOverwrite', 'Overwrite');
 const bundleReviewStateOverwriteInvalidLabel = getMessage('managerBundleReviewStateOverwriteInvalid', 'Overwrites invalid');
@@ -154,12 +155,14 @@ document.getElementById('editor-section-export-tab').textContent = editorExportS
 const bundleTextarea = document.getElementById('bundle-textarea');
 const bundleStatus = document.getElementById('bundle-status');
 const bundleReview = document.getElementById('bundle-review');
+const bundleReviewFilter = document.getElementById('bundle-review-filter');
 const bundleReviewCommandsSection = document.getElementById('bundle-review-commands-section');
 const bundleReviewInvalidSection = document.getElementById('bundle-review-invalid-section');
 const bundleReviewAliasesSection = document.getElementById('bundle-review-aliases-section');
 const bundleReviewCommands = document.getElementById('bundle-review-commands');
 const bundleReviewInvalid = document.getElementById('bundle-review-invalid');
 const bundleReviewAliases = document.getElementById('bundle-review-aliases');
+const bundleReviewEmpty = document.getElementById('bundle-review-empty');
 const bundleReviewImportButton = document.getElementById('bundle-review-import-button');
 const bundleReviewCancelButton = document.getElementById('bundle-review-cancel-button');
 const commandFilter = document.getElementById('command-filter');
@@ -211,6 +214,8 @@ let pendingBundleReview = null;
 editorFields.name.label = editorNameLabel;
 commandFilter.label = commandFilterLabel;
 commandFilter.placeholder = commandFilterLabel;
+bundleReviewFilter.label = bundleReviewFilterLabel;
+bundleReviewFilter.placeholder = bundleReviewFilterLabel;
 commandSort.label = commandSortLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
@@ -472,6 +477,11 @@ function commandMatchesFilter(command, filterText) {
 function getCommandFilterValue() {
   const input = commandFilter.shadowRoot?.querySelector('input');
   return input?.value ?? commandFilter.value ?? '';
+}
+
+function getBundleReviewFilterValue() {
+  const input = bundleReviewFilter.shadowRoot?.querySelector('input');
+  return input?.value ?? bundleReviewFilter.value ?? '';
 }
 
 function renderFilteredCommandsFromInput() {
@@ -1210,7 +1220,46 @@ function aliasTargetsMatch(left, right) {
   return JSON.stringify(normalizeTargets(left)) === JSON.stringify(normalizeTargets(right));
 }
 
-function buildBundleReviewCommandItems(bundle, installedEntriesByKey) {
+function buildBundleAliasesByCommand(aliases) {
+  const map = new Map();
+  for (const [alias, targets] of Object.entries(normalizeAliasMap(aliases))) {
+    for (const target of targets) {
+      const key = `${target.name}@${target.id}`;
+      const existing = map.get(key) || [];
+      existing.push(alias);
+      map.set(key, existing);
+    }
+  }
+  for (const aliasesForKey of map.values()) {
+    aliasesForKey.sort((left, right) => left.localeCompare(right));
+  }
+  return map;
+}
+
+function reviewItemMatchesFilter(item, filterText) {
+  const query = filterText.trim().toLowerCase();
+  if (!query) {
+    return true;
+  }
+
+  const values = [item.title, item.detail || ''];
+  if (item.kind === 'command') {
+    values.push(item.command.name, item.command.id, `${item.command.name}@${item.command.id}`, ...(item.aliases || []));
+  } else if (item.kind === 'invalid') {
+    values.push(item.entry.name, item.entry.id, `${item.entry.name}@${item.entry.id}`, ...(item.aliases || []));
+  } else if (item.kind === 'alias') {
+    values.push(
+      item.alias,
+      ...(Array.isArray(item.targets)
+        ? item.targets.flatMap((target) => [target.name, target.id, `${target.name}@${target.id}`])
+        : [])
+    );
+  }
+
+  return values.some((value) => String(value).toLowerCase().includes(query));
+}
+
+function buildBundleReviewCommandItems(bundle, installedEntriesByKey, aliasesByCommand) {
   return (Array.isArray(bundle.commands) ? bundle.commands : []).map((command) => {
     const normalized = normalizeCommandRecord(command);
     const key = commandRefKey(normalized);
@@ -1222,13 +1271,14 @@ function buildBundleReviewCommandItems(bundle, installedEntriesByKey) {
       command: normalized,
       title: key,
       detail: normalized.description ? resolveLocalizedText(normalized.description, navigator.language || 'en-US') : '',
+      aliases: aliasesByCommand.get(key) || [],
       state,
       selected: true
     };
   });
 }
 
-function buildBundleReviewInvalidItems(bundle, installedEntriesByKey) {
+function buildBundleReviewInvalidItems(bundle, installedEntriesByKey, aliasesByCommand) {
   return (Array.isArray(bundle.invalidCommands) ? bundle.invalidCommands : []).map((entry) => {
     const name = String(entry?.name ?? entry?.command?.name ?? '');
     const id = String(entry?.id ?? entry?.command?.id ?? '');
@@ -1247,6 +1297,7 @@ function buildBundleReviewInvalidItems(bundle, installedEntriesByKey) {
       },
       title: key,
       detail: entry?.validationError?.message || invalidDescriptionLabel,
+      aliases: aliasesByCommand.get(key) || [],
       state,
       selected: true
     };
@@ -1282,6 +1333,7 @@ async function buildBundleReview(bundle) {
     listCommandIndex({ includeInvalid: true }),
     getAliasMap()
   ]);
+  const aliasesByCommand = buildBundleAliasesByCommand(bundle.aliases);
   const installedEntries = await Promise.all(installedIndex.map(async (entry) => {
     const record = await getCommand(entry.name, entry.id, { allowInvalid: Boolean(entry.invalid) });
     return {
@@ -1294,8 +1346,8 @@ async function buildBundleReview(bundle) {
   const installedEntriesByKey = new Map(installedEntries.map((entry) => [entry.key, entry]));
   return {
     bundle,
-    commands: buildBundleReviewCommandItems(bundle, installedEntriesByKey),
-    invalidCommands: buildBundleReviewInvalidItems(bundle, installedEntriesByKey),
+    commands: buildBundleReviewCommandItems(bundle, installedEntriesByKey, aliasesByCommand),
+    invalidCommands: buildBundleReviewInvalidItems(bundle, installedEntriesByKey, aliasesByCommand),
     aliases: buildBundleReviewAliasItems(bundle, installedAliases)
   };
 }
@@ -1319,9 +1371,12 @@ function reviewStateLabel(state) {
 function hideBundleReview() {
   pendingBundleReview = null;
   bundleReview.hidden = true;
+  bundleReviewFilter.value = '';
   bundleReviewCommands.textContent = '';
   bundleReviewInvalid.textContent = '';
   bundleReviewAliases.textContent = '';
+  bundleReviewEmpty.hidden = true;
+  bundleReviewEmpty.textContent = '';
 }
 
 function createBundleReviewItem(item, mode = 'import') {
@@ -1364,14 +1419,16 @@ function createBundleReviewItem(item, mode = 'import') {
 
 function renderBundleReviewSection(section, container, items, mode = 'import') {
   container.textContent = '';
-  if (!items.length) {
+  const filteredItems = items.filter((item) => reviewItemMatchesFilter(item, getBundleReviewFilterValue()));
+  if (!filteredItems.length) {
     section.hidden = true;
-    return;
+    return 0;
   }
   section.hidden = false;
-  for (const item of items) {
+  for (const item of filteredItems) {
     container.append(createBundleReviewItem(item, mode));
   }
+  return filteredItems.length;
 }
 
 function updateBundleReviewActions() {
@@ -1389,9 +1446,13 @@ function showBundleReview(review) {
   document.getElementById('bundle-review-title').textContent = mode === 'export' ? bundleReviewExportTitleLabel : bundleReviewTitleLabel;
   document.getElementById('bundle-review-hint').textContent = mode === 'export' ? bundleReviewExportHintLabel : bundleReviewHintLabel;
   bundleReviewImportButton.textContent = mode === 'export' ? bundleReviewExportLabel : bundleReviewImportLabel;
-  renderBundleReviewSection(bundleReviewCommandsSection, bundleReviewCommands, review.commands, mode);
-  renderBundleReviewSection(bundleReviewInvalidSection, bundleReviewInvalid, review.invalidCommands, mode);
-  renderBundleReviewSection(bundleReviewAliasesSection, bundleReviewAliases, review.aliases, mode);
+  const visibleCount = (
+    renderBundleReviewSection(bundleReviewCommandsSection, bundleReviewCommands, review.commands, mode)
+    + renderBundleReviewSection(bundleReviewInvalidSection, bundleReviewInvalid, review.invalidCommands, mode)
+    + renderBundleReviewSection(bundleReviewAliasesSection, bundleReviewAliases, review.aliases, mode)
+  );
+  bundleReviewEmpty.hidden = visibleCount > 0;
+  bundleReviewEmpty.textContent = visibleCount > 0 ? '' : bundleReviewEmptyLabel;
   bundleReview.hidden = !review.commands.length && !review.invalidCommands.length && !review.aliases.length;
   updateBundleReviewActions();
 }
@@ -1555,6 +1616,13 @@ bundleReviewImportButton.addEventListener('click', () => {
 
 bundleReviewCancelButton.addEventListener('click', () => {
   hideBundleReview();
+});
+
+bundleReviewFilter.addEventListener('input', () => {
+  if (!pendingBundleReview) {
+    return;
+  }
+  showBundleReview(pendingBundleReview);
 });
 
 bundleTextarea.addEventListener('input', () => {

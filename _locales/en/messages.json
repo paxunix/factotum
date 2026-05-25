@@ -201,9 +201,13 @@
     "message": "Aliases",
     "description": "Utilities import review aliases section title"
   },
+  "managerBundleReviewFilter": {
+    "message": "Filter review items",
+    "description": "Utilities import/export review filter input label and placeholder"
+  },
   "managerBundleReviewEmpty": {
-    "message": "Nothing in this section.",
-    "description": "Utilities import review empty section text"
+    "message": "No review items match the filter.",
+    "description": "Utilities import/export review empty text when no items match the filter"
   },
   "managerBundleReviewStateNew": {
     "message": "New",

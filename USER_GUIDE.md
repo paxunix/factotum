@@ -151,10 +151,12 @@ Warning and error status messages in the manager can be dismissed directly from 
 Utilities import accepts either a single fcommand JSON record or a full Factotum bundle JSON object.
 - both single-command and full-bundle imports now open a review step before anything is written
 - the review lets you choose which commands, quarantined invalid records, and aliases to import
+- the review filter matches the same kinds of substrings as the Installed Commands list: command name, ID, `name@id`, aliases, and alias targets
 - the review marks items as `New`, `Same`, `Overwrite`, `Overwrites invalid`, or `Overwrites valid` so you can see what will replace installed data before importing
 
 Utilities export remains the whole-extension bundle export surface.
 - exporting a full bundle now opens a review step where you choose which commands, quarantined invalid records, and aliases to include
+- the same review filter is available during export review
 - the bundle JSON is written only after you confirm the reviewed subset
 
 ## Current limitations
