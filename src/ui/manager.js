@@ -308,7 +308,12 @@ function createIcon(name) {
 
 function updateSortDirectionButton() {
   const label = commandSortDirectionValue === 'asc' ? sortAscendingLabel : sortDescendingLabel;
-  const iconName = commandSortDirectionValue === 'asc' ? 'arrowUp' : 'arrowDown';
+  let iconName = 'arrowUp';
+  if (commandSortKey === 'updatedAt') {
+    iconName = commandSortDirectionValue === 'asc' ? 'arrowDown19' : 'arrowUp91';
+  } else {
+    iconName = commandSortDirectionValue === 'asc' ? 'arrowDownAZ' : 'arrowUpZA';
+  }
   commandSortDirection.textContent = '';
   commandSortDirection.append(createIcon(iconName));
   commandSortDirection.setAttribute('aria-label', label);
@@ -1651,6 +1656,7 @@ commandFilter.addEventListener('change', renderFilteredCommandsFromInput);
 
 commandSort.addEventListener('change', () => {
   commandSortKey = commandSort.value || 'updatedAt';
+  updateSortDirectionButton();
   renderCommands(currentCommands);
 });
 

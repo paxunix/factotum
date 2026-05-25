@@ -102,7 +102,13 @@ function copyRootAssets() {
 
 function writeGeneratedFontAwesomeIcons() {
   const {
+    faArrowDown19,
+    faArrowDownAZ,
+    faArrowDownZA,
     faArrowDown,
+    faArrowUp91,
+    faArrowUpAZ,
+    faArrowUpZA,
     faArrowUp,
     faMoon,
     faSun,
@@ -111,7 +117,13 @@ function writeGeneratedFontAwesomeIcons() {
 
   const icons = {
     arrowDown: faArrowDown,
+    arrowDown19: faArrowDown19,
+    arrowDownAZ: faArrowDownAZ,
+    arrowDownZA: faArrowDownZA,
     arrowUp: faArrowUp,
+    arrowUp91: faArrowUp91,
+    arrowUpAZ: faArrowUpAZ,
+    arrowUpZA: faArrowUpZA,
     moon: faMoon,
     sun: faSun,
     trash: faTrash
