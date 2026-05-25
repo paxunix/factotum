@@ -85,6 +85,19 @@ Each test lists: **Setup → Action → Expected**.
   * The current tab’s existing Factotum session console reappears
   * Prior scrollback bubbles for that tab are still present
 
+#### T0b: Overlay theme toggle switches between dark and light modes
+
+* Setup: in a normal page, open the session console.
+* Action:
+
+  1. click the bottom-bar theme icon once
+  2. click it again
+* Expected:
+
+  * The overlay switches immediately between the default dark appearance and a light appearance.
+  * The icon flips between `dark_mode` and `light_mode`.
+  * The current page session remembers the chosen mode while the overlay is reopened in that page.
+
 #### T1: Exact name outranks exact alias and prefix matches
 
 * Setup:

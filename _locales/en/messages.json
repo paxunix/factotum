@@ -389,6 +389,14 @@
     "message": "Close",
     "description": "Overlay close button label"
   },
+  "overlayThemeLight": {
+    "message": "Switch overlay to light mode",
+    "description": "Overlay button label for switching the session console to light mode"
+  },
+  "overlayThemeDark": {
+    "message": "Switch overlay to dark mode",
+    "description": "Overlay button label for switching the session console to dark mode"
+  },
   "overlayRunning": {
     "message": "Running...",
     "description": "Overlay running state label"

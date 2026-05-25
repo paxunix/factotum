@@ -1,16 +1,29 @@
 const CONTROL_TYPE = 'fcmd_control';
 const CONTROLLER_KEY = '__factotumOverlayController';
-const STYLE_TEXT = `
+function buildStyleText(materialSymbolsUrl) {
+  return `
   :host {
     all: initial;
   }
 
   .factotum-shell {
-    background: rgba(15, 23, 42, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    --factotum-shell-bg: rgba(15, 23, 42, 0.9);
+    --factotum-shell-border: rgba(255, 255, 255, 0.18);
+    --factotum-shell-fg: rgb(255, 255, 255);
+    --factotum-entry-bg: rgba(255, 255, 255, 0.06);
+    --factotum-entry-border: rgba(255, 255, 255, 0.08);
+    --factotum-entry-fg: rgba(255, 255, 255, 0.9);
+    --factotum-entry-status-fg: rgba(255, 255, 255, 0.75);
+    --factotum-muted-fg: rgba(255, 255, 255, 0.8);
+    --factotum-system-bg: rgba(30, 41, 59, 0.72);
+    --factotum-help-pre-bg: rgba(255, 255, 255, 0.08);
+    --factotum-button-bg: rgba(255, 255, 255, 0.12);
+    --factotum-button-border: rgba(255, 255, 255, 0.16);
+    background: var(--factotum-shell-bg);
+    border: 1px solid var(--factotum-shell-border);
     border-radius: 16px;
     box-shadow: 0 22px 50px rgba(15, 23, 42, 0.35);
-    color: white;
+    color: var(--factotum-shell-fg);
     font-family: ui-sans-serif, system-ui, sans-serif;
     left: 50%;
     max-width: calc(100vw - 24px);
@@ -21,6 +34,21 @@ const STYLE_TEXT = `
     transform: translateX(-50%);
     width: min(40vw, calc(100vw - 24px));
     z-index: 2147483647;
+  }
+
+  .factotum-shell[data-theme="light"] {
+    --factotum-shell-bg: rgba(255, 255, 255, 0.96);
+    --factotum-shell-border: rgba(15, 23, 42, 0.12);
+    --factotum-shell-fg: rgb(15, 23, 42);
+    --factotum-entry-bg: rgba(226, 232, 240, 0.32);
+    --factotum-entry-border: rgba(148, 163, 184, 0.28);
+    --factotum-entry-fg: rgb(15, 23, 42);
+    --factotum-entry-status-fg: rgb(71, 85, 105);
+    --factotum-muted-fg: rgb(71, 85, 105);
+    --factotum-system-bg: rgba(226, 232, 240, 0.54);
+    --factotum-help-pre-bg: rgba(148, 163, 184, 0.16);
+    --factotum-button-bg: rgba(226, 232, 240, 0.9);
+    --factotum-button-border: rgba(148, 163, 184, 0.36);
   }
 
   .factotum-history {
@@ -44,7 +72,7 @@ const STYLE_TEXT = `
   }
 
   .factotum-empty {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--factotum-muted-fg);
     font-size: 13px;
     line-height: 1.4;
     margin: 0 0 14px;
@@ -59,8 +87,8 @@ const STYLE_TEXT = `
   }
 
   .factotum-entry {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--factotum-entry-bg);
+    border: 1px solid var(--factotum-entry-border);
     border-radius: 12px;
     flex: 0 0 auto;
     overflow: hidden;
@@ -113,7 +141,7 @@ const STYLE_TEXT = `
   }
 
   .factotum-entry:not([data-kind="output"]) {
-    background: rgba(30, 41, 59, 0.72);
+    background: var(--factotum-system-bg);
   }
 
   .factotum-entry[data-state="DONE"] {
@@ -145,13 +173,13 @@ const STYLE_TEXT = `
   }
 
   .factotum-entry-status {
-    color: rgba(255, 255, 255, 0.75);
+    color: var(--factotum-entry-status-fg);
     font-size: 12px;
     margin: 0 0 6px;
   }
 
   .factotum-entry-message {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--factotum-entry-fg);
     font-size: 12px;
     line-height: 1.4;
     margin: 0;
@@ -159,7 +187,7 @@ const STYLE_TEXT = `
   }
 
   .factotum-entry-help {
-    color: rgba(255, 255, 255, 0.92);
+    color: var(--factotum-entry-fg);
     font-size: 12px;
     line-height: 1.45;
   }
@@ -173,29 +201,54 @@ const STYLE_TEXT = `
   }
 
   .factotum-entry-help pre {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--factotum-help-pre-bg);
     border-radius: 8px;
     overflow-x: auto;
     padding: 8px;
     white-space: pre-wrap;
   }
   .factotum-actions {
+    align-items: center;
     display: flex;
     gap: 10px;
-    justify-content: flex-end;
+    justify-content: space-between;
+  }
+
+  .factotum-actions-leading,
+  .factotum-actions-trailing {
+    display: flex;
+    gap: 10px;
   }
 
   .factotum-button {
     appearance: none;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: var(--factotum-button-bg);
+    border: 1px solid var(--factotum-button-border);
     border-radius: 999px;
-    color: white;
+    color: inherit;
     cursor: pointer;
     font: inherit;
     padding: 8px 12px;
   }
+
+  .factotum-icon-button {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    min-height: 38px;
+    min-width: 38px;
+    padding: 0;
+  }
+
+  .factotum-icon-svg {
+    display: inline-block;
+    fill: currentColor;
+    height: 20px;
+    line-height: 1;
+    width: 20px;
+  }
 `;
+}
 
 function getMessage(key, fallback) {
   return chrome.i18n.getMessage(key) || fallback;
@@ -226,7 +279,8 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     shadowRootRef: null,
     currentInvocationId: null,
     dismissible: false,
-    entries: []
+    entries: [],
+    theme: 'dark'
   };
 
   function ensureOverlay() {
@@ -239,7 +293,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     controller.shadowRootRef = controller.overlayRoot.attachShadow({ mode: 'open' });
 
     const style = document.createElement('style');
-    style.textContent = STYLE_TEXT;
+    style.textContent = buildStyleText(chrome.runtime.getURL('vendor/material-symbols/material-symbols-outlined.woff2'));
 
     const shell = document.createElement('section');
     shell.className = 'factotum-shell';
@@ -248,7 +302,14 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       <div class="factotum-current" id="factotum-current" hidden></div>
       <p class="factotum-empty" id="factotum-empty" hidden></p>
       <div class="factotum-actions">
-        <button class="factotum-button" id="factotum-cancel"></button>
+        <div class="factotum-actions-leading">
+          <button class="factotum-button factotum-icon-button" id="factotum-theme-toggle" type="button">
+            <span id="factotum-theme-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="factotum-actions-trailing">
+          <button class="factotum-button" id="factotum-cancel" type="button"></button>
+        </div>
       </div>
     `;
 
@@ -279,7 +340,50 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       }
     });
 
+    controller.shadowRootRef.getElementById('factotum-theme-toggle').addEventListener('click', () => {
+      controller.theme = controller.theme === 'dark' ? 'light' : 'dark';
+      updateTheme();
+    });
+
     return controller.overlayRoot;
+  }
+
+  function themeIconMarkup(theme) {
+    if (theme === 'dark') {
+      return `
+        <svg class="factotum-icon-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12.43 22q-2.93 0-5.18-1.76Q5 18.48 4.24 15.78 3.48 13.08 4.2 10.35q.72-2.72 3.02-4.68.39-.33.89-.2.5.13.69.62.56 1.46 1.54 2.73.98 1.26 2.3 2.2 1.31.94 2.89 1.44 1.57.49 3.3.42.53-.02.83.41.3.43.13.92-.89 2.55-3.13 4.39Q14.42 22 11.57 22h.86Z"/>
+        </svg>
+      `;
+    }
+
+    return `
+      <svg class="factotum-icon-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M11 5V1h2v4h-2Zm6.36 2.05-1.41-1.41 2.83-2.83 1.41 1.41-2.83 2.83ZM19 13v-2h4v2h-4Zm-7 6q-2.5 0-4.25-1.75T6 13q0-2.5 1.75-4.25T12 7q2.5 0 4.25 1.75T18 13q0 2.5-1.75 4.25T12 19Zm0-2q1.65 0 2.83-1.17Q16 14.65 16 13q0-1.65-1.17-2.83Q13.65 9 12 9q-1.65 0-2.83 1.17Q8 11.35 8 13q0 1.65 1.17 2.83Q10.35 17 12 17Zm-7-4v-2H1v2h4Zm1.64-5.95L3.81 4.22l1.41-1.41 2.83 2.83-1.41 1.41ZM19.78 21.19l-2.83-2.83 1.41-1.41 2.83 2.83-1.41 1.41ZM5.22 21.19l-1.41-1.41 2.83-2.83 1.41 1.41-2.83 2.83Z"/>
+      </svg>
+    `;
+  }
+
+  function updateTheme() {
+    if (!controller.shadowRootRef) {
+      return;
+    }
+
+    const shell = controller.shadowRootRef.querySelector('.factotum-shell');
+    const themeButton = controller.shadowRootRef.getElementById('factotum-theme-toggle');
+    const themeIcon = controller.shadowRootRef.getElementById('factotum-theme-icon');
+    if (!shell || !themeButton || !themeIcon) {
+      return;
+    }
+
+    shell.dataset.theme = controller.theme;
+    const nextTheme = controller.theme === 'dark' ? 'light' : 'dark';
+    themeIcon.innerHTML = themeIconMarkup(controller.theme);
+    const label = nextTheme === 'light'
+      ? getMessage('overlayThemeLight', 'Switch overlay to light mode')
+      : getMessage('overlayThemeDark', 'Switch overlay to dark mode');
+    themeButton.title = label;
+    themeButton.setAttribute('aria-label', label);
   }
 
   function buildEntryElement(entry) {
@@ -354,6 +458,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     button.textContent = snapshot?.state === 'RUNNING'
       ? getMessage('overlayCancel', 'Cancel')
       : getMessage('overlayClose', 'Close');
+    updateTheme();
   }
 
   function teardownOverlay(invocationId) {

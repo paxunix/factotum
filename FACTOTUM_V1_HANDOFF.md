@@ -38,6 +38,8 @@ When user-facing behavior or author-facing APIs change, keep those audience guid
 
 The current checked-in implementation now uses a per-tab session console as the command-facing overlay surface: it is lazy-created on first use in a tab, hidden when dismissed rather than destroyed, reopenable via omnibox `f -`, preserved across navigation in the same tab, and discarded on tab close. Saved command outcomes, help, system notices, active invocation state, and `ctx.out.write/info/warn/error` output all render in the same append-only bubble stream. Terminal states do not auto-dismiss, the desktop console defaults to a wider presentation, and the scrollback region is vertically resizable.
 
+The bottom action bar includes a per-page-session light/dark theme toggle for the overlay itself. The default is dark; switching is immediate and is not persisted across page teardown or tab close.
+
 The main remaining follow-up in this area is implementation cleanup rather than a model change:
 
 - keep a clear generated-wrapper boundary immediately before `main(argv, ctx)` so the built-in `--debug` stop remains easy to preserve
