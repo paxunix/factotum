@@ -36,7 +36,7 @@ When user-facing behavior or author-facing APIs change, keep those audience guid
 
 ### Current design direction
 
-The current checked-in implementation now uses a per-tab session console as the command-facing overlay surface: it is lazy-created on first use in a tab, hidden when dismissed rather than destroyed, reopenable via omnibox `f -`, preserved across navigation in the same tab, and discarded on tab close. Saved command outcomes, help, system notices, active invocation state, and `ctx.out.write/info/warn/error` output all render in the same append-only bubble stream. Terminal states do not auto-dismiss, the desktop console defaults to a wider presentation, and the scrollback region is vertically resizable.
+The current checked-in implementation now uses a per-tab, per-document session console as the command-facing overlay surface: it is lazy-created on first use in a page session, hidden when dismissed rather than destroyed, reopenable via omnibox `f -` within that same page session, and discarded on top-level navigation or tab close. Saved command outcomes, help, system notices, active invocation state, and `ctx.out.write/info/warn/error` output all render in the same append-only bubble stream. Terminal states do not auto-dismiss, the desktop console defaults to a wider presentation, and the scrollback region is vertically resizable. Opening the console scrolls to the newest entries; subsequent writes keep auto-scrolling only when the user is already at the bottom, otherwise the current history-inspection position is preserved.
 
 The bottom action bar includes a per-page-session light/dark theme toggle for the overlay itself. The default is dark; switching is immediate and is not persisted across page teardown or tab close.
 
@@ -426,6 +426,8 @@ SW rejects RPC if:
 - `f -` reopens the hidden session console for the current tab without starting a command.
 - Hard execution errors still force the session console visible even when `showOverlay: false`.
 - The desktop console uses a wider default presentation and a vertically resizable scrollback region.
+- Reopening the session console scrolls to the newest entries.
+- When new output arrives while the user is already at the bottom of scrollback, the console stays pinned to the newest entries; if the user has scrolled upward, new output must not yank the scroll position to the end.
 
 ---
 

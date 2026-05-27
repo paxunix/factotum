@@ -27,9 +27,6 @@ M17. CodeMirror editors should support user-specific configuration of their opti
 OU2. Persist overlay theme preference beyond the current page session and decide whether that preference should be global or page-sensitive.
 OU3. Add an overlay opacity control in the bottom action area and persist the chosen opacity with the rest of the overlay preferences.
 
-### Session console redesign
-SC1. Auto-scroll the session console to the bottom after each new write only when the user is already at the bottom; if the scroll thumb is away from the end, preserve the user's scroll position so history inspection is not interrupted.
-
 ### Tooling / verification
 TV1. Once Chrome MCP is available, use it to automate more of the manual smoke path and reduce reliance on service worker console inspection.
 TV2. Do a focused conformance pass on storage/import/export edge cases to verify the current implementation still matches `FACTOTUM_V1_HANDOFF.md` after the manager and bundle UX iterations.

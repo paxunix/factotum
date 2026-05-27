@@ -342,6 +342,7 @@ async function sendControlMessage(tabId, message) {
       type: CONTROL_TYPE,
       ...message
     });
+    return true;
   } catch (error) {
     const text = String(error.message || error);
     if (
@@ -351,6 +352,7 @@ async function sendControlMessage(tabId, message) {
     ) {
       throw error;
     }
+    return false;
   }
 }
 
@@ -379,11 +381,15 @@ async function refreshSessionView(tabId, snapshot = null, forceVisible = false) 
   if (!session.visible) {
     return;
   }
-  await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
-  await sendControlMessage(tabId, {
+  const view = {
     op: 'SHOW_SESSION',
     ...buildSessionView(tabId, snapshot)
-  });
+  };
+  if (await sendControlMessage(tabId, view)) {
+    return;
+  }
+  await injectScript(tabId, 'overlay/overlay.js', 'ISOLATED');
+  await sendControlMessage(tabId, view);
 }
 
 async function injectScript(tabId, file, world = 'ISOLATED') {
@@ -1390,13 +1396,9 @@ async function handleBusyTab(tabId, message = '') {
   await refreshSessionView(tabId, session.snapshot || null, true);
 }
 
-async function finalizeInvocationSuccess(invocation, result) {
-  const current = getInvocationById(invocation.invocationId);
-  if (!current) {
-    return { ok: false, code: 'INVALID_INVOCATION', message: 'Invocation ended unexpectedly.' };
-  }
-
-  if (current.canceled) {
+async function finalizeCanceledInvocation(current, { removeMarkers = true } = {}) {
+  const discardedSessionCancel = current.cancelReason === 'NAVIGATED' || current.cancelReason === 'TAB_CLOSED';
+  if (!discardedSessionCancel) {
     try {
       await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', '');
     } catch {}
@@ -1407,10 +1409,29 @@ async function finalizeInvocationSuccess(invocation, result) {
       message: '',
       html: ''
     });
+  }
+
+  releaseTabBusy(current.invocationId);
+  if (removeMarkers) {
     await removeInvocationMarkers(current.tabId, current.invocationId);
-    clearInvocation(current.invocationId);
+  }
+  clearInvocation(current.invocationId);
+
+  if (!discardedSessionCancel) {
     await showHistoryOnly(current.tabId, shouldAutoShowOverlay(current.command));
-    return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
+  }
+
+  return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
+}
+
+async function finalizeInvocationSuccess(invocation, result) {
+  const current = getInvocationById(invocation.invocationId);
+  if (!current) {
+    return { ok: false, code: 'INVALID_INVOCATION', message: 'Invocation ended unexpectedly.' };
+  }
+
+  if (current.canceled) {
+    return finalizeCanceledInvocation(current);
   }
 
   finishInvocation(current.invocationId, 'DONE', { result });
@@ -1438,22 +1459,7 @@ async function finalizeInvocationHelp(invocation, removeMarkers = false) {
   }
 
   if (current.canceled) {
-    try {
-      await setOverlayStatus(current.tabId, current.invocationId, 'CANCELED', '');
-    } catch {}
-    appendSnapshotEntry(current.tabId, {
-      invocationId: current.invocationId,
-      commandRef: `${current.command.name}@${current.command.id}`,
-      state: 'CANCELED',
-      message: '',
-      html: ''
-    });
-    if (removeMarkers) {
-      await removeInvocationMarkers(current.tabId, current.invocationId);
-    }
-    clearInvocation(current.invocationId);
-    await showHistoryOnly(current.tabId, shouldAutoShowOverlay(current.command));
-    return { ok: false, code: 'CANCELED', message: getMessage('overlayCanceled', 'Canceled.') };
+    return finalizeCanceledInvocation(current, { removeMarkers });
   }
 
   finishInvocation(current.invocationId, 'HELP');
@@ -1741,7 +1747,7 @@ export async function cancelForTabClose(tabId) {
     return;
   }
 
-  cancelInvocation(invocation.invocationId, 'CANCELED');
+  cancelInvocation(invocation.invocationId, 'TAB_CLOSED');
   releaseTabBusy(invocation.invocationId);
   await signalInvocationCancel(invocation.tabId, invocation.invocationId);
   settleCompletionWaiter(invocation.invocationId, {
@@ -1753,13 +1759,15 @@ export async function cancelForTabClose(tabId) {
 export async function cancelForNavigation(tabId) {
   const invocation = getInvocationByTabId(tabId);
   if (!invocation) {
+    discardSession(tabId);
     return;
   }
 
-  cancelInvocation(invocation.invocationId, 'CANCELED');
+  cancelInvocation(invocation.invocationId, 'NAVIGATED');
   releaseTabBusy(invocation.invocationId);
   await signalInvocationCancel(invocation.tabId, invocation.invocationId);
   settleCompletionWaiter(invocation.invocationId, {
     canceled: true
   });
+  discardSession(tabId);
 }

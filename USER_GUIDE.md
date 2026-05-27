@@ -60,6 +60,8 @@ Commands can also be configured so the overlay does not auto-show during normal 
 On desktop:
 - the console opens wider than the original narrow card layout
 - the scrollback region can be resized vertically
+- opening or reopening the console jumps to the newest entries
+- if you scroll up to inspect history, new output does not force you back to the bottom; auto-scroll resumes once you are already back at the end
 
 It does not survive tab close.
 
@@ -94,6 +96,8 @@ If DevTools is open for the page context, Factotum inserts a `debugger;` stop im
 For long-running commands:
 - click `Cancel` in the session console
 - navigation and tab close also cancel the running command
+
+The session console is scoped to the current page session in a tab. Dismissing it only hides it, and `f -` reopens it while you remain on the same page. A top-level navigation starts a fresh page session and clears the prior session console history.
 
 If you try to run another command in the same tab while one is already running:
 - Factotum keeps the original command running

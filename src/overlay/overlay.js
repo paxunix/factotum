@@ -265,6 +265,33 @@ function getMessage(key, fallback) {
   return chrome.i18n.getMessage(key) || fallback;
 }
 
+function getScrollDistanceFromBottom(element) {
+  return Math.max(0, element.scrollHeight - element.clientHeight - element.scrollTop);
+}
+
+function isScrolledToBottom(element, threshold = 4) {
+  return getScrollDistanceFromBottom(element) <= threshold;
+}
+
+function entriesMatch(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function isAppendOnlyUpdate(previousEntries, nextEntries) {
+  if (!Array.isArray(previousEntries) || !Array.isArray(nextEntries)) {
+    return false;
+  }
+  if (previousEntries.length > nextEntries.length) {
+    return false;
+  }
+  for (let index = 0; index < previousEntries.length; index += 1) {
+    if (!entriesMatch(previousEntries[index], nextEntries[index])) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function buildIconSvgElement(name) {
   const iconData = fontAwesomeIcons[name];
   if (!iconData) {
@@ -310,11 +337,59 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     currentInvocationId: null,
     dismissible: false,
     entries: [],
-    theme: 'dark'
+    theme: 'dark',
+    historyPinnedToBottom: true
   };
+
+  function bindOverlayControls() {
+    controller.shadowRootRef.getElementById('factotum-cancel').textContent = getMessage('overlayCancel', 'Cancel');
+    controller.shadowRootRef.getElementById('factotum-cancel').addEventListener('click', () => {
+      if (!controller.currentInvocationId && !controller.dismissible) {
+        return;
+      }
+      chrome.runtime.sendMessage(
+        controller.dismissible
+          ? {
+              type: CONTROL_TYPE,
+              op: 'DISMISS_REQUEST',
+              invocationId: controller.currentInvocationId || null
+            }
+          : {
+              type: CONTROL_TYPE,
+              op: 'CANCEL_REQUEST',
+              invocationId: controller.currentInvocationId
+            }
+      );
+
+      if (controller.dismissible) {
+        teardownController(controller);
+      }
+    });
+
+    controller.shadowRootRef.getElementById('factotum-theme-toggle').addEventListener('click', () => {
+      controller.theme = controller.theme === 'dark' ? 'light' : 'dark';
+      updateTheme();
+    });
+  }
 
   function ensureOverlay() {
     if (controller.overlayRoot) {
+      return controller.overlayRoot;
+    }
+
+    const existingRoot = document.getElementById('factotum-overlay-root');
+    if (existingRoot?.shadowRoot) {
+      controller.overlayRoot = existingRoot;
+      controller.shadowRootRef = existingRoot.shadowRoot;
+      const shell = controller.shadowRootRef.querySelector('.factotum-shell');
+      const history = controller.shadowRootRef.getElementById('factotum-history');
+      if (shell?.dataset.theme === 'light') {
+        controller.theme = 'light';
+      }
+      if (history && !history.hidden) {
+        controller.historyPinnedToBottom = isScrolledToBottom(history);
+      }
+      bindOverlayControls();
       return controller.overlayRoot;
     }
 
@@ -332,6 +407,9 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     history.className = 'factotum-history';
     history.id = 'factotum-history';
     history.hidden = true;
+    history.addEventListener('scroll', () => {
+      controller.historyPinnedToBottom = isScrolledToBottom(history);
+    });
 
     const current = document.createElement('div');
     current.className = 'factotum-current';
@@ -374,35 +452,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
 
     controller.shadowRootRef.append(style, shell);
     document.documentElement.append(controller.overlayRoot);
-
-    controller.shadowRootRef.getElementById('factotum-cancel').textContent = getMessage('overlayCancel', 'Cancel');
-    controller.shadowRootRef.getElementById('factotum-cancel').addEventListener('click', () => {
-      if (!controller.currentInvocationId && !controller.dismissible) {
-        return;
-      }
-      chrome.runtime.sendMessage(
-        controller.dismissible
-          ? {
-              type: CONTROL_TYPE,
-              op: 'DISMISS_REQUEST',
-              invocationId: controller.currentInvocationId || null
-            }
-          : {
-              type: CONTROL_TYPE,
-              op: 'CANCEL_REQUEST',
-              invocationId: controller.currentInvocationId
-            }
-      );
-
-      if (controller.dismissible) {
-        teardownController(controller);
-      }
-    });
-
-    controller.shadowRootRef.getElementById('factotum-theme-toggle').addEventListener('click', () => {
-      controller.theme = controller.theme === 'dark' ? 'light' : 'dark';
-      updateTheme();
-    });
+    bindOverlayControls();
 
     return controller.overlayRoot;
   }
@@ -477,9 +527,13 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
   }
 
   function renderSession({ entries = [], snapshot = null, emptyMessage = '' }) {
+    const hadOverlay = Boolean(controller.overlayRoot);
     ensureOverlay();
 
-    controller.entries = Array.isArray(entries) ? entries : [];
+    const nextEntries = Array.isArray(entries) ? entries : [];
+    const previousEntries = controller.entries;
+    const canAppendHistory = hadOverlay && isAppendOnlyUpdate(previousEntries, nextEntries);
+    controller.entries = nextEntries;
     controller.currentInvocationId = snapshot?.invocationId || null;
     controller.dismissible = snapshot?.dismissible !== false;
 
@@ -487,11 +541,22 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     const currentRoot = controller.shadowRootRef.getElementById('factotum-current');
     const emptyRoot = controller.shadowRootRef.getElementById('factotum-empty');
     const button = controller.shadowRootRef.getElementById('factotum-cancel');
+    const shouldScrollOnOpen = !hadOverlay;
+    if (shouldScrollOnOpen) {
+      controller.historyPinnedToBottom = true;
+    }
 
-    historyRoot.replaceChildren();
-    historyRoot.hidden = controller.entries.length === 0;
-    for (const entry of controller.entries) {
-      historyRoot.append(buildEntryElement(entry));
+    if (!canAppendHistory) {
+      historyRoot.replaceChildren();
+      historyRoot.hidden = controller.entries.length === 0;
+      for (const entry of controller.entries) {
+        historyRoot.append(buildEntryElement(entry));
+      }
+    } else {
+      historyRoot.hidden = controller.entries.length === 0;
+      for (let index = previousEntries.length; index < controller.entries.length; index += 1) {
+        historyRoot.append(buildEntryElement(controller.entries[index]));
+      }
     }
 
     currentRoot.replaceChildren();
@@ -510,6 +575,12 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       ? getMessage('overlayCancel', 'Cancel')
       : getMessage('overlayClose', 'Close');
     updateTheme();
+
+    if (!historyRoot.hidden) {
+      if (shouldScrollOnOpen || controller.historyPinnedToBottom) {
+        historyRoot.scrollTop = historyRoot.scrollHeight;
+      }
+    }
   }
 
   function teardownOverlay(invocationId) {
@@ -539,15 +610,8 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     return undefined;
   });
 
-  // Clear overlay on page lifecycle transitions so stale UI does not survive BFCache/history restores.
+  // Clear overlay when the current document is being torn down.
   window.addEventListener('pagehide', () => {
-    if (controller.dismissible && controller.currentInvocationId) {
-      chrome.runtime.sendMessage({
-        type: CONTROL_TYPE,
-        op: 'DISMISS_REQUEST',
-        invocationId: controller.currentInvocationId
-      }).catch(() => {});
-    }
     teardownController(controller);
   });
 

@@ -428,9 +428,9 @@ Each test lists: **Setup → Action → Expected**.
 * Expected:
 
   * Invocation cancels
-  * Overlay shows Canceled (navigation)
   * RPC rejects with `CANCELED`
   * Busy state cleared (can run another command)
+  * The prior page session console is discarded on the new page
 
 #### T10: Hash change does NOT cancel (v1 recommended behavior)
 
@@ -591,6 +591,21 @@ Each test lists: **Setup → Action → Expected**.
   * Scrollback region resizes vertically
   * Resizing does not break bubble rendering or controls
 
+#### T22b: Session console auto-scroll respects user position
+
+* Setup: create enough session output to make the scrollback overflow, then reopen it with `f -`
+* Action:
+
+  1. confirm the console opens at the newest entries
+  2. scroll upward away from the bottom
+  3. trigger additional command-visible output in the same tab
+  4. scroll back to the bottom and trigger more output
+* Expected:
+
+  * Reopening the console starts at the newest entries.
+  * While scrolled upward, new output does not yank the scroll position to the end.
+  * Once returned to the bottom, subsequent output keeps the console pinned to the newest entries.
+
 #### T23: Session scrollback is per-tab and discarded on tab close
 
 * Setup: create visible scrollback in two different tabs
@@ -599,6 +614,15 @@ Each test lists: **Setup → Action → Expected**.
 
   * The closed tab’s scrollback is gone
   * The other tab’s session scrollback remains unaffected
+
+#### T23b: Session scrollback is per-page-session and discarded on navigation
+
+* Setup: create visible scrollback in a tab, then reopen it with `f -`
+* Action: navigate that tab to a new URL (not hash-only), then run `f -`
+* Expected:
+
+  * The prior page session scrollback is gone
+  * The new page starts with the idle empty-session message
 
 #### T24: Retention cap 1000 drops oldest
 
