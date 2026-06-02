@@ -38,6 +38,12 @@ who gave you a free gun full of free bullets.**
 
 ## Development
 
+### Install dependencies
+
+```bash
+npm install
+```
+
 ### Build
 
 ```bash
@@ -61,6 +67,7 @@ root, ready to load in Chrome.
 3. Click "Load unpacked".
 4. Select the `dist/` directory from this repo, or the extracted
    `factotum-<version>/` directory from `release/factotum-<version>.tar.gz`.
+5. Enable "Allow User Scripts".
 
 ## Notes
 
