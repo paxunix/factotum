@@ -19,6 +19,7 @@ import {
   setSessionSnapshot,
   setSessionVisibility
 } from './sessions.js';
+import { isInjectableUrl } from './injectability.js';
 import { escapeHtml } from '../shared/html.js';
 
 const CONTROL_TYPE = 'fcmd_control';
@@ -316,10 +317,6 @@ async function handleRpcRequest(message, sender) {
     ok: true,
     result
   };
-}
-
-function isInjectableUrl(url) {
-  return typeof url === 'string' && /^(https?|file):/i.test(url);
 }
 
 async function isUserScriptsAvailable() {

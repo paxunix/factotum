@@ -9,6 +9,10 @@ const MATCH_KIND_ORDER = {
   'prefix-alias': 3
 };
 
+function getMessage(key, substitutions, fallback) {
+  return chrome.i18n.getMessage(key, substitutions) || fallback;
+}
+
 function normalizeShellQuoteTokens(parsedTokens) {
   const tokens = [];
 
@@ -197,5 +201,5 @@ export function resolveCommand(indexCommands, aliases, input) {
 }
 
 export function formatNoSuchCommandSuggestion(text) {
-  return `No such command: ${text}`;
+  return getMessage('omniboxNoSuchCommand', [text], `No such command: ${text}`);
 }

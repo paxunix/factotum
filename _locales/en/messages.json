@@ -438,6 +438,43 @@
     "message": "Cannot run on this page.",
     "description": "Overlay error message for non-injectable pages"
   },
+  "omniboxResolutionQualified": {
+    "message": "selected",
+    "description": "Omnibox suggestion label for an explicitly selected command identity"
+  },
+  "omniboxResolutionExactName": {
+    "message": "name",
+    "description": "Omnibox suggestion label for an exact command-name match"
+  },
+  "omniboxResolutionExactAlias": {
+    "message": "alias",
+    "description": "Omnibox suggestion label for an exact alias match"
+  },
+  "omniboxResolutionPrefixName": {
+    "message": "name prefix",
+    "description": "Omnibox suggestion label for a command-name prefix match"
+  },
+  "omniboxResolutionPrefixAlias": {
+    "message": "alias prefix",
+    "description": "Omnibox suggestion label for an alias prefix match"
+  },
+  "omniboxResolutionMatch": {
+    "message": "match",
+    "description": "Omnibox suggestion fallback label for an unspecified match kind"
+  },
+  "omniboxHelpPreview": {
+    "message": "help preview",
+    "description": "Omnibox suggestion label for the help-preview entry"
+  },
+  "omniboxNoSuchCommand": {
+    "message": "No such command: $TEXT$",
+    "description": "Omnibox suggestion shown when no command matches the typed input",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
+  },
   "overlayUserScriptsUnavailable": {
     "message": "User Scripts is not enabled for this extension.",
     "description": "Overlay error message when the userScripts API is unavailable"

@@ -332,6 +332,7 @@ Each test lists: **Setup → Action → Expected**.
 * Action: `f ok`
 * Expected:
 
+  * Matching omnibox suggestions warn that the command cannot run on the current page
   * Command does not run
   * Hard error: “Cannot run on this page”
   * Log contains `CANNOT_INJECT`

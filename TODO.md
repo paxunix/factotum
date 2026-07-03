@@ -14,7 +14,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 
 ### Omnibox / UX
 O3. Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
-O4. If a command would require injection into the current tab and the tab is non-injectable (for example `chrome://`), consider surfacing that directly in omnibox suggestions instead of waiting for execution-time failure; this likely needs command metadata indicating whether injection is required.
 
 ### Manager / editor UX
 M3. Add help-template preview. Preferred direction: render preview through the same overlay UI used by command help, overlaying on the manager page and dismissible by the user.

@@ -284,6 +284,7 @@ If authors provide localized `description` for options, those should be used whe
   - localized command description text
   - additional command-name and alias-prefix matches beyond the default first suggestion
   - a `--help` suggestion for a resolved command
+- When the active tab is non-injectable, executable suggestions should say so directly in their description instead of waiting for the user to discover it only at execution time. This is an early warning only; pressing Enter still follows the normal execution path and fails with the existing hard error.
 - Prefix suggestions participate directly in execution semantics through the default selected suggestion.
 - No fuzzy matching, typo correction, or semantic alternates in v1.
 - Disabled commands are omitted from suggestions and invocation.

@@ -11,6 +11,7 @@ Current interaction model:
 - command output appears in the per-tab session console overlay
 - `f -` reopens the current tab's hidden session console
 - typing a name or alias prefix shows matching commands in the omnibox, and Enter runs the first suggestion by default
+- on non-injectable pages such as `chrome://...`, matching omnibox suggestions warn that the command cannot run on the current page before you press Enter
 
 ## Basic usage
 
