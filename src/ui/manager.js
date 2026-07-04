@@ -1146,13 +1146,20 @@ function getRequiresRowsSnapshot() {
   }));
 }
 
+function requireRowHasMeaningfulContent(row) {
+  const url = row.url.trim();
+  const kind = row.kind.trim();
+  const world = row.world.trim();
+  return Boolean(url || kind || (world && world !== 'main'));
+}
+
 function validateRequireRows(rows) {
   const issues = new Map();
   rows.forEach((row, index) => {
     const url = row.url.trim();
     const kind = row.kind.trim();
     const world = row.world.trim();
-    const populated = Boolean(url || kind || world);
+    const populated = requireRowHasMeaningfulContent(row);
     if (!populated) {
       return;
     }
@@ -1313,7 +1320,7 @@ function readEditedRequires() {
       kind: row.kind.trim(),
       world: row.world.trim()
     }))
-    .filter((row) => row.url || row.kind || row.world)
+    .filter((row) => requireRowHasMeaningfulContent(row))
     .map((row) => ({
       url: row.url,
       kind: row.kind,
