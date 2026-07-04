@@ -308,7 +308,7 @@
     "description": "Manager command editor aliases field label"
   },
   "managerEditorShowOverlay": {
-    "message": "Show overlay by default",
+    "message": "Automatically show overlay",
     "description": "Manager command editor overlay visibility preference field label"
   },
   "managerEditorCode": {

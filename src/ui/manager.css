@@ -556,6 +556,11 @@ button.command-status:focus-visible {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.editor-identity-toggle {
+  align-items: center;
+  display: flex;
+}
+
 .editor-actions {
   display: flex;
   flex: 0 0 auto;
