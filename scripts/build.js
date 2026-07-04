@@ -111,6 +111,7 @@ function writeGeneratedFontAwesomeIcons() {
     faArrowUpZA,
     faArrowUp,
     faMoon,
+    faPlus,
     faSun,
     faTrash
   } = require('@fortawesome/free-solid-svg-icons');
@@ -125,6 +126,7 @@ function writeGeneratedFontAwesomeIcons() {
     arrowUpAZ: faArrowUpAZ,
     arrowUpZA: faArrowUpZA,
     moon: faMoon,
+    plus: faPlus,
     sun: faSun,
     trash: faTrash
   };

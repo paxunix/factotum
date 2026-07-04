@@ -96,7 +96,14 @@ const editorDuplicateIdentityLabel = getMessage('managerEditorDuplicateIdentity'
 const editorNameLabel = getMessage('managerEditorName', 'Name');
 const editorIdLabel = getMessage('managerEditorId', 'ID');
 const editorVersionLabel = getMessage('managerEditorVersion', 'Version');
-const editorDescriptionLabel = getMessage('managerEditorDescription', 'Description JSON');
+const editorDescriptionLabel = getMessage('managerEditorDescription', 'Descriptions');
+const editorDescriptionAddLabel = getMessage('managerEditorDescriptionAdd', 'Add locale description');
+const editorDescriptionLocaleLabel = getMessage('managerEditorDescriptionLocale', 'Locale');
+const editorDescriptionLocalePlaceholder = getMessage('managerEditorDescriptionLocalePlaceholder', 'en-US');
+const editorDescriptionValueLabel = getMessage('managerEditorDescriptionValue', 'Description');
+const editorDescriptionDeleteLabel = getMessage('managerEditorDescriptionDelete', 'Delete locale description');
+const editorDescriptionLocaleRequiredLabel = getMessage('managerEditorDescriptionLocaleRequired', 'Locale is required when description text is present.');
+const editorDescriptionDuplicateLocaleLabel = getMessage('managerEditorDescriptionDuplicateLocale', 'Locale is duplicated.');
 const editorAliasesLabel = getMessage('managerEditorAliases', 'Aliases');
 const editorShowOverlayLabel = getMessage('managerEditorShowOverlay', 'Show overlay by default');
 const editorCodeLabel = getMessage('managerEditorCode', 'Code');
@@ -186,11 +193,15 @@ const editorForm = document.getElementById('command-editor');
 const editorEmpty = document.getElementById('command-editor-empty');
 const editorStatus = document.getElementById('editor-status');
 const editorCommandExport = document.getElementById('editor-command-export');
+const descriptionEditor = {
+  label: document.getElementById('editor-description-label'),
+  addButton: document.getElementById('editor-description-add'),
+  rows: document.getElementById('editor-description-rows')
+};
 const editorFields = {
   name: document.getElementById('editor-name'),
   id: document.getElementById('editor-id'),
   version: document.getElementById('editor-version'),
-  description: document.getElementById('editor-description'),
   aliases: document.getElementById('editor-aliases'),
   showOverlay: document.getElementById('editor-show-overlay'),
   code: document.getElementById('editor-code'),
@@ -221,13 +232,16 @@ commandSort.label = commandSortLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
 editorFields.version.label = editorVersionLabel;
-editorFields.description.label = editorDescriptionLabel;
+descriptionEditor.label.textContent = editorDescriptionLabel;
 editorFields.aliases.label = editorAliasesLabel;
 editorFields.showOverlay.textContent = editorShowOverlayLabel;
 editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
 editorFields.requires.label = editorRequiresLabel;
 editorCommandExport.label = editorCommandExportLabel;
+descriptionEditor.addButton.append(createIcon('plus'));
+descriptionEditor.addButton.setAttribute('aria-label', editorDescriptionAddLabel);
+descriptionEditor.addButton.title = editorDescriptionAddLabel;
 
 function createCodeMirrorState(doc, languageExtension) {
   return EditorState.create({
@@ -548,6 +562,188 @@ function parseOptionalJson(label, value) {
   }
 }
 
+function buildLocalizedRows(value) {
+  const entries = value && typeof value === 'object' && !Array.isArray(value)
+    ? Object.entries(value).filter(([, text]) => typeof text === 'string')
+    : [];
+  if (entries.length === 0) {
+    return [{ locale: '', value: '' }];
+  }
+  return entries.map(([locale, text]) => ({
+    locale: String(locale),
+    value: String(text)
+  }));
+}
+
+function getDescriptionRowsSnapshot() {
+  return [...descriptionEditor.rows.querySelectorAll('.localized-row')].map((row) => ({
+    locale: row.querySelector('.localized-row-locale')?.value || '',
+    value: row.querySelector('.localized-row-value')?.value || ''
+  }));
+}
+
+function validateDescriptionRows(rows) {
+  const issues = new Map();
+  const seen = new Map();
+
+  rows.forEach((row, index) => {
+    const locale = row.locale.trim();
+    const hasText = row.value !== '';
+    if (!locale && !hasText) {
+      return;
+    }
+    if (!locale) {
+      issues.set(index, editorDescriptionLocaleRequiredLabel);
+      return;
+    }
+    const key = locale.toLowerCase();
+    if (seen.has(key)) {
+      issues.set(index, editorDescriptionDuplicateLocaleLabel);
+      issues.set(seen.get(key), editorDescriptionDuplicateLocaleLabel);
+      return;
+    }
+    seen.set(key, index);
+  });
+
+  return issues;
+}
+
+function renderDescriptionRowIssue(row, message = '') {
+  row.dataset.invalid = message ? 'true' : 'false';
+  const issue = row.querySelector('.localized-row-error');
+  if (issue) {
+    issue.textContent = message;
+    issue.hidden = !message;
+  }
+}
+
+function syncDescriptionValidation() {
+  const rows = getDescriptionRowsSnapshot();
+  const issues = validateDescriptionRows(rows);
+  [...descriptionEditor.rows.querySelectorAll('.localized-row')].forEach((row, index) => {
+    renderDescriptionRowIssue(row, issues.get(index) || '');
+  });
+  return issues;
+}
+
+function ensureDescriptionRowPresence() {
+  if (descriptionEditor.rows.childElementCount > 0) {
+    return;
+  }
+  addDescriptionRow();
+}
+
+function handleDescriptionEditorChange() {
+  syncDescriptionValidation();
+  updateEditorDirtyState();
+}
+
+function addDescriptionRow(initial = { locale: '', value: '' }, options = {}) {
+  const row = document.createElement('div');
+  row.className = 'localized-row';
+  row.dataset.invalid = 'false';
+
+  const header = document.createElement('div');
+  header.className = 'localized-row-header';
+
+  const localeField = document.createElement('div');
+  localeField.className = 'localized-row-locale-field';
+
+  const localeLabel = document.createElement('div');
+  localeLabel.className = 'editor-field-label localized-row-field-label';
+  localeLabel.textContent = editorDescriptionLocaleLabel;
+
+  const localeInput = document.createElement('wa-input');
+  localeInput.className = 'localized-row-locale';
+  localeInput.placeholder = editorDescriptionLocalePlaceholder;
+  localeInput.size = 'small';
+  localeInput.value = initial.locale || '';
+
+  const deleteButton = document.createElement('wa-button');
+  deleteButton.className = 'icon-button localized-row-delete';
+  deleteButton.variant = 'neutral';
+  deleteButton.appearance = 'filled-outlined';
+  deleteButton.size = 'small';
+  deleteButton.type = 'button';
+  deleteButton.append(createIcon('trash'));
+  deleteButton.setAttribute('aria-label', editorDescriptionDeleteLabel);
+  deleteButton.title = editorDescriptionDeleteLabel;
+
+  const valueInput = document.createElement('wa-textarea');
+  valueInput.className = 'localized-row-value editor-textarea-small';
+  valueInput.label = editorDescriptionValueLabel;
+  valueInput.resize = 'auto';
+  valueInput.spellcheck = false;
+  valueInput.value = initial.value || '';
+
+  const issue = document.createElement('div');
+  issue.className = 'localized-row-error';
+  issue.hidden = true;
+
+  const onChange = () => {
+    handleDescriptionEditorChange();
+  };
+
+  localeInput.addEventListener('input', onChange);
+  localeInput.addEventListener('change', onChange);
+  valueInput.addEventListener('input', onChange);
+  valueInput.addEventListener('change', onChange);
+  deleteButton.addEventListener('click', () => {
+    if (descriptionEditor.rows.childElementCount === 1) {
+      localeInput.value = '';
+      valueInput.value = '';
+      handleDescriptionEditorChange();
+      focusField(localeInput);
+      return;
+    }
+    row.remove();
+    ensureDescriptionRowPresence();
+    handleDescriptionEditorChange();
+    const nextLocale = descriptionEditor.rows.querySelector('.localized-row-locale');
+    focusField(nextLocale);
+  });
+
+  localeField.append(localeLabel, localeInput);
+  header.append(localeField, deleteButton);
+  row.append(header, valueInput, issue);
+  descriptionEditor.rows.append(row);
+  syncDescriptionValidation();
+
+  if (options.focus) {
+    focusField(localeInput);
+  }
+
+  return row;
+}
+
+function populateDescriptionEditor(value) {
+  descriptionEditor.rows.replaceChildren();
+  for (const row of buildLocalizedRows(value)) {
+    addDescriptionRow(row);
+  }
+  ensureDescriptionRowPresence();
+  syncDescriptionValidation();
+}
+
+function readEditedDescription() {
+  const rows = getDescriptionRowsSnapshot();
+  const issues = validateDescriptionRows(rows);
+  if (issues.size > 0) {
+    throw new Error(`${editorDescriptionLabel}: ${[...new Set(issues.values())].join(' ')}`);
+  }
+
+  const description = {};
+  for (const row of rows) {
+    const locale = row.locale.trim();
+    if (!locale) {
+      continue;
+    }
+    description[locale] = row.value;
+  }
+
+  return Object.keys(description).length > 0 ? description : undefined;
+}
+
 function setEditorVisible(visible) {
   editorForm.hidden = !visible;
   editorEmpty.hidden = visible;
@@ -571,7 +767,7 @@ function getEditorSnapshot() {
     name: editorFields.name.value,
     id: editorFields.id.value,
     version: editorFields.version.value,
-    description: editorFields.description.value,
+    description: JSON.stringify(getDescriptionRowsSnapshot()),
     aliases: editorFields.aliases.value,
     showOverlay: editorFields.showOverlay.checked,
     code: codeEditor.state.doc.toString(),
@@ -654,7 +850,7 @@ function focusEditorSection(sectionName) {
         focusField(editorFields.name);
         break;
       case 'editor-section-description':
-        focusField(editorFields.description);
+        focusField(descriptionEditor.rows.querySelector('.localized-row-locale'));
         break;
       case 'editor-section-help':
         focusCodeMirrorEditor(helpTemplateEditor);
@@ -786,7 +982,7 @@ function populateEditor(command, options = {}) {
   editorFields.name.value = command.name;
   editorFields.id.value = command.id;
   editorFields.version.value = command.version || '1';
-  editorFields.description.value = stringifyJson(command.description, '{\n  "en-US": ""\n}');
+  populateDescriptionEditor(command.description);
   editorFields.aliases.value = aliasesForCommand(command).join(' ');
   editorFields.showOverlay.checked = command.showOverlay !== false;
   setCodeMirrorValue(codeEditor, command.code, codeLanguage);
@@ -855,7 +1051,7 @@ function readEditedCommand() {
     updatedAt: Date.now()
   };
 
-  const description = parseOptionalJson(editorDescriptionLabel, editorFields.description.value);
+  const description = readEditedDescription();
   if (description == null) {
     delete next.description;
   } else {
@@ -1765,6 +1961,11 @@ editorResetButton.addEventListener('click', () => {
     console.error('[factotum] reset command editor failed', error);
     setEditorStatus('error', error.message || String(error));
   });
+});
+
+descriptionEditor.addButton.addEventListener('click', () => {
+  addDescriptionRow({ locale: '', value: '' }, { focus: true });
+  handleDescriptionEditorChange();
 });
 
 loadCommands()

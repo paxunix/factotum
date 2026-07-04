@@ -272,8 +272,36 @@
     "description": "Manager command editor version field label"
   },
   "managerEditorDescription": {
-    "message": "Description JSON",
-    "description": "Manager command editor description JSON field label"
+    "message": "Descriptions",
+    "description": "Manager command editor structured descriptions field label"
+  },
+  "managerEditorDescriptionAdd": {
+    "message": "Add locale description",
+    "description": "Manager command editor button label for adding another localized description row"
+  },
+  "managerEditorDescriptionLocale": {
+    "message": "Locale",
+    "description": "Manager command editor locale field label for a localized description row"
+  },
+  "managerEditorDescriptionLocalePlaceholder": {
+    "message": "en-US",
+    "description": "Manager command editor locale field placeholder for a localized description row"
+  },
+  "managerEditorDescriptionValue": {
+    "message": "Description",
+    "description": "Manager command editor value field label for a localized description row"
+  },
+  "managerEditorDescriptionDelete": {
+    "message": "Delete locale description",
+    "description": "Manager command editor button label for deleting a localized description row"
+  },
+  "managerEditorDescriptionLocaleRequired": {
+    "message": "Locale is required when description text is present.",
+    "description": "Manager command editor inline validation message when a localized description row has text but no locale"
+  },
+  "managerEditorDescriptionDuplicateLocale": {
+    "message": "Locale is duplicated.",
+    "description": "Manager command editor inline validation message when localized description rows reuse the same locale"
   },
   "managerEditorAliases": {
     "message": "Aliases",

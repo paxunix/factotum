@@ -75,7 +75,13 @@
                   </wa-tab-panel>
                   <wa-tab-panel name="editor-section-description">
                     <section class="editor-section-panel">
-                      <wa-textarea id="editor-description" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
+                      <div class="localized-editor">
+                        <div class="localized-editor-header">
+                          <div id="editor-description-label" class="editor-field-label"></div>
+                          <wa-button id="editor-description-add" class="icon-button localized-editor-add" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                        </div>
+                        <div class="localized-editor-rows" id="editor-description-rows"></div>
+                      </div>
                     </section>
                   </wa-tab-panel>
                   <wa-tab-panel name="editor-section-help">
