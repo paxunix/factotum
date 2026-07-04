@@ -17,8 +17,8 @@ O3. Decide whether omnibox suggestion descriptions should include localized text
 
 ### Manager / editor UX
 M3. Add help-template preview. Preferred direction: render preview through the same overlay UI used by command help, overlaying on the manager page and dismissible by the user.
-M4. Replace the remaining JSON textareas with friendlier structured editors over time for help strings and optionsSpec. For localized text editors beyond Description, prefer a locale selector plus add-locale flow over raw JSON editing.
-M5. Revisit the Help editor layout now that the help HTML template uses CodeMirror. Decide whether the template editor should expand, collapse, or sit beside the Help strings JSON editor.
+M4. Replace the remaining JSON textarea with a friendlier structured editor for optionsSpec.
+M5. Revisit the Help editor layout now that the help HTML template uses CodeMirror. Decide whether the template editor should expand, collapse, or sit beside the structured Help strings editor.
 M8. manager UX needs a separate tab to hold overall settings.
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
 ### Overlay UX

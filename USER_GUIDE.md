@@ -135,7 +135,7 @@ The current command editor supports both creating new commands and editing exist
 - localized descriptions as a stacked locale/description editor with add and delete controls
 - command code in the CodeMirror JavaScript editor, including standard editor affordances such as line numbers, folding, and bracket matching
 - help HTML template in the CodeMirror HTML editor, including standard editor affordances such as line numbers, folding, and bracket matching
-- help strings JSON
+- help strings as nested locale blocks with token/value rows
 - options spec JSON
 - requires as a stacked row editor with typed URL, kind, and world fields
 

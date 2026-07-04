@@ -320,8 +320,56 @@
     "description": "Manager command editor help template field label"
   },
   "managerEditorHelpStrings": {
-    "message": "Help strings JSON",
-    "description": "Manager command editor help strings JSON field label"
+    "message": "Help strings",
+    "description": "Manager command editor structured help strings field label"
+  },
+  "managerEditorHelpStringsAddLocale": {
+    "message": "Add locale block",
+    "description": "Manager command editor button label for adding another help-strings locale block"
+  },
+  "managerEditorHelpStringsLocale": {
+    "message": "Locale",
+    "description": "Manager command editor locale field label for a help-strings locale block"
+  },
+  "managerEditorHelpStringsLocalePlaceholder": {
+    "message": "en-US",
+    "description": "Manager command editor locale field placeholder for a help-strings locale block"
+  },
+  "managerEditorHelpStringsDeleteLocale": {
+    "message": "Delete locale block",
+    "description": "Manager command editor button label for deleting a help-strings locale block"
+  },
+  "managerEditorHelpStringsAddToken": {
+    "message": "Add token",
+    "description": "Manager command editor button label for adding another help-string token row"
+  },
+  "managerEditorHelpStringsToken": {
+    "message": "Token",
+    "description": "Manager command editor token field label for a help-strings row"
+  },
+  "managerEditorHelpStringsValue": {
+    "message": "Value",
+    "description": "Manager command editor value field label for a help-strings row"
+  },
+  "managerEditorHelpStringsDeleteToken": {
+    "message": "Delete token",
+    "description": "Manager command editor button label for deleting a help-strings token row"
+  },
+  "managerEditorHelpStringsLocaleRequired": {
+    "message": "Locale is required when token rows are populated.",
+    "description": "Manager command editor inline validation message when a help-strings locale block has populated token rows but no locale"
+  },
+  "managerEditorHelpStringsDuplicateLocale": {
+    "message": "Locale is duplicated.",
+    "description": "Manager command editor inline validation message when help-strings locale blocks reuse the same locale"
+  },
+  "managerEditorHelpStringsTokenRequired": {
+    "message": "Token is required when a help string value is present.",
+    "description": "Manager command editor inline validation message when a help-strings row has a value but no token"
+  },
+  "managerEditorHelpStringsDuplicateToken": {
+    "message": "Token is duplicated within this locale.",
+    "description": "Manager command editor inline validation message when a help-strings locale block reuses the same token key"
   },
   "managerEditorOptions": {
     "message": "Options spec JSON",

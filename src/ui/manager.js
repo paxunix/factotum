@@ -108,7 +108,19 @@ const editorAliasesLabel = getMessage('managerEditorAliases', 'Aliases');
 const editorShowOverlayLabel = getMessage('managerEditorShowOverlay', 'Automatically show overlay');
 const editorCodeLabel = getMessage('managerEditorCode', 'Code');
 const editorHelpTemplateLabel = getMessage('managerEditorHelpTemplate', 'Help HTML template');
-const editorHelpStringsLabel = getMessage('managerEditorHelpStrings', 'Help strings JSON');
+const editorHelpStringsLabel = getMessage('managerEditorHelpStrings', 'Help strings');
+const editorHelpStringsAddLocaleLabel = getMessage('managerEditorHelpStringsAddLocale', 'Add locale block');
+const editorHelpStringsLocaleLabel = getMessage('managerEditorHelpStringsLocale', 'Locale');
+const editorHelpStringsLocalePlaceholder = getMessage('managerEditorHelpStringsLocalePlaceholder', 'en-US');
+const editorHelpStringsDeleteLocaleLabel = getMessage('managerEditorHelpStringsDeleteLocale', 'Delete locale block');
+const editorHelpStringsAddTokenLabel = getMessage('managerEditorHelpStringsAddToken', 'Add token');
+const editorHelpStringsTokenLabel = getMessage('managerEditorHelpStringsToken', 'Token');
+const editorHelpStringsValueLabel = getMessage('managerEditorHelpStringsValue', 'Value');
+const editorHelpStringsDeleteTokenLabel = getMessage('managerEditorHelpStringsDeleteToken', 'Delete token');
+const editorHelpStringsLocaleRequiredLabel = getMessage('managerEditorHelpStringsLocaleRequired', 'Locale is required when token rows are populated.');
+const editorHelpStringsDuplicateLocaleLabel = getMessage('managerEditorHelpStringsDuplicateLocale', 'Locale is duplicated.');
+const editorHelpStringsTokenRequiredLabel = getMessage('managerEditorHelpStringsTokenRequired', 'Token is required when a help string value is present.');
+const editorHelpStringsDuplicateTokenLabel = getMessage('managerEditorHelpStringsDuplicateToken', 'Token is duplicated within this locale.');
 const editorOptionsLabel = getMessage('managerEditorOptions', 'Options spec JSON');
 const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires');
 const editorRequiresAddLabel = getMessage('managerEditorRequiresAdd', 'Add require');
@@ -210,6 +222,11 @@ const descriptionEditor = {
   addButton: document.getElementById('editor-description-add'),
   rows: document.getElementById('editor-description-rows')
 };
+const helpStringsEditor = {
+  label: document.getElementById('editor-help-strings-label'),
+  addButton: document.getElementById('editor-help-strings-add-locale'),
+  blocks: document.getElementById('editor-help-strings-blocks')
+};
 const requiresEditor = {
   label: document.getElementById('editor-requires-label'),
   addButton: document.getElementById('editor-requires-add'),
@@ -223,7 +240,6 @@ const editorFields = {
   showOverlay: document.getElementById('editor-show-overlay'),
   code: document.getElementById('editor-code'),
   helpHtmlTemplate: document.getElementById('editor-help-template'),
-  helpHtmlStrings: document.getElementById('editor-help-strings'),
   optionsSpec: document.getElementById('editor-options')
 };
 let selectedCommandRef = null;
@@ -251,13 +267,16 @@ editorFields.version.label = editorVersionLabel;
 descriptionEditor.label.textContent = editorDescriptionLabel;
 editorFields.aliases.label = editorAliasesLabel;
 editorFields.showOverlay.textContent = editorShowOverlayLabel;
-editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
+helpStringsEditor.label.textContent = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
 requiresEditor.label.textContent = editorRequiresLabel;
 editorCommandExport.label = editorCommandExportLabel;
 descriptionEditor.addButton.append(createIcon('plus'));
 descriptionEditor.addButton.setAttribute('aria-label', editorDescriptionAddLabel);
 descriptionEditor.addButton.title = editorDescriptionAddLabel;
+helpStringsEditor.addButton.append(createIcon('plus'));
+helpStringsEditor.addButton.setAttribute('aria-label', editorHelpStringsAddLocaleLabel);
+helpStringsEditor.addButton.title = editorHelpStringsAddLocaleLabel;
 requiresEditor.addButton.append(createIcon('plus'));
 requiresEditor.addButton.setAttribute('aria-label', editorRequiresAddLabel);
 requiresEditor.addButton.title = editorRequiresAddLabel;
@@ -763,6 +782,343 @@ function readEditedDescription() {
   return Object.keys(description).length > 0 ? description : undefined;
 }
 
+function buildHelpStringBlocks(value) {
+  const locales = value && typeof value === 'object' && !Array.isArray(value)
+    ? Object.entries(value)
+        .filter(([, tokens]) => tokens && typeof tokens === 'object' && !Array.isArray(tokens))
+        .map(([locale, tokens]) => ({
+          locale: String(locale),
+          rows: Object.entries(tokens)
+            .filter(([, text]) => typeof text === 'string')
+            .map(([token, text]) => ({ token: String(token), value: String(text) }))
+        }))
+    : [];
+  if (locales.length === 0) {
+    return [{ locale: '', rows: [{ token: '', value: '' }] }];
+  }
+  return locales.map((block) => ({
+    locale: block.locale,
+    rows: block.rows.length > 0 ? block.rows : [{ token: '', value: '' }]
+  }));
+}
+
+function getHelpStringsBlocksSnapshot() {
+  return [...helpStringsEditor.blocks.querySelectorAll('.help-strings-block')].map((block) => ({
+    locale: block.querySelector('.help-strings-block-locale')?.value || '',
+    rows: [...block.querySelectorAll('.help-strings-token-row')].map((row) => ({
+      token: row.querySelector('.help-strings-token-key')?.value || '',
+      value: row.querySelector('.help-strings-token-value')?.value || ''
+    }))
+  }));
+}
+
+function validateHelpStringsBlocks(blocks) {
+  const localeIssues = new Map();
+  const tokenIssues = new Map();
+  const seenLocales = new Map();
+
+  blocks.forEach((block, blockIndex) => {
+    const locale = block.locale.trim();
+    const hasPopulatedRows = block.rows.some((row) => row.token.trim() || row.value !== '');
+    if (!locale && !hasPopulatedRows) {
+      return;
+    }
+    if (!locale) {
+      localeIssues.set(blockIndex, editorHelpStringsLocaleRequiredLabel);
+      return;
+    }
+    const localeKey = locale.toLowerCase();
+    if (seenLocales.has(localeKey)) {
+      localeIssues.set(blockIndex, editorHelpStringsDuplicateLocaleLabel);
+      localeIssues.set(seenLocales.get(localeKey), editorHelpStringsDuplicateLocaleLabel);
+    } else {
+      seenLocales.set(localeKey, blockIndex);
+    }
+
+    const seenTokens = new Map();
+    block.rows.forEach((row, rowIndex) => {
+      const token = row.token.trim();
+      const hasValue = row.value !== '';
+      if (!token && !hasValue) {
+        return;
+      }
+      if (!token) {
+        tokenIssues.set(`${blockIndex}:${rowIndex}`, editorHelpStringsTokenRequiredLabel);
+        return;
+      }
+      const tokenKey = token.toLowerCase();
+      if (seenTokens.has(tokenKey)) {
+        tokenIssues.set(`${blockIndex}:${rowIndex}`, editorHelpStringsDuplicateTokenLabel);
+        tokenIssues.set(`${blockIndex}:${seenTokens.get(tokenKey)}`, editorHelpStringsDuplicateTokenLabel);
+      } else {
+        seenTokens.set(tokenKey, rowIndex);
+      }
+    });
+  });
+
+  return { localeIssues, tokenIssues };
+}
+
+function renderHelpStringsBlockIssue(block, message = '') {
+  block.dataset.invalid = message ? 'true' : 'false';
+  const issue = block.querySelector('.help-strings-block-error');
+  if (issue) {
+    issue.textContent = message;
+    issue.hidden = !message;
+  }
+}
+
+function renderHelpStringsTokenIssue(row, message = '') {
+  row.dataset.invalid = message ? 'true' : 'false';
+  const issue = row.querySelector('.help-strings-token-error');
+  if (issue) {
+    issue.textContent = message;
+    issue.hidden = !message;
+  }
+}
+
+function syncHelpStringsValidation() {
+  const blocks = getHelpStringsBlocksSnapshot();
+  const { localeIssues, tokenIssues } = validateHelpStringsBlocks(blocks);
+  [...helpStringsEditor.blocks.querySelectorAll('.help-strings-block')].forEach((block, blockIndex) => {
+    renderHelpStringsBlockIssue(block, localeIssues.get(blockIndex) || '');
+    [...block.querySelectorAll('.help-strings-token-row')].forEach((row, rowIndex) => {
+      renderHelpStringsTokenIssue(row, tokenIssues.get(`${blockIndex}:${rowIndex}`) || '');
+    });
+  });
+  return { localeIssues, tokenIssues };
+}
+
+function handleHelpStringsEditorChange() {
+  syncHelpStringsValidation();
+  updateEditorDirtyState();
+}
+
+function ensureHelpStringsTokenRowPresence(block) {
+  const rows = block.querySelector('.help-strings-token-rows');
+  if (rows.childElementCount > 0) {
+    return;
+  }
+  addHelpStringsTokenRow(block, { token: '', value: '' });
+}
+
+function ensureHelpStringsBlockPresence() {
+  if (helpStringsEditor.blocks.childElementCount > 0) {
+    return;
+  }
+  addHelpStringsBlock({ locale: '', rows: [{ token: '', value: '' }] });
+}
+
+function addHelpStringsTokenRow(block, initial = { token: '', value: '' }, options = {}) {
+  const rows = block.querySelector('.help-strings-token-rows');
+  const row = document.createElement('div');
+  row.className = 'help-strings-token-row';
+  row.dataset.invalid = 'false';
+
+  const grid = document.createElement('div');
+  grid.className = 'help-strings-token-grid';
+
+  const keyField = document.createElement('div');
+  keyField.className = 'help-strings-token-key-field';
+
+  const keyLabel = document.createElement('div');
+  keyLabel.className = 'editor-field-label help-strings-field-label';
+  keyLabel.textContent = editorHelpStringsTokenLabel;
+
+  const keyInput = document.createElement('wa-input');
+  keyInput.className = 'help-strings-token-key';
+  keyInput.size = 'small';
+  keyInput.value = initial.token || '';
+
+  const valueInput = document.createElement('wa-textarea');
+  valueInput.className = 'help-strings-token-value editor-textarea-small';
+  valueInput.label = editorHelpStringsValueLabel;
+  valueInput.resize = 'auto';
+  valueInput.spellcheck = false;
+  valueInput.value = initial.value || '';
+
+  const deleteButton = document.createElement('wa-button');
+  deleteButton.className = 'icon-button help-strings-token-delete';
+  deleteButton.variant = 'neutral';
+  deleteButton.appearance = 'filled-outlined';
+  deleteButton.size = 'small';
+  deleteButton.type = 'button';
+  deleteButton.append(createIcon('trash'));
+  deleteButton.setAttribute('aria-label', editorHelpStringsDeleteTokenLabel);
+  deleteButton.title = editorHelpStringsDeleteTokenLabel;
+
+  const issue = document.createElement('div');
+  issue.className = 'help-strings-token-error';
+  issue.hidden = true;
+
+  const onChange = () => {
+    handleHelpStringsEditorChange();
+  };
+
+  keyInput.addEventListener('input', onChange);
+  keyInput.addEventListener('change', onChange);
+  valueInput.addEventListener('input', onChange);
+  valueInput.addEventListener('change', onChange);
+
+  deleteButton.addEventListener('click', () => {
+    if (rows.childElementCount === 1) {
+      keyInput.value = '';
+      valueInput.value = '';
+      handleHelpStringsEditorChange();
+      focusField(keyInput);
+      return;
+    }
+    row.remove();
+    ensureHelpStringsTokenRowPresence(block);
+    handleHelpStringsEditorChange();
+    focusField(rows.querySelector('.help-strings-token-key'));
+  });
+
+  keyField.append(keyLabel, keyInput);
+  grid.append(keyField, valueInput);
+  row.append(grid, deleteButton, issue);
+  rows.append(row);
+
+  if (options.focus) {
+    focusField(keyInput);
+  }
+
+  return row;
+}
+
+function addHelpStringsBlock(initial = { locale: '', rows: [{ token: '', value: '' }] }, options = {}) {
+  const block = document.createElement('div');
+  block.className = 'help-strings-block';
+  block.dataset.invalid = 'false';
+
+  const header = document.createElement('div');
+  header.className = 'help-strings-block-header';
+
+  const localeField = document.createElement('div');
+  localeField.className = 'help-strings-block-locale-field';
+
+  const localeLabel = document.createElement('div');
+  localeLabel.className = 'editor-field-label help-strings-field-label';
+  localeLabel.textContent = editorHelpStringsLocaleLabel;
+
+  const localeInput = document.createElement('wa-input');
+  localeInput.className = 'help-strings-block-locale';
+  localeInput.placeholder = editorHelpStringsLocalePlaceholder;
+  localeInput.size = 'small';
+  localeInput.value = initial.locale || '';
+
+  const actions = document.createElement('div');
+  actions.className = 'help-strings-block-actions';
+
+  const addTokenButton = document.createElement('wa-button');
+  addTokenButton.className = 'icon-button help-strings-block-add';
+  addTokenButton.variant = 'neutral';
+  addTokenButton.appearance = 'filled-outlined';
+  addTokenButton.size = 'small';
+  addTokenButton.type = 'button';
+  addTokenButton.append(createIcon('plus'));
+  addTokenButton.setAttribute('aria-label', editorHelpStringsAddTokenLabel);
+  addTokenButton.title = editorHelpStringsAddTokenLabel;
+
+  const deleteBlockButton = document.createElement('wa-button');
+  deleteBlockButton.className = 'icon-button help-strings-block-delete';
+  deleteBlockButton.variant = 'neutral';
+  deleteBlockButton.appearance = 'filled-outlined';
+  deleteBlockButton.size = 'small';
+  deleteBlockButton.type = 'button';
+  deleteBlockButton.append(createIcon('trash'));
+  deleteBlockButton.setAttribute('aria-label', editorHelpStringsDeleteLocaleLabel);
+  deleteBlockButton.title = editorHelpStringsDeleteLocaleLabel;
+
+  const tokenRows = document.createElement('div');
+  tokenRows.className = 'help-strings-token-rows';
+
+  const blockIssue = document.createElement('div');
+  blockIssue.className = 'help-strings-block-error';
+  blockIssue.hidden = true;
+
+  const onChange = () => {
+    handleHelpStringsEditorChange();
+  };
+
+  localeInput.addEventListener('input', onChange);
+  localeInput.addEventListener('change', onChange);
+
+  addTokenButton.addEventListener('click', () => {
+    addHelpStringsTokenRow(block, { token: '', value: '' }, { focus: true });
+    handleHelpStringsEditorChange();
+  });
+
+  deleteBlockButton.addEventListener('click', () => {
+    if (helpStringsEditor.blocks.childElementCount === 1) {
+      localeInput.value = '';
+      tokenRows.replaceChildren();
+      addHelpStringsTokenRow(block, { token: '', value: '' });
+      handleHelpStringsEditorChange();
+      focusField(localeInput);
+      return;
+    }
+    block.remove();
+    ensureHelpStringsBlockPresence();
+    handleHelpStringsEditorChange();
+    focusField(helpStringsEditor.blocks.querySelector('.help-strings-block-locale'));
+  });
+
+  localeField.append(localeLabel, localeInput);
+  actions.append(addTokenButton, deleteBlockButton);
+  header.append(localeField, actions);
+  block.append(header, tokenRows, blockIssue);
+  helpStringsEditor.blocks.append(block);
+
+  for (const row of Array.isArray(initial.rows) && initial.rows.length > 0 ? initial.rows : [{ token: '', value: '' }]) {
+    addHelpStringsTokenRow(block, row);
+  }
+  ensureHelpStringsTokenRowPresence(block);
+
+  if (options.focus) {
+    focusField(localeInput);
+  }
+
+  return block;
+}
+
+function populateHelpStringsEditor(value) {
+  helpStringsEditor.blocks.replaceChildren();
+  for (const block of buildHelpStringBlocks(value)) {
+    addHelpStringsBlock(block);
+  }
+  ensureHelpStringsBlockPresence();
+  syncHelpStringsValidation();
+}
+
+function readEditedHelpStrings() {
+  const blocks = getHelpStringsBlocksSnapshot();
+  const { localeIssues, tokenIssues } = validateHelpStringsBlocks(blocks);
+  if (localeIssues.size > 0 || tokenIssues.size > 0) {
+    throw new Error(`${editorHelpStringsLabel}: ${[...new Set([...localeIssues.values(), ...tokenIssues.values()])].join(' ')}`);
+  }
+
+  const helpStrings = {};
+  for (const block of blocks) {
+    const locale = block.locale.trim();
+    if (!locale) {
+      continue;
+    }
+    const tokens = {};
+    for (const row of block.rows) {
+      const token = row.token.trim();
+      if (!token) {
+        continue;
+      }
+      tokens[token] = row.value;
+    }
+    if (Object.keys(tokens).length > 0) {
+      helpStrings[locale] = tokens;
+    }
+  }
+  return Object.keys(helpStrings).length > 0 ? helpStrings : undefined;
+}
+
 function buildRequireRows(value) {
   const entries = Array.isArray(value) ? value : [];
   if (entries.length === 0) {
@@ -995,7 +1351,7 @@ function getEditorSnapshot() {
     showOverlay: editorFields.showOverlay.checked,
     code: codeEditor.state.doc.toString(),
     helpHtmlTemplate: helpTemplateEditor.state.doc.toString(),
-    helpHtmlStrings: editorFields.helpHtmlStrings.value,
+    helpHtmlStrings: JSON.stringify(getHelpStringsBlocksSnapshot()),
     optionsSpec: editorFields.optionsSpec.value,
     requires: JSON.stringify(getRequiresRowsSnapshot())
   };
@@ -1076,7 +1432,11 @@ function focusEditorSection(sectionName) {
         focusField(descriptionEditor.rows.querySelector('.localized-row-locale'));
         break;
       case 'editor-section-help':
-        focusCodeMirrorEditor(helpTemplateEditor);
+        if (helpStringsEditor.blocks.querySelector('.help-strings-block-locale')) {
+          focusField(helpStringsEditor.blocks.querySelector('.help-strings-block-locale'));
+        } else {
+          focusCodeMirrorEditor(helpTemplateEditor);
+        }
         break;
       case 'editor-section-options':
         focusField(editorFields.optionsSpec);
@@ -1210,7 +1570,7 @@ function populateEditor(command, options = {}) {
   editorFields.showOverlay.checked = command.showOverlay !== false;
   setCodeMirrorValue(codeEditor, command.code, codeLanguage);
   setCodeMirrorValue(helpTemplateEditor, command.helpHtmlTemplate || '', helpTemplateLanguage);
-  editorFields.helpHtmlStrings.value = stringifyJson(command.helpHtmlStrings);
+  populateHelpStringsEditor(command.helpHtmlStrings);
   editorFields.optionsSpec.value = stringifyJson(command.optionsSpec);
   populateRequiresEditor(command.requires);
   setEditorVisible(true);
@@ -1288,7 +1648,7 @@ function readEditedCommand() {
     delete next.helpHtmlTemplate;
   }
 
-  const helpHtmlStrings = parseOptionalJson(editorHelpStringsLabel, editorFields.helpHtmlStrings.value);
+  const helpHtmlStrings = readEditedHelpStrings();
   if (helpHtmlStrings == null) {
     delete next.helpHtmlStrings;
   } else {
@@ -2189,6 +2549,11 @@ editorResetButton.addEventListener('click', () => {
 descriptionEditor.addButton.addEventListener('click', () => {
   addDescriptionRow({ locale: '', value: '' }, { focus: true });
   handleDescriptionEditorChange();
+});
+
+helpStringsEditor.addButton.addEventListener('click', () => {
+  addHelpStringsBlock({ locale: '', rows: [{ token: '', value: '' }] }, { focus: true });
+  handleHelpStringsEditorChange();
 });
 
 requiresEditor.addButton.addEventListener('click', () => {

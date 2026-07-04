@@ -790,6 +790,124 @@ button.command-status:focus-visible {
   border-color: rgba(220, 38, 38, 0.22);
 }
 
+.help-strings-editor {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.help-strings-editor-header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.help-strings-editor-add::part(base),
+.help-strings-block-add::part(base),
+.help-strings-token-delete::part(base),
+.help-strings-block-delete::part(base) {
+  min-width: 38px;
+}
+
+.help-strings-editor-blocks {
+  display: grid;
+  gap: 12px;
+  max-height: 48vh;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.help-strings-block {
+  background: rgba(248, 250, 252, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  position: relative;
+}
+
+.help-strings-block[data-invalid="true"] {
+  border-color: rgba(220, 38, 38, 0.22);
+}
+
+.help-strings-block-header {
+  display: block;
+  padding-right: 88px;
+}
+
+.help-strings-block-locale-field {
+  display: grid;
+  gap: 4px;
+  width: 180px;
+}
+
+.help-strings-block-actions {
+  display: flex;
+  gap: 8px;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+}
+
+.help-strings-token-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.help-strings-token-row {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  position: relative;
+}
+
+.help-strings-token-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(160px, 0.45fr) minmax(0, 1fr);
+  padding-right: 46px;
+}
+
+.help-strings-token-delete {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.help-strings-token-delete::part(base),
+.help-strings-block-delete::part(base),
+.help-strings-block-add::part(base) {
+  aspect-ratio: 1;
+  padding-inline: 0;
+}
+
+.help-strings-token-key-field {
+  display: grid;
+  gap: 4px;
+}
+
+.help-strings-field-label {
+  font-size: 12px;
+}
+
+.help-strings-block-error,
+.help-strings-token-error {
+  color: rgb(185, 28, 28);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.help-strings-token-row[data-invalid="true"] {
+  border-color: rgba(220, 38, 38, 0.22);
+}
+
 .editor-toolstrip {
   align-items: center;
   background: rgba(241, 245, 249, 0.74);
