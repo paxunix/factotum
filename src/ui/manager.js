@@ -11,6 +11,7 @@ import * as prettierPluginHtml from 'prettier/plugins/html';
 import * as prettierPluginPostcss from 'prettier/plugins/postcss';
 import { fontAwesomeIcons } from '../generated/fontawesome-icons.js';
 import { buildHelpHtml, RUNTIME_HELP_TEMPLATE_TOKENS } from '../shared/help.js';
+import { getPreferredUiLocale } from '../shared/locale.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -39,6 +40,8 @@ setBasePath(chrome.runtime.getURL('vendor/webawesome'));
 function getMessage(key, fallback = key, substitutions) {
   return chrome.i18n.getMessage(key, substitutions) || fallback;
 }
+
+const uiLocale = getPreferredUiLocale();
 
 const title = getMessage('managerTitle', 'Factotum');
 const hint = getMessage('managerHint', '');
@@ -295,8 +298,8 @@ helpStringsEditor.addButton.title = editorHelpStringsAddLocaleLabel;
 requiresEditor.addButton.append(createIcon('plus'));
 requiresEditor.addButton.setAttribute('aria-label', editorRequiresAddLabel);
 requiresEditor.addButton.title = editorRequiresAddLabel;
-helpPreview.locale.append(buildOption('en-US', 'en-US'));
-helpPreview.locale.value = 'en-US';
+helpPreview.locale.append(buildOption(uiLocale, uiLocale));
+helpPreview.locale.value = uiLocale;
 
 function createCodeMirrorState(doc, languageExtension) {
   return EditorState.create({
@@ -336,7 +339,7 @@ commandSort.value = commandSortKey;
 updateSortDirectionButton();
 
 const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const dateTimeFormatter = new Intl.DateTimeFormat(navigator.language || 'en-US', {
+const dateTimeFormatter = new Intl.DateTimeFormat(uiLocale, {
   year: 'numeric',
   month: 'short',
   day: 'numeric',
@@ -1162,7 +1165,7 @@ function getPreferredPreviewLocales(helpStrings) {
   };
 
   addLocale(helpPreview.locale.value);
-  addLocale(Array.isArray(navigator.languages) && navigator.languages.length > 0 ? navigator.languages[0] : navigator.language);
+  addLocale(uiLocale);
   addLocale('en-US');
 
   if (helpStrings && typeof helpStrings === 'object' && !Array.isArray(helpStrings)) {
@@ -2063,7 +2066,7 @@ function buildCommandDetailCard(command) {
   description.className = 'command-description';
   description.textContent = command.invalid
     ? invalidDescriptionLabel
-    : resolveLocalizedText(command.description, navigator.language || 'en-US');
+    : resolveLocalizedText(command.description, uiLocale);
 
   card.append(header, meta, description);
 
@@ -2254,7 +2257,7 @@ function buildBundleReviewCommandItems(bundle, installedEntriesByKey, aliasesByC
       key,
       command: normalized,
       title: key,
-      detail: normalized.description ? resolveLocalizedText(normalized.description, navigator.language || 'en-US') : '',
+      detail: normalized.description ? resolveLocalizedText(normalized.description, uiLocale) : '',
       aliases: aliasesByCommand.get(key) || [],
       state,
       selected: true

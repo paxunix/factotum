@@ -9,6 +9,7 @@ import { isInjectableUrl } from './injectability.js';
 import { formatNoSuchCommandSuggestion, resolveCommand } from './omnibox.js';
 import { parseCommandArgv } from './argv.mjs';
 import { escapeHtml } from '../shared/html.js';
+import { getPreferredUiLocale } from '../shared/locale.js';
 
 let omniboxSessionState = {
   indexCommands: null,
@@ -59,7 +60,7 @@ async function getActiveTabUrl() {
 }
 
 function buildResolvedSuggestion(candidate, argvTokens, canInject) {
-  const description = resolveLocalizedText(candidate.command.description, 'en-US');
+  const description = resolveLocalizedText(candidate.command.description, getPreferredUiLocale());
   const detailParts = [
     `${candidate.command.name}@${candidate.command.id}`,
     buildResolutionLabel(candidate.matchKind)

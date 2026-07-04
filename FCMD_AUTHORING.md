@@ -134,7 +134,7 @@ async function main(argv, ctx) {
 
 Notes:
 - output is appended in order
-- localized payloads use the tab/page language
+- localized payloads use the browser UI language with `en-US` fallback
 - previously written output remains as it was when emitted
 - object-like output is pretty-printed by default
 - pass `{ pretty: false }` as the optional second argument for compact JSON output
@@ -167,7 +167,8 @@ Help-template token model:
 - If an author also defines one of those token names in `helpHtmlStrings`, the runtime-generated value wins.
 - If the template references a token that is not present after that merge, the placeholder renders as an empty string.
 - The manager validates unresolved non-runtime tokens at save time and blocks the save with a per-locale error message so template mistakes are caught during authoring.
-- The manager Help section also includes a Preview tab that renders the current unsaved help draft with the same template/token expansion logic used by runtime `--help`.
+- Runtime help resolution uses the browser UI language with `en-US` fallback.
+- The manager Help section also includes a Preview tab that renders the current unsaved help draft with the same template/token expansion logic used by runtime `--help`; the preview locale selector is an explicit authoring override for inspecting other locales.
 
 Practical pattern:
 - put author-owned text such as `title`, `summary`, `usageTitle`, `optionsTitle`, and `examplesTitle` in `helpHtmlStrings`

@@ -12,9 +12,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 
 ## Current TODOs
 
-### Omnibox / UX
-O3. Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
-
 ### Manager / editor UX
 M4. Replace the remaining JSON textarea with a friendlier structured editor for optionsSpec.
 M8. manager UX needs a separate tab to hold overall settings.

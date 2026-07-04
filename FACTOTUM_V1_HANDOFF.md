@@ -213,7 +213,7 @@ Localized token values are treated as plain text and HTML-escaped before inserti
 
 When `--help` is invoked:
 
-1) Select a locale for the UI (use `navigator.language` or equivalent).
+1) Select the browser UI language with `chrome.i18n.getUILanguage()` (fallback `en-US`).
 2) Resolve `helpHtmlStrings` for that locale using the same fallback order as `LocalizedText` (§3.1).
 3) Build a token map:
    - Start with the resolved locale token map (author‑provided) and HTML-escape those token values.

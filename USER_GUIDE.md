@@ -148,7 +148,7 @@ Use the trash button on the selected command card to permanently delete that com
 Quarantined invalid commands remain editable in the manager so you can repair and save them back into normal valid state.
 
 The editor uses vertical section tabs for Identity, Description, Help, Options, Requires, Code, and Export. Select a tab to edit or inspect that part of the command while keeping the same whole-command Save and Reset actions.
-Inside the Help section, a nested `Edit` / `Preview` tab set lets you switch between authoring the template and seeing the rendered help bubble for the current unsaved draft. The Preview tab includes a locale selector so you can inspect locale-specific help output without running the command.
+Inside the Help section, a nested `Edit` / `Preview` tab set lets you switch between authoring the template and seeing the rendered help bubble for the current unsaved draft. Normal localized command text and help use the browser UI language with `en-US` fallback. The Preview tab includes a locale selector so you can explicitly inspect locale-specific help output without running the command.
 
 If you rename a command by changing its Name or ID, saving moves the command to the new identity instead of creating a duplicate under the old one. Save is blocked when another command already uses the same `name@id`.
 Save Command is enabled only after an editable field changes; Reset returns the editor to the stored command and disables Save again.

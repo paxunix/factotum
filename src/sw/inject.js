@@ -21,6 +21,7 @@ import {
 } from './sessions.js';
 import { isInjectableUrl } from './injectability.js';
 import { buildHelpHtml, resolveLocaleMapEntry } from '../shared/help.js';
+import { getPreferredUiLocale } from '../shared/locale.js';
 
 const CONTROL_TYPE = 'fcmd_control';
 const COMPLETION_MARKER_PREFIX = '__factotum_completion__';
@@ -436,7 +437,7 @@ function appendSystemEntry(tabId, state, message, commandRef = getMessage('appNa
 }
 
 async function appendCommandOutputEntry(tabId, invocation, rawEntry) {
-  const locale = await getTabLocale(tabId);
+  const locale = getPreferredUiLocale();
   const payload = rawEntry && typeof rawEntry === 'object' && Object.prototype.hasOwnProperty.call(rawEntry, 'value')
     ? rawEntry.value
     : rawEntry;
@@ -814,27 +815,12 @@ async function drainInvocationOutputs(invocation) {
   await refreshSessionView(invocation.tabId, session.snapshot || null);
 }
 
-async function getTabLocale(tabId) {
-  try {
-    const [result] = await chrome.scripting.executeScript({
-      target: { tabId, allFrames: false },
-      world: 'ISOLATED',
-      func: () => {
-        if (Array.isArray(navigator.languages) && navigator.languages.length > 0) {
-          return navigator.languages[0] || navigator.language || 'en-US';
-        }
-        return navigator.language || 'en-US';
-      }
-    });
-
-    return result?.result || 'en-US';
-  } catch {
-    return 'en-US';
-  }
+function getUiLocale() {
+  return getPreferredUiLocale();
 }
 
 async function showHelpOverlay(invocation) {
-  const locale = await getTabLocale(invocation.tabId);
+  const locale = getUiLocale();
   const commandRef = `${invocation.command.name}@${invocation.command.id}`;
   const html = buildHelpHtml(invocation.command, locale);
   appendSnapshotEntry(invocation.tabId, {
