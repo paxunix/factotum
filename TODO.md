@@ -16,7 +16,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 O3. Decide whether omnibox suggestion descriptions should include localized text using the current UI language instead of the current fixed fallback behavior.
 
 ### Manager / editor UX
-M3. Add help-template preview. Preferred direction: render preview through the same overlay UI used by command help, overlaying on the manager page and dismissible by the user.
 M4. Replace the remaining JSON textarea with a friendlier structured editor for optionsSpec.
 M5. Revisit the Help editor layout now that the help HTML template uses CodeMirror. Decide whether the template editor should expand, collapse, or sit beside the structured Help strings editor.
 M8. manager UX needs a separate tab to hold overall settings.

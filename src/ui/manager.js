@@ -10,6 +10,7 @@ import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as prettierPluginHtml from 'prettier/plugins/html';
 import * as prettierPluginPostcss from 'prettier/plugins/postcss';
 import { fontAwesomeIcons } from '../generated/fontawesome-icons.js';
+import { buildHelpHtml, RUNTIME_HELP_TEMPLATE_TOKENS } from '../shared/help.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -123,6 +124,9 @@ const editorHelpStringsTokenRequiredLabel = getMessage('managerEditorHelpStrings
 const editorHelpStringsDuplicateTokenLabel = getMessage('managerEditorHelpStringsDuplicateToken', 'Token is duplicated within this locale.');
 const editorHelpTemplateUndefinedTokensLabel = getMessage('managerEditorHelpTemplateUndefinedTokens', 'Template tokens are not defined: $TOKENS$.');
 const editorHelpTemplateUndefinedTokensLocaleLabel = getMessage('managerEditorHelpTemplateUndefinedTokensLocale', 'Template tokens missing for locale $LOCALE$: $TOKENS$.');
+const editorHelpEditLabel = getMessage('managerEditorHelpEdit', 'Edit');
+const editorHelpPreviewLabel = getMessage('managerEditorHelpPreview', 'Preview');
+const editorHelpPreviewLocaleLabel = getMessage('managerEditorHelpPreviewLocale', 'Preview locale');
 const editorOptionsLabel = getMessage('managerEditorOptions', 'Options spec JSON');
 const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires');
 const editorRequiresAddLabel = getMessage('managerEditorRequiresAdd', 'Add require');
@@ -181,6 +185,8 @@ document.getElementById('editor-help-template-label').textContent = editorHelpTe
 document.getElementById('editor-section-identity-tab').textContent = editorIdentitySectionLabel;
 document.getElementById('editor-section-description-tab').textContent = editorDescriptionSectionLabel;
 document.getElementById('editor-section-help-tab').textContent = editorHelpSectionLabel;
+document.getElementById('editor-help-mode-edit-tab').textContent = editorHelpEditLabel;
+document.getElementById('editor-help-mode-preview-tab').textContent = editorHelpPreviewLabel;
 document.getElementById('editor-section-options-tab').textContent = editorOptionsSectionLabel;
 document.getElementById('editor-section-requires-tab').textContent = editorRequiresSectionLabel;
 document.getElementById('editor-section-code-tab').textContent = editorCodeSectionLabel;
@@ -218,6 +224,7 @@ const editorResetButton = document.getElementById('editor-reset-button');
 const editorForm = document.getElementById('command-editor');
 const editorEmpty = document.getElementById('command-editor-empty');
 const editorStatus = document.getElementById('editor-status');
+const helpModeTabs = document.getElementById('editor-help-mode-tabs');
 const editorCommandExport = document.getElementById('editor-command-export');
 const descriptionEditor = {
   label: document.getElementById('editor-description-label'),
@@ -233,6 +240,11 @@ const requiresEditor = {
   label: document.getElementById('editor-requires-label'),
   addButton: document.getElementById('editor-requires-add'),
   rows: document.getElementById('editor-requires-rows')
+};
+const helpPreview = {
+  locale: document.getElementById('editor-help-preview-locale'),
+  status: document.getElementById('editor-help-preview-status'),
+  host: document.getElementById('editor-help-preview-host')
 };
 const editorFields = {
   name: document.getElementById('editor-name'),
@@ -273,6 +285,7 @@ helpStringsEditor.label.textContent = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
 requiresEditor.label.textContent = editorRequiresLabel;
 editorCommandExport.label = editorCommandExportLabel;
+helpPreview.locale.label = editorHelpPreviewLocaleLabel;
 descriptionEditor.addButton.append(createIcon('plus'));
 descriptionEditor.addButton.setAttribute('aria-label', editorDescriptionAddLabel);
 descriptionEditor.addButton.title = editorDescriptionAddLabel;
@@ -282,6 +295,8 @@ helpStringsEditor.addButton.title = editorHelpStringsAddLocaleLabel;
 requiresEditor.addButton.append(createIcon('plus'));
 requiresEditor.addButton.setAttribute('aria-label', editorRequiresAddLabel);
 requiresEditor.addButton.title = editorRequiresAddLabel;
+helpPreview.locale.append(buildOption('en-US', 'en-US'));
+helpPreview.locale.value = 'en-US';
 
 function createCodeMirrorState(doc, languageExtension) {
   return EditorState.create({
@@ -293,6 +308,7 @@ function createCodeMirrorState(doc, languageExtension) {
       EditorView.updateListener.of((update) => {
         if (update.docChanged && !suppressEditorChange) {
           updateEditorDirtyState();
+          refreshHelpPreview();
         }
       })
     ]
@@ -308,7 +324,6 @@ function createCodeMirrorEditor(parent, languageExtension) {
 
 const codeLanguage = javascript();
 const helpTemplateLanguage = htmlLanguage();
-const RUNTIME_HELP_TEMPLATE_TOKENS = new Set(['usage', 'options', 'args']);
 const codeEditor = createCodeMirrorEditor(editorFields.code, codeLanguage);
 const helpTemplateEditor = createCodeMirrorEditor(editorFields.helpHtmlTemplate, helpTemplateLanguage);
 
@@ -446,6 +461,10 @@ function setEditorStatus(kind, messages) {
   setStatus(editorStatus, kind, messages);
 }
 
+function setHelpPreviewStatus(kind, messages) {
+  setStatus(helpPreview.status, kind, messages);
+}
+
 function clearBundleStatus() {
   bundleStatus.hidden = true;
   bundleStatus.className = 'bundle-status';
@@ -456,6 +475,12 @@ function clearEditorStatus() {
   editorStatus.hidden = true;
   editorStatus.className = 'bundle-status';
   editorStatus.textContent = '';
+}
+
+function clearHelpPreviewStatus() {
+  helpPreview.status.hidden = true;
+  helpPreview.status.className = 'bundle-status';
+  helpPreview.status.textContent = '';
 }
 
 function formatMessage(key, fallback, substitutions) {
@@ -895,6 +920,7 @@ function syncHelpStringsValidation() {
 function handleHelpStringsEditorChange() {
   syncHelpStringsValidation();
   updateEditorDirtyState();
+  refreshHelpPreview();
 }
 
 function ensureHelpStringsTokenRowPresence(block) {
@@ -1120,6 +1146,110 @@ function readEditedHelpStrings() {
     }
   }
   return Object.keys(helpStrings).length > 0 ? helpStrings : undefined;
+}
+
+function getPreferredPreviewLocales(helpStrings) {
+  const locales = [];
+  const addLocale = (value) => {
+    const locale = String(value || '').trim();
+    if (!locale) {
+      return;
+    }
+    if (locales.some((entry) => entry.toLowerCase() === locale.toLowerCase())) {
+      return;
+    }
+    locales.push(locale);
+  };
+
+  addLocale(helpPreview.locale.value);
+  addLocale(Array.isArray(navigator.languages) && navigator.languages.length > 0 ? navigator.languages[0] : navigator.language);
+  addLocale('en-US');
+
+  if (helpStrings && typeof helpStrings === 'object' && !Array.isArray(helpStrings)) {
+    Object.keys(helpStrings).forEach(addLocale);
+  }
+
+  return locales.length > 0 ? locales : ['en-US'];
+}
+
+function syncHelpPreviewLocaleOptions(helpStrings) {
+  const locales = getPreferredPreviewLocales(helpStrings);
+  const currentValue = helpPreview.locale.value;
+  helpPreview.locale.replaceChildren();
+  locales.forEach((locale) => {
+    helpPreview.locale.append(buildOption(locale, locale));
+  });
+  helpPreview.locale.value = locales.find((locale) => locale.toLowerCase() === String(currentValue || '').toLowerCase()) || locales[0];
+}
+
+function renderHelpPreviewEntry(commandRef, html) {
+  const entry = document.createElement('article');
+  entry.className = 'factotum-entry';
+  entry.dataset.state = 'HELP';
+
+  const title = document.createElement('p');
+  title.className = 'factotum-entry-title';
+  title.textContent = commandRef || getMessage('appName', 'Factotum');
+
+  const status = document.createElement('p');
+  status.className = 'factotum-entry-status';
+  status.textContent = getMessage('overlayHelp', 'Help');
+
+  const body = document.createElement('div');
+  body.className = 'factotum-entry-help';
+  body.innerHTML = html;
+
+  entry.append(title, status, body);
+  return entry;
+}
+
+function readHelpPreviewDraft() {
+  const helpHtmlStrings = readEditedHelpStrings();
+  syncHelpPreviewLocaleOptions(helpHtmlStrings);
+
+  const draft = {
+    name: editorFields.name.value.trim(),
+    id: editorFields.id.value.trim(),
+    helpHtmlTemplate: helpTemplateEditor.state.doc.toString()
+  };
+
+  if (helpHtmlStrings != null) {
+    draft.helpHtmlStrings = helpHtmlStrings;
+  }
+
+  const helpTemplateIssues = collectHelpTemplateIssues(draft.helpHtmlTemplate || '', draft.helpHtmlStrings);
+  if (helpTemplateIssues.length > 0) {
+    throw new Error(`${editorHelpTemplateLabel}: ${helpTemplateIssues.join(' ')}`);
+  }
+
+  const optionsSpec = parseOptionalJson(editorOptionsLabel, editorFields.optionsSpec.value);
+  if (optionsSpec != null) {
+    draft.optionsSpec = optionsSpec;
+  }
+
+  return draft;
+}
+
+function refreshHelpPreview() {
+  if (!selectedCommand) {
+    helpPreview.host.textContent = '';
+    clearHelpPreviewStatus();
+    return;
+  }
+
+  try {
+    const draft = readHelpPreviewDraft();
+    const locale = helpPreview.locale.value || 'en-US';
+    const html = buildHelpHtml(draft, locale);
+    const title = draft.name && draft.id
+      ? `${draft.name}@${draft.id}`
+      : draft.name || getMessage('appName', 'Factotum');
+    helpPreview.host.replaceChildren(renderHelpPreviewEntry(title, html));
+    clearHelpPreviewStatus();
+  } catch (error) {
+    helpPreview.host.textContent = '';
+    setHelpPreviewStatus('error', error.message || String(error));
+  }
 }
 
 function extractHelpTemplateTokens(template) {
@@ -1378,6 +1508,8 @@ function setEditorVisible(visible) {
   editorEmpty.hidden = visible;
   if (!visible) {
     editorBaseline = null;
+    helpPreview.host.textContent = '';
+    clearHelpPreviewStatus();
     updateEditorDirtyState();
   }
 }
@@ -1626,6 +1758,7 @@ function populateEditor(command, options = {}) {
   setEditorVisible(true);
   editorBaseline = getEditorSnapshot();
   updateEditorDirtyState();
+  refreshHelpPreview();
 }
 
 function createDraftCommand() {
@@ -2574,9 +2707,19 @@ editorForm.addEventListener('submit', (event) => {
 Object.values(editorFields)
   .filter((field) => field !== editorFields.code && field !== editorFields.helpHtmlTemplate)
   .forEach((field) => {
-    field.addEventListener('input', updateEditorDirtyState);
-    field.addEventListener('change', updateEditorDirtyState);
+    field.addEventListener('input', () => {
+      updateEditorDirtyState();
+      refreshHelpPreview();
+    });
+    field.addEventListener('change', () => {
+      updateEditorDirtyState();
+      refreshHelpPreview();
+    });
   });
+
+helpPreview.locale.addEventListener('input', refreshHelpPreview);
+helpPreview.locale.addEventListener('change', refreshHelpPreview);
+helpModeTabs.addEventListener('wa-tab-show', refreshHelpPreview);
 
 editorSaveButton.addEventListener('click', (event) => {
   event.preventDefault();

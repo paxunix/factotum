@@ -164,6 +164,7 @@ Help-template token model:
 - If an author also defines one of those token names in `helpHtmlStrings`, the runtime-generated value wins.
 - If the template references a token that is not present after that merge, the placeholder renders as an empty string.
 - The manager validates unresolved non-runtime tokens at save time and blocks the save with a per-locale error message so template mistakes are caught during authoring.
+- The manager Help section also includes a Preview tab that renders the current unsaved help draft with the same template/token expansion logic used by runtime `--help`.
 
 Practical pattern:
 - put author-owned text such as `title`, `summary`, `usageTitle`, `optionsTitle`, and `examplesTitle` in `helpHtmlStrings`

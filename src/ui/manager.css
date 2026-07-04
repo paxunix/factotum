@@ -627,6 +627,51 @@ button.command-status:focus-visible {
   padding-right: 2px;
 }
 
+.help-mode-tabs {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.help-mode-tabs::part(base) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.help-mode-tabs::part(nav) {
+  flex: 0 0 auto;
+}
+
+.help-mode-tabs::part(body) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: 12px;
+}
+
+.help-mode-tabs::part(active-tab-indicator) {
+  background: rgb(37, 99, 235);
+}
+
+.help-mode-tabs > wa-tab-panel,
+.help-mode-tabs > wa-tab-panel::part(base) {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+}
+
+.help-mode-panel {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
 .editor-code-panel {
   flex: 1 1 auto;
   overflow: hidden;
@@ -943,6 +988,94 @@ button.command-status:focus-visible {
 .editor-help-template {
   flex: 0 0 min(260px, 42%);
   min-height: 180px;
+}
+
+.help-preview-toolbar {
+  align-items: end;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 12px;
+}
+
+.help-preview-shell {
+  --factotum-help-preview-bg: linear-gradient(180deg, rgb(15, 23, 42), rgb(2, 6, 23));
+  --factotum-help-preview-panel-bg: rgba(15, 23, 42, 0.84);
+  --factotum-help-preview-panel-border: rgba(148, 163, 184, 0.2);
+  --factotum-help-preview-panel-fg: rgb(226, 232, 240);
+  --factotum-help-preview-status-fg: rgba(148, 163, 184, 0.9);
+  --factotum-help-preview-pre-bg: rgba(15, 23, 42, 0.72);
+  background: var(--factotum-help-preview-bg);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  flex: 1 1 auto;
+  min-height: 280px;
+  overflow: auto;
+  padding: 16px;
+}
+
+.help-preview-host {
+  display: grid;
+  gap: 12px;
+}
+
+.help-preview-shell .factotum-entry {
+  background: rgba(30, 64, 175, 0.18);
+  border: 1px solid rgba(96, 165, 250, 0.24);
+  border-radius: 14px;
+  color: var(--factotum-help-preview-panel-fg);
+  display: grid;
+  gap: 0;
+  padding: 14px 16px 16px;
+  position: relative;
+}
+
+.help-preview-shell .factotum-entry::before {
+  background: rgba(96, 165, 250, 0.95);
+  border-radius: 999px;
+  content: '';
+  inset: 10px auto 10px 8px;
+  position: absolute;
+  width: 4px;
+}
+
+.help-preview-shell .factotum-entry-title,
+.help-preview-shell .factotum-entry-status {
+  margin-left: 8px;
+}
+
+.help-preview-shell .factotum-entry-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.help-preview-shell .factotum-entry-status {
+  color: var(--factotum-help-preview-status-fg);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.help-preview-shell .factotum-entry-help {
+  color: var(--factotum-help-preview-panel-fg);
+  font-size: 12px;
+  line-height: 1.45;
+  margin-left: 8px;
+}
+
+.help-preview-shell .factotum-entry-help h1,
+.help-preview-shell .factotum-entry-help h2,
+.help-preview-shell .factotum-entry-help p,
+.help-preview-shell .factotum-entry-help pre,
+.help-preview-shell .factotum-entry-help ul {
+  margin: 0 0 8px;
+}
+
+.help-preview-shell .factotum-entry-help pre {
+  background: var(--factotum-help-preview-pre-bg);
+  border-radius: 8px;
+  overflow-x: auto;
+  padding: 8px;
+  white-space: pre-wrap;
 }
 
 wa-textarea {

@@ -392,6 +392,18 @@
       }
     }
   },
+  "managerEditorHelpEdit": {
+    "message": "Edit",
+    "description": "Manager help subsection tab label for editing help template inputs"
+  },
+  "managerEditorHelpPreview": {
+    "message": "Preview",
+    "description": "Manager help subsection tab label for previewing rendered help output"
+  },
+  "managerEditorHelpPreviewLocale": {
+    "message": "Preview locale",
+    "description": "Manager help preview locale selector label"
+  },
   "managerEditorOptions": {
     "message": "Options spec JSON",
     "description": "Manager command editor options spec JSON field label"

@@ -88,20 +88,41 @@
                   </wa-tab-panel>
                   <wa-tab-panel name="editor-section-help">
                     <section class="editor-section-panel">
-                      <div id="editor-help-template-label" class="editor-field-label"></div>
-                      <div class="editor-toolstrip">
-                        <wa-button id="editor-help-template-format-js" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
-                        <wa-button id="editor-help-template-format-html" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
-                        <wa-button id="editor-help-template-format-css" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
-                      </div>
-                      <div id="editor-help-template" class="editor-codemirror editor-help-template" role="textbox" aria-labelledby="editor-help-template-label"></div>
-                      <div class="help-strings-editor">
-                        <div class="help-strings-editor-header">
-                          <div id="editor-help-strings-label" class="editor-field-label"></div>
-                          <wa-button id="editor-help-strings-add-locale" class="icon-button help-strings-editor-add" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
-                        </div>
-                        <div class="help-strings-editor-blocks" id="editor-help-strings-blocks"></div>
-                      </div>
+                      <wa-tab-group class="help-mode-tabs" id="editor-help-mode-tabs" active="editor-help-mode-edit">
+                        <wa-tab slot="nav" panel="editor-help-mode-edit" id="editor-help-mode-edit-tab" active></wa-tab>
+                        <wa-tab slot="nav" panel="editor-help-mode-preview" id="editor-help-mode-preview-tab"></wa-tab>
+
+                        <wa-tab-panel name="editor-help-mode-edit" active>
+                          <section class="help-mode-panel help-mode-edit-panel">
+                            <div id="editor-help-template-label" class="editor-field-label"></div>
+                            <div class="editor-toolstrip">
+                              <wa-button id="editor-help-template-format-js" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                              <wa-button id="editor-help-template-format-html" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                              <wa-button id="editor-help-template-format-css" class="editor-tool-button" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                            </div>
+                            <div id="editor-help-template" class="editor-codemirror editor-help-template" role="textbox" aria-labelledby="editor-help-template-label"></div>
+                            <div class="help-strings-editor">
+                              <div class="help-strings-editor-header">
+                                <div id="editor-help-strings-label" class="editor-field-label"></div>
+                                <wa-button id="editor-help-strings-add-locale" class="icon-button help-strings-editor-add" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                              </div>
+                              <div class="help-strings-editor-blocks" id="editor-help-strings-blocks"></div>
+                            </div>
+                          </section>
+                        </wa-tab-panel>
+
+                        <wa-tab-panel name="editor-help-mode-preview">
+                          <section class="help-mode-panel help-mode-preview-panel">
+                            <div class="help-preview-toolbar">
+                              <wa-select id="editor-help-preview-locale" size="small"></wa-select>
+                            </div>
+                            <div class="bundle-status" id="editor-help-preview-status" hidden></div>
+                            <div class="help-preview-shell" id="editor-help-preview-shell">
+                              <div class="help-preview-host" id="editor-help-preview-host"></div>
+                            </div>
+                          </section>
+                        </wa-tab-panel>
+                      </wa-tab-group>
                     </section>
                   </wa-tab-panel>
                   <wa-tab-panel name="editor-section-options">
