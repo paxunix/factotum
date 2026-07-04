@@ -17,7 +17,6 @@ O3. Decide whether omnibox suggestion descriptions should include localized text
 
 ### Manager / editor UX
 M4. Replace the remaining JSON textarea with a friendlier structured editor for optionsSpec.
-M5. Revisit the Help editor layout now that the help HTML template uses CodeMirror. Decide whether the template editor should expand, collapse, or sit beside the structured Help strings editor.
 M8. manager UX needs a separate tab to hold overall settings.
 M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
 ### Overlay UX
