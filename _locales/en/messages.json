@@ -328,8 +328,56 @@
     "description": "Manager command editor options spec JSON field label"
   },
   "managerEditorRequires": {
-    "message": "Requires JSON array",
-    "description": "Manager command editor requires JSON field label"
+    "message": "Requires",
+    "description": "Manager command editor structured requires field label"
+  },
+  "managerEditorRequiresAdd": {
+    "message": "Add require",
+    "description": "Manager command editor button label for adding another require row"
+  },
+  "managerEditorRequiresUrl": {
+    "message": "URL",
+    "description": "Manager command editor URL field label for a require row"
+  },
+  "managerEditorRequiresKind": {
+    "message": "Kind",
+    "description": "Manager command editor kind field label for a require row"
+  },
+  "managerEditorRequiresWorld": {
+    "message": "World",
+    "description": "Manager command editor world field label for a require row"
+  },
+  "managerEditorRequiresDelete": {
+    "message": "Delete require",
+    "description": "Manager command editor button label for deleting a require row"
+  },
+  "managerEditorRequiresKindPlaceholder": {
+    "message": "Select kind",
+    "description": "Manager command editor placeholder for an unselected require kind"
+  },
+  "managerEditorRequiresWorldMain": {
+    "message": "MAIN",
+    "description": "Manager command editor label for the MAIN require world"
+  },
+  "managerEditorRequiresWorldUserScript": {
+    "message": "USER_SCRIPT",
+    "description": "Manager command editor label for the USER_SCRIPT require world"
+  },
+  "managerEditorRequiresUrlRequired": {
+    "message": "URL is required when a require row is populated.",
+    "description": "Manager command editor inline validation message when a require row is missing its URL"
+  },
+  "managerEditorRequiresKindRequired": {
+    "message": "Kind is required when a require row is populated.",
+    "description": "Manager command editor inline validation message when a require row is missing its kind"
+  },
+  "managerEditorRequiresDataUrl": {
+    "message": "data: URLs are not allowed for requires.",
+    "description": "Manager command editor inline validation message when a require row uses a data URL"
+  },
+  "managerEditorRequiresUserScriptModule": {
+    "message": "USER_SCRIPT world is allowed only for module requires.",
+    "description": "Manager command editor inline validation message when a require row uses USER_SCRIPT for a non-module require"
   },
   "managerEditorCommandExport": {
     "message": "Command export JSON",

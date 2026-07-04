@@ -110,7 +110,19 @@ const editorCodeLabel = getMessage('managerEditorCode', 'Code');
 const editorHelpTemplateLabel = getMessage('managerEditorHelpTemplate', 'Help HTML template');
 const editorHelpStringsLabel = getMessage('managerEditorHelpStrings', 'Help strings JSON');
 const editorOptionsLabel = getMessage('managerEditorOptions', 'Options spec JSON');
-const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires JSON array');
+const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires');
+const editorRequiresAddLabel = getMessage('managerEditorRequiresAdd', 'Add require');
+const editorRequiresUrlLabel = getMessage('managerEditorRequiresUrl', 'URL');
+const editorRequiresKindLabel = getMessage('managerEditorRequiresKind', 'Kind');
+const editorRequiresWorldLabel = getMessage('managerEditorRequiresWorld', 'World');
+const editorRequiresDeleteLabel = getMessage('managerEditorRequiresDelete', 'Delete require');
+const editorRequiresKindPlaceholderLabel = getMessage('managerEditorRequiresKindPlaceholder', 'Select kind');
+const editorRequiresWorldMainLabel = getMessage('managerEditorRequiresWorldMain', 'MAIN');
+const editorRequiresWorldUserScriptLabel = getMessage('managerEditorRequiresWorldUserScript', 'USER_SCRIPT');
+const editorRequiresUrlRequiredLabel = getMessage('managerEditorRequiresUrlRequired', 'URL is required when a require row is populated.');
+const editorRequiresKindRequiredLabel = getMessage('managerEditorRequiresKindRequired', 'Kind is required when a require row is populated.');
+const editorRequiresDataUrlLabel = getMessage('managerEditorRequiresDataUrl', 'data: URLs are not allowed for requires.');
+const editorRequiresUserScriptModuleLabel = getMessage('managerEditorRequiresUserScriptModule', 'USER_SCRIPT world is allowed only for module requires.');
 const editorSaveLabel = getMessage('managerEditorSave', 'Save Command');
 const editorResetLabel = getMessage('managerEditorReset', 'Reset');
 const editorSavedLabel = getMessage('managerEditorSaved', 'Saved command: $COMMAND$');
@@ -198,6 +210,11 @@ const descriptionEditor = {
   addButton: document.getElementById('editor-description-add'),
   rows: document.getElementById('editor-description-rows')
 };
+const requiresEditor = {
+  label: document.getElementById('editor-requires-label'),
+  addButton: document.getElementById('editor-requires-add'),
+  rows: document.getElementById('editor-requires-rows')
+};
 const editorFields = {
   name: document.getElementById('editor-name'),
   id: document.getElementById('editor-id'),
@@ -207,8 +224,7 @@ const editorFields = {
   code: document.getElementById('editor-code'),
   helpHtmlTemplate: document.getElementById('editor-help-template'),
   helpHtmlStrings: document.getElementById('editor-help-strings'),
-  optionsSpec: document.getElementById('editor-options'),
-  requires: document.getElementById('editor-requires')
+  optionsSpec: document.getElementById('editor-options')
 };
 let selectedCommandRef = null;
 let selectedCommand = null;
@@ -237,11 +253,14 @@ editorFields.aliases.label = editorAliasesLabel;
 editorFields.showOverlay.textContent = editorShowOverlayLabel;
 editorFields.helpHtmlStrings.label = editorHelpStringsLabel;
 editorFields.optionsSpec.label = editorOptionsLabel;
-editorFields.requires.label = editorRequiresLabel;
+requiresEditor.label.textContent = editorRequiresLabel;
 editorCommandExport.label = editorCommandExportLabel;
 descriptionEditor.addButton.append(createIcon('plus'));
 descriptionEditor.addButton.setAttribute('aria-label', editorDescriptionAddLabel);
 descriptionEditor.addButton.title = editorDescriptionAddLabel;
+requiresEditor.addButton.append(createIcon('plus'));
+requiresEditor.addButton.setAttribute('aria-label', editorRequiresAddLabel);
+requiresEditor.addButton.title = editorRequiresAddLabel;
 
 function createCodeMirrorState(doc, languageExtension) {
   return EditorState.create({
@@ -744,6 +763,210 @@ function readEditedDescription() {
   return Object.keys(description).length > 0 ? description : undefined;
 }
 
+function buildRequireRows(value) {
+  const entries = Array.isArray(value) ? value : [];
+  if (entries.length === 0) {
+    return [{ url: '', kind: '', world: 'main' }];
+  }
+  return entries.map((entry) => ({
+    url: typeof entry?.url === 'string' ? entry.url : '',
+    kind: typeof entry?.kind === 'string' ? entry.kind : '',
+    world: typeof entry?.world === 'string' && entry.world ? entry.world : 'main'
+  }));
+}
+
+function buildSelectOption(value, label) {
+  const option = document.createElement('wa-option');
+  option.value = value;
+  option.textContent = label;
+  return option;
+}
+
+function getRequiresRowsSnapshot() {
+  return [...requiresEditor.rows.querySelectorAll('.require-row')].map((row) => ({
+    url: row.querySelector('.require-row-url')?.value || '',
+    kind: row.querySelector('.require-row-kind')?.value || '',
+    world: row.querySelector('.require-row-world')?.value || ''
+  }));
+}
+
+function validateRequireRows(rows) {
+  const issues = new Map();
+  rows.forEach((row, index) => {
+    const url = row.url.trim();
+    const kind = row.kind.trim();
+    const world = row.world.trim();
+    const populated = Boolean(url || kind || world);
+    if (!populated) {
+      return;
+    }
+    if (!url) {
+      issues.set(index, editorRequiresUrlRequiredLabel);
+      return;
+    }
+    if (/^data:/i.test(url)) {
+      issues.set(index, editorRequiresDataUrlLabel);
+      return;
+    }
+    if (!kind) {
+      issues.set(index, editorRequiresKindRequiredLabel);
+      return;
+    }
+    if (world === 'user_script' && kind !== 'module') {
+      issues.set(index, editorRequiresUserScriptModuleLabel);
+    }
+  });
+  return issues;
+}
+
+function renderRequireRowIssue(row, message = '') {
+  row.dataset.invalid = message ? 'true' : 'false';
+  const issue = row.querySelector('.require-row-error');
+  if (issue) {
+    issue.textContent = message;
+    issue.hidden = !message;
+  }
+}
+
+function syncRequiresValidation() {
+  const rows = getRequiresRowsSnapshot();
+  const issues = validateRequireRows(rows);
+  [...requiresEditor.rows.querySelectorAll('.require-row')].forEach((row, index) => {
+    renderRequireRowIssue(row, issues.get(index) || '');
+  });
+  return issues;
+}
+
+function ensureRequireRowPresence() {
+  if (requiresEditor.rows.childElementCount > 0) {
+    return;
+  }
+  addRequireRow();
+}
+
+function handleRequiresEditorChange() {
+  syncRequiresValidation();
+  updateEditorDirtyState();
+}
+
+function addRequireRow(initial = { url: '', kind: '', world: '' }, options = {}) {
+  const row = document.createElement('div');
+  row.className = 'require-row';
+  row.dataset.invalid = 'false';
+
+  const grid = document.createElement('div');
+  grid.className = 'require-row-grid';
+
+  const urlInput = document.createElement('wa-input');
+  urlInput.className = 'require-row-url';
+  urlInput.label = editorRequiresUrlLabel;
+  urlInput.value = initial.url || '';
+
+  const kindSelect = document.createElement('wa-select');
+  kindSelect.className = 'require-row-kind';
+  kindSelect.label = editorRequiresKindLabel;
+  kindSelect.placeholder = editorRequiresKindPlaceholderLabel;
+  kindSelect.size = 'small';
+  kindSelect.append(
+    buildSelectOption('script', 'script'),
+    buildSelectOption('module', 'module')
+  );
+  kindSelect.value = initial.kind || '';
+
+  const worldSelect = document.createElement('wa-select');
+  worldSelect.className = 'require-row-world';
+  worldSelect.label = editorRequiresWorldLabel;
+  worldSelect.size = 'small';
+  worldSelect.append(
+    buildSelectOption('main', editorRequiresWorldMainLabel),
+    buildSelectOption('user_script', editorRequiresWorldUserScriptLabel)
+  );
+  worldSelect.value = initial.world || 'main';
+
+  const deleteButton = document.createElement('wa-button');
+  deleteButton.className = 'icon-button require-row-delete';
+  deleteButton.variant = 'neutral';
+  deleteButton.appearance = 'filled-outlined';
+  deleteButton.size = 'small';
+  deleteButton.type = 'button';
+  deleteButton.append(createIcon('trash'));
+  deleteButton.setAttribute('aria-label', editorRequiresDeleteLabel);
+  deleteButton.title = editorRequiresDeleteLabel;
+
+  const issue = document.createElement('div');
+  issue.className = 'require-row-error';
+  issue.hidden = true;
+
+  const onChange = () => {
+    handleRequiresEditorChange();
+  };
+
+  urlInput.addEventListener('input', onChange);
+  urlInput.addEventListener('change', onChange);
+  kindSelect.addEventListener('input', onChange);
+  kindSelect.addEventListener('change', onChange);
+  worldSelect.addEventListener('input', onChange);
+  worldSelect.addEventListener('change', onChange);
+
+  deleteButton.addEventListener('click', () => {
+    if (requiresEditor.rows.childElementCount === 1) {
+      urlInput.value = '';
+      kindSelect.value = '';
+      worldSelect.value = 'main';
+      handleRequiresEditorChange();
+      focusField(urlInput);
+      return;
+    }
+    row.remove();
+    ensureRequireRowPresence();
+    handleRequiresEditorChange();
+    focusField(requiresEditor.rows.querySelector('.require-row-url'));
+  });
+
+  grid.append(urlInput, kindSelect, worldSelect);
+  row.append(grid, deleteButton, issue);
+  requiresEditor.rows.append(row);
+  syncRequiresValidation();
+
+  if (options.focus) {
+    focusField(urlInput);
+  }
+
+  return row;
+}
+
+function populateRequiresEditor(value) {
+  requiresEditor.rows.replaceChildren();
+  for (const row of buildRequireRows(value)) {
+    addRequireRow(row);
+  }
+  ensureRequireRowPresence();
+  syncRequiresValidation();
+}
+
+function readEditedRequires() {
+  const rows = getRequiresRowsSnapshot();
+  const issues = validateRequireRows(rows);
+  if (issues.size > 0) {
+    throw new Error(`${editorRequiresLabel}: ${[...new Set(issues.values())].join(' ')}`);
+  }
+
+  const requires = rows
+    .map((row) => ({
+      url: row.url.trim(),
+      kind: row.kind.trim(),
+      world: row.world.trim()
+    }))
+    .filter((row) => row.url || row.kind || row.world)
+    .map((row) => ({
+      url: row.url,
+      kind: row.kind,
+      world: row.world || 'main'
+    }));
+
+  return requires.length > 0 ? requires : undefined;
+}
+
 function setEditorVisible(visible) {
   editorForm.hidden = !visible;
   editorEmpty.hidden = visible;
@@ -774,7 +997,7 @@ function getEditorSnapshot() {
     helpHtmlTemplate: helpTemplateEditor.state.doc.toString(),
     helpHtmlStrings: editorFields.helpHtmlStrings.value,
     optionsSpec: editorFields.optionsSpec.value,
-    requires: editorFields.requires.value
+    requires: JSON.stringify(getRequiresRowsSnapshot())
   };
 }
 
@@ -859,7 +1082,7 @@ function focusEditorSection(sectionName) {
         focusField(editorFields.optionsSpec);
         break;
       case 'editor-section-requires':
-        focusField(editorFields.requires);
+        focusField(requiresEditor.rows.querySelector('.require-row-url'));
         break;
       case 'editor-section-code':
         focusCodeMirrorEditor(codeEditor);
@@ -989,7 +1212,7 @@ function populateEditor(command, options = {}) {
   setCodeMirrorValue(helpTemplateEditor, command.helpHtmlTemplate || '', helpTemplateLanguage);
   editorFields.helpHtmlStrings.value = stringifyJson(command.helpHtmlStrings);
   editorFields.optionsSpec.value = stringifyJson(command.optionsSpec);
-  editorFields.requires.value = stringifyJson(command.requires);
+  populateRequiresEditor(command.requires);
   setEditorVisible(true);
   editorBaseline = getEditorSnapshot();
   updateEditorDirtyState();
@@ -1079,7 +1302,7 @@ function readEditedCommand() {
     next.optionsSpec = optionsSpec;
   }
 
-  const requires = parseOptionalJson(editorRequiresLabel, editorFields.requires.value);
+  const requires = readEditedRequires();
   if (requires == null) {
     delete next.requires;
   } else {
@@ -1966,6 +2189,11 @@ editorResetButton.addEventListener('click', () => {
 descriptionEditor.addButton.addEventListener('click', () => {
   addDescriptionRow({ locale: '', value: '' }, { focus: true });
   handleDescriptionEditorChange();
+});
+
+requiresEditor.addButton.addEventListener('click', () => {
+  addRequireRow({ url: '', kind: '', world: '' }, { focus: true });
+  handleRequiresEditorChange();
 });
 
 loadCommands()

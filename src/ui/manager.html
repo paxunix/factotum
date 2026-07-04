@@ -105,7 +105,13 @@
                   </wa-tab-panel>
                   <wa-tab-panel name="editor-section-requires">
                     <section class="editor-section-panel">
-                      <wa-textarea id="editor-requires" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
+                      <div class="requires-editor">
+                        <div class="requires-editor-header">
+                          <div id="editor-requires-label" class="editor-field-label"></div>
+                          <wa-button id="editor-requires-add" class="icon-button requires-editor-add" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                        </div>
+                        <div class="requires-editor-rows" id="editor-requires-rows"></div>
+                      </div>
                     </section>
                   </wa-tab-panel>
                   <wa-tab-panel name="editor-section-code">
