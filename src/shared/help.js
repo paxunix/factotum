@@ -84,10 +84,12 @@ export function renderHelpTemplate(template, tokens) {
 export function buildHelpHtml(command, locale) {
   const localizedTokens = resolveLocaleMapEntry(command.helpHtmlStrings, locale);
   const tokens = localizedTokens && typeof localizedTokens === 'object' && !Array.isArray(localizedTokens)
-    ? { ...localizedTokens }
+    ? Object.fromEntries(
+        Object.entries(localizedTokens).map(([token, value]) => [token, escapeHtml(String(value ?? ''))])
+      )
     : {};
 
-  tokens.usage = buildHelpUsage(command);
+  tokens.usage = escapeHtml(buildHelpUsage(command));
   tokens.options = buildHelpOptions(command, locale);
   tokens.args = buildHelpArgs(command);
 

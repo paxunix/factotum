@@ -161,6 +161,9 @@ Help-template token model:
 - `helpHtmlStrings` is the author-defined localized token map.
 - Factotum resolves the locale-specific token object from `helpHtmlStrings`, then overlays a small runtime-generated token set before rendering.
 - Today the runtime-generated tokens are `usage`, `options`, and `args`.
+- Author-provided token values from `helpHtmlStrings` are treated as text and HTML-escaped before insertion.
+- The generated `usage` token is also inserted as escaped text.
+- The generated `options` and `args` tokens are inserted as runtime HTML fragments.
 - If an author also defines one of those token names in `helpHtmlStrings`, the runtime-generated value wins.
 - If the template references a token that is not present after that merge, the placeholder renders as an empty string.
 - The manager validates unresolved non-runtime tokens at save time and blocks the save with a per-locale error message so template mistakes are caught during authoring.
