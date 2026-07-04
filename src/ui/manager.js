@@ -121,6 +121,8 @@ const editorHelpStringsLocaleRequiredLabel = getMessage('managerEditorHelpString
 const editorHelpStringsDuplicateLocaleLabel = getMessage('managerEditorHelpStringsDuplicateLocale', 'Locale is duplicated.');
 const editorHelpStringsTokenRequiredLabel = getMessage('managerEditorHelpStringsTokenRequired', 'Token is required when a help string value is present.');
 const editorHelpStringsDuplicateTokenLabel = getMessage('managerEditorHelpStringsDuplicateToken', 'Token is duplicated within this locale.');
+const editorHelpTemplateUndefinedTokensLabel = getMessage('managerEditorHelpTemplateUndefinedTokens', 'Template tokens are not defined: $TOKENS$.');
+const editorHelpTemplateUndefinedTokensLocaleLabel = getMessage('managerEditorHelpTemplateUndefinedTokensLocale', 'Template tokens missing for locale $LOCALE$: $TOKENS$.');
 const editorOptionsLabel = getMessage('managerEditorOptions', 'Options spec JSON');
 const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires');
 const editorRequiresAddLabel = getMessage('managerEditorRequiresAdd', 'Add require');
@@ -306,6 +308,7 @@ function createCodeMirrorEditor(parent, languageExtension) {
 
 const codeLanguage = javascript();
 const helpTemplateLanguage = htmlLanguage();
+const RUNTIME_HELP_TEMPLATE_TOKENS = new Set(['usage', 'options', 'args']);
 const codeEditor = createCodeMirrorEditor(editorFields.code, codeLanguage);
 const helpTemplateEditor = createCodeMirrorEditor(editorFields.helpHtmlTemplate, helpTemplateLanguage);
 
@@ -1119,6 +1122,46 @@ function readEditedHelpStrings() {
   return Object.keys(helpStrings).length > 0 ? helpStrings : undefined;
 }
 
+function extractHelpTemplateTokens(template) {
+  return [...new Set(
+    String(template || '')
+      .matchAll(/{{\s*([A-Za-z0-9_-]+)\s*}}/g)
+  )].map((match) => match[1]);
+}
+
+function collectHelpTemplateIssues(template, helpStrings) {
+  const authorTokens = extractHelpTemplateTokens(template)
+    .filter((token) => !RUNTIME_HELP_TEMPLATE_TOKENS.has(token));
+
+  if (authorTokens.length === 0) {
+    return [];
+  }
+
+  const localeEntries = helpStrings && typeof helpStrings === 'object' && !Array.isArray(helpStrings)
+    ? Object.entries(helpStrings).filter(([, tokens]) => tokens && typeof tokens === 'object' && !Array.isArray(tokens))
+    : [];
+
+  if (localeEntries.length === 0) {
+    return [formatMessage(
+      'managerEditorHelpTemplateUndefinedTokens',
+      editorHelpTemplateUndefinedTokensLabel,
+      authorTokens.join(', ')
+    )];
+  }
+
+  return localeEntries.flatMap(([locale, tokens]) => {
+    const missing = authorTokens.filter((token) => !Object.prototype.hasOwnProperty.call(tokens, token));
+    if (missing.length === 0) {
+      return [];
+    }
+    return [formatMessage(
+      'managerEditorHelpTemplateUndefinedTokensLocale',
+      editorHelpTemplateUndefinedTokensLocaleLabel,
+      [locale, missing.join(', ')]
+    )];
+  });
+}
+
 function buildRequireRows(value) {
   const entries = Array.isArray(value) ? value : [];
   if (entries.length === 0) {
@@ -1660,6 +1703,11 @@ function readEditedCommand() {
     delete next.helpHtmlStrings;
   } else {
     next.helpHtmlStrings = helpHtmlStrings;
+  }
+
+  const helpTemplateIssues = collectHelpTemplateIssues(next.helpHtmlTemplate || '', next.helpHtmlStrings);
+  if (helpTemplateIssues.length > 0) {
+    throw new Error(`${editorHelpTemplateLabel}: ${helpTemplateIssues.join(' ')}`);
   }
 
   const optionsSpec = parseOptionalJson(editorOptionsLabel, editorFields.optionsSpec.value);
