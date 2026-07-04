@@ -156,6 +156,18 @@ Optional fields:
 
 `optionsSpec` is Factotum's author-facing option contract. Factotum may use parser libraries internally, but commands should depend only on the normalized `argv` object passed to `main()`.
 
+Help-template token model:
+- `helpHtmlTemplate` is an HTML string with `{{token}}` placeholders.
+- `helpHtmlStrings` is the author-defined localized token map.
+- Factotum resolves the locale-specific token object from `helpHtmlStrings`, then overlays a small runtime-generated token set before rendering.
+- Today the runtime-generated tokens are `usage`, `options`, and `args`.
+- If an author also defines one of those token names in `helpHtmlStrings`, the runtime-generated value wins.
+- If the template references a token that is not present after that merge, the placeholder renders as an empty string.
+
+Practical pattern:
+- put author-owned text such as `title`, `summary`, `usageTitle`, `optionsTitle`, and `examplesTitle` in `helpHtmlStrings`
+- rely on Factotum to generate `usage`, `options`, and `args` from `optionsSpec` when those sections are needed
+
 Shape:
 
 ```json
@@ -191,7 +203,9 @@ Positional behavior:
 `f cmd --help`:
 - skips normal command execution
 - renders help in the session console
-- may use generated `usage`, `options`, and `args` tokens from `optionsSpec`
+- resolves localized author tokens from `helpHtmlStrings`
+- overlays generated `usage`, `options`, and `args` tokens from `optionsSpec`
+- renders any unknown `{{token}}` placeholder as an empty string
 - uses `optionsSpec` to parse command input before `main()` runs; unknown flags and missing required options fail before command execution when an option set is declared
 
 `f cmd --debug`:
