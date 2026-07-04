@@ -15,7 +15,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 ### Manager / editor UX
 M4. Replace the remaining JSON textarea with a friendlier structured editor for optionsSpec.
 M8. manager UX needs a separate tab to hold overall settings.
-M17. CodeMirror editors should support user-specific configuration of their options, such as a JSON config blob for editor setup.
 ### Overlay UX
 
 OU2. Persist overlay theme preference beyond the current page session and decide whether that preference should be global or page-sensitive.
