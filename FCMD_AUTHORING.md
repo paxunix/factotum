@@ -201,6 +201,8 @@ Positional behavior:
 
 ## Requires
 
+- `requires[].world` applies to the dependency load target, not to the fcommand's own runtime world
+- the fcommand itself still always runs in `USER_SCRIPT`
 - sequential only
 - side-effect only
 - `data:` URLs are disallowed
@@ -209,6 +211,11 @@ Positional behavior:
 - `kind: "module"` loads a MAIN module with dynamic `import(url)` unless `world: "user_script"` is set
 - `world: "user_script"` is only for `kind: "module"` best-effort cases
 
+Why a `MAIN` require is useful even though the command itself runs in `USER_SCRIPT`:
+- a MAIN-world dependency can patch `window`, install a page-global library, or otherwise affect the page's own JavaScript environment
+- the fcommand then reaches that page-side state through `ctx.main.define()` and `ctx.main.call()`
+- requires are still side-effect only; the command does not receive a direct module handle back from MAIN
+
 Require examples:
 
 ```json
@@ -216,6 +223,21 @@ Require examples:
 ```
 
 Loads a classic script in MAIN.
+
+Typical usage pattern:
+
+```js
+async function main(argv, ctx) {
+  await ctx.main.define('runPageLib', (input) => window.PageLib.doThing(input));
+  const result = await ctx.main.call('runPageLib', ['hello']);
+  ctx.out.write(result);
+}
+```
+
+In that pattern:
+- the require loaded `window.PageLib` into MAIN as a side effect
+- the command stayed in `USER_SCRIPT`
+- the bridge was used only to call into the page realm where the dependency actually lives
 
 ```json
 { "url": "https://example.com/mod.mjs", "kind": "module" }
