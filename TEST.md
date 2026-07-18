@@ -395,6 +395,17 @@ Each test lists: **Setup → Action → Expected**.
   * Author-provided tokens remain localized.
   * Help is shown as a bubble in the session stream, not a special takeover card.
 
+#### T7c1: Built-in fallback help uses command metadata
+
+* Setup: use a command with `description` and `optionsSpec`, but no `helpHtmlTemplate` or `helpHtmlStrings`.
+* Action: run `f <command> --help`
+* Expected:
+
+  * Help overlay shows the command name as the title.
+  * Help overlay shows the localized command description when present.
+  * Help overlay shows built-in `Usage`, `Options`, and `Arguments` headings as applicable.
+  * Authoring no custom help template/strings still produces usable help output.
+
 #### T7d: `--debug` pauses before command execution
 
 * Setup: open DevTools for the page where the command will run.

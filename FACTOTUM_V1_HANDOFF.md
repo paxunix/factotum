@@ -214,7 +214,8 @@ Example command record (excerpt):
 Resolution order for `helpHtmlStrings` is the same as `LocalizedText` (§3.1).
 
 Commands may generate some tokens at runtime (e.g., `usage` from an options spec) and merge them with localized author‑provided tokens before rendering.
-Localized token values are treated as plain text and HTML-escaped before insertion. The raw-HTML surface is the template itself plus structured runtime HTML fragments such as generated `options` and `args`.
+Localized token values are treated as plain text and HTML-escaped before insertion. The raw-HTML surface is the template itself plus structured runtime HTML fragments such as generated `summaryBlock`, `options`, `args`, `optionsBlock`, and `argsBlock`.
+When no `helpHtmlTemplate` is provided, the runtime must fall back to a built-in template that renders a title, optional summary paragraph, usage section, and generated options/args sections using extension-localized section headings.
 
 ### 3.3 Help rendering algorithm (required)
 
@@ -224,18 +225,27 @@ When `--help` is invoked:
 2) Resolve `helpHtmlStrings` for that locale using the same fallback order as `LocalizedText` (§3.1).
 3) Build a token map:
    - Start with the resolved locale token map (author‑provided) and HTML-escape those token values.
+   - Fill built-in metadata tokens such as `title` and `summary` when the author did not provide them.
+   - Fill built-in heading tokens such as `usageTitle`, `optionsTitle`, and `argsTitle` from extension i18n when the author did not provide them.
    - Overlay runtime‑generated tokens (e.g., `usage`, `options`, `args`) so generated content wins when provided.
-   - Treat `usage` as escaped text and `options`/`args` as runtime-generated HTML fragments.
+   - Treat `usage`, `title`, `summary`, and heading tokens as escaped text and `summaryBlock`/`options`/`args`/`optionsBlock`/`argsBlock` as runtime-generated HTML fragments.
 4) Render `helpHtmlTemplate` by replacing `{{token}}` placeholders with the final token values.
 5) Display the rendered HTML as‑is (raw HTML, no sanitization).
 
 Recommended default tokens for consistency (not required):
 
 - `title`
+- `summary`
+- `summaryBlock`
+- `usageTitle`
+- `optionsTitle`
+- `argsTitle`
 - `synopsis`
 - `usage`
 - `options`
 - `args`
+- `optionsBlock`
+- `argsBlock`
 - `examples`
 
 Commands that want automated help generation should provide an options spec and rely on the runtime to supply `usage/options/args` tokens, while author‑provided localized tokens cover the remaining content.

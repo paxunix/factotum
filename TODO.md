@@ -23,11 +23,3 @@ OU2. Persist overlay theme preference beyond the current page session and decide
 TV1. Once Chrome MCP is available, use it to automate more of the manual smoke path and reduce reliance on service worker console inspection.
 TV2. Do a focused conformance pass on storage/import/export edge cases to verify the current implementation still matches `FACTOTUM_V1_HANDOFF.md` after the manager and bundle UX iterations.
 TV3. Do a focused conformance pass on omnibox and runtime behavior to verify the checked-in implementation still matches `FACTOTUM_V1_HANDOFF.md` after the recent resolution and session-console changes.
-
-### Fcommand internals
-
-FI1. could we automatically generate the options/arguments section of an
-Fcommand based on the options spec?
-FI2. there should be a default help template that is used, into which we
-substitute information from the Fcommand's metadata, unless the user has
-overridden with their own template.

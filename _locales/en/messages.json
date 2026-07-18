@@ -19,6 +19,18 @@
     "message": "",
     "description": "Manager page hint"
   },
+  "helpUsageTitle": {
+    "message": "Usage",
+    "description": "Built-in help heading for command usage"
+  },
+  "helpOptionsTitle": {
+    "message": "Options",
+    "description": "Built-in help heading for command options"
+  },
+  "helpArgsTitle": {
+    "message": "Arguments",
+    "description": "Built-in help heading for command positional arguments"
+  },
   "managerBundleToolsTitle": {
     "message": "Bundle Tools",
     "description": "Manager section title for import and export"

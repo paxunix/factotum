@@ -160,11 +160,12 @@ Help-template token model:
 - `helpHtmlTemplate` is an HTML string with `{{token}}` placeholders.
 - `helpHtmlStrings` is the author-defined localized token map.
 - Factotum resolves the locale-specific token object from `helpHtmlStrings`, then overlays a small runtime-generated token set before rendering.
-- Today the runtime-generated tokens are `usage`, `options`, and `args`.
+- Today the runtime-generated tokens are `title`, `summary`, `summaryBlock`, `usageTitle`, `optionsTitle`, `argsTitle`, `usage`, `options`, `args`, `optionsBlock`, and `argsBlock`.
 - Author-provided token values from `helpHtmlStrings` are treated as text and HTML-escaped before insertion.
-- The generated `usage` token is also inserted as escaped text.
-- The generated `options` and `args` tokens are inserted as runtime HTML fragments.
-- If an author also defines one of those token names in `helpHtmlStrings`, the runtime-generated value wins.
+- The generated `usage`, `title`, `summary`, and built-in heading tokens are inserted as escaped text.
+- The generated `summaryBlock`, `options`, `args`, `optionsBlock`, and `argsBlock` tokens are inserted as runtime HTML fragments.
+- `usage`, `options`, and `args` always come from runtime generation.
+- For the other built-in tokens, author-provided values from `helpHtmlStrings` win when present; otherwise the runtime falls back to command metadata and extension-localized headings.
 - If the template references a token that is not present after that merge, the placeholder renders as an empty string.
 - The manager validates unresolved non-runtime tokens at save time and blocks the save with a per-locale error message so template mistakes are caught during authoring.
 - Runtime help resolution uses the browser UI language with `en-US` fallback.
@@ -173,6 +174,8 @@ Help-template token model:
 Practical pattern:
 - put author-owned text such as `title`, `summary`, `usageTitle`, `optionsTitle`, and `examplesTitle` in `helpHtmlStrings`
 - rely on Factotum to generate `usage`, `options`, and `args` from `optionsSpec` when those sections are needed
+- use `optionsBlock` and `argsBlock` when you want built-in section wrappers with headings; use `options` and `args` when your template wants to place those fragments itself
+- if you omit both `helpHtmlTemplate` and `helpHtmlStrings`, Factotum falls back to a built-in help template that uses the command name, localized description, and built-in localized section headings
 
 Shape:
 
@@ -210,7 +213,7 @@ Positional behavior:
 - skips normal command execution
 - renders help in the session console
 - resolves localized author tokens from `helpHtmlStrings`
-- overlays generated `usage`, `options`, and `args` tokens from `optionsSpec`
+- overlays or fills built-in runtime tokens from command metadata and `optionsSpec`
 - renders any unknown `{{token}}` placeholder as an empty string
 - uses `optionsSpec` to parse command input before `main()` runs; unknown flags and missing required options fail before command execution when an option set is declared
 
