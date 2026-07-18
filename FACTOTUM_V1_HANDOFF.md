@@ -38,7 +38,7 @@ When user-facing behavior or author-facing APIs change, keep those audience guid
 
 The current checked-in implementation now uses a per-tab, per-document session console as the command-facing overlay surface: it is lazy-created on first use in a page session, hidden when dismissed rather than destroyed, reopenable via omnibox `f -` within that same page session, and discarded on top-level navigation or tab close. Saved command outcomes, help, system notices, active invocation state, and `ctx.out.write/info/warn/error` output all render in the same append-only bubble stream. Terminal states do not auto-dismiss, the desktop console defaults to a wider presentation, and the scrollback region is vertically resizable. Opening the console scrolls to the newest entries; subsequent writes keep auto-scrolling only when the user is already at the bottom, otherwise the current history-inspection position is preserved.
 
-The bottom action bar includes a per-page-session light/dark theme toggle for the overlay itself. The default is dark; switching is immediate and is not persisted across page teardown or tab close.
+The bottom action bar includes a per-page-session light/dark theme toggle for the overlay itself. The default is dark; switching is immediate and is not persisted across page teardown or tab close. The same action bar also includes an opacity control whose chosen value is persisted globally in extension storage and restored on later overlay opens.
 
 The main remaining follow-up in this area is implementation cleanup rather than a model change:
 
@@ -88,6 +88,7 @@ The main remaining follow-up in this area is implementation cleanup rather than 
 ### Keys
 - `fcmd:index` → lightweight metadata list + MRU fields
 - `fcmd:aliases` → alias map
+- `fcmd:overlayPrefs` → global overlay preference record
 - `fcmd:cmd:<name>@<id>` → full command record
 
 ### Index record (schemaVersion 1)
@@ -131,6 +132,12 @@ Alias map:
 - each alias key maps to one or more command refs: `[{ name, id }, ...]`
 - alias keys are user-managed shell-like shortcuts; they are not stored on command records
 - exact alias execution selects the highest-MRU enabled command among the alias targets
+
+Overlay preference record:
+- `opacity?: number` (`0.4` to `1`, default `1`)
+- currently controls the session console shell opacity
+- persists globally across tabs and future page sessions
+- overlay theme is not stored here in v1 and remains per-page-session only
 
 OptionsSpec:
 - `name?: string` (display name for usage; defaults to command name)

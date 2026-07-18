@@ -98,6 +98,23 @@ Each test lists: **Setup → Action → Expected**.
   * The theme-toggle icon changes with the current mode.
   * The current page session remembers the chosen mode while the overlay is reopened in that page.
 
+#### T0c: Overlay opacity control persists across overlay reopen and later page sessions
+
+* Setup: in a normal page, open the session console.
+* Action:
+
+  1. move the bottom-bar opacity control to a visibly lower opacity
+  2. dismiss the session console
+  3. reopen it with `f -`
+  4. reload the page or navigate to another normal page in the same browser profile
+  5. run any fcommand to reopen the session console there
+* Expected:
+
+  * The overlay opacity changes immediately while adjusting the control.
+  * Reopening the overlay in the same page session keeps the chosen opacity.
+  * Later overlay opens in subsequent page sessions restore the same chosen opacity.
+  * The light/dark theme still behaves independently and is not persisted by this control.
+
 #### T1: Exact name outranks exact alias and prefix matches
 
 * Setup:

@@ -52,6 +52,7 @@ Bubble styling:
 - command-state and system-result bubbles use their own left-edge bars and tinted backgrounds so running/help, done, canceled/busy, and error states are easier to distinguish at a glance
 - the bottom action bar includes a theme toggle that switches between the default dark console and a light console
 - the theme toggle applies immediately and lasts for the current page session only
+- the bottom action bar also includes an opacity slider; its value applies immediately and is remembered for later overlay opens across tabs and page sessions
 
 Commands can also be configured so the overlay does not auto-show during normal runs. In that mode:
 - the command still records the same session history

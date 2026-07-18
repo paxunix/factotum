@@ -18,7 +18,6 @@ M8. manager UX needs a separate tab to hold overall settings.
 ### Overlay UX
 
 OU2. Persist overlay theme preference beyond the current page session and decide whether that preference should be global or page-sensitive.
-OU3. Add an overlay opacity control in the bottom action area and persist the chosen opacity with the rest of the overlay preferences.
 
 ### Tooling / verification
 TV1. Once Chrome MCP is available, use it to automate more of the manual smoke path and reduce reliance on service worker console inspection.

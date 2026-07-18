@@ -554,6 +554,10 @@
     "message": "Switch overlay to dark mode",
     "description": "Overlay button label for switching the session console to dark mode"
   },
+  "overlayOpacity": {
+    "message": "Overlay opacity",
+    "description": "Overlay range-control label for adjusting session console opacity"
+  },
   "overlayRunning": {
     "message": "Running...",
     "description": "Overlay running state label"

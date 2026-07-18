@@ -1,4 +1,12 @@
 import { fontAwesomeIcons } from '../generated/fontawesome-icons.js';
+import {
+  DEFAULT_OVERLAY_OPACITY,
+  MAX_OVERLAY_OPACITY,
+  MIN_OVERLAY_OPACITY,
+  normalizeOverlayPreferences,
+  OVERLAY_OPACITY_STEP,
+  OVERLAY_PREFS_KEY
+} from '../shared/overlay_prefs.js';
 
 const CONTROL_TYPE = 'fcmd_control';
 const CONTROLLER_KEY = '__factotumOverlayController';
@@ -9,7 +17,7 @@ function buildStyleText() {
   }
 
   .factotum-shell {
-    --factotum-shell-bg: rgba(15, 23, 42, 0.9);
+    --factotum-shell-bg: rgba(15, 23, 42, var(--factotum-shell-opacity, 1));
     --factotum-shell-border: rgba(255, 255, 255, 0.18);
     --factotum-shell-fg: rgb(255, 255, 255);
     --factotum-entry-bg: rgba(255, 255, 255, 0.06);
@@ -39,7 +47,7 @@ function buildStyleText() {
   }
 
   .factotum-shell[data-theme="light"] {
-    --factotum-shell-bg: rgba(255, 255, 255, 0.96);
+    --factotum-shell-bg: rgba(255, 255, 255, var(--factotum-shell-opacity, 1));
     --factotum-shell-border: rgba(15, 23, 42, 0.12);
     --factotum-shell-fg: rgb(15, 23, 42);
     --factotum-entry-bg: rgba(226, 232, 240, 0.32);
@@ -222,6 +230,12 @@ function buildStyleText() {
     gap: 10px;
   }
 
+  .factotum-opacity-control {
+    accent-color: currentColor;
+    inline-size: 96px;
+    margin: 0;
+  }
+
   .factotum-button {
     appearance: none;
     background: var(--factotum-button-bg);
@@ -338,8 +352,24 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     dismissible: false,
     entries: [],
     theme: 'dark',
+    opacity: DEFAULT_OVERLAY_OPACITY,
     historyPinnedToBottom: true
   };
+
+  async function loadOverlayPreferences() {
+    const result = await chrome.storage.local.get([OVERLAY_PREFS_KEY]);
+    const preferences = normalizeOverlayPreferences(result[OVERLAY_PREFS_KEY]);
+    controller.opacity = preferences.opacity;
+    updateOverlayAppearance();
+  }
+
+  async function persistOverlayPreferences() {
+    await chrome.storage.local.set({
+      [OVERLAY_PREFS_KEY]: {
+        opacity: controller.opacity
+      }
+    });
+  }
 
   function bindOverlayControls() {
     controller.shadowRootRef.getElementById('factotum-cancel').textContent = getMessage('overlayCancel', 'Cancel');
@@ -368,7 +398,18 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
 
     controller.shadowRootRef.getElementById('factotum-theme-toggle').addEventListener('click', () => {
       controller.theme = controller.theme === 'dark' ? 'light' : 'dark';
-      updateTheme();
+      updateOverlayAppearance();
+    });
+
+    const opacityControl = controller.shadowRootRef.getElementById('factotum-opacity');
+    opacityControl.addEventListener('input', () => {
+      controller.opacity = normalizeOverlayPreferences({
+        opacity: Number(opacityControl.value)
+      }).opacity;
+      updateOverlayAppearance();
+      persistOverlayPreferences().catch((error) => {
+        console.error('[factotum] persist overlay preferences failed', error);
+      });
     });
   }
 
@@ -390,6 +431,9 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
         controller.historyPinnedToBottom = isScrolledToBottom(history);
       }
       bindOverlayControls();
+      loadOverlayPreferences().catch((error) => {
+        console.error('[factotum] load overlay preferences failed', error);
+      });
       return controller.overlayRoot;
     }
 
@@ -438,6 +482,15 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     themeButton.append(themeIcon);
     leadingActions.append(themeButton);
 
+    const opacityControl = document.createElement('input');
+    opacityControl.className = 'factotum-opacity-control';
+    opacityControl.id = 'factotum-opacity';
+    opacityControl.type = 'range';
+    opacityControl.min = String(MIN_OVERLAY_OPACITY);
+    opacityControl.max = String(MAX_OVERLAY_OPACITY);
+    opacityControl.step = String(OVERLAY_OPACITY_STEP);
+    leadingActions.append(opacityControl);
+
     const trailingActions = document.createElement('div');
     trailingActions.className = 'factotum-actions-trailing';
 
@@ -453,6 +506,9 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     controller.shadowRootRef.append(style, shell);
     document.documentElement.append(controller.overlayRoot);
     bindOverlayControls();
+    loadOverlayPreferences().catch((error) => {
+      console.error('[factotum] load overlay preferences failed', error);
+    });
 
     return controller.overlayRoot;
   }
@@ -465,7 +521,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     return buildIconSvgElement('sun');
   }
 
-  function updateTheme() {
+  function updateOverlayAppearance() {
     if (!controller.shadowRootRef) {
       return;
     }
@@ -473,11 +529,13 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     const shell = controller.shadowRootRef.querySelector('.factotum-shell');
     const themeButton = controller.shadowRootRef.getElementById('factotum-theme-toggle');
     const themeIcon = controller.shadowRootRef.getElementById('factotum-theme-icon');
-    if (!shell || !themeButton || !themeIcon) {
+    const opacityControl = controller.shadowRootRef.getElementById('factotum-opacity');
+    if (!shell || !themeButton || !themeIcon || !opacityControl) {
       return;
     }
 
     shell.dataset.theme = controller.theme;
+    shell.style.setProperty('--factotum-shell-opacity', String(controller.opacity));
     const nextTheme = controller.theme === 'dark' ? 'light' : 'dark';
     themeIcon.replaceChildren(buildThemeIcon(controller.theme));
     const label = nextTheme === 'light'
@@ -485,6 +543,10 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
       : getMessage('overlayThemeDark', 'Switch overlay to dark mode');
     themeButton.title = label;
     themeButton.setAttribute('aria-label', label);
+    opacityControl.value = String(controller.opacity);
+    opacityControl.title = getMessage('overlayOpacity', 'Overlay opacity');
+    opacityControl.setAttribute('aria-label', getMessage('overlayOpacity', 'Overlay opacity'));
+    opacityControl.setAttribute('aria-valuetext', `${Math.round(controller.opacity * 100)}%`);
   }
 
   function buildEntryElement(entry) {
@@ -574,7 +636,7 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     button.textContent = snapshot?.state === 'RUNNING'
       ? getMessage('overlayCancel', 'Cancel')
       : getMessage('overlayClose', 'Close');
-    updateTheme();
+    updateOverlayAppearance();
 
     if (!historyRoot.hidden) {
       if (shouldScrollOnOpen || controller.historyPinnedToBottom) {
@@ -608,6 +670,14 @@ if (window.top === window && !globalThis[CONTROLLER_KEY]) {
     }
 
     return undefined;
+  });
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local' || !changes[OVERLAY_PREFS_KEY]) {
+      return;
+    }
+    controller.opacity = normalizeOverlayPreferences(changes[OVERLAY_PREFS_KEY].newValue).opacity;
+    updateOverlayAppearance();
   });
 
   // Clear overlay when the current document is being torn down.
