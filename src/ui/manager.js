@@ -394,7 +394,14 @@ function updateSortDirectionButton() {
 }
 
 function setupEditorToolButton(button, shortLabel, label) {
-  button.textContent = shortLabel;
+  button.textContent = '';
+  const content = document.createElement('span');
+  content.className = 'editor-tool-button-content';
+  const text = document.createElement('span');
+  text.className = 'editor-tool-button-label';
+  text.textContent = shortLabel;
+  content.append(createIcon('code'), text);
+  button.append(content);
   button.setAttribute('aria-label', label);
   button.title = label;
 }

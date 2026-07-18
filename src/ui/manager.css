@@ -358,9 +358,35 @@ wa-textarea.bundle-textarea::part(textarea) {
   padding-inline: 0;
 }
 
+.editor-tool-button {
+  text-align: center;
+}
+
 .editor-tool-button::part(base) {
-  min-width: 44px;
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+  min-width: 72px;
   padding-inline: 10px;
+}
+
+.editor-tool-button-content {
+  align-items: center;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+  width: 100%;
+}
+
+.editor-tool-button-label {
+  display: block;
+  text-align: center;
+}
+
+.editor-tool-button-content .button-icon {
+  margin-inline: auto;
 }
 
 .button-icon {

@@ -102,6 +102,7 @@ function copyRootAssets() {
 
 function writeGeneratedFontAwesomeIcons() {
   const {
+    faCode,
     faArrowDown19,
     faArrowDownAZ,
     faArrowDownZA,
@@ -117,6 +118,7 @@ function writeGeneratedFontAwesomeIcons() {
   } = require('@fortawesome/free-solid-svg-icons');
 
   const icons = {
+    code: faCode,
     arrowDown: faArrowDown,
     arrowDown19: faArrowDown19,
     arrowDownAZ: faArrowDownAZ,
