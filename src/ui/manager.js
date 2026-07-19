@@ -130,7 +130,29 @@ const editorHelpTemplateUndefinedTokensLocaleLabel = getMessage('managerEditorHe
 const editorHelpEditLabel = getMessage('managerEditorHelpEdit', 'Edit');
 const editorHelpPreviewLabel = getMessage('managerEditorHelpPreview', 'Preview');
 const editorHelpPreviewLocaleLabel = getMessage('managerEditorHelpPreviewLocale', 'Preview locale');
-const editorOptionsLabel = getMessage('managerEditorOptions', 'Options spec JSON');
+const editorOptionsLabel = getMessage('managerEditorOptions', 'Options');
+const editorOptionsArgsLabel = getMessage('managerEditorOptionsArgs', 'Positional args');
+const editorOptionsArgsPlaceholderLabel = getMessage('managerEditorOptionsArgsPlaceholder', '<input> [output]');
+const editorOptionsAddLabel = getMessage('managerEditorOptionsAdd', 'Add option');
+const editorOptionsFlagsLabel = getMessage('managerEditorOptionsFlags', 'Flags');
+const editorOptionsFlagsPlaceholderLabel = getMessage('managerEditorOptionsFlagsPlaceholder', '-f --force');
+const editorOptionsValueLabel = getMessage('managerEditorOptionsValue', 'Value');
+const editorOptionsValueBooleanLabel = getMessage('managerEditorOptionsValueBoolean', 'boolean');
+const editorOptionsValueStringLabel = getMessage('managerEditorOptionsValueString', 'string');
+const editorOptionsValueNumberLabel = getMessage('managerEditorOptionsValueNumber', 'number');
+const editorOptionsRequiredLabel = getMessage('managerEditorOptionsRequired', 'Required');
+const editorOptionsDefaultLabel = getMessage('managerEditorOptionsDefault', 'Default');
+const editorOptionsDefaultUnsetLabel = getMessage('managerEditorOptionsDefaultUnset', 'No default');
+const editorOptionsDefaultTrueLabel = getMessage('managerEditorOptionsDefaultTrue', 'true');
+const editorOptionsDefaultFalseLabel = getMessage('managerEditorOptionsDefaultFalse', 'false');
+const editorOptionsDescriptionLabel = getMessage('managerEditorOptionsDescription', 'Descriptions');
+const editorOptionsDescriptionAddLabel = getMessage('managerEditorOptionsDescriptionAdd', 'Add locale description');
+const editorOptionsDescriptionDeleteLabel = getMessage('managerEditorOptionsDescriptionDelete', 'Delete locale description');
+const editorOptionsDeleteLabel = getMessage('managerEditorOptionsDelete', 'Delete option');
+const editorOptionsFlagsRequiredLabel = getMessage('managerEditorOptionsFlagsRequired', 'Flags are required when an option row is populated.');
+const editorOptionsFlagInvalidLabel = getMessage('managerEditorOptionsFlagInvalid', 'Flags must start with - and cannot contain whitespace.');
+const editorOptionsFlagDuplicateLabel = getMessage('managerEditorOptionsFlagDuplicate', 'Flag is duplicated.');
+const editorOptionsDefaultNumberLabel = getMessage('managerEditorOptionsDefaultNumber', 'Default must be a number.');
 const editorRequiresLabel = getMessage('managerEditorRequires', 'Requires');
 const editorRequiresAddLabel = getMessage('managerEditorRequiresAdd', 'Add require');
 const editorRequiresUrlLabel = getMessage('managerEditorRequiresUrl', 'URL');
@@ -191,6 +213,7 @@ document.getElementById('editor-section-help-tab').textContent = editorHelpSecti
 document.getElementById('editor-help-mode-edit-tab').textContent = editorHelpEditLabel;
 document.getElementById('editor-help-mode-preview-tab').textContent = editorHelpPreviewLabel;
 document.getElementById('editor-section-options-tab').textContent = editorOptionsSectionLabel;
+document.getElementById('editor-options-label').textContent = editorOptionsLabel;
 document.getElementById('editor-section-requires-tab').textContent = editorRequiresSectionLabel;
 document.getElementById('editor-section-code-tab').textContent = editorCodeSectionLabel;
 document.getElementById('editor-section-export-tab').textContent = editorExportSectionLabel;
@@ -234,6 +257,10 @@ const descriptionEditor = {
   addButton: document.getElementById('editor-description-add'),
   rows: document.getElementById('editor-description-rows')
 };
+const optionsEditor = {
+  addButton: document.getElementById('editor-options-add'),
+  rows: document.getElementById('editor-options-rows')
+};
 const helpStringsEditor = {
   label: document.getElementById('editor-help-strings-label'),
   addButton: document.getElementById('editor-help-strings-add-locale'),
@@ -257,7 +284,7 @@ const editorFields = {
   showOverlay: document.getElementById('editor-show-overlay'),
   code: document.getElementById('editor-code'),
   helpHtmlTemplate: document.getElementById('editor-help-template'),
-  optionsSpec: document.getElementById('editor-options')
+  optionsArgs: document.getElementById('editor-options-args')
 };
 let selectedCommandRef = null;
 let selectedCommand = null;
@@ -285,7 +312,8 @@ descriptionEditor.label.textContent = editorDescriptionLabel;
 editorFields.aliases.label = editorAliasesLabel;
 editorFields.showOverlay.textContent = editorShowOverlayLabel;
 helpStringsEditor.label.textContent = editorHelpStringsLabel;
-editorFields.optionsSpec.label = editorOptionsLabel;
+editorFields.optionsArgs.label = editorOptionsArgsLabel;
+editorFields.optionsArgs.placeholder = editorOptionsArgsPlaceholderLabel;
 requiresEditor.label.textContent = editorRequiresLabel;
 editorCommandExport.label = editorCommandExportLabel;
 helpPreview.locale.label = editorHelpPreviewLocaleLabel;
@@ -295,6 +323,9 @@ descriptionEditor.addButton.title = editorDescriptionAddLabel;
 helpStringsEditor.addButton.append(createIcon('plus'));
 helpStringsEditor.addButton.setAttribute('aria-label', editorHelpStringsAddLocaleLabel);
 helpStringsEditor.addButton.title = editorHelpStringsAddLocaleLabel;
+optionsEditor.addButton.append(createIcon('plus'));
+optionsEditor.addButton.setAttribute('aria-label', editorOptionsAddLabel);
+optionsEditor.addButton.title = editorOptionsAddLabel;
 requiresEditor.addButton.append(createIcon('plus'));
 requiresEditor.addButton.setAttribute('aria-label', editorRequiresAddLabel);
 requiresEditor.addButton.title = editorRequiresAddLabel;
@@ -596,10 +627,6 @@ function renderFilteredCommandsFromInput() {
   renderCommands(currentCommands);
 }
 
-function stringifyJson(value, fallback = '') {
-  return value == null ? fallback : JSON.stringify(value, null, 2);
-}
-
 function createEditableCommandRecord(command, now = Date.now()) {
   const source = command?.invalid
     ? (command.rawRecord && typeof command.rawRecord === 'object' ? command.rawRecord : {})
@@ -623,19 +650,6 @@ function createEditableCommandRecord(command, now = Date.now()) {
     ...(source.optionsSpec !== undefined ? { optionsSpec: source.optionsSpec } : {}),
     ...(source.requires !== undefined ? { requires: source.requires } : {})
   };
-}
-
-function parseOptionalJson(label, value) {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return undefined;
-  }
-
-  try {
-    return JSON.parse(trimmed);
-  } catch (error) {
-    throw new Error(`${label}: ${error.message}`);
-  }
 }
 
 function buildLocalizedRows(value) {
@@ -1223,6 +1237,11 @@ function readHelpPreviewDraft() {
     helpHtmlTemplate: helpTemplateEditor.state.doc.toString()
   };
 
+  const description = readEditedDescription();
+  if (description != null) {
+    draft.description = description;
+  }
+
   if (helpHtmlStrings != null) {
     draft.helpHtmlStrings = helpHtmlStrings;
   }
@@ -1232,7 +1251,7 @@ function readHelpPreviewDraft() {
     throw new Error(`${editorHelpTemplateLabel}: ${helpTemplateIssues.join(' ')}`);
   }
 
-  const optionsSpec = parseOptionalJson(editorOptionsLabel, editorFields.optionsSpec.value);
+  const optionsSpec = readEditedOptionsSpec();
   if (optionsSpec != null) {
     draft.optionsSpec = optionsSpec;
   }
@@ -1300,6 +1319,508 @@ function collectHelpTemplateIssues(template, helpStrings) {
       [locale, missing.join(', ')]
     )];
   });
+}
+
+function buildOptionsSpecRows(value) {
+  const options = Array.isArray(value?.options) ? value.options : [];
+  if (options.length === 0) {
+    return [{
+      flags: '',
+      value: 'boolean',
+      required: false,
+      defaultValue: '',
+      defaultBoolean: '',
+      descriptions: [{ locale: '', value: '' }]
+    }];
+  }
+
+  return options.map((option) => {
+    const valueType = option?.value === 'string' || option?.value === 'number' || option?.value === 'boolean'
+      ? option.value
+      : 'boolean';
+    const hasDefault = Object.prototype.hasOwnProperty.call(option || {}, 'default');
+    return {
+      flags: Array.isArray(option?.flags) ? option.flags.map((flag) => String(flag)).join(' ') : '',
+      value: valueType,
+      required: Boolean(option?.required),
+      defaultValue: hasDefault && valueType !== 'boolean' ? String(option.default) : '',
+      defaultBoolean: hasDefault && valueType === 'boolean' ? String(Boolean(option.default)) : '',
+      descriptions: buildLocalizedRows(option?.description)
+    };
+  });
+}
+
+function getOptionDescriptionRowsSnapshot(optionRow) {
+  return [...optionRow.querySelectorAll('.option-description-row')].map((row) => ({
+    locale: row.querySelector('.option-description-locale')?.value || '',
+    value: row.querySelector('.option-description-value')?.value || ''
+  }));
+}
+
+function getOptionsRowsSnapshot() {
+  return [...optionsEditor.rows.querySelectorAll('.option-row')].map((row) => ({
+    flags: row.querySelector('.option-row-flags')?.value || '',
+    value: row.querySelector('.option-row-value')?.value || 'boolean',
+    required: Boolean(row.querySelector('.option-row-required')?.checked),
+    defaultValue: row.querySelector('.option-row-default')?.value || '',
+    defaultBoolean: row.querySelector('.option-row-default-boolean')?.value || '',
+    descriptions: getOptionDescriptionRowsSnapshot(row)
+  }));
+}
+
+function optionDescriptionHasMeaningfulContent(row) {
+  return Boolean(row.locale.trim() || row.value !== '');
+}
+
+function optionRowHasMeaningfulContent(row) {
+  return Boolean(
+    row.flags.trim()
+    || row.value !== 'boolean'
+    || row.required
+    || row.defaultValue !== ''
+    || row.defaultBoolean !== ''
+    || row.descriptions.some(optionDescriptionHasMeaningfulContent)
+  );
+}
+
+function parseOptionFlags(value) {
+  return String(value || '').trim().split(/\s+/).filter(Boolean);
+}
+
+function validateOptionsRows(rows) {
+  const optionIssues = new Map();
+  const descriptionIssues = new Map();
+  const seenFlags = new Map();
+
+  rows.forEach((row, rowIndex) => {
+    const populated = optionRowHasMeaningfulContent(row);
+    if (!populated) {
+      return;
+    }
+
+    const flags = parseOptionFlags(row.flags);
+    if (flags.length === 0) {
+      optionIssues.set(rowIndex, editorOptionsFlagsRequiredLabel);
+    } else {
+      for (const flag of flags) {
+        if (!flag.startsWith('-')) {
+          optionIssues.set(rowIndex, editorOptionsFlagInvalidLabel);
+          break;
+        }
+        const key = flag;
+        if (seenFlags.has(key)) {
+          optionIssues.set(rowIndex, editorOptionsFlagDuplicateLabel);
+          optionIssues.set(seenFlags.get(key), editorOptionsFlagDuplicateLabel);
+        } else {
+          seenFlags.set(key, rowIndex);
+        }
+      }
+    }
+
+    if (row.value === 'number' && row.defaultValue.trim() !== '' && !Number.isFinite(Number(row.defaultValue))) {
+      optionIssues.set(rowIndex, editorOptionsDefaultNumberLabel);
+    }
+
+    const seenLocales = new Map();
+    row.descriptions.forEach((description, descriptionIndex) => {
+      const locale = description.locale.trim();
+      const hasValue = description.value !== '';
+      if (!locale && !hasValue) {
+        return;
+      }
+      const key = `${rowIndex}:${descriptionIndex}`;
+      if (!locale) {
+        descriptionIssues.set(key, editorDescriptionLocaleRequiredLabel);
+        return;
+      }
+      const localeKey = locale.toLowerCase();
+      if (seenLocales.has(localeKey)) {
+        descriptionIssues.set(key, editorDescriptionDuplicateLocaleLabel);
+        descriptionIssues.set(`${rowIndex}:${seenLocales.get(localeKey)}`, editorDescriptionDuplicateLocaleLabel);
+      } else {
+        seenLocales.set(localeKey, descriptionIndex);
+      }
+    });
+  });
+
+  return { optionIssues, descriptionIssues };
+}
+
+function renderOptionRowIssue(row, message = '') {
+  row.dataset.invalid = message ? 'true' : 'false';
+  const issue = row.querySelector('.option-row-error');
+  if (issue) {
+    issue.textContent = message;
+    issue.hidden = !message;
+  }
+}
+
+function renderOptionDescriptionIssue(row, message = '') {
+  row.dataset.invalid = message ? 'true' : 'false';
+  const issue = row.querySelector('.option-description-error');
+  if (issue) {
+    issue.textContent = message;
+    issue.hidden = !message;
+  }
+}
+
+function syncOptionsValidation() {
+  const rows = getOptionsRowsSnapshot();
+  const { optionIssues, descriptionIssues } = validateOptionsRows(rows);
+  [...optionsEditor.rows.querySelectorAll('.option-row')].forEach((row, rowIndex) => {
+    renderOptionRowIssue(row, optionIssues.get(rowIndex) || '');
+    [...row.querySelectorAll('.option-description-row')].forEach((descriptionRow, descriptionIndex) => {
+      renderOptionDescriptionIssue(descriptionRow, descriptionIssues.get(`${rowIndex}:${descriptionIndex}`) || '');
+    });
+  });
+  return { optionIssues, descriptionIssues };
+}
+
+function handleOptionsEditorChange() {
+  syncOptionsValidation();
+  updateEditorDirtyState();
+  refreshHelpPreview();
+}
+
+function ensureOptionDescriptionRowPresence(optionRow) {
+  const rows = optionRow.querySelector('.option-description-rows');
+  if (rows.childElementCount > 0) {
+    return;
+  }
+  addOptionDescriptionRow(optionRow, { locale: '', value: '' });
+}
+
+function ensureOptionRowPresence() {
+  if (optionsEditor.rows.childElementCount > 0) {
+    return;
+  }
+  addOptionRow();
+}
+
+function addOptionDescriptionRow(optionRow, initial = { locale: '', value: '' }, options = {}) {
+  const rows = optionRow.querySelector('.option-description-rows');
+  const row = document.createElement('div');
+  row.className = 'option-description-row';
+  row.dataset.invalid = 'false';
+
+  const grid = document.createElement('div');
+  grid.className = 'option-description-grid';
+
+  const localeField = document.createElement('div');
+  localeField.className = 'option-description-locale-field';
+
+  const localeLabel = document.createElement('div');
+  localeLabel.className = 'editor-field-label option-description-field-label';
+  localeLabel.textContent = editorDescriptionLocaleLabel;
+
+  const localeInput = document.createElement('wa-input');
+  localeInput.className = 'option-description-locale';
+  localeInput.placeholder = editorDescriptionLocalePlaceholder;
+  localeInput.size = 'small';
+  localeInput.value = initial.locale || '';
+
+  const valueInput = document.createElement('wa-textarea');
+  valueInput.className = 'option-description-value editor-textarea-small';
+  valueInput.label = editorDescriptionValueLabel;
+  valueInput.resize = 'auto';
+  valueInput.spellcheck = false;
+  valueInput.value = initial.value || '';
+
+  const deleteButton = document.createElement('wa-button');
+  deleteButton.className = 'icon-button option-description-delete';
+  deleteButton.variant = 'neutral';
+  deleteButton.appearance = 'filled-outlined';
+  deleteButton.size = 'small';
+  deleteButton.type = 'button';
+  deleteButton.append(createIcon('trash'));
+  deleteButton.setAttribute('aria-label', editorOptionsDescriptionDeleteLabel);
+  deleteButton.title = editorOptionsDescriptionDeleteLabel;
+
+  const issue = document.createElement('div');
+  issue.className = 'option-description-error';
+  issue.hidden = true;
+
+  const onChange = () => {
+    handleOptionsEditorChange();
+  };
+
+  localeInput.addEventListener('input', onChange);
+  localeInput.addEventListener('change', onChange);
+  valueInput.addEventListener('input', onChange);
+  valueInput.addEventListener('change', onChange);
+
+  deleteButton.addEventListener('click', () => {
+    if (rows.childElementCount === 1) {
+      localeInput.value = '';
+      valueInput.value = '';
+      handleOptionsEditorChange();
+      focusField(localeInput);
+      return;
+    }
+    row.remove();
+    ensureOptionDescriptionRowPresence(optionRow);
+    handleOptionsEditorChange();
+    focusField(rows.querySelector('.option-description-locale'));
+  });
+
+  localeField.append(localeLabel, localeInput);
+  grid.append(localeField, valueInput);
+  row.append(grid, deleteButton, issue);
+  rows.append(row);
+
+  if (options.focus) {
+    focusField(localeInput);
+  }
+
+  return row;
+}
+
+function syncOptionDefaultControls(row) {
+  const valueType = row.querySelector('.option-row-value')?.value || 'boolean';
+  const textDefault = row.querySelector('.option-row-default');
+  const booleanDefault = row.querySelector('.option-row-default-boolean');
+  if (!textDefault || !booleanDefault) {
+    return;
+  }
+  const isBoolean = valueType === 'boolean';
+  textDefault.hidden = isBoolean;
+  booleanDefault.hidden = !isBoolean;
+  textDefault.type = valueType === 'number' ? 'number' : 'text';
+}
+
+function handleOptionValueTypeChange(row) {
+  const valueType = row.querySelector('.option-row-value')?.value || 'boolean';
+  const textDefault = row.querySelector('.option-row-default');
+  const booleanDefault = row.querySelector('.option-row-default-boolean');
+  if (valueType === 'boolean') {
+    textDefault.value = '';
+  } else {
+    booleanDefault.value = '';
+  }
+  syncOptionDefaultControls(row);
+  handleOptionsEditorChange();
+}
+
+function addOptionRow(initial = {
+  flags: '',
+  value: 'boolean',
+  required: false,
+  defaultValue: '',
+  defaultBoolean: '',
+  descriptions: [{ locale: '', value: '' }]
+}, options = {}) {
+  const row = document.createElement('div');
+  row.className = 'option-row';
+  row.dataset.invalid = 'false';
+
+  const grid = document.createElement('div');
+  grid.className = 'option-row-grid';
+
+  const flagsInput = document.createElement('wa-input');
+  flagsInput.className = 'option-row-flags';
+  flagsInput.label = editorOptionsFlagsLabel;
+  flagsInput.placeholder = editorOptionsFlagsPlaceholderLabel;
+  flagsInput.value = initial.flags || '';
+
+  const valueSelect = document.createElement('wa-select');
+  valueSelect.className = 'option-row-value';
+  valueSelect.label = editorOptionsValueLabel;
+  valueSelect.size = 'small';
+  valueSelect.append(
+    buildSelectOption('boolean', editorOptionsValueBooleanLabel),
+    buildSelectOption('string', editorOptionsValueStringLabel),
+    buildSelectOption('number', editorOptionsValueNumberLabel)
+  );
+  valueSelect.value = initial.value || 'boolean';
+
+  const defaultInput = document.createElement('wa-input');
+  defaultInput.className = 'option-row-default';
+  defaultInput.label = editorOptionsDefaultLabel;
+  defaultInput.value = initial.defaultValue || '';
+
+  const defaultBooleanSelect = document.createElement('wa-select');
+  defaultBooleanSelect.className = 'option-row-default-boolean';
+  defaultBooleanSelect.label = editorOptionsDefaultLabel;
+  defaultBooleanSelect.size = 'small';
+  defaultBooleanSelect.append(
+    buildSelectOption('', editorOptionsDefaultUnsetLabel),
+    buildSelectOption('true', editorOptionsDefaultTrueLabel),
+    buildSelectOption('false', editorOptionsDefaultFalseLabel)
+  );
+  defaultBooleanSelect.value = initial.defaultBoolean || '';
+
+  const requiredSwitch = document.createElement('wa-switch');
+  requiredSwitch.className = 'option-row-required';
+  requiredSwitch.size = 'small';
+  requiredSwitch.textContent = editorOptionsRequiredLabel;
+  requiredSwitch.checked = Boolean(initial.required);
+
+  const deleteButton = document.createElement('wa-button');
+  deleteButton.className = 'icon-button option-row-delete';
+  deleteButton.variant = 'neutral';
+  deleteButton.appearance = 'filled-outlined';
+  deleteButton.size = 'small';
+  deleteButton.type = 'button';
+  deleteButton.append(createIcon('trash'));
+  deleteButton.setAttribute('aria-label', editorOptionsDeleteLabel);
+  deleteButton.title = editorOptionsDeleteLabel;
+
+  const descriptionGroup = document.createElement('div');
+  descriptionGroup.className = 'option-description-editor';
+
+  const descriptionHeader = document.createElement('div');
+  descriptionHeader.className = 'option-description-header';
+
+  const descriptionLabel = document.createElement('div');
+  descriptionLabel.className = 'editor-field-label';
+  descriptionLabel.textContent = editorOptionsDescriptionLabel;
+
+  const addDescriptionButton = document.createElement('wa-button');
+  addDescriptionButton.className = 'icon-button option-description-add';
+  addDescriptionButton.variant = 'neutral';
+  addDescriptionButton.appearance = 'filled-outlined';
+  addDescriptionButton.size = 'small';
+  addDescriptionButton.type = 'button';
+  addDescriptionButton.append(createIcon('plus'));
+  addDescriptionButton.setAttribute('aria-label', editorOptionsDescriptionAddLabel);
+  addDescriptionButton.title = editorOptionsDescriptionAddLabel;
+
+  const descriptionRows = document.createElement('div');
+  descriptionRows.className = 'option-description-rows';
+
+  const issue = document.createElement('div');
+  issue.className = 'option-row-error';
+  issue.hidden = true;
+
+  const onChange = () => {
+    handleOptionsEditorChange();
+  };
+
+  flagsInput.addEventListener('input', onChange);
+  flagsInput.addEventListener('change', onChange);
+  valueSelect.addEventListener('input', () => {
+    handleOptionValueTypeChange(row);
+  });
+  valueSelect.addEventListener('change', () => {
+    handleOptionValueTypeChange(row);
+  });
+  defaultInput.addEventListener('input', onChange);
+  defaultInput.addEventListener('change', onChange);
+  defaultBooleanSelect.addEventListener('input', onChange);
+  defaultBooleanSelect.addEventListener('change', onChange);
+  requiredSwitch.addEventListener('input', onChange);
+  requiredSwitch.addEventListener('change', onChange);
+
+  addDescriptionButton.addEventListener('click', () => {
+    addOptionDescriptionRow(row, { locale: '', value: '' }, { focus: true });
+    handleOptionsEditorChange();
+  });
+
+  deleteButton.addEventListener('click', () => {
+    if (optionsEditor.rows.childElementCount === 1) {
+      flagsInput.value = '';
+      valueSelect.value = 'boolean';
+      defaultInput.value = '';
+      defaultBooleanSelect.value = '';
+      requiredSwitch.checked = false;
+      descriptionRows.replaceChildren();
+      addOptionDescriptionRow(row, { locale: '', value: '' });
+      syncOptionDefaultControls(row);
+      handleOptionsEditorChange();
+      focusField(flagsInput);
+      return;
+    }
+    row.remove();
+    ensureOptionRowPresence();
+    handleOptionsEditorChange();
+    focusField(optionsEditor.rows.querySelector('.option-row-flags'));
+  });
+
+  grid.append(flagsInput, valueSelect, defaultInput, defaultBooleanSelect, requiredSwitch);
+  descriptionHeader.append(descriptionLabel, addDescriptionButton);
+  descriptionGroup.append(descriptionHeader, descriptionRows);
+  row.append(grid, deleteButton, descriptionGroup, issue);
+  optionsEditor.rows.append(row);
+
+  for (const description of Array.isArray(initial.descriptions) && initial.descriptions.length > 0
+    ? initial.descriptions
+    : [{ locale: '', value: '' }]) {
+    addOptionDescriptionRow(row, description);
+  }
+  ensureOptionDescriptionRowPresence(row);
+  syncOptionDefaultControls(row);
+  syncOptionsValidation();
+
+  if (options.focus) {
+    focusField(flagsInput);
+  }
+
+  return row;
+}
+
+function populateOptionsEditor(value) {
+  editorFields.optionsArgs.value = value?.args != null ? String(value.args) : '';
+  optionsEditor.rows.replaceChildren();
+  for (const row of buildOptionsSpecRows(value)) {
+    addOptionRow(row);
+  }
+  ensureOptionRowPresence();
+  syncOptionsValidation();
+}
+
+function readEditedOptionsSpec() {
+  const { optionIssues, descriptionIssues } = syncOptionsValidation();
+  const rows = getOptionsRowsSnapshot();
+  if (optionIssues.size > 0 || descriptionIssues.size > 0) {
+    throw new Error(`${editorOptionsLabel}: ${[...new Set([...optionIssues.values(), ...descriptionIssues.values()])].join(' ')}`);
+  }
+
+  const optionsSpec = {};
+  const args = editorFields.optionsArgs.value.trim();
+  if (args) {
+    optionsSpec.args = args;
+  }
+
+  const options = rows
+    .filter(optionRowHasMeaningfulContent)
+    .map((row) => {
+      const option = {
+        flags: parseOptionFlags(row.flags)
+      };
+      if (row.value && row.value !== 'boolean') {
+        option.value = row.value;
+      }
+      if (row.required) {
+        option.required = true;
+      }
+      if (row.value === 'boolean' && row.defaultBoolean !== '') {
+        option.default = row.defaultBoolean === 'true';
+      } else if (row.value === 'number' && row.defaultValue.trim() !== '') {
+        option.default = Number(row.defaultValue);
+      } else if (row.value === 'string' && row.defaultValue !== '') {
+        option.default = row.defaultValue;
+      }
+
+      const description = {};
+      for (const descriptionRow of row.descriptions) {
+        const locale = descriptionRow.locale.trim();
+        if (!locale) {
+          continue;
+        }
+        description[locale] = descriptionRow.value;
+      }
+      if (Object.keys(description).length > 0) {
+        option.description = description;
+      }
+
+      return option;
+    });
+
+  if (options.length > 0) {
+    optionsSpec.options = options;
+  }
+
+  return Object.keys(optionsSpec).length > 0 ? optionsSpec : undefined;
 }
 
 function buildRequireRows(value) {
@@ -1544,7 +2065,8 @@ function getEditorSnapshot() {
     code: codeEditor.state.doc.toString(),
     helpHtmlTemplate: helpTemplateEditor.state.doc.toString(),
     helpHtmlStrings: JSON.stringify(getHelpStringsBlocksSnapshot()),
-    optionsSpec: editorFields.optionsSpec.value,
+    optionsArgs: editorFields.optionsArgs.value,
+    options: JSON.stringify(getOptionsRowsSnapshot()),
     requires: JSON.stringify(getRequiresRowsSnapshot())
   };
 }
@@ -1631,7 +2153,7 @@ function focusEditorSection(sectionName) {
         }
         break;
       case 'editor-section-options':
-        focusField(editorFields.optionsSpec);
+        focusField(editorFields.optionsArgs);
         break;
       case 'editor-section-requires':
         focusField(requiresEditor.rows.querySelector('.require-row-url'));
@@ -1763,7 +2285,7 @@ function populateEditor(command, options = {}) {
   setCodeMirrorValue(codeEditor, command.code, codeLanguage);
   setCodeMirrorValue(helpTemplateEditor, command.helpHtmlTemplate || '', helpTemplateLanguage);
   populateHelpStringsEditor(command.helpHtmlStrings);
-  editorFields.optionsSpec.value = stringifyJson(command.optionsSpec);
+  populateOptionsEditor(command.optionsSpec);
   populateRequiresEditor(command.requires);
   setEditorVisible(true);
   editorBaseline = getEditorSnapshot();
@@ -1853,7 +2375,7 @@ function readEditedCommand() {
     throw new Error(`${editorHelpTemplateLabel}: ${helpTemplateIssues.join(' ')}`);
   }
 
-  const optionsSpec = parseOptionalJson(editorOptionsLabel, editorFields.optionsSpec.value);
+  const optionsSpec = readEditedOptionsSpec();
   if (optionsSpec == null) {
     delete next.optionsSpec;
   } else {
@@ -2762,6 +3284,18 @@ descriptionEditor.addButton.addEventListener('click', () => {
 helpStringsEditor.addButton.addEventListener('click', () => {
   addHelpStringsBlock({ locale: '', rows: [{ token: '', value: '' }] }, { focus: true });
   handleHelpStringsEditorChange();
+});
+
+optionsEditor.addButton.addEventListener('click', () => {
+  addOptionRow({
+    flags: '',
+    value: 'boolean',
+    required: false,
+    defaultValue: '',
+    defaultBoolean: '',
+    descriptions: [{ locale: '', value: '' }]
+  }, { focus: true });
+  handleOptionsEditorChange();
 });
 
 requiresEditor.addButton.addEventListener('click', () => {

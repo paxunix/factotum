@@ -65,7 +65,6 @@ export function resolveLocaleMapEntry(map, locale = 'en-US') {
 
 export function buildHelpUsage(command) {
   const optionsSpec = command.optionsSpec || {};
-  const displayName = optionsSpec.name || command.name;
   const optionSynopsis = (optionsSpec.options || [])
     .map((option) => {
       const longFlag = option.flags.find((flag) => flag.startsWith('--')) || option.flags[0];
@@ -75,7 +74,7 @@ export function buildHelpUsage(command) {
     .join(' ');
   const args = optionsSpec.args ? ` ${optionsSpec.args}` : '';
 
-  return `${displayName}${optionSynopsis ? ` ${optionSynopsis}` : ''}${args}`;
+  return `${command.name}${optionSynopsis ? ` ${optionSynopsis}` : ''}${args}`;
 }
 
 export function buildHelpOptions(command, locale) {

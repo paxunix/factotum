@@ -13,7 +13,6 @@ Items here may be bugs, UX polish, wishlist ideas, or later-milestone follow-ups
 ## Current TODOs
 
 ### Manager / editor UX
-M4. Replace the remaining JSON textarea with a friendlier structured editor for optionsSpec.
 M8. manager UX needs a separate tab to hold overall settings.
 ### Overlay UX
 

@@ -181,7 +181,6 @@ Shape:
 
 ```json
 {
-  "name": "bookmark-find",
   "args": "<term> [more terms...]",
   "options": [
     {

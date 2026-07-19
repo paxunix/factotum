@@ -137,7 +137,7 @@ The current command editor supports both creating new commands and editing exist
 - command code in the CodeMirror JavaScript editor, including standard editor affordances such as line numbers, folding, and bracket matching
 - help HTML template in the CodeMirror HTML editor, including standard editor affordances such as line numbers, folding, and bracket matching
 - help strings as nested locale blocks with token/value rows
-- options spec JSON
+- options spec as positional args plus stacked option rows for flags, value type, required/default behavior, and localized descriptions
 - requires as a stacked row editor with typed URL, kind, and world fields
 
 The Code and Help HTML template editors include `JS`, `HTML`, and `CSS` toolbar buttons. With no selection, the chosen button reformats the whole editor document. With a selection, it reformats only the selected text with the chosen Prettier parser, which is useful for embedded snippets. If the selected parser does not match valid content, the editor shows an inline error and leaves the text unchanged.

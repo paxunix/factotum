@@ -127,7 +127,16 @@
                   </wa-tab-panel>
                   <wa-tab-panel name="editor-section-options">
                     <section class="editor-section-panel">
-                      <wa-textarea id="editor-options" class="editor-textarea-large" resize="auto" spellcheck="false"></wa-textarea>
+                      <div class="options-editor">
+                        <div class="options-editor-top-grid">
+                          <wa-input id="editor-options-args"></wa-input>
+                        </div>
+                        <div class="options-editor-header">
+                          <div id="editor-options-label" class="editor-field-label"></div>
+                          <wa-button id="editor-options-add" class="icon-button options-editor-add" variant="neutral" appearance="filled-outlined" size="small" type="button"></wa-button>
+                        </div>
+                        <div class="options-editor-rows" id="editor-options-rows"></div>
+                      </div>
                     </section>
                   </wa-tab-panel>
                   <wa-tab-panel name="editor-section-requires">

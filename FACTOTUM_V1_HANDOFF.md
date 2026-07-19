@@ -140,7 +140,6 @@ Overlay preference record:
 - overlay theme is not stored here in v1 and remains per-page-session only
 
 OptionsSpec:
-- `name?: string` (display name for usage; defaults to command name)
 - `args?: string` (positional args usage string, e.g. `<input> [output]`; descriptive only)
 - `options?: OptionSpec[]`
 
@@ -254,7 +253,7 @@ Commands that want automated help generation should provide an options spec and 
 
 If `optionsSpec` is present, the runtime should generate the following tokens (when not already supplied):
 
-- `usage`: command name + option synopsis + args (e.g., `pick [--force] <input>`)
+- `usage`: command name from command metadata + option synopsis + args (e.g., `pick [--force] <input>`)
 - `options`: HTML fragment listing flags and descriptions
 - `args`: HTML fragment for positional args, if `args` is provided
 

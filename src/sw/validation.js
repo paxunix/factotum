@@ -168,9 +168,6 @@ export function normalizeCommandRecord(record, now = Date.now()) {
   if (record.optionsSpec != null) {
     assert(typeof record.optionsSpec === 'object' && !Array.isArray(record.optionsSpec), 'optionsSpec must be an object', 'INVALID_OPTION_SPEC');
     const optionSpec = {};
-    if (record.optionsSpec.name != null) {
-      optionSpec.name = String(record.optionsSpec.name);
-    }
     if (record.optionsSpec.args != null) {
       optionSpec.args = String(record.optionsSpec.args);
     }

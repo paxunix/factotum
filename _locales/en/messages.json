@@ -417,8 +417,96 @@
     "description": "Manager help preview locale selector label"
   },
   "managerEditorOptions": {
-    "message": "Options spec JSON",
-    "description": "Manager command editor options spec JSON field label"
+    "message": "Options",
+    "description": "Manager command editor structured options field label"
+  },
+  "managerEditorOptionsArgs": {
+    "message": "Positional args",
+    "description": "Manager command editor options spec positional args field label"
+  },
+  "managerEditorOptionsArgsPlaceholder": {
+    "message": "<input> [output]",
+    "description": "Manager command editor options spec positional args field placeholder"
+  },
+  "managerEditorOptionsAdd": {
+    "message": "Add option",
+    "description": "Manager command editor button label for adding an option row"
+  },
+  "managerEditorOptionsFlags": {
+    "message": "Flags",
+    "description": "Manager command editor option flags field label"
+  },
+  "managerEditorOptionsFlagsPlaceholder": {
+    "message": "-f --force",
+    "description": "Manager command editor option flags field placeholder"
+  },
+  "managerEditorOptionsValue": {
+    "message": "Value",
+    "description": "Manager command editor option value type selector label"
+  },
+  "managerEditorOptionsValueBoolean": {
+    "message": "boolean",
+    "description": "Manager command editor option value type label for boolean"
+  },
+  "managerEditorOptionsValueString": {
+    "message": "string",
+    "description": "Manager command editor option value type label for string"
+  },
+  "managerEditorOptionsValueNumber": {
+    "message": "number",
+    "description": "Manager command editor option value type label for number"
+  },
+  "managerEditorOptionsRequired": {
+    "message": "Required",
+    "description": "Manager command editor option required switch label"
+  },
+  "managerEditorOptionsDefault": {
+    "message": "Default",
+    "description": "Manager command editor option default field label"
+  },
+  "managerEditorOptionsDefaultUnset": {
+    "message": "No default",
+    "description": "Manager command editor option default unset choice"
+  },
+  "managerEditorOptionsDefaultTrue": {
+    "message": "true",
+    "description": "Manager command editor option boolean default true choice"
+  },
+  "managerEditorOptionsDefaultFalse": {
+    "message": "false",
+    "description": "Manager command editor option boolean default false choice"
+  },
+  "managerEditorOptionsDescription": {
+    "message": "Descriptions",
+    "description": "Manager command editor option localized descriptions section label"
+  },
+  "managerEditorOptionsDescriptionAdd": {
+    "message": "Add locale description",
+    "description": "Manager command editor button label for adding an option locale description"
+  },
+  "managerEditorOptionsDescriptionDelete": {
+    "message": "Delete locale description",
+    "description": "Manager command editor button label for deleting an option locale description"
+  },
+  "managerEditorOptionsDelete": {
+    "message": "Delete option",
+    "description": "Manager command editor button label for deleting an option row"
+  },
+  "managerEditorOptionsFlagsRequired": {
+    "message": "Flags are required when an option row is populated.",
+    "description": "Manager command editor inline validation message when an option row is missing flags"
+  },
+  "managerEditorOptionsFlagInvalid": {
+    "message": "Flags must start with - and cannot contain whitespace.",
+    "description": "Manager command editor inline validation message when an option flag is invalid"
+  },
+  "managerEditorOptionsFlagDuplicate": {
+    "message": "Flag is duplicated.",
+    "description": "Manager command editor inline validation message when an option flag is duplicated"
+  },
+  "managerEditorOptionsDefaultNumber": {
+    "message": "Default must be a number.",
+    "description": "Manager command editor inline validation message when a number option default is invalid"
   },
   "managerEditorRequires": {
     "message": "Requires",

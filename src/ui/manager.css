@@ -861,6 +861,140 @@ button.command-status:focus-visible {
   border-color: rgba(220, 38, 38, 0.22);
 }
 
+.options-editor {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.options-editor-top-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.options-editor-header,
+.option-description-header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.options-editor-add::part(base),
+.option-row-delete::part(base),
+.option-description-add::part(base),
+.option-description-delete::part(base) {
+  aspect-ratio: 1;
+  min-width: 38px;
+  padding-inline: 0;
+}
+
+.options-editor-rows {
+  display: grid;
+  gap: 12px;
+  max-height: 48vh;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.option-row {
+  background: rgba(248, 250, 252, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  position: relative;
+}
+
+.option-row[data-invalid="true"],
+.option-description-row[data-invalid="true"] {
+  border-color: rgba(220, 38, 38, 0.22);
+}
+
+.option-row-grid {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(180px, 1fr) 130px 160px 160px 120px;
+  padding-right: 46px;
+}
+
+.option-row-delete {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+}
+
+.option-row-default[hidden],
+.option-row-default-boolean[hidden] {
+  display: none;
+}
+
+.option-description-editor {
+  display: grid;
+  gap: 10px;
+}
+
+.option-description-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.option-description-row {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  position: relative;
+}
+
+.option-description-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 88px minmax(0, 1fr);
+  padding-right: 46px;
+}
+
+.option-description-locale-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.option-description-locale,
+.option-description-value {
+  min-width: 0;
+  width: 100%;
+}
+
+.option-description-locale::part(base),
+.option-description-value::part(base) {
+  min-width: 0;
+}
+
+.option-description-field-label {
+  font-size: 12px;
+}
+
+.option-description-delete {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.option-row-error,
+.option-description-error {
+  color: rgb(185, 28, 28);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .help-strings-editor {
   display: flex;
   flex: 1 1 auto;
@@ -1151,6 +1285,15 @@ wa-textarea::part(textarea) {
 
   .manager-pane {
     min-height: auto;
+  }
+
+  .option-row-grid {
+    grid-template-columns: minmax(0, 1fr) 130px;
+  }
+
+  .options-editor-top-grid,
+  .option-description-grid {
+    grid-template-columns: 1fr;
   }
 }
 

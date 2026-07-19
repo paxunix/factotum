@@ -238,7 +238,7 @@ Each test lists: **Setup → Action → Expected**.
   * The Identity section also includes an overlay-visibility toggle that controls whether normal runs auto-show the session console for that command.
   * The selected command card has both an enable/disable switch and a clickable Enabled/Disabled status pill, and either control toggles command availability.
   * The selected command card has a trash button that is disabled for enabled commands, becomes active after disabling, and permanently deletes the command while removing any alias targets pointing at it.
-  * Editable body fields include structured localized descriptions, code, help template, structured help strings, optionsSpec JSON, and structured requires rows
+  * Editable body fields include structured localized descriptions, code, help template, structured help strings, structured optionsSpec rows, and structured requires rows
   * Save reports `Saved command: name@id`
   * Save Command is disabled until an editable field differs from the loaded command, and Reset disables it again.
   * Trying to select a different command while unsaved edits exist keeps the current command loaded and shows a save-or-reset warning.
