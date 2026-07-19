@@ -49,22 +49,22 @@ function copyWebAwesomeAssets(targetDir) {
     return;
   }
 
-  const walk = (dir) => {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        walk(full);
-        continue;
-      }
-      if (entry.isFile()) {
-        const rel = path.relative(webAwesomeDist, full);
-        const dest = path.join(out, rel);
-        copyFile(full, dest);
-      }
-    }
-  };
+  const files = [
+    'styles/layers.css',
+    'styles/themes/default.css',
+    'styles/color/palettes/base.css',
+    'styles/color/palettes/default.css',
+    'styles/color/variants.css',
+    'styles/color/variants/brand.css',
+    'styles/color/variants/danger.css',
+    'styles/color/variants/neutral.css',
+    'styles/color/variants/success.css',
+    'styles/color/variants/warning.css'
+  ];
 
-  walk(webAwesomeDist);
+  for (const rel of files) {
+    copyFile(path.join(webAwesomeDist, rel), path.join(out, rel));
+  }
 }
 
 function copyRootAssets(targetDir) {

@@ -52,6 +52,8 @@ If a change affects either audience directly, update the matching guide in the s
 
 UI pages should use Web Awesome web components as much as possible. Web Awesome must be bundled locally (no CDN runtime dependencies) to comply with v1 build constraints.
 
+The build bundles imported Web Awesome component JavaScript into the manager and popup entrypoints. It copies only the runtime theme CSS files used by the extension-owned pages into `vendor/webawesome/`, not the full upstream Web Awesome distribution.
+
 Manager command code and help-template editors use CodeMirror 6 packages bundled through npm/esbuild. Their format toolbar action uses locally bundled Prettier parser plugins for JavaScript and HTML. Do not load editor or formatter assets from a CDN at extension runtime.
 
 Icons should come from the locally installed Font Awesome npm package, following Font Awesome's package-manager setup model rather than CDN lookup or hand-coded SVG paths. Factotum's build generates the small shipped icon set from that local package and uses the generated inline SVGs in both extension-owned pages and the injected overlay. Keep the overlay SVG-based so it remains self-contained on arbitrary pages and does not depend on page-context font loading.
