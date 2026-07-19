@@ -60,7 +60,13 @@ const bundleReviewCommandsLabel = getMessage('managerBundleReviewCommands', 'Com
 const bundleReviewInvalidLabel = getMessage('managerBundleReviewInvalid', 'Quarantined invalid commands');
 const bundleReviewAliasesLabel = getMessage('managerBundleReviewAliases', 'Aliases');
 const bundleReviewFilterLabel = getMessage('managerBundleReviewFilter', 'Filter review items');
+const bundleReviewCommandsFilterLabel = getMessage('managerBundleReviewCommandsFilter', 'Filter commands');
+const bundleReviewAliasesFilterLabel = getMessage('managerBundleReviewAliasesFilter', 'Filter aliases');
 const bundleReviewEmptyLabel = getMessage('managerBundleReviewEmpty', 'No review items match the filter.');
+const bundleReviewSelectAllLabel = getMessage('managerBundleReviewSelectAll', 'Select all');
+const bundleReviewSelectNoneLabel = getMessage('managerBundleReviewSelectNone', 'Select none');
+const bundleReviewSortAliasLabel = getMessage('managerBundleReviewSortAlias', 'Alias');
+const bundleReviewSortTargetsLabel = getMessage('managerBundleReviewSortTargets', 'Targets');
 const bundleReviewStateNewLabel = getMessage('managerBundleReviewStateNew', 'New');
 const bundleReviewStateOverwriteLabel = getMessage('managerBundleReviewStateOverwrite', 'Overwrite');
 const bundleReviewStateOverwriteInvalidLabel = getMessage('managerBundleReviewStateOverwriteInvalid', 'Overwrites invalid');
@@ -225,12 +231,24 @@ const bundleReviewFilter = document.getElementById('bundle-review-filter');
 const bundleReviewCommandsSection = document.getElementById('bundle-review-commands-section');
 const bundleReviewInvalidSection = document.getElementById('bundle-review-invalid-section');
 const bundleReviewAliasesSection = document.getElementById('bundle-review-aliases-section');
+const bundleReviewCommandsActions = document.getElementById('bundle-review-commands-actions');
+const bundleReviewAliasesActions = document.getElementById('bundle-review-aliases-actions');
+const bundleReviewCommandsFilter = document.getElementById('bundle-review-commands-filter');
+const bundleReviewCommandsSort = document.getElementById('bundle-review-commands-sort');
+const bundleReviewCommandsSortDirection = document.getElementById('bundle-review-commands-sort-direction');
+const bundleReviewAliasesFilter = document.getElementById('bundle-review-aliases-filter');
+const bundleReviewAliasesSort = document.getElementById('bundle-review-aliases-sort');
+const bundleReviewAliasesSortDirection = document.getElementById('bundle-review-aliases-sort-direction');
 const bundleReviewCommands = document.getElementById('bundle-review-commands');
 const bundleReviewInvalid = document.getElementById('bundle-review-invalid');
 const bundleReviewAliases = document.getElementById('bundle-review-aliases');
 const bundleReviewEmpty = document.getElementById('bundle-review-empty');
 const bundleReviewImportButton = document.getElementById('bundle-review-import-button');
 const bundleReviewCancelButton = document.getElementById('bundle-review-cancel-button');
+const bundleReviewCommandsSelectAll = document.getElementById('bundle-review-commands-select-all');
+const bundleReviewCommandsSelectNone = document.getElementById('bundle-review-commands-select-none');
+const bundleReviewAliasesSelectAll = document.getElementById('bundle-review-aliases-select-all');
+const bundleReviewAliasesSelectNone = document.getElementById('bundle-review-aliases-select-none');
 const commandFilter = document.getElementById('command-filter');
 const commandSort = document.getElementById('command-sort');
 const commandSortDirection = document.getElementById('command-sort-direction');
@@ -295,6 +313,10 @@ let currentAliases = {};
 let currentPanelRefs = new Map();
 let commandSortKey = 'name';
 let commandSortDirectionValue = 'asc';
+let bundleReviewCommandsSortKey = 'name';
+let bundleReviewCommandsSortDirectionValue = 'asc';
+let bundleReviewAliasesSortKey = 'alias';
+let bundleReviewAliasesSortDirectionValue = 'asc';
 let editorBaseline = null;
 let suppressEditorChange = false;
 let pendingBundleReview = null;
@@ -304,6 +326,16 @@ commandFilter.label = commandFilterLabel;
 commandFilter.placeholder = commandFilterLabel;
 bundleReviewFilter.label = bundleReviewFilterLabel;
 bundleReviewFilter.placeholder = bundleReviewFilterLabel;
+bundleReviewCommandsFilter.label = bundleReviewCommandsFilterLabel;
+bundleReviewCommandsFilter.placeholder = bundleReviewCommandsFilterLabel;
+bundleReviewCommandsSort.label = commandSortLabel;
+bundleReviewAliasesFilter.label = bundleReviewAliasesFilterLabel;
+bundleReviewAliasesFilter.placeholder = bundleReviewAliasesFilterLabel;
+bundleReviewAliasesSort.label = commandSortLabel;
+bundleReviewCommandsSelectAll.textContent = bundleReviewSelectAllLabel;
+bundleReviewCommandsSelectNone.textContent = bundleReviewSelectNoneLabel;
+bundleReviewAliasesSelectAll.textContent = bundleReviewSelectAllLabel;
+bundleReviewAliasesSelectNone.textContent = bundleReviewSelectNoneLabel;
 commandSort.label = commandSortLabel;
 bundleTextarea.label = bundleLabel;
 editorFields.id.label = editorIdLabel;
@@ -367,7 +399,20 @@ commandSort.append(
   buildOption('id', sortByIdLabel)
 );
 commandSort.value = commandSortKey;
-updateSortDirectionButton();
+bundleReviewCommandsSort.append(
+  buildOption('updatedAt', sortByModifiedLabel),
+  buildOption('name', sortByNameLabel),
+  buildOption('id', sortByIdLabel)
+);
+bundleReviewCommandsSort.value = bundleReviewCommandsSortKey;
+bundleReviewAliasesSort.append(
+  buildOption('alias', bundleReviewSortAliasLabel),
+  buildOption('targets', bundleReviewSortTargetsLabel)
+);
+bundleReviewAliasesSort.value = bundleReviewAliasesSortKey;
+updateSortDirectionButton(commandSortDirection, commandSortKey, commandSortDirectionValue);
+updateSortDirectionButton(bundleReviewCommandsSortDirection, bundleReviewCommandsSortKey, bundleReviewCommandsSortDirectionValue);
+updateSortDirectionButton(bundleReviewAliasesSortDirection, bundleReviewAliasesSortKey, bundleReviewAliasesSortDirectionValue);
 
 const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const dateTimeFormatter = new Intl.DateTimeFormat(uiLocale, {
@@ -410,18 +455,18 @@ function createIcon(name) {
   return icon;
 }
 
-function updateSortDirectionButton() {
-  const label = commandSortDirectionValue === 'asc' ? sortAscendingLabel : sortDescendingLabel;
+function updateSortDirectionButton(button, sortKey, directionValue) {
+  const label = directionValue === 'asc' ? sortAscendingLabel : sortDescendingLabel;
   let iconName = 'arrowUp';
-  if (commandSortKey === 'updatedAt') {
-    iconName = commandSortDirectionValue === 'asc' ? 'arrowDown19' : 'arrowUp91';
+  if (sortKey === 'updatedAt') {
+    iconName = directionValue === 'asc' ? 'arrowDown19' : 'arrowUp91';
   } else {
-    iconName = commandSortDirectionValue === 'asc' ? 'arrowDownAZ' : 'arrowUpZA';
+    iconName = directionValue === 'asc' ? 'arrowDownAZ' : 'arrowUpZA';
   }
-  commandSortDirection.textContent = '';
-  commandSortDirection.append(createIcon(iconName));
-  commandSortDirection.setAttribute('aria-label', label);
-  commandSortDirection.title = label;
+  button.textContent = '';
+  button.append(createIcon(iconName));
+  button.setAttribute('aria-label', label);
+  button.title = label;
 }
 
 function setupEditorToolButton(button, shortLabel, label) {
@@ -444,11 +489,11 @@ setupEditorToolButton(editorHelpTemplateFormatButtons.js, 'JS', editorFormatSele
 setupEditorToolButton(editorHelpTemplateFormatButtons.html, 'HTML', editorFormatSelectionHtmlLabel);
 setupEditorToolButton(editorHelpTemplateFormatButtons.css, 'CSS', editorFormatSelectionCssLabel);
 
-function compareCommandValues(left, right) {
-  if (commandSortKey === 'name') {
+function compareCommandValues(left, right, sortKey = commandSortKey) {
+  if (sortKey === 'name') {
     return left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
   }
-  if (commandSortKey === 'id') {
+  if (sortKey === 'id') {
     return left.id.localeCompare(right.id) || left.name.localeCompare(right.name);
   }
   return (left.updatedAt || 0) - (right.updatedAt || 0) || left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
@@ -456,7 +501,7 @@ function compareCommandValues(left, right) {
 
 function getSortedCommands(commands) {
   const direction = commandSortDirectionValue === 'asc' ? 1 : -1;
-  return [...commands].sort((left, right) => compareCommandValues(left, right) * direction);
+  return [...commands].sort((left, right) => compareCommandValues(left, right, commandSortKey) * direction);
 }
 
 function setStatus(container, kind, messages) {
@@ -620,6 +665,11 @@ function getCommandFilterValue() {
 function getBundleReviewFilterValue() {
   const input = bundleReviewFilter.shadowRoot?.querySelector('input');
   return input?.value ?? bundleReviewFilter.value ?? '';
+}
+
+function getInputValue(control) {
+  const input = control.shadowRoot?.querySelector('input');
+  return input?.value ?? control.value ?? '';
 }
 
 function renderFilteredCommandsFromInput() {
@@ -2775,6 +2825,49 @@ function reviewItemMatchesFilter(item, filterText) {
   return values.some((value) => String(value).toLowerCase().includes(query));
 }
 
+function compareCommandReviewItems(left, right) {
+  return compareCommandValues(left.command, right.command, bundleReviewCommandsSortKey);
+}
+
+function compareAliasReviewItems(left, right) {
+  if (bundleReviewAliasesSortKey === 'targets') {
+    return String(left.detail || '').localeCompare(String(right.detail || ''))
+      || left.alias.localeCompare(right.alias);
+  }
+  return left.alias.localeCompare(right.alias)
+    || String(left.detail || '').localeCompare(String(right.detail || ''));
+}
+
+function getSortedBundleReviewItems(items, kind) {
+  if (kind === 'commands') {
+    const direction = bundleReviewCommandsSortDirectionValue === 'asc' ? 1 : -1;
+    return [...items].sort((left, right) => compareCommandReviewItems(left, right) * direction);
+  }
+  if (kind === 'aliases') {
+    const direction = bundleReviewAliasesSortDirectionValue === 'asc' ? 1 : -1;
+    return [...items].sort((left, right) => compareAliasReviewItems(left, right) * direction);
+  }
+  return items;
+}
+
+function getBundleReviewSectionFilterValue(kind) {
+  if (pendingBundleReview?.mode !== 'export') {
+    return getBundleReviewFilterValue();
+  }
+  if (kind === 'commands') {
+    return getInputValue(bundleReviewCommandsFilter);
+  }
+  if (kind === 'aliases') {
+    return getInputValue(bundleReviewAliasesFilter);
+  }
+  return getBundleReviewFilterValue();
+}
+
+function getVisibleBundleReviewItems(items, kind) {
+  const filtered = items.filter((item) => reviewItemMatchesFilter(item, getBundleReviewSectionFilterValue(kind)));
+  return getSortedBundleReviewItems(filtered, kind);
+}
+
 function buildBundleReviewCommandItems(bundle, installedEntriesByKey, aliasesByCommand) {
   return (Array.isArray(bundle.commands) ? bundle.commands : []).map((command) => {
     const normalized = normalizeCommandRecord(command);
@@ -2888,6 +2981,8 @@ function hideBundleReview() {
   pendingBundleReview = null;
   bundleReview.hidden = true;
   bundleReviewFilter.value = '';
+  bundleReviewCommandsFilter.value = '';
+  bundleReviewAliasesFilter.value = '';
   bundleReviewCommands.textContent = '';
   bundleReviewInvalid.textContent = '';
   bundleReviewAliases.textContent = '';
@@ -2933,9 +3028,9 @@ function createBundleReviewItem(item, mode = 'import') {
   return row;
 }
 
-function renderBundleReviewSection(section, container, items, mode = 'import') {
+function renderBundleReviewSection(section, container, items, mode = 'import', kind = '') {
   container.textContent = '';
-  const filteredItems = items.filter((item) => reviewItemMatchesFilter(item, getBundleReviewFilterValue()));
+  const filteredItems = getVisibleBundleReviewItems(items, kind);
   if (!filteredItems.length) {
     section.hidden = true;
     return 0;
@@ -2945,6 +3040,17 @@ function renderBundleReviewSection(section, container, items, mode = 'import') {
     container.append(createBundleReviewItem(item, mode));
   }
   return filteredItems.length;
+}
+
+function setBundleReviewSelection(kind, selected) {
+  if (!pendingBundleReview) {
+    return;
+  }
+  const items = kind === 'commands' ? pendingBundleReview.commands : pendingBundleReview.aliases;
+  for (const item of getVisibleBundleReviewItems(items, kind)) {
+    item.selected = selected;
+  }
+  showBundleReview(pendingBundleReview);
 }
 
 function updateBundleReviewActions() {
@@ -2959,13 +3065,17 @@ function updateBundleReviewActions() {
 function showBundleReview(review) {
   pendingBundleReview = review;
   const mode = review.mode || 'import';
+  const isExport = mode === 'export';
   document.getElementById('bundle-review-title').textContent = mode === 'export' ? bundleReviewExportTitleLabel : bundleReviewTitleLabel;
   document.getElementById('bundle-review-hint').textContent = mode === 'export' ? bundleReviewExportHintLabel : bundleReviewHintLabel;
   bundleReviewImportButton.textContent = mode === 'export' ? bundleReviewExportLabel : bundleReviewImportLabel;
+  bundleReviewFilter.hidden = isExport;
+  bundleReviewCommandsActions.hidden = !isExport || review.commands.length === 0;
+  bundleReviewAliasesActions.hidden = !isExport || review.aliases.length === 0;
   const visibleCount = (
-    renderBundleReviewSection(bundleReviewCommandsSection, bundleReviewCommands, review.commands, mode)
-    + renderBundleReviewSection(bundleReviewInvalidSection, bundleReviewInvalid, review.invalidCommands, mode)
-    + renderBundleReviewSection(bundleReviewAliasesSection, bundleReviewAliases, review.aliases, mode)
+    renderBundleReviewSection(bundleReviewCommandsSection, bundleReviewCommands, review.commands, mode, 'commands')
+    + renderBundleReviewSection(bundleReviewInvalidSection, bundleReviewInvalid, review.invalidCommands, mode, 'invalid')
+    + renderBundleReviewSection(bundleReviewAliasesSection, bundleReviewAliases, review.aliases, mode, 'aliases')
   );
   bundleReviewEmpty.hidden = visibleCount > 0;
   bundleReviewEmpty.textContent = visibleCount > 0 ? '' : bundleReviewEmptyLabel;
@@ -3140,6 +3250,64 @@ bundleReviewFilter.addEventListener('input', () => {
   }
   showBundleReview(pendingBundleReview);
 });
+bundleReviewFilter.addEventListener('wa-clear', () => {
+  if (pendingBundleReview) {
+    showBundleReview(pendingBundleReview);
+  }
+});
+
+function refreshPendingBundleReview() {
+  if (pendingBundleReview) {
+    showBundleReview(pendingBundleReview);
+  }
+}
+
+bundleReviewCommandsFilter.addEventListener('input', refreshPendingBundleReview);
+bundleReviewCommandsFilter.addEventListener('change', refreshPendingBundleReview);
+bundleReviewCommandsFilter.addEventListener('wa-clear', refreshPendingBundleReview);
+bundleReviewAliasesFilter.addEventListener('input', refreshPendingBundleReview);
+bundleReviewAliasesFilter.addEventListener('change', refreshPendingBundleReview);
+bundleReviewAliasesFilter.addEventListener('wa-clear', refreshPendingBundleReview);
+
+bundleReviewCommandsSort.addEventListener('change', () => {
+  bundleReviewCommandsSortKey = bundleReviewCommandsSort.value || 'name';
+  updateSortDirectionButton(bundleReviewCommandsSortDirection, bundleReviewCommandsSortKey, bundleReviewCommandsSortDirectionValue);
+  refreshPendingBundleReview();
+});
+
+bundleReviewCommandsSortDirection.addEventListener('click', () => {
+  bundleReviewCommandsSortDirectionValue = bundleReviewCommandsSortDirectionValue === 'asc' ? 'desc' : 'asc';
+  updateSortDirectionButton(bundleReviewCommandsSortDirection, bundleReviewCommandsSortKey, bundleReviewCommandsSortDirectionValue);
+  refreshPendingBundleReview();
+});
+
+bundleReviewAliasesSort.addEventListener('change', () => {
+  bundleReviewAliasesSortKey = bundleReviewAliasesSort.value || 'alias';
+  updateSortDirectionButton(bundleReviewAliasesSortDirection, bundleReviewAliasesSortKey, bundleReviewAliasesSortDirectionValue);
+  refreshPendingBundleReview();
+});
+
+bundleReviewAliasesSortDirection.addEventListener('click', () => {
+  bundleReviewAliasesSortDirectionValue = bundleReviewAliasesSortDirectionValue === 'asc' ? 'desc' : 'asc';
+  updateSortDirectionButton(bundleReviewAliasesSortDirection, bundleReviewAliasesSortKey, bundleReviewAliasesSortDirectionValue);
+  refreshPendingBundleReview();
+});
+
+bundleReviewCommandsSelectAll.addEventListener('click', () => {
+  setBundleReviewSelection('commands', true);
+});
+
+bundleReviewCommandsSelectNone.addEventListener('click', () => {
+  setBundleReviewSelection('commands', false);
+});
+
+bundleReviewAliasesSelectAll.addEventListener('click', () => {
+  setBundleReviewSelection('aliases', true);
+});
+
+bundleReviewAliasesSelectNone.addEventListener('click', () => {
+  setBundleReviewSelection('aliases', false);
+});
 
 bundleTextarea.addEventListener('input', () => {
   hideBundleReview();
@@ -3155,13 +3323,13 @@ commandFilter.addEventListener('change', renderFilteredCommandsFromInput);
 
 commandSort.addEventListener('change', () => {
   commandSortKey = commandSort.value || 'updatedAt';
-  updateSortDirectionButton();
+  updateSortDirectionButton(commandSortDirection, commandSortKey, commandSortDirectionValue);
   renderCommands(currentCommands);
 });
 
 commandSortDirection.addEventListener('click', () => {
   commandSortDirectionValue = commandSortDirectionValue === 'asc' ? 'desc' : 'asc';
-  updateSortDirectionButton();
+  updateSortDirectionButton(commandSortDirection, commandSortKey, commandSortDirectionValue);
   renderCommands(currentCommands);
 });
 

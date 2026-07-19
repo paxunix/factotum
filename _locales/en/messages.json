@@ -217,9 +217,33 @@
     "message": "Filter review items",
     "description": "Utilities import/export review filter input label and placeholder"
   },
+  "managerBundleReviewCommandsFilter": {
+    "message": "Filter commands",
+    "description": "Utilities export review commands filter input label and placeholder"
+  },
+  "managerBundleReviewAliasesFilter": {
+    "message": "Filter aliases",
+    "description": "Utilities export review aliases filter input label and placeholder"
+  },
   "managerBundleReviewEmpty": {
     "message": "No review items match the filter.",
     "description": "Utilities import/export review empty text when no items match the filter"
+  },
+  "managerBundleReviewSelectAll": {
+    "message": "Select all",
+    "description": "Utilities export review button label for selecting visible items in a section"
+  },
+  "managerBundleReviewSelectNone": {
+    "message": "Select none",
+    "description": "Utilities export review button label for deselecting visible items in a section"
+  },
+  "managerBundleReviewSortAlias": {
+    "message": "Alias",
+    "description": "Utilities export review alias sort option for alias name"
+  },
+  "managerBundleReviewSortTargets": {
+    "message": "Targets",
+    "description": "Utilities export review alias sort option for target commands"
   },
   "managerBundleReviewStateNew": {
     "message": "New",

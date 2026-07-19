@@ -165,7 +165,7 @@ Utilities import accepts either a single fcommand JSON record or a full Factotum
 
 Utilities export remains the whole-extension bundle export surface.
 - exporting a full bundle now opens a review step where you choose which commands, quarantined invalid records, and aliases to include
-- the same review filter is available during export review
+- the Commands and Aliases sections each have independent filter, sort, sort-direction, Select all, and Select none controls
 - the bundle JSON is written only after you confirm the reviewed subset
 
 ## Current limitations

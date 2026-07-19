@@ -315,6 +315,7 @@ Each test lists: **Setup → Action → Expected**.
   * Utilities import accepts either that single command JSON object or a full bundle JSON object.
   * Both single-command and full-bundle import use the review panel before any selected data is imported.
   * Full-bundle export uses the review panel before the selected bundle JSON is written.
+  * Export review Commands and Aliases sections each have independent filter, sort, sort-direction, Select all, and Select none controls.
   * If a single-command import collides with existing installed state, the review panel shows the resulting replacement state instead of silently importing.
   * Undo in either CodeMirror editor stops at the loaded command content and does not walk backward through prior command selections or the initial empty editor.
   * Disabled commands are visually muted in both the command menu and selected-command detail card while keeping the Disabled status pill clickable.
