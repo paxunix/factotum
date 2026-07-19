@@ -44,6 +44,9 @@ who gave you a free gun full of free bullets.**
 npm install
 ```
 
+The project also provides a small Commake-inspired `Makefile` wrapper. Run
+`make help` to list the common project commands.
+
 ### Build
 
 ```bash
