@@ -1,9 +1,10 @@
 {
   "name": "factotum",
-  "version": "0.2.24",
+  "version": "0.2.25",
   "private": true,
   "scripts": {
     "build": "node scripts/build.js",
+    "build:release": "node scripts/build-release.js",
     "build:tarball": "node scripts/build-tarball.js",
     "test": "node --test test/*.test.mjs"
   },

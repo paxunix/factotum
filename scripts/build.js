@@ -5,6 +5,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const srcDir = path.join(root, 'src');
 const outDir = path.join(root, 'dist');
+const releaseDir = path.join(root, 'release');
 const generatedDir = path.join(srcDir, 'generated');
 
 function ensureDir(dir) {
@@ -16,7 +17,7 @@ function copyFile(src, dest) {
   fs.copyFileSync(src, dest);
 }
 
-function copyStaticFiles() {
+function copyStaticFiles(targetDir) {
   const exts = new Set(['.html', '.css', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.json', '.mjs']);
 
   const walk = (dir) => {
@@ -30,7 +31,7 @@ function copyStaticFiles() {
         const ext = path.extname(entry.name).toLowerCase();
         if (exts.has(ext)) {
           const rel = path.relative(srcDir, full);
-          const dest = path.join(outDir, rel);
+          const dest = path.join(targetDir, rel);
           copyFile(full, dest);
         }
       }
@@ -40,9 +41,9 @@ function copyStaticFiles() {
   walk(srcDir);
 }
 
-function copyWebAwesomeAssets() {
+function copyWebAwesomeAssets(targetDir) {
   const webAwesomeDist = path.join(root, 'node_modules', '@awesome.me', 'webawesome', 'dist');
-  const out = path.join(outDir, 'vendor', 'webawesome');
+  const out = path.join(targetDir, 'vendor', 'webawesome');
   if (!fs.existsSync(webAwesomeDist)) {
     console.warn('Web Awesome dist not found. Run npm install before build.');
     return;
@@ -66,8 +67,8 @@ function copyWebAwesomeAssets() {
   walk(webAwesomeDist);
 }
 
-function copyRootAssets() {
-  copyFile(path.join(root, 'manifest.json'), path.join(outDir, 'manifest.json'));
+function copyRootAssets(targetDir) {
+  copyFile(path.join(root, 'manifest.json'), path.join(targetDir, 'manifest.json'));
 
   const iconsDir = path.join(root, 'icons');
   if (fs.existsSync(iconsDir)) {
@@ -75,7 +76,7 @@ function copyRootAssets() {
       if (entry.isFile()) {
         copyFile(
           path.join(iconsDir, entry.name),
-          path.join(outDir, 'icons', entry.name)
+          path.join(targetDir, 'icons', entry.name)
         );
       }
     }
@@ -92,7 +93,7 @@ function copyRootAssets() {
         }
         if (entry.isFile()) {
           const rel = path.relative(root, full);
-          copyFile(full, path.join(outDir, rel));
+          copyFile(full, path.join(targetDir, rel));
         }
       }
     };
@@ -155,9 +156,13 @@ function writeGeneratedFontAwesomeIcons() {
   fs.writeFileSync(path.join(generatedDir, 'fontawesome-icons.js'), `${lines.join('\n')}`, 'utf8');
 }
 
-async function buildMain() {
-  fs.rmSync(outDir, { recursive: true, force: true });
-  ensureDir(outDir);
+async function buildMain(options = {}) {
+  const targetDir = options.outDir || outDir;
+  const sourcemap = options.sourcemap ?? true;
+  const minify = options.minify ?? false;
+
+  fs.rmSync(targetDir, { recursive: true, force: true });
+  ensureDir(targetDir);
   writeGeneratedFontAwesomeIcons();
 
   await esbuild.build({
@@ -168,22 +173,33 @@ async function buildMain() {
       'src/ui/manager.js',
       'src/ui/popup.js'
     ],
-    outdir: 'dist',
+    outdir: targetDir,
     outbase: 'src',
     bundle: true,
     format: 'iife',
     target: ['chrome114'],
-    sourcemap: true
+    sourcemap,
+    minify
   });
 
-  copyStaticFiles();
-  copyRootAssets();
-  copyWebAwesomeAssets();
+  copyStaticFiles(targetDir);
+  copyRootAssets(targetDir);
+  copyWebAwesomeAssets(targetDir);
+}
+
+async function buildRelease() {
+  await buildMain({
+    outDir: releaseDir,
+    sourcemap: false,
+    minify: true
+  });
 }
 
 module.exports = {
   buildMain,
+  buildRelease,
   outDir,
+  releaseDir,
   root
 };
 

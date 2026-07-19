@@ -522,8 +522,9 @@ Localization:
 
 * Plain JS + HTML + CSS
 * Multi-page UI is allowed
-* Tiny build: esbuild bundles JS dependencies into `dist/`
-* Copy static HTML/CSS/assets to `dist/` without bundling
+* Tiny build: esbuild bundles JS dependencies into `dist/` for development and `release/` for release packaging
+* Copy static HTML/CSS/assets to the selected output directory without bundling
+* `npm run build` emits sourcemaps for debugging; `npm run build:release` omits sourcemaps and minifies bundled JavaScript
 * No hot reload required
 * UI strings must use extension localization (`_locales`) via `chrome.i18n.getMessage`, with `en-US` fallback.
 * `manifest.json` must set `default_locale` when `_locales/` is present; UI strings live in `_locales/<locale>/messages.json`.

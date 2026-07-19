@@ -50,30 +50,43 @@ npm install
 npm run build
 ```
 
+This creates `dist/`, the development unpacked extension directory. It includes
+sourcemaps for debugging.
+
+### Build release
+
+```bash
+npm run build:release
+```
+
+This creates `release/`, the release unpacked extension directory. It omits
+sourcemaps and minifies bundled JavaScript.
+
 ### Build tarball
 
 ```bash
 npm run build:tarball
 ```
 
-This creates `release/factotum-<version>.tar.gz`. Expanding that tarball
-produces a `factotum-<version>/` directory containing the unpacked extension
-root, ready to load in Chrome.
+This refreshes `release/` and creates `release/factotum-<version>.tar.gz`.
+Expanding that tarball produces a `factotum-<version>/` directory containing
+the release unpacked extension root, ready to load in Chrome.
 
 ### Load in Chrome (unpacked)
 
 1. Open `chrome://extensions`.
 2. Enable Developer mode.
 3. Click "Load unpacked".
-4. Select the `dist/` directory from this repo, or the extracted
+4. Select the `dist/` or `release/` directory from this repo, or the extracted
    `factotum-<version>/` directory from `release/factotum-<version>.tar.gz`.
 5. Enable "Allow User Scripts".
 
 ## Notes
 
-- `dist/` is the package root for loading in Chrome.
-- UI pages live under `dist/ui/`.
-- Service worker entrypoint is `dist/sw/sw.js`.
+- `dist/` is the development package root for loading in Chrome.
+- `release/` is the smaller release package root for loading in Chrome.
+- UI pages live under `dist/ui/` or `release/ui/`.
+- Service worker entrypoint is `dist/sw/sw.js` or `release/sw/sw.js`.
 
 ## Current implementation
 
