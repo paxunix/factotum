@@ -378,7 +378,11 @@ export async function exportBundle() {
   };
 }
 
-export async function importBundle(bundle, options = {}) {
+function commandRefKey(command) {
+  return `${command.name}@${command.id}`;
+}
+
+export function normalizeImportBundle(bundle) {
   if (!bundle || typeof bundle !== 'object') {
     throw Object.assign(new Error('Import bundle must be an object'), { code: 'INVALID_BUNDLE' });
   }
@@ -387,73 +391,156 @@ export async function importBundle(bundle, options = {}) {
     throw Object.assign(new Error(`Unsupported bundle schema version: ${String(bundle.bundleSchemaVersion)}`), { code: 'INVALID_BUNDLE' });
   }
 
-  const aliasMode = options.aliasMode === 'overwrite' ? 'overwrite' : 'skip';
-  const warnings = [];
-  const importedCommands = [];
-  let quarantinedCommands = 0;
-  const incomingAliases = normalizeAliasMap(bundle.aliases);
-  const existingAliases = await getAliasMap();
   const incomingCommands = Array.isArray(bundle.commands) ? bundle.commands : [];
   const incomingInvalidCommands = Array.isArray(bundle.invalidCommands) ? bundle.invalidCommands : [];
-  const seenKeys = new Set();
-
-  for (const command of incomingCommands) {
-    const normalized = normalizeCommandRecord(command);
-    const key = `${normalized.name}@${normalized.id}`;
-
-    if (seenKeys.has(key)) {
-      warnings.push({ code: 'DUPLICATE_COMMAND', key, message: `Duplicate command in import bundle: ${key}` });
-    }
-    seenKeys.add(key);
-
-    const existing = await getCommand(normalized.name, normalized.id);
-    if (existing) {
-      warnings.push({ code: 'DUPLICATE_COMMAND', key, message: `Overwriting installed command: ${key}` });
-    }
-
-    importedCommands.push(await saveCommand(normalized));
-  }
-
-  for (const entry of incomingInvalidCommands) {
+  const commands = incomingCommands.map((command) => normalizeCommandRecord(command));
+  const invalidCommands = incomingInvalidCommands.map((entry) => {
     assertStorage(entry && typeof entry === 'object', 'Invalid command bundle entry must be an object', 'INVALID_BUNDLE');
     assertStorage(entry.command && typeof entry.command === 'object', 'Invalid command bundle entry must include a command object', 'INVALID_BUNDLE');
 
     const name = validateCommandName(entry.name ?? entry.command.name);
     const id = validateCommandId(entry.id ?? entry.command.id);
-    const key = `${name}@${id}`;
+    return {
+      name,
+      id,
+      key: `${name}@${id}`,
+      command: entry.command,
+      validationError: entry.validationError
+    };
+  });
 
+  return {
+    bundleSchemaVersion: 1,
+    commands,
+    invalidCommands,
+    aliases: normalizeAliasMap(bundle.aliases)
+  };
+}
+
+function warnDuplicateCommand(warnings, key) {
+  warnings.push({ code: 'DUPLICATE_COMMAND', key, message: `Duplicate command in import bundle: ${key}` });
+}
+
+function warnDuplicateInvalidCommand(warnings, key) {
+  warnings.push({ code: 'DUPLICATE_INVALID_COMMAND', key, message: `Duplicate invalid command in import bundle: ${key}` });
+}
+
+function warnCommandOverwrite(warnings, key) {
+  warnings.push({ code: 'DUPLICATE_COMMAND', key, message: `Overwriting installed command: ${key}` });
+}
+
+function warnAnyCommandOverwrite(warnings, key) {
+  warnings.push({ code: 'DUPLICATE_COMMAND', key, message: `Overwriting installed or quarantined command: ${key}` });
+}
+
+function warnQuarantinedCommand(warnings, key, validationError) {
+  const validationMessage = validationError?.message || INVALID_COMMAND_MESSAGE;
+  warnings.push({ code: 'INVALID_COMMAND_QUARANTINED', key, message: `Imported invalid command as quarantined: ${key} (${validationMessage})` });
+}
+
+function warnAliasCollision(warnings, alias) {
+  warnings.push({ code: 'ALIAS_COLLISION', alias, message: `Skipping alias collision: ${alias}` });
+}
+
+export function planBundleImport(normalizedBundle, {
+  existingCommands = [],
+  existingAliases = {},
+  aliasMode = 'skip'
+} = {}) {
+  const normalizedAliasMode = aliasMode === 'overwrite' ? 'overwrite' : 'skip';
+  const warnings = [];
+  const commandActions = [];
+  const invalidCommandActions = [];
+  const seenKeys = new Set();
+  const existingValidKeys = new Set(
+    existingCommands
+      .filter((entry) => !entry.invalid)
+      .map(commandRefKey)
+  );
+  const existingAnyKeys = new Set(existingCommands.map(commandRefKey));
+  const plannedValidKeys = new Set(existingValidKeys);
+  const plannedAnyKeys = new Set(existingAnyKeys);
+
+  for (const command of normalizedBundle.commands) {
+    const key = commandRefKey(command);
     if (seenKeys.has(key)) {
-      warnings.push({ code: 'DUPLICATE_INVALID_COMMAND', key, message: `Duplicate invalid command in import bundle: ${key}` });
+      warnDuplicateCommand(warnings, key);
     }
     seenKeys.add(key);
 
-    const existing = await getCommand(name, id, { allowInvalid: true });
-    if (existing) {
-      warnings.push({ code: 'DUPLICATE_COMMAND', key, message: `Overwriting installed or quarantined command: ${key}` });
+    if (plannedValidKeys.has(key)) {
+      warnCommandOverwrite(warnings, key);
     }
 
-    await saveRawCommandRecord(entry.command, { name, id });
-    quarantinedCommands += 1;
-    const validationMessage = entry.validationError?.message || INVALID_COMMAND_MESSAGE;
-    warnings.push({ code: 'INVALID_COMMAND_QUARANTINED', key, message: `Imported invalid command as quarantined: ${key} (${validationMessage})` });
+    commandActions.push({ key, command });
+    plannedValidKeys.add(key);
+    plannedAnyKeys.add(key);
+  }
+
+  for (const entry of normalizedBundle.invalidCommands) {
+    if (seenKeys.has(entry.key)) {
+      warnDuplicateInvalidCommand(warnings, entry.key);
+    }
+    seenKeys.add(entry.key);
+
+    if (plannedAnyKeys.has(entry.key)) {
+      warnAnyCommandOverwrite(warnings, entry.key);
+    }
+
+    invalidCommandActions.push(entry);
+    plannedAnyKeys.add(entry.key);
+    warnQuarantinedCommand(warnings, entry.key, entry.validationError);
   }
 
   const nextAliases = { ...existingAliases };
-  for (const [alias, targets] of Object.entries(incomingAliases)) {
+  for (const [alias, targets] of Object.entries(normalizedBundle.aliases)) {
     validateAliasKey(alias);
-    if (nextAliases[alias] && aliasMode === 'skip') {
-      warnings.push({ code: 'ALIAS_COLLISION', alias, message: `Skipping alias collision: ${alias}` });
+    if (nextAliases[alias] && normalizedAliasMode === 'skip') {
+      warnAliasCollision(warnings, alias);
       continue;
     }
     nextAliases[alias] = targets;
   }
 
-  await setAliases(nextAliases);
-
   return {
-    importedCommands,
-    quarantinedCommands,
+    commandActions,
+    invalidCommandActions,
     aliases: nextAliases,
     warnings
   };
+}
+
+export async function applyBundleImportPlan(plan) {
+  const importedCommands = [];
+
+  for (const action of plan.commandActions) {
+    importedCommands.push(await saveCommand(action.command));
+  }
+
+  for (const action of plan.invalidCommandActions) {
+    await saveRawCommandRecord(action.command, { name: action.name, id: action.id });
+  }
+
+  await setAliases(plan.aliases);
+
+  return {
+    importedCommands,
+    quarantinedCommands: plan.invalidCommandActions.length,
+    aliases: plan.aliases,
+    warnings: plan.warnings
+  };
+}
+
+export async function importBundle(bundle, options = {}) {
+  const normalizedBundle = normalizeImportBundle(bundle);
+  const [existingCommands, existingAliases] = await Promise.all([
+    listCommandIndex({ includeInvalid: true }),
+    getAliasMap()
+  ]);
+  const plan = planBundleImport(normalizedBundle, {
+    existingCommands,
+    existingAliases,
+    aliasMode: options.aliasMode
+  });
+  return applyBundleImportPlan(plan);
 }
