@@ -1,4 +1,5 @@
 import { escapeHtml } from './html.js';
+import { getMessage } from './i18n.js';
 
 export const RUNTIME_HELP_TEMPLATE_TOKENS = new Set([
   'title',
@@ -14,14 +15,6 @@ export const RUNTIME_HELP_TEMPLATE_TOKENS = new Set([
   'argsBlock'
 ]);
 export const DEFAULT_HELP_TEMPLATE = '<h1>{{title}}</h1>{{summaryBlock}}<section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section>{{optionsBlock}}{{argsBlock}}';
-
-function getMessage(key, fallback) {
-  try {
-    return chrome?.i18n?.getMessage?.(key) || fallback;
-  } catch {
-    return fallback;
-  }
-}
 
 function setTokenIfMissing(tokens, key, value) {
   if (!Object.prototype.hasOwnProperty.call(tokens, key) || tokens[key] == null || tokens[key] === '') {

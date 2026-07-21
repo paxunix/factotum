@@ -22,6 +22,7 @@ import {
 import { isInjectableUrl } from './injectability.js';
 import { buildUserScriptRunnerCode } from './runner_template.js';
 import { buildHelpHtml, resolveLocaleMapEntry } from '../shared/help.js';
+import { getMessage } from '../shared/i18n.js';
 import { getPreferredUiLocale } from '../shared/locale.js';
 
 const CONTROL_TYPE = 'fcmd_control';
@@ -33,14 +34,6 @@ const RPC_DENYLIST_METHODS = new Set(['connect', 'connectNative']);
 const RPC_EVENT_METHODS = new Set(['addListener', 'removeListener', 'hasListener', 'hasListeners']);
 const invocationCompletion = new Map();
 const invocationOutputOffsets = new Map();
-
-function getMessage(key, fallback) {
-  return chrome.i18n.getMessage(key) || fallback;
-}
-
-function getMessageWithSubstitutions(key, substitutions, fallback) {
-  return chrome.i18n.getMessage(key, substitutions) || fallback;
-}
 
 function serializeError(error, fallbackCode = 'ERROR') {
   if (!error) {
@@ -887,10 +880,10 @@ async function handleBusyTab(tabId, message = '') {
 
   const runningCommandRef = `${runningInvocation.command.name}@${runningInvocation.command.id}`;
   const busyMessage = message
-    || getMessageWithSubstitutions(
+    || getMessage(
       'overlayBusyDetail',
-      [runningCommandRef],
-      `Tab busy: ${runningCommandRef}. Cancel it or wait for it to finish.`
+      `Tab busy: ${runningCommandRef}. Cancel it or wait for it to finish.`,
+      [runningCommandRef]
     );
   appendSystemEntry(tabId, 'BUSY', busyMessage);
   const session = getSession(tabId) || ensureSession(tabId);

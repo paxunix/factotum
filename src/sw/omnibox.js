@@ -1,4 +1,5 @@
 import shellQuote from 'shell-quote';
+import { getMessage } from '../shared/i18n.js';
 
 const { parse: shellQuoteParse } = shellQuote;
 
@@ -8,10 +9,6 @@ const MATCH_KIND_ORDER = {
   'prefix-name': 2,
   'prefix-alias': 3
 };
-
-function getMessage(key, substitutions, fallback) {
-  return chrome.i18n.getMessage(key, substitutions) || fallback;
-}
 
 function normalizeShellQuoteTokens(parsedTokens) {
   const tokens = [];
@@ -201,5 +198,5 @@ export function resolveCommand(indexCommands, aliases, input) {
 }
 
 export function formatNoSuchCommandSuggestion(text) {
-  return getMessage('omniboxNoSuchCommand', [text], `No such command: ${text}`);
+  return getMessage('omniboxNoSuchCommand', `No such command: ${text}`, [text]);
 }

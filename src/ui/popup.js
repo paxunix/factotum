@@ -1,10 +1,11 @@
 import { setBasePath } from '@awesome.me/webawesome/dist/webawesome.js';
+import { getMessage } from '../shared/i18n.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 
 setBasePath(chrome.runtime.getURL('vendor/webawesome'));
 
-const title = chrome.i18n.getMessage('popupTitle');
-const menuManager = chrome.i18n.getMessage('menuManager');
+const title = getMessage('popupTitle', 'Factotum');
+const menuManager = getMessage('menuManager', 'Open Manager');
 
 document.title = title;
 document.getElementById('popup-title').textContent = title;

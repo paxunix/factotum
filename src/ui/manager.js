@@ -11,6 +11,7 @@ import * as prettierPluginHtml from 'prettier/plugins/html';
 import * as prettierPluginPostcss from 'prettier/plugins/postcss';
 import { fontAwesomeIcons } from '../generated/fontawesome-icons.js';
 import { buildHelpHtml, RUNTIME_HELP_TEMPLATE_TOKENS } from '../shared/help.js';
+import { formatMessage, getMessage } from '../shared/i18n.js';
 import { getPreferredUiLocale } from '../shared/locale.js';
 import {
   DEFAULT_BUNDLE_REVIEW_SORT_STATE,
@@ -44,10 +45,6 @@ import { normalizeAliasMap, normalizeCommandRecord, validateAliasKey } from '../
 
 // Ensure Web Awesome assets resolve inside the extension bundle.
 setBasePath(chrome.runtime.getURL('vendor/webawesome'));
-
-function getMessage(key, fallback = key, substitutions) {
-  return chrome.i18n.getMessage(key, substitutions) || fallback;
-}
 
 const uiLocale = getPreferredUiLocale();
 
@@ -658,13 +655,6 @@ function clearHelpPreviewStatus() {
   helpPreview.status.hidden = true;
   helpPreview.status.className = 'bundle-status';
   helpPreview.status.textContent = '';
-}
-
-function formatMessage(key, fallback, substitutions) {
-  const values = Array.isArray(substitutions) ? substitutions.map(String) : [String(substitutions)];
-  return getMessage(key, fallback, values)
-    .replace('$COUNT$', values[0])
-    .replace('$COMMAND$', values[0]);
 }
 
 function formatInvalidSummaryMessage(key, fallback, count) {

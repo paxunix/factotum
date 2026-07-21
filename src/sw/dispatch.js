@@ -9,6 +9,7 @@ import { isInjectableUrl } from './injectability.js';
 import { formatNoSuchCommandSuggestion, resolveCommand } from './omnibox.js';
 import { parseCommandArgv } from './argv.mjs';
 import { escapeHtml } from '../shared/html.js';
+import { getMessage } from '../shared/i18n.js';
 import { getPreferredUiLocale } from '../shared/locale.js';
 
 let omniboxSessionState = {
@@ -31,10 +32,6 @@ function getSessionState() {
     return omniboxSessionState;
   }
   return null;
-}
-
-function getMessage(key, fallback) {
-  return chrome.i18n.getMessage(key) || fallback;
 }
 
 function buildResolutionLabel(matchKind) {

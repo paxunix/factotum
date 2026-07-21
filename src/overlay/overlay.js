@@ -1,4 +1,5 @@
 import { fontAwesomeIcons } from '../generated/fontawesome-icons.js';
+import { getMessage } from '../shared/i18n.js';
 import {
   DEFAULT_OVERLAY_OPACITY,
   MAX_OVERLAY_OPACITY,
@@ -273,10 +274,6 @@ function buildStyleText() {
     width: 20px;
   }
 `;
-}
-
-function getMessage(key, fallback) {
-  return chrome.i18n.getMessage(key) || fallback;
 }
 
 function getScrollDistanceFromBottom(element) {
