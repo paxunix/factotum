@@ -20,7 +20,6 @@ OU2. Persist overlay theme preference beyond the current page session and decide
 
 ### Architecture / refactoring
 
-AR3. Move USER_SCRIPT runner code generation out of `src/sw/inject.js` into a dedicated runner-template module while preserving the current generated source layout and `--debug` behavior.
 AR4. Consolidate repeated extension i18n fallback helpers into shared code so manager, overlay, service worker dispatch, inject, and help rendering use the same behavior.
 AR5. Consolidate error serialization helpers so runtime message handlers, RPC, bridge, and invocation finalization do not hand-build subtly different error payloads.
 AR6. Factor manager list filter/sort/direction mechanics into reusable helpers shared by Installed Commands and bundle export review lists.
