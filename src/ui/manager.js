@@ -18,9 +18,15 @@ import {
   buildBundleReviewModel,
   buildReviewedBundle,
   commandRefKey,
-  compareCommandValues,
   createBundleReviewRenderer
 } from './bundle_review.js';
+import {
+  SORT_ASCENDING,
+  compareCommandValues,
+  filterAndSortListItems,
+  getSortDirectionIconName,
+  toggleSortDirection
+} from './list_controls.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -317,7 +323,7 @@ let currentCommands = [];
 let currentAliases = {};
 let currentPanelRefs = new Map();
 let commandSortKey = 'name';
-let commandSortDirectionValue = 'asc';
+let commandSortDirectionValue = SORT_ASCENDING;
 let bundleReviewCommandsSortKey = DEFAULT_BUNDLE_REVIEW_SORT_STATE.commandsSortKey;
 let bundleReviewCommandsSortDirectionValue = DEFAULT_BUNDLE_REVIEW_SORT_STATE.commandsSortDirection;
 let bundleReviewAliasesSortKey = DEFAULT_BUNDLE_REVIEW_SORT_STATE.aliasesSortKey;
@@ -555,14 +561,8 @@ function populateEditableRows(container, rows, addRow, ensureRowsPresent, syncVa
 
 function updateSortDirectionButton(button, sortKey, directionValue) {
   const label = directionValue === 'asc' ? sortAscendingLabel : sortDescendingLabel;
-  let iconName = 'arrowUp';
-  if (sortKey === 'updatedAt') {
-    iconName = directionValue === 'asc' ? 'arrowDown19' : 'arrowUp91';
-  } else {
-    iconName = directionValue === 'asc' ? 'arrowDownAZ' : 'arrowUpZA';
-  }
   button.textContent = '';
-  button.append(createIcon(iconName));
+  button.append(createIcon(getSortDirectionIconName(sortKey, directionValue)));
   button.setAttribute('aria-label', label);
   button.title = label;
 }
@@ -586,11 +586,6 @@ setupEditorToolButton(editorCodeFormatButtons.css, 'CSS', editorFormatSelectionC
 setupEditorToolButton(editorHelpTemplateFormatButtons.js, 'JS', editorFormatSelectionJsLabel);
 setupEditorToolButton(editorHelpTemplateFormatButtons.html, 'HTML', editorFormatSelectionHtmlLabel);
 setupEditorToolButton(editorHelpTemplateFormatButtons.css, 'CSS', editorFormatSelectionCssLabel);
-
-function getSortedCommands(commands) {
-  const direction = commandSortDirectionValue === 'asc' ? 1 : -1;
-  return [...commands].sort((left, right) => compareCommandValues(left, right, commandSortKey) * direction);
-}
 
 function setStatus(container, kind, messages) {
   const lines = Array.isArray(messages) ? messages.filter(Boolean) : [messages].filter(Boolean);
@@ -717,21 +712,24 @@ function buildAliasMapForCommand(command, aliasNames, previousCommandRef = comma
   return next;
 }
 
-function commandMatchesFilter(command, filterText) {
-  const query = filterText.trim().toLowerCase();
-  if (!query) {
-    return true;
-  }
-
+function getCommandFilterValues(command) {
   const aliases = aliasesForCommand(command);
-  const values = [
+  return [
     command.name,
     command.id,
     commandRefKey(command),
     ...aliases,
     ...aliases.map((alias) => `${alias} ${command.name}@${command.id}`)
   ];
-  return values.some((value) => String(value).toLowerCase().includes(query));
+}
+
+function getVisibleCommands(commands) {
+  return filterAndSortListItems(commands, {
+    filterText: getCommandFilterValue(),
+    getFilterValues: getCommandFilterValues,
+    compareItems: (left, right) => compareCommandValues(left, right, commandSortKey),
+    direction: commandSortDirectionValue
+  });
 }
 
 function getCommandFilterValue() {
@@ -2220,7 +2218,7 @@ function applySelectedCommand(commandRef) {
   }
 
   selectedMenuCommandRef = commandRef;
-  renderSelectedCommandCard(getSortedCommands(currentCommands.filter((command) => commandMatchesFilter(command, getCommandFilterValue()))));
+  renderSelectedCommandCard(getVisibleCommands(currentCommands));
   selectCommandForEdit(commandRef).catch((error) => {
     console.error('[factotum] select command failed', error);
     setEditorStatus('error', error.message || String(error));
@@ -2607,7 +2605,7 @@ function renderCommands(commands) {
   const container = document.getElementById('command-list');
   const emptyState = document.getElementById('command-list-empty');
   const listBody = document.getElementById('command-list-body');
-  const filteredCommands = getSortedCommands(commands.filter((command) => commandMatchesFilter(command, getCommandFilterValue())));
+  const filteredCommands = getVisibleCommands(commands);
 
   container.active = '';
   container.textContent = '';
@@ -2893,7 +2891,7 @@ bundleReviewCommandsSort.addEventListener('change', () => {
 });
 
 bundleReviewCommandsSortDirection.addEventListener('click', () => {
-  bundleReviewCommandsSortDirectionValue = bundleReviewCommandsSortDirectionValue === 'asc' ? 'desc' : 'asc';
+  bundleReviewCommandsSortDirectionValue = toggleSortDirection(bundleReviewCommandsSortDirectionValue);
   updateSortDirectionButton(bundleReviewCommandsSortDirection, bundleReviewCommandsSortKey, bundleReviewCommandsSortDirectionValue);
   refreshPendingBundleReview();
 });
@@ -2905,7 +2903,7 @@ bundleReviewAliasesSort.addEventListener('change', () => {
 });
 
 bundleReviewAliasesSortDirection.addEventListener('click', () => {
-  bundleReviewAliasesSortDirectionValue = bundleReviewAliasesSortDirectionValue === 'asc' ? 'desc' : 'asc';
+  bundleReviewAliasesSortDirectionValue = toggleSortDirection(bundleReviewAliasesSortDirectionValue);
   updateSortDirectionButton(bundleReviewAliasesSortDirection, bundleReviewAliasesSortKey, bundleReviewAliasesSortDirectionValue);
   refreshPendingBundleReview();
 });
@@ -2945,7 +2943,7 @@ commandSort.addEventListener('change', () => {
 });
 
 commandSortDirection.addEventListener('click', () => {
-  commandSortDirectionValue = commandSortDirectionValue === 'asc' ? 'desc' : 'asc';
+  commandSortDirectionValue = toggleSortDirection(commandSortDirectionValue);
   updateSortDirectionButton(commandSortDirection, commandSortKey, commandSortDirectionValue);
   renderCommands(currentCommands);
 });

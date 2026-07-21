@@ -1,8 +1,15 @@
+import {
+  SORT_ASCENDING,
+  compareCommandValues,
+  filterAndSortListItems,
+  itemMatchesTextFilter
+} from './list_controls.js';
+
 export const DEFAULT_BUNDLE_REVIEW_SORT_STATE = {
   commandsSortKey: 'name',
-  commandsSortDirection: 'asc',
+  commandsSortDirection: SORT_ASCENDING,
   aliasesSortKey: 'alias',
-  aliasesSortDirection: 'asc'
+  aliasesSortDirection: SORT_ASCENDING
 };
 
 export function commandRefKey(commandRef) {
@@ -11,16 +18,6 @@ export function commandRefKey(commandRef) {
 
 export function commandRecordsMatch(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
-}
-
-export function compareCommandValues(left, right, sortKey = 'name') {
-  if (sortKey === 'name') {
-    return left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
-  }
-  if (sortKey === 'id') {
-    return left.id.localeCompare(right.id) || left.name.localeCompare(right.name);
-  }
-  return (left.updatedAt || 0) - (right.updatedAt || 0) || left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
 }
 
 export function determineReviewState(existingEntry, incomingRecord, incomingInvalid = false) {
@@ -179,12 +176,7 @@ export function buildBundleReviewModel({
   };
 }
 
-export function reviewItemMatchesFilter(item, filterText) {
-  const query = String(filterText || '').trim().toLowerCase();
-  if (!query) {
-    return true;
-  }
-
+export function getBundleReviewFilterValues(item) {
   const values = [item.title, item.detail || ''];
   if (item.kind === 'command') {
     values.push(item.command.name, item.command.id, commandRefKey(item.command), ...(item.aliases || []));
@@ -198,8 +190,11 @@ export function reviewItemMatchesFilter(item, filterText) {
         : [])
     );
   }
+  return values;
+}
 
-  return values.some((value) => String(value).toLowerCase().includes(query));
+export function reviewItemMatchesFilter(item, filterText) {
+  return itemMatchesTextFilter(item, filterText, getBundleReviewFilterValues);
 }
 
 export function compareAliasReviewItems(left, right, sortKey = 'alias') {
@@ -213,12 +208,16 @@ export function compareAliasReviewItems(left, right, sortKey = 'alias') {
 
 export function getSortedBundleReviewItems(items, kind, sortState = DEFAULT_BUNDLE_REVIEW_SORT_STATE) {
   if (kind === 'commands') {
-    const direction = sortState.commandsSortDirection === 'asc' ? 1 : -1;
-    return [...items].sort((left, right) => compareCommandValues(left.command, right.command, sortState.commandsSortKey) * direction);
+    return filterAndSortListItems(items, {
+      compareItems: (left, right) => compareCommandValues(left.command, right.command, sortState.commandsSortKey),
+      direction: sortState.commandsSortDirection
+    });
   }
   if (kind === 'aliases') {
-    const direction = sortState.aliasesSortDirection === 'asc' ? 1 : -1;
-    return [...items].sort((left, right) => compareAliasReviewItems(left, right, sortState.aliasesSortKey) * direction);
+    return filterAndSortListItems(items, {
+      compareItems: (left, right) => compareAliasReviewItems(left, right, sortState.aliasesSortKey),
+      direction: sortState.aliasesSortDirection
+    });
   }
   return items;
 }
@@ -237,8 +236,14 @@ export function getBundleReviewFilterValue(kind, viewState = {}) {
 }
 
 export function getVisibleBundleReviewItems(items, kind, viewState = {}) {
-  const filtered = items.filter((item) => reviewItemMatchesFilter(item, getBundleReviewFilterValue(kind, viewState)));
-  return getSortedBundleReviewItems(filtered, kind, viewState);
+  return getSortedBundleReviewItems(
+    filterAndSortListItems(items, {
+      filterText: getBundleReviewFilterValue(kind, viewState),
+      getFilterValues: getBundleReviewFilterValues
+    }),
+    kind,
+    viewState
+  );
 }
 
 export function selectVisibleBundleReviewItems(review, kind, selected, viewState = {}) {

@@ -20,7 +20,6 @@ OU2. Persist overlay theme preference beyond the current page session and decide
 
 ### Architecture / refactoring
 
-AR6. Factor manager list filter/sort/direction mechanics into reusable helpers shared by Installed Commands and bundle export review lists.
 AR7. Rework bundle import/export storage flow toward a normalize/plan/apply structure so overwrite warnings, invalid command preservation, and alias updates are easier to reason about and test.
 
 ### Tooling / verification
