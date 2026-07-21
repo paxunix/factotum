@@ -455,6 +455,61 @@ function createIcon(name) {
   return icon;
 }
 
+function createIconButton({ className, iconName, label }) {
+  const button = document.createElement('wa-button');
+  button.className = className;
+  button.variant = 'neutral';
+  button.appearance = 'filled-outlined';
+  button.size = 'small';
+  button.type = 'button';
+  button.append(createIcon(iconName));
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  return button;
+}
+
+function createRowIssue(className) {
+  const issue = document.createElement('div');
+  issue.className = className;
+  issue.hidden = true;
+  return issue;
+}
+
+function bindRowInputEvents(elements, onChange) {
+  for (const element of elements) {
+    element.addEventListener('input', onChange);
+    element.addEventListener('change', onChange);
+  }
+}
+
+function getEditableRowSnapshots(container, rowSelector, readRow) {
+  return [...container.querySelectorAll(rowSelector)].map(readRow);
+}
+
+function setEditableRowIssue(row, issueSelector, message = '') {
+  row.dataset.invalid = message ? 'true' : 'false';
+  const issue = row.querySelector(issueSelector);
+  if (issue) {
+    issue.textContent = message;
+    issue.hidden = !message;
+  }
+}
+
+function ensureEditableRowPresence(container, addRow) {
+  if (container.childElementCount === 0) {
+    addRow();
+  }
+}
+
+function populateEditableRows(container, rows, addRow, ensureRowsPresent, syncValidation) {
+  container.replaceChildren();
+  for (const row of rows) {
+    addRow(row);
+  }
+  ensureRowsPresent();
+  syncValidation();
+}
+
 function updateSortDirectionButton(button, sortKey, directionValue) {
   const label = directionValue === 'asc' ? sortAscendingLabel : sortDescendingLabel;
   let iconName = 'arrowUp';
@@ -716,7 +771,7 @@ function buildLocalizedRows(value) {
 }
 
 function getDescriptionRowsSnapshot() {
-  return [...descriptionEditor.rows.querySelectorAll('.localized-row')].map((row) => ({
+  return getEditableRowSnapshots(descriptionEditor.rows, '.localized-row', (row) => ({
     locale: row.querySelector('.localized-row-locale')?.value || '',
     value: row.querySelector('.localized-row-value')?.value || ''
   }));
@@ -748,29 +803,17 @@ function validateDescriptionRows(rows) {
   return issues;
 }
 
-function renderDescriptionRowIssue(row, message = '') {
-  row.dataset.invalid = message ? 'true' : 'false';
-  const issue = row.querySelector('.localized-row-error');
-  if (issue) {
-    issue.textContent = message;
-    issue.hidden = !message;
-  }
-}
-
 function syncDescriptionValidation() {
   const rows = getDescriptionRowsSnapshot();
   const issues = validateDescriptionRows(rows);
   [...descriptionEditor.rows.querySelectorAll('.localized-row')].forEach((row, index) => {
-    renderDescriptionRowIssue(row, issues.get(index) || '');
+    setEditableRowIssue(row, '.localized-row-error', issues.get(index) || '');
   });
   return issues;
 }
 
 function ensureDescriptionRowPresence() {
-  if (descriptionEditor.rows.childElementCount > 0) {
-    return;
-  }
-  addDescriptionRow();
+  ensureEditableRowPresence(descriptionEditor.rows, () => addDescriptionRow());
 }
 
 function handleDescriptionEditorChange() {
@@ -799,15 +842,11 @@ function addDescriptionRow(initial = { locale: '', value: '' }, options = {}) {
   localeInput.size = 'small';
   localeInput.value = initial.locale || '';
 
-  const deleteButton = document.createElement('wa-button');
-  deleteButton.className = 'icon-button localized-row-delete';
-  deleteButton.variant = 'neutral';
-  deleteButton.appearance = 'filled-outlined';
-  deleteButton.size = 'small';
-  deleteButton.type = 'button';
-  deleteButton.append(createIcon('trash'));
-  deleteButton.setAttribute('aria-label', editorDescriptionDeleteLabel);
-  deleteButton.title = editorDescriptionDeleteLabel;
+  const deleteButton = createIconButton({
+    className: 'icon-button localized-row-delete',
+    iconName: 'trash',
+    label: editorDescriptionDeleteLabel
+  });
 
   const valueInput = document.createElement('wa-textarea');
   valueInput.className = 'localized-row-value editor-textarea-small';
@@ -816,18 +855,13 @@ function addDescriptionRow(initial = { locale: '', value: '' }, options = {}) {
   valueInput.spellcheck = false;
   valueInput.value = initial.value || '';
 
-  const issue = document.createElement('div');
-  issue.className = 'localized-row-error';
-  issue.hidden = true;
+  const issue = createRowIssue('localized-row-error');
 
   const onChange = () => {
     handleDescriptionEditorChange();
   };
 
-  localeInput.addEventListener('input', onChange);
-  localeInput.addEventListener('change', onChange);
-  valueInput.addEventListener('input', onChange);
-  valueInput.addEventListener('change', onChange);
+  bindRowInputEvents([localeInput, valueInput], onChange);
   deleteButton.addEventListener('click', () => {
     if (descriptionEditor.rows.childElementCount === 1) {
       localeInput.value = '';
@@ -857,12 +891,13 @@ function addDescriptionRow(initial = { locale: '', value: '' }, options = {}) {
 }
 
 function populateDescriptionEditor(value) {
-  descriptionEditor.rows.replaceChildren();
-  for (const row of buildLocalizedRows(value)) {
-    addDescriptionRow(row);
-  }
-  ensureDescriptionRowPresence();
-  syncDescriptionValidation();
+  populateEditableRows(
+    descriptionEditor.rows,
+    buildLocalizedRows(value),
+    (row) => addDescriptionRow(row),
+    ensureDescriptionRowPresence,
+    syncDescriptionValidation
+  );
 }
 
 function readEditedDescription() {
@@ -905,9 +940,9 @@ function buildHelpStringBlocks(value) {
 }
 
 function getHelpStringsBlocksSnapshot() {
-  return [...helpStringsEditor.blocks.querySelectorAll('.help-strings-block')].map((block) => ({
+  return getEditableRowSnapshots(helpStringsEditor.blocks, '.help-strings-block', (block) => ({
     locale: block.querySelector('.help-strings-block-locale')?.value || '',
-    rows: [...block.querySelectorAll('.help-strings-token-row')].map((row) => ({
+    rows: getEditableRowSnapshots(block, '.help-strings-token-row', (row) => ({
       token: row.querySelector('.help-strings-token-key')?.value || '',
       value: row.querySelector('.help-strings-token-value')?.value || ''
     }))
@@ -961,31 +996,13 @@ function validateHelpStringsBlocks(blocks) {
   return { localeIssues, tokenIssues };
 }
 
-function renderHelpStringsBlockIssue(block, message = '') {
-  block.dataset.invalid = message ? 'true' : 'false';
-  const issue = block.querySelector('.help-strings-block-error');
-  if (issue) {
-    issue.textContent = message;
-    issue.hidden = !message;
-  }
-}
-
-function renderHelpStringsTokenIssue(row, message = '') {
-  row.dataset.invalid = message ? 'true' : 'false';
-  const issue = row.querySelector('.help-strings-token-error');
-  if (issue) {
-    issue.textContent = message;
-    issue.hidden = !message;
-  }
-}
-
 function syncHelpStringsValidation() {
   const blocks = getHelpStringsBlocksSnapshot();
   const { localeIssues, tokenIssues } = validateHelpStringsBlocks(blocks);
   [...helpStringsEditor.blocks.querySelectorAll('.help-strings-block')].forEach((block, blockIndex) => {
-    renderHelpStringsBlockIssue(block, localeIssues.get(blockIndex) || '');
+    setEditableRowIssue(block, '.help-strings-block-error', localeIssues.get(blockIndex) || '');
     [...block.querySelectorAll('.help-strings-token-row')].forEach((row, rowIndex) => {
-      renderHelpStringsTokenIssue(row, tokenIssues.get(`${blockIndex}:${rowIndex}`) || '');
+      setEditableRowIssue(row, '.help-strings-token-error', tokenIssues.get(`${blockIndex}:${rowIndex}`) || '');
     });
   });
   return { localeIssues, tokenIssues };
@@ -999,17 +1016,11 @@ function handleHelpStringsEditorChange() {
 
 function ensureHelpStringsTokenRowPresence(block) {
   const rows = block.querySelector('.help-strings-token-rows');
-  if (rows.childElementCount > 0) {
-    return;
-  }
-  addHelpStringsTokenRow(block, { token: '', value: '' });
+  ensureEditableRowPresence(rows, () => addHelpStringsTokenRow(block, { token: '', value: '' }));
 }
 
 function ensureHelpStringsBlockPresence() {
-  if (helpStringsEditor.blocks.childElementCount > 0) {
-    return;
-  }
-  addHelpStringsBlock({ locale: '', rows: [{ token: '', value: '' }] });
+  ensureEditableRowPresence(helpStringsEditor.blocks, () => addHelpStringsBlock({ locale: '', rows: [{ token: '', value: '' }] }));
 }
 
 function addHelpStringsTokenRow(block, initial = { token: '', value: '' }, options = {}) {
@@ -1040,28 +1051,19 @@ function addHelpStringsTokenRow(block, initial = { token: '', value: '' }, optio
   valueInput.spellcheck = false;
   valueInput.value = initial.value || '';
 
-  const deleteButton = document.createElement('wa-button');
-  deleteButton.className = 'icon-button help-strings-token-delete';
-  deleteButton.variant = 'neutral';
-  deleteButton.appearance = 'filled-outlined';
-  deleteButton.size = 'small';
-  deleteButton.type = 'button';
-  deleteButton.append(createIcon('trash'));
-  deleteButton.setAttribute('aria-label', editorHelpStringsDeleteTokenLabel);
-  deleteButton.title = editorHelpStringsDeleteTokenLabel;
+  const deleteButton = createIconButton({
+    className: 'icon-button help-strings-token-delete',
+    iconName: 'trash',
+    label: editorHelpStringsDeleteTokenLabel
+  });
 
-  const issue = document.createElement('div');
-  issue.className = 'help-strings-token-error';
-  issue.hidden = true;
+  const issue = createRowIssue('help-strings-token-error');
 
   const onChange = () => {
     handleHelpStringsEditorChange();
   };
 
-  keyInput.addEventListener('input', onChange);
-  keyInput.addEventListener('change', onChange);
-  valueInput.addEventListener('input', onChange);
-  valueInput.addEventListener('change', onChange);
+  bindRowInputEvents([keyInput, valueInput], onChange);
 
   deleteButton.addEventListener('click', () => {
     if (rows.childElementCount === 1) {
@@ -1113,39 +1115,28 @@ function addHelpStringsBlock(initial = { locale: '', rows: [{ token: '', value: 
   const actions = document.createElement('div');
   actions.className = 'help-strings-block-actions';
 
-  const addTokenButton = document.createElement('wa-button');
-  addTokenButton.className = 'icon-button help-strings-block-add';
-  addTokenButton.variant = 'neutral';
-  addTokenButton.appearance = 'filled-outlined';
-  addTokenButton.size = 'small';
-  addTokenButton.type = 'button';
-  addTokenButton.append(createIcon('plus'));
-  addTokenButton.setAttribute('aria-label', editorHelpStringsAddTokenLabel);
-  addTokenButton.title = editorHelpStringsAddTokenLabel;
+  const addTokenButton = createIconButton({
+    className: 'icon-button help-strings-block-add',
+    iconName: 'plus',
+    label: editorHelpStringsAddTokenLabel
+  });
 
-  const deleteBlockButton = document.createElement('wa-button');
-  deleteBlockButton.className = 'icon-button help-strings-block-delete';
-  deleteBlockButton.variant = 'neutral';
-  deleteBlockButton.appearance = 'filled-outlined';
-  deleteBlockButton.size = 'small';
-  deleteBlockButton.type = 'button';
-  deleteBlockButton.append(createIcon('trash'));
-  deleteBlockButton.setAttribute('aria-label', editorHelpStringsDeleteLocaleLabel);
-  deleteBlockButton.title = editorHelpStringsDeleteLocaleLabel;
+  const deleteBlockButton = createIconButton({
+    className: 'icon-button help-strings-block-delete',
+    iconName: 'trash',
+    label: editorHelpStringsDeleteLocaleLabel
+  });
 
   const tokenRows = document.createElement('div');
   tokenRows.className = 'help-strings-token-rows';
 
-  const blockIssue = document.createElement('div');
-  blockIssue.className = 'help-strings-block-error';
-  blockIssue.hidden = true;
+  const blockIssue = createRowIssue('help-strings-block-error');
 
   const onChange = () => {
     handleHelpStringsEditorChange();
   };
 
-  localeInput.addEventListener('input', onChange);
-  localeInput.addEventListener('change', onChange);
+  bindRowInputEvents([localeInput], onChange);
 
   addTokenButton.addEventListener('click', () => {
     addHelpStringsTokenRow(block, { token: '', value: '' }, { focus: true });
@@ -1186,12 +1177,13 @@ function addHelpStringsBlock(initial = { locale: '', rows: [{ token: '', value: 
 }
 
 function populateHelpStringsEditor(value) {
-  helpStringsEditor.blocks.replaceChildren();
-  for (const block of buildHelpStringBlocks(value)) {
-    addHelpStringsBlock(block);
-  }
-  ensureHelpStringsBlockPresence();
-  syncHelpStringsValidation();
+  populateEditableRows(
+    helpStringsEditor.blocks,
+    buildHelpStringBlocks(value),
+    (block) => addHelpStringsBlock(block),
+    ensureHelpStringsBlockPresence,
+    syncHelpStringsValidation
+  );
 }
 
 function readEditedHelpStrings() {
@@ -1401,14 +1393,14 @@ function buildOptionsSpecRows(value) {
 }
 
 function getOptionDescriptionRowsSnapshot(optionRow) {
-  return [...optionRow.querySelectorAll('.option-description-row')].map((row) => ({
+  return getEditableRowSnapshots(optionRow, '.option-description-row', (row) => ({
     locale: row.querySelector('.option-description-locale')?.value || '',
     value: row.querySelector('.option-description-value')?.value || ''
   }));
 }
 
 function getOptionsRowsSnapshot() {
-  return [...optionsEditor.rows.querySelectorAll('.option-row')].map((row) => ({
+  return getEditableRowSnapshots(optionsEditor.rows, '.option-row', (row) => ({
     flags: row.querySelector('.option-row-flags')?.value || '',
     value: row.querySelector('.option-row-value')?.value || 'boolean',
     required: Boolean(row.querySelector('.option-row-required')?.checked),
@@ -1496,31 +1488,13 @@ function validateOptionsRows(rows) {
   return { optionIssues, descriptionIssues };
 }
 
-function renderOptionRowIssue(row, message = '') {
-  row.dataset.invalid = message ? 'true' : 'false';
-  const issue = row.querySelector('.option-row-error');
-  if (issue) {
-    issue.textContent = message;
-    issue.hidden = !message;
-  }
-}
-
-function renderOptionDescriptionIssue(row, message = '') {
-  row.dataset.invalid = message ? 'true' : 'false';
-  const issue = row.querySelector('.option-description-error');
-  if (issue) {
-    issue.textContent = message;
-    issue.hidden = !message;
-  }
-}
-
 function syncOptionsValidation() {
   const rows = getOptionsRowsSnapshot();
   const { optionIssues, descriptionIssues } = validateOptionsRows(rows);
   [...optionsEditor.rows.querySelectorAll('.option-row')].forEach((row, rowIndex) => {
-    renderOptionRowIssue(row, optionIssues.get(rowIndex) || '');
+    setEditableRowIssue(row, '.option-row-error', optionIssues.get(rowIndex) || '');
     [...row.querySelectorAll('.option-description-row')].forEach((descriptionRow, descriptionIndex) => {
-      renderOptionDescriptionIssue(descriptionRow, descriptionIssues.get(`${rowIndex}:${descriptionIndex}`) || '');
+      setEditableRowIssue(descriptionRow, '.option-description-error', descriptionIssues.get(`${rowIndex}:${descriptionIndex}`) || '');
     });
   });
   return { optionIssues, descriptionIssues };
@@ -1534,17 +1508,11 @@ function handleOptionsEditorChange() {
 
 function ensureOptionDescriptionRowPresence(optionRow) {
   const rows = optionRow.querySelector('.option-description-rows');
-  if (rows.childElementCount > 0) {
-    return;
-  }
-  addOptionDescriptionRow(optionRow, { locale: '', value: '' });
+  ensureEditableRowPresence(rows, () => addOptionDescriptionRow(optionRow, { locale: '', value: '' }));
 }
 
 function ensureOptionRowPresence() {
-  if (optionsEditor.rows.childElementCount > 0) {
-    return;
-  }
-  addOptionRow();
+  ensureEditableRowPresence(optionsEditor.rows, () => addOptionRow());
 }
 
 function addOptionDescriptionRow(optionRow, initial = { locale: '', value: '' }, options = {}) {
@@ -1576,28 +1544,19 @@ function addOptionDescriptionRow(optionRow, initial = { locale: '', value: '' },
   valueInput.spellcheck = false;
   valueInput.value = initial.value || '';
 
-  const deleteButton = document.createElement('wa-button');
-  deleteButton.className = 'icon-button option-description-delete';
-  deleteButton.variant = 'neutral';
-  deleteButton.appearance = 'filled-outlined';
-  deleteButton.size = 'small';
-  deleteButton.type = 'button';
-  deleteButton.append(createIcon('trash'));
-  deleteButton.setAttribute('aria-label', editorOptionsDescriptionDeleteLabel);
-  deleteButton.title = editorOptionsDescriptionDeleteLabel;
+  const deleteButton = createIconButton({
+    className: 'icon-button option-description-delete',
+    iconName: 'trash',
+    label: editorOptionsDescriptionDeleteLabel
+  });
 
-  const issue = document.createElement('div');
-  issue.className = 'option-description-error';
-  issue.hidden = true;
+  const issue = createRowIssue('option-description-error');
 
   const onChange = () => {
     handleOptionsEditorChange();
   };
 
-  localeInput.addEventListener('input', onChange);
-  localeInput.addEventListener('change', onChange);
-  valueInput.addEventListener('input', onChange);
-  valueInput.addEventListener('change', onChange);
+  bindRowInputEvents([localeInput, valueInput], onChange);
 
   deleteButton.addEventListener('click', () => {
     if (rows.childElementCount === 1) {
@@ -1677,9 +1636,9 @@ function addOptionRow(initial = {
   valueSelect.label = editorOptionsValueLabel;
   valueSelect.size = 'small';
   valueSelect.append(
-    buildSelectOption('boolean', editorOptionsValueBooleanLabel),
-    buildSelectOption('string', editorOptionsValueStringLabel),
-    buildSelectOption('number', editorOptionsValueNumberLabel)
+    buildOption('boolean', editorOptionsValueBooleanLabel),
+    buildOption('string', editorOptionsValueStringLabel),
+    buildOption('number', editorOptionsValueNumberLabel)
   );
   valueSelect.value = initial.value || 'boolean';
 
@@ -1693,9 +1652,9 @@ function addOptionRow(initial = {
   defaultBooleanSelect.label = editorOptionsDefaultLabel;
   defaultBooleanSelect.size = 'small';
   defaultBooleanSelect.append(
-    buildSelectOption('', editorOptionsDefaultUnsetLabel),
-    buildSelectOption('true', editorOptionsDefaultTrueLabel),
-    buildSelectOption('false', editorOptionsDefaultFalseLabel)
+    buildOption('', editorOptionsDefaultUnsetLabel),
+    buildOption('true', editorOptionsDefaultTrueLabel),
+    buildOption('false', editorOptionsDefaultFalseLabel)
   );
   defaultBooleanSelect.value = initial.defaultBoolean || '';
 
@@ -1705,15 +1664,11 @@ function addOptionRow(initial = {
   requiredSwitch.textContent = editorOptionsRequiredLabel;
   requiredSwitch.checked = Boolean(initial.required);
 
-  const deleteButton = document.createElement('wa-button');
-  deleteButton.className = 'icon-button option-row-delete';
-  deleteButton.variant = 'neutral';
-  deleteButton.appearance = 'filled-outlined';
-  deleteButton.size = 'small';
-  deleteButton.type = 'button';
-  deleteButton.append(createIcon('trash'));
-  deleteButton.setAttribute('aria-label', editorOptionsDeleteLabel);
-  deleteButton.title = editorOptionsDeleteLabel;
+  const deleteButton = createIconButton({
+    className: 'icon-button option-row-delete',
+    iconName: 'trash',
+    label: editorOptionsDeleteLabel
+  });
 
   const descriptionGroup = document.createElement('div');
   descriptionGroup.className = 'option-description-editor';
@@ -1725,41 +1680,28 @@ function addOptionRow(initial = {
   descriptionLabel.className = 'editor-field-label';
   descriptionLabel.textContent = editorOptionsDescriptionLabel;
 
-  const addDescriptionButton = document.createElement('wa-button');
-  addDescriptionButton.className = 'icon-button option-description-add';
-  addDescriptionButton.variant = 'neutral';
-  addDescriptionButton.appearance = 'filled-outlined';
-  addDescriptionButton.size = 'small';
-  addDescriptionButton.type = 'button';
-  addDescriptionButton.append(createIcon('plus'));
-  addDescriptionButton.setAttribute('aria-label', editorOptionsDescriptionAddLabel);
-  addDescriptionButton.title = editorOptionsDescriptionAddLabel;
+  const addDescriptionButton = createIconButton({
+    className: 'icon-button option-description-add',
+    iconName: 'plus',
+    label: editorOptionsDescriptionAddLabel
+  });
 
   const descriptionRows = document.createElement('div');
   descriptionRows.className = 'option-description-rows';
 
-  const issue = document.createElement('div');
-  issue.className = 'option-row-error';
-  issue.hidden = true;
+  const issue = createRowIssue('option-row-error');
 
   const onChange = () => {
     handleOptionsEditorChange();
   };
 
-  flagsInput.addEventListener('input', onChange);
-  flagsInput.addEventListener('change', onChange);
+  bindRowInputEvents([flagsInput, defaultInput, defaultBooleanSelect, requiredSwitch], onChange);
   valueSelect.addEventListener('input', () => {
     handleOptionValueTypeChange(row);
   });
   valueSelect.addEventListener('change', () => {
     handleOptionValueTypeChange(row);
   });
-  defaultInput.addEventListener('input', onChange);
-  defaultInput.addEventListener('change', onChange);
-  defaultBooleanSelect.addEventListener('input', onChange);
-  defaultBooleanSelect.addEventListener('change', onChange);
-  requiredSwitch.addEventListener('input', onChange);
-  requiredSwitch.addEventListener('change', onChange);
 
   addDescriptionButton.addEventListener('click', () => {
     addOptionDescriptionRow(row, { locale: '', value: '' }, { focus: true });
@@ -1810,12 +1752,13 @@ function addOptionRow(initial = {
 
 function populateOptionsEditor(value) {
   editorFields.optionsArgs.value = value?.args != null ? String(value.args) : '';
-  optionsEditor.rows.replaceChildren();
-  for (const row of buildOptionsSpecRows(value)) {
-    addOptionRow(row);
-  }
-  ensureOptionRowPresence();
-  syncOptionsValidation();
+  populateEditableRows(
+    optionsEditor.rows,
+    buildOptionsSpecRows(value),
+    (row) => addOptionRow(row),
+    ensureOptionRowPresence,
+    syncOptionsValidation
+  );
 }
 
 function readEditedOptionsSpec() {
@@ -1885,15 +1828,8 @@ function buildRequireRows(value) {
   }));
 }
 
-function buildSelectOption(value, label) {
-  const option = document.createElement('wa-option');
-  option.value = value;
-  option.textContent = label;
-  return option;
-}
-
 function getRequiresRowsSnapshot() {
-  return [...requiresEditor.rows.querySelectorAll('.require-row')].map((row) => ({
+  return getEditableRowSnapshots(requiresEditor.rows, '.require-row', (row) => ({
     url: row.querySelector('.require-row-url')?.value || '',
     kind: row.querySelector('.require-row-kind')?.value || '',
     world: row.querySelector('.require-row-world')?.value || ''
@@ -1936,29 +1872,17 @@ function validateRequireRows(rows) {
   return issues;
 }
 
-function renderRequireRowIssue(row, message = '') {
-  row.dataset.invalid = message ? 'true' : 'false';
-  const issue = row.querySelector('.require-row-error');
-  if (issue) {
-    issue.textContent = message;
-    issue.hidden = !message;
-  }
-}
-
 function syncRequiresValidation() {
   const rows = getRequiresRowsSnapshot();
   const issues = validateRequireRows(rows);
   [...requiresEditor.rows.querySelectorAll('.require-row')].forEach((row, index) => {
-    renderRequireRowIssue(row, issues.get(index) || '');
+    setEditableRowIssue(row, '.require-row-error', issues.get(index) || '');
   });
   return issues;
 }
 
 function ensureRequireRowPresence() {
-  if (requiresEditor.rows.childElementCount > 0) {
-    return;
-  }
-  addRequireRow();
+  ensureEditableRowPresence(requiresEditor.rows, () => addRequireRow());
 }
 
 function handleRequiresEditorChange() {
@@ -1985,8 +1909,8 @@ function addRequireRow(initial = { url: '', kind: '', world: '' }, options = {})
   kindSelect.placeholder = editorRequiresKindPlaceholderLabel;
   kindSelect.size = 'small';
   kindSelect.append(
-    buildSelectOption('script', 'script'),
-    buildSelectOption('module', 'module')
+    buildOption('script', 'script'),
+    buildOption('module', 'module')
   );
   kindSelect.value = initial.kind || '';
 
@@ -1995,35 +1919,24 @@ function addRequireRow(initial = { url: '', kind: '', world: '' }, options = {})
   worldSelect.label = editorRequiresWorldLabel;
   worldSelect.size = 'small';
   worldSelect.append(
-    buildSelectOption('main', editorRequiresWorldMainLabel),
-    buildSelectOption('user_script', editorRequiresWorldUserScriptLabel)
+    buildOption('main', editorRequiresWorldMainLabel),
+    buildOption('user_script', editorRequiresWorldUserScriptLabel)
   );
   worldSelect.value = initial.world || 'main';
 
-  const deleteButton = document.createElement('wa-button');
-  deleteButton.className = 'icon-button require-row-delete';
-  deleteButton.variant = 'neutral';
-  deleteButton.appearance = 'filled-outlined';
-  deleteButton.size = 'small';
-  deleteButton.type = 'button';
-  deleteButton.append(createIcon('trash'));
-  deleteButton.setAttribute('aria-label', editorRequiresDeleteLabel);
-  deleteButton.title = editorRequiresDeleteLabel;
+  const deleteButton = createIconButton({
+    className: 'icon-button require-row-delete',
+    iconName: 'trash',
+    label: editorRequiresDeleteLabel
+  });
 
-  const issue = document.createElement('div');
-  issue.className = 'require-row-error';
-  issue.hidden = true;
+  const issue = createRowIssue('require-row-error');
 
   const onChange = () => {
     handleRequiresEditorChange();
   };
 
-  urlInput.addEventListener('input', onChange);
-  urlInput.addEventListener('change', onChange);
-  kindSelect.addEventListener('input', onChange);
-  kindSelect.addEventListener('change', onChange);
-  worldSelect.addEventListener('input', onChange);
-  worldSelect.addEventListener('change', onChange);
+  bindRowInputEvents([urlInput, kindSelect, worldSelect], onChange);
 
   deleteButton.addEventListener('click', () => {
     if (requiresEditor.rows.childElementCount === 1) {
@@ -2053,12 +1966,13 @@ function addRequireRow(initial = { url: '', kind: '', world: '' }, options = {})
 }
 
 function populateRequiresEditor(value) {
-  requiresEditor.rows.replaceChildren();
-  for (const row of buildRequireRows(value)) {
-    addRequireRow(row);
-  }
-  ensureRequireRowPresence();
-  syncRequiresValidation();
+  populateEditableRows(
+    requiresEditor.rows,
+    buildRequireRows(value),
+    (row) => addRequireRow(row),
+    ensureRequireRowPresence,
+    syncRequiresValidation
+  );
 }
 
 function readEditedRequires() {

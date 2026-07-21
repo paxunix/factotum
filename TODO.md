@@ -20,7 +20,6 @@ OU2. Persist overlay theme preference beyond the current page session and decide
 
 ### Architecture / refactoring
 
-AR1. Generalize the manager stacked editable-row pattern so Description, Help strings, Options, Option descriptions, and Requires use shared row lifecycle helpers instead of repeating snapshot/validate/render/add/populate/read code.
 AR2. Extract bundle import/export review model and rendering from `src/ui/manager.js` into a focused module with pure filtering, sorting, selection, and review-state helpers covered by unit tests.
 AR3. Move USER_SCRIPT runner code generation out of `src/sw/inject.js` into a dedicated runner-template module while preserving the current generated source layout and `--debug` behavior.
 AR4. Consolidate repeated extension i18n fallback helpers into shared code so manager, overlay, service worker dispatch, inject, and help rendering use the same behavior.
