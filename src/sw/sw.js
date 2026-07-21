@@ -1,4 +1,5 @@
 import { getOmniboxSuggestions, preloadOmniboxSession } from './dispatch.js';
+import { serializeError } from '../shared/errors.js';
 import {
   cancelForNavigation,
   cancelForTabClose,
@@ -54,12 +55,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       console.error('[factotum] runtime control error', error);
       sendResponse({
         ok: false,
-        error: {
-          name: error?.name || 'Error',
-          message: error?.message || String(error),
-          stack: error?.stack,
-          code: error?.code || 'ERROR'
-        }
+        error: serializeError(error)
       });
     });
   return true;
@@ -80,12 +76,7 @@ chrome.runtime.onUserScriptMessage.addListener((message, sender, sendResponse) =
       console.error('[factotum] user script message error', error);
       sendResponse({
         ok: false,
-        error: {
-          name: error?.name || 'Error',
-          message: error?.message || String(error),
-          stack: error?.stack,
-          code: error?.code || 'ERROR'
-        }
+        error: serializeError(error)
       });
     });
   return true;

@@ -1,3 +1,5 @@
+import { serializeError } from '../shared/errors.js';
+
 function createHelpRequestedError() {
   const error = new Error('Help requested');
   error.code = 'HELP_REQUESTED';
@@ -24,6 +26,7 @@ export function buildUserScriptRunnerCode({
     outputMarkerId: markerIds.output
   });
   const rpcUnsupportedJson = JSON.stringify(rpcUnsupported);
+  const serializeErrorSource = serializeError.toString();
   const sourceUrl = `${invocation.command.name}@${invocation.command.id}`;
 
   const prefix = `
@@ -53,6 +56,7 @@ export function buildUserScriptRunnerCode({
 
     (async () => {
       const __factotumMeta = ${meta};
+      const __factotumSerializeError = ${serializeErrorSource};
       let __factotumCallSeq = 0;
       const __factotumPendingMainCalls = new Map();
 
@@ -115,11 +119,7 @@ export function buildUserScriptRunnerCode({
         } catch (error) {
           serialized = JSON.stringify({
             status: 'failed',
-            error: {
-              name: error?.name || 'Error',
-              message: error?.message || String(error),
-              code: 'UNCLONEABLE_RESULT'
-            }
+            error: __factotumSerializeError(error, 'UNCLONEABLE_RESULT')
           });
         }
 
@@ -385,12 +385,7 @@ export function buildUserScriptRunnerCode({
         }
         __factotumWriteCompletion({
           status: 'failed',
-          error: {
-            name: error?.name || 'Error',
-            message: error?.message || String(error),
-            stack: error?.stack,
-            code: error?.code || 'ERROR'
-          }
+          error: __factotumSerializeError(error, 'ERROR')
         });
         throw error;
       } finally {

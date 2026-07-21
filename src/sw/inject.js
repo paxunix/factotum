@@ -21,6 +21,7 @@ import {
 } from './sessions.js';
 import { isInjectableUrl } from './injectability.js';
 import { buildUserScriptRunnerCode } from './runner_template.js';
+import { createCodedError, deserializeError, serializeError } from '../shared/errors.js';
 import { buildHelpHtml, resolveLocaleMapEntry } from '../shared/help.js';
 import { getMessage } from '../shared/i18n.js';
 import { getPreferredUiLocale } from '../shared/locale.js';
@@ -35,26 +36,8 @@ const RPC_EVENT_METHODS = new Set(['addListener', 'removeListener', 'hasListener
 const invocationCompletion = new Map();
 const invocationOutputOffsets = new Map();
 
-function serializeError(error, fallbackCode = 'ERROR') {
-  if (!error) {
-    return { message: fallbackCode, code: fallbackCode };
-  }
-
-  return {
-    name: error.name || 'Error',
-    message: error.message || String(error),
-    stack: error.stack,
-    code: error.code || fallbackCode
-  };
-}
-
 function createRpcError(code, message, details) {
-  const error = new Error(message);
-  error.code = code;
-  if (details !== undefined) {
-    error.details = details;
-  }
-  return error;
+  return createCodedError(code, message, details);
 }
 
 function safeStringify(value, space = 0) {
@@ -773,14 +756,9 @@ async function pollInvocationCompletion(invocation) {
       }
 
       if (marker.status === 'failed') {
-        const errorDetail = marker.error || {};
         return settleCompletionWaiter(invocation.invocationId, {
           ok: false,
-          error: Object.assign(new Error(errorDetail.message || 'Invocation failed'), {
-            name: errorDetail.name || 'Error',
-            stack: errorDetail.stack,
-            code: errorDetail.code || 'ERROR'
-          })
+          error: deserializeError(marker.error, 'ERROR', 'Invocation failed')
         });
       }
 

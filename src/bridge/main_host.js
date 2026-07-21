@@ -1,13 +1,6 @@
-const CHANNEL = '__factotum_main_bridge__';
+import { serializeError } from '../shared/errors.js';
 
-function serializeError(error, code = 'BRIDGE_FAILED') {
-  return {
-    name: error?.name || 'Error',
-    message: error?.message || String(error),
-    stack: error?.stack,
-    code: error?.code || code
-  };
-}
+const CHANNEL = '__factotum_main_bridge__';
 
 if (!window.__factotumMainHostInstalled) {
   const handlersByInvocation = new Map();
@@ -134,7 +127,7 @@ if (!window.__factotumMainHostInstalled) {
       postResponse(sourceWindow, {
         ...base,
         ok: false,
-        error: serializeError(error)
+        error: serializeError(error, 'BRIDGE_FAILED')
       });
     }
   });
