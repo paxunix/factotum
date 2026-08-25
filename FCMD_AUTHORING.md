@@ -142,6 +142,34 @@ Notes:
 - a thrown or rejected error is shown in the terminal `Error` bubble using normalized error details
 - `ctx.help(...)` appends its optional message first, then terminates through the normal help bubble path instead of the error path
 
+Typical `ctx.help(...)` usage:
+
+```json
+{
+  "schemaVersion": 1,
+  "name": "openitem",
+  "id": "demo.openitem",
+  "version": "1",
+  "world": "user_script",
+  "description": { "en-US": "Open an item by name" },
+  "code": "async function main(argv, ctx) {\n  const [name] = argv.positionals;\n  if (!name) {\n    ctx.help('Missing required item name.', { level: 'error' });\n  }\n\n  ctx.out.write(`Opening ${name}`);\n}",
+  "helpHtmlTemplate": "<h1>{{title}}</h1>{{summaryBlock}}<section><h2>{{usageTitle}}</h2><pre>{{usage}}</pre></section>{{argsBlock}}",
+  "helpHtmlStrings": {
+    "en-US": {
+      "title": "openitem",
+      "summary": "Open an item by name."
+    }
+  },
+  "optionsSpec": {
+    "args": "<name>"
+  },
+  "createdAt": 1760100000000,
+  "updatedAt": 1760100000000
+}
+```
+
+If the user runs `f openitem` without a name, the command writes the "Missing required item name." error bubble and then shows the command's rendered help. If the user runs `f openitem report`, execution continues normally.
+
 Diagnostic logging is separate from user-visible output:
 - use `ctx.out.write/info/warn/error(...)` when the user should see the message in the session console
 - use `ctx.log/warn/error(...)` only for debugging
