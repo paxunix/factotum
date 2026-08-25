@@ -1083,7 +1083,7 @@ export async function configureUserScriptWorld() {
   return true;
 }
 
-export async function executeOmniboxInput(text) {
+export async function executeOmniboxInput(text, options = {}) {
   const tab = await getActiveTab();
   if (!tab) {
     return;
@@ -1094,7 +1094,9 @@ export async function executeOmniboxInput(text) {
     return { ok: true, reopen: true };
   }
 
-  const resolution = await resolveInvocationInput(text);
+  const resolution = await resolveInvocationInput(text, {
+    disposition: options.disposition
+  });
   if (!resolution.ok) {
     await handleResolutionFailure(tab, resolution);
     console.error('[factotum] invocation failed', resolution.code, resolution.message);

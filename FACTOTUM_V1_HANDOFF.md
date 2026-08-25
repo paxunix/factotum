@@ -275,6 +275,7 @@ If authors provide localized `description` for options, those should be used whe
   - `argv.tokens`: raw tokens after the command token
   - `argv.positionals`: parsed positional arguments
   - `argv.options`: canonical option values keyed by the preferred option name
+  - `argv.disposition`: requested omnibox disposition, always present as `"currentTab"`, `"newForegroundTab"`, or `"newBackgroundTab"`; defaults to `"currentTab"` outside explicit omnibox new-tab requests
 
 ### 4.2 Resolution algorithm
 1) cmdToken = first token; argvTokens = rest

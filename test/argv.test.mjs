@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { parseCommandArgv } from '../src/sw/argv.mjs';
+import {
+  normalizeInvocationDisposition,
+  parseCommandArgv
+} from '../src/sw/argv.mjs';
 
 test('maps short and long aliases to canonical option names', () => {
   const optionsSpec = {
@@ -20,7 +23,8 @@ test('maps short and long aliases to canonical option names', () => {
     positionals: ['alpha'],
     options: {
       delete: true
-    }
+    },
+    disposition: 'currentTab'
   });
 
   assert.deepEqual(parseCommandArgv(['alpha', '-d'], optionsSpec), {
@@ -28,7 +32,8 @@ test('maps short and long aliases to canonical option names', () => {
     positionals: ['alpha'],
     options: {
       delete: true
-    }
+    },
+    disposition: 'currentTab'
   });
 });
 
@@ -53,7 +58,8 @@ test('applies typed values and defaults from optionsSpec', () => {
     options: {
       name: 'bookmarks',
       limit: 10
-    }
+    },
+    disposition: 'currentTab'
   });
 
   assert.deepEqual(parseCommandArgv(['--limit=3'], optionsSpec), {
@@ -61,7 +67,8 @@ test('applies typed values and defaults from optionsSpec', () => {
     positionals: [],
     options: {
       limit: 3
-    }
+    },
+    disposition: 'currentTab'
   });
 });
 
@@ -106,13 +113,15 @@ test('uses parser semantics for combined shorts, --, and --flag=value', () => {
       alpha: true,
       beta: true,
       limit: 3
-    }
+    },
+    disposition: 'currentTab'
   });
 
   assert.deepEqual(parseCommandArgv(['--', '--not-an-option'], optionsSpec), {
     tokens: ['--', '--not-an-option'],
     positionals: ['--not-an-option'],
-    options: {}
+    options: {},
+    disposition: 'currentTab'
   });
 
   assert.throws(
@@ -153,7 +162,8 @@ test('always allows help flags for runtime handling', () => {
     positionals: [],
     options: {
       help: true
-    }
+    },
+    disposition: 'currentTab'
   });
 
   assert.deepEqual(parseCommandArgv(['-h'], optionsSpec), {
@@ -161,7 +171,8 @@ test('always allows help flags for runtime handling', () => {
     positionals: [],
     options: {
       help: true
-    }
+    },
+    disposition: 'currentTab'
   });
 });
 
@@ -180,6 +191,22 @@ test('always allows debug flag for runtime handling', () => {
     positionals: [],
     options: {
       debug: true
-    }
+    },
+    disposition: 'currentTab'
+  });
+});
+
+test('always includes normalized invocation disposition', () => {
+  assert.equal(normalizeInvocationDisposition('currentTab'), 'currentTab');
+  assert.equal(normalizeInvocationDisposition('newForegroundTab'), 'newForegroundTab');
+  assert.equal(normalizeInvocationDisposition('newBackgroundTab'), 'newBackgroundTab');
+  assert.equal(normalizeInvocationDisposition('bogus'), 'currentTab');
+  assert.equal(normalizeInvocationDisposition(undefined), 'currentTab');
+
+  assert.deepEqual(parseCommandArgv(['alpha'], {}, { disposition: 'newForegroundTab' }), {
+    tokens: ['alpha'],
+    positionals: ['alpha'],
+    options: {},
+    disposition: 'newForegroundTab'
   });
 });

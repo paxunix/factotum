@@ -104,7 +104,7 @@ export async function preloadOmniboxSession() {
   await loadOmniboxState();
 }
 
-export async function resolveInvocationInput(text) {
+export async function resolveInvocationInput(text, options = {}) {
   const state = getSessionState() || await loadOmniboxState();
   const { indexCommands, aliases } = state;
 
@@ -117,7 +117,9 @@ export async function resolveInvocationInput(text) {
   const command = fullCommand || resolution.command;
   let argv;
   try {
-    argv = parseCommandArgv(resolution.argvTokens, command.optionsSpec);
+    argv = parseCommandArgv(resolution.argvTokens, command.optionsSpec, {
+      disposition: options.disposition
+    });
   } catch (error) {
     return {
       ok: false,

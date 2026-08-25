@@ -1,5 +1,11 @@
 import mri from 'mri';
 
+const DISPOSITIONS = new Set([
+  'currentTab',
+  'newForegroundTab',
+  'newBackgroundTab'
+]);
+
 function flagName(flag) {
   if (typeof flag !== 'string') {
     return '';
@@ -95,7 +101,11 @@ function toPublicOptions(parsed, config) {
   return options;
 }
 
-export function parseCommandArgv(argvTokens, optionsSpec = {}) {
+export function normalizeInvocationDisposition(disposition) {
+  return DISPOSITIONS.has(disposition) ? disposition : 'currentTab';
+}
+
+export function parseCommandArgv(argvTokens, optionsSpec = {}, invocationOptions = {}) {
   const tokens = Array.isArray(argvTokens) ? argvTokens.map(String) : [];
   const config = buildMriConfig(optionsSpec);
   let unknown = '';
@@ -132,6 +142,7 @@ export function parseCommandArgv(argvTokens, optionsSpec = {}) {
   return {
     tokens,
     positionals: Array.isArray(parsed._) ? parsed._ : [],
-    options: toPublicOptions(parsed, config)
+    options: toPublicOptions(parsed, config),
+    disposition: normalizeInvocationDisposition(invocationOptions.disposition)
   };
 }

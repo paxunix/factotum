@@ -337,6 +337,7 @@ Each test lists: **Setup → Action → Expected**.
   * `main(argv, ctx)` receives `argv.tokens` as the raw post-command tokens
   * `main(argv, ctx)` receives `argv.positionals` as parsed positional args
   * `main(argv, ctx)` receives `argv.options.delete === true` for both `--delete` and `-d`
+  * `main(argv, ctx)` receives `argv.disposition`, defaulting to `currentTab` unless the user accepted the omnibox input as a new foreground or background tab
   * `optionsSpec.args` is help/usage text only and does not create named positional properties
   * unknown flags fail before `main()` executes when `optionsSpec.options` declares an option set
 

@@ -77,6 +77,7 @@ async function main(argv, ctx) {
 - `argv.tokens`: raw positional/option tokens after the command token
 - `argv.positionals`: parsed positional arguments
 - `argv.options`: parsed options keyed by the canonical option name from `optionsSpec`
+- `argv.disposition`: requested omnibox disposition, always present as `currentTab`, `newForegroundTab`, or `newBackgroundTab`
 - `ctx.signal.aborted`: cooperative cancel flag
 - `ctx.main.define(name, fn)`: expose a named `MAIN` entrypoint for this invocation
 - `ctx.main.call(name, args)`: call a named `MAIN` entrypoint for this invocation
@@ -235,6 +236,14 @@ Positional behavior:
 - `optionsSpec.args` is usage/help text only.
 - Factotum does not bind positional names, validate positional arity, or create named positional properties.
 - If `args` is `<verb> <object>`, the command must read `argv.positionals[0]` and `argv.positionals[1]` itself.
+
+Disposition behavior:
+- `argv.disposition` tells the command how the user accepted the omnibox input.
+- `currentTab` means use the current tab.
+- `newForegroundTab` means the user requested a new selected tab.
+- `newBackgroundTab` means the user requested a new background tab.
+- Commands that open URLs should use this field to choose between `ctx.chrome.tabs.update(...)` and `ctx.chrome.tabs.create(...)`.
+- Factotum always includes the field and defaults it to `currentTab` when there is no explicit new-tab request.
 
 `f cmd --help`:
 - skips normal command execution

@@ -38,8 +38,8 @@ chrome.omnibox.onInputStarted.addListener(() => {
   });
 });
 
-chrome.omnibox.onInputEntered.addListener((text) => {
-  executeOmniboxInput(text).catch((error) => {
+chrome.omnibox.onInputEntered.addListener((text, disposition) => {
+  executeOmniboxInput(text, { disposition }).catch((error) => {
     console.error('[factotum] invocation error', error);
   });
 });
