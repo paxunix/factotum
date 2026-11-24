@@ -18,7 +18,7 @@
     "codemirror": "^6.0.2",
     "mri": "^1.2.0",
     "prettier": "^3.8.3",
-    "shell-quote": "^1.8.3"
+    "shell-quote": "^1.11.0"
   },
   "devDependencies": {
     "esbuild": "^0.28.1"
