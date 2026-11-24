@@ -305,7 +305,9 @@ Each test lists: **Setup → Action → Expected**.
   1. run that command normally
   2. confirm no session console auto-appears
   3. enter `f -`
-  4. run a command with `showOverlay: false` that fails with a hard execution error
+  4. dismiss the console before running a suppressed command that throws; verify the error opens it
+  5. with auto-show off for `helpapi`, dismiss the console before each run of `f helpapi -h`, `f helpapi --help`, and `f helpapi`; verify all three open help and the last shows the missing-target message first
+  6. run a suppressed command that writes `ctx.out.error(...)`, waits, then writes `ctx.out.warn(...)` and returns. Verify the error opens the console during execution. Dismiss it during the wait and verify the warning and completion leave it hidden.
 * Expected:
 
   * The normal run stays hidden but still records its output and result in the current tab's session history.

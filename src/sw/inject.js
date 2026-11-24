@@ -779,12 +779,13 @@ async function drainInvocationOutputs(invocation) {
     return;
   }
 
-  for (const entry of outputs.slice(offset)) {
+  const newEntries = outputs.slice(offset);
+  for (const entry of newEntries) {
     await appendCommandOutputEntry(invocation.tabId, invocation, entry);
   }
   invocationOutputOffsets.set(invocation.invocationId, outputs.length);
   const session = getSession(invocation.tabId) || ensureSession(invocation.tabId);
-  await refreshSessionView(invocation.tabId, session.snapshot || null);
+  await refreshSessionView(invocation.tabId, session.snapshot || null, newEntries.some((entry) => entry?.level === 'error'));
 }
 
 function getUiLocale() {
@@ -802,8 +803,8 @@ async function showHelpOverlay(invocation) {
     message: '',
     html
   });
-  await setOverlayHelp(invocation.tabId, invocation.invocationId, commandRef, html, shouldAutoShowOverlay(invocation.command));
-  await showHistoryOnly(invocation.tabId, shouldAutoShowOverlay(invocation.command));
+  await setOverlayHelp(invocation.tabId, invocation.invocationId, commandRef, html, true);
+  await showHistoryOnly(invocation.tabId);
 }
 
 function buildExecuteCode(invocation) {

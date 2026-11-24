@@ -57,7 +57,7 @@ Bubble styling:
 Commands can also be configured so the overlay does not auto-show during normal runs. In that mode:
 - the command still records the same session history
 - `f -` reopens that tab's hidden history later
-- hard execution errors still force the overlay visible
+- requesting help opens the overlay, as does a command that displays help, writes user-facing error output, or fails
 
 On desktop:
 - the console opens wider than the original narrow card layout

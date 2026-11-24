@@ -28,7 +28,7 @@ This is a live orientation doc for future changes. It describes the current impl
 - The command-facing UI is a per-tab session console overlay in ISOLATED world.
 - `f -` reopens the current tab's hidden session console.
 - Help, command output, system notices, and terminal states share the same append-only bubble stream.
-- Commands may set `showOverlay: false` to suppress normal auto-show behavior while still recording session history; hard execution errors still force visibility.
+- Commands can set `showOverlay: false` to keep routine output in session history. Help, `ctx.out.error(...)`, and hard execution errors open the console.
 - `ctx.log/warn/error` remain internal diagnostics; there is no separate Logs page.
 
 ### Manager

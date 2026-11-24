@@ -100,7 +100,7 @@ Fields:
 - `name`, `id`
 - `version: string` (informational command revision; defaults to `"1"` when omitted)
 - `world: "user_script"`
-- `showOverlay?: boolean` (defaults to `true`; when `false`, normal execution/help/output stays hidden until explicitly reopened, but hard errors still force the session console visible)
+- `showOverlay?: boolean` (defaults to `true`). When `false`, routine output stays in session history. Help and errors open the console as specified in §10.
 - `disabled?: boolean` (default false; disabled commands are excluded from resolution)
 - `code: string`
 - `requires: RequireEntry[]` (optional)
@@ -444,7 +444,7 @@ SW rejects RPC if:
 - `--help` shows raw rendered help HTML inline in the session console, skips requires and main execution, and requires explicit user dismissal.
 - Help HTML is rendered from `helpHtmlTemplate` + localized `helpHtmlStrings` per §3.2.
 - `f -` reopens the hidden session console for the current tab without starting a command.
-- Hard execution errors still force the session console visible even when `showOverlay: false`.
+- Explicit help (`--help`, `-h`, or `ctx.help(...)`), new `ctx.out.error(...)` entries, and hard execution errors open the console even with `showOverlay: false`.
 - The desktop console uses a wider default presentation and a vertically resizable scrollback region.
 - Reopening the session console scrolls to the newest entries.
 - When new output arrives while the user is already at the bottom of scrollback, the console stays pinned to the newest entries; if the user has scrolled upward, new output must not yank the scroll position to the end.
