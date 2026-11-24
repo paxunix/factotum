@@ -108,6 +108,8 @@ If you try to run another command in the same tab while one is already running:
 
 ## Manager import/export
 
+Click the Factotum icon in the Chrome toolbar or select Factotum in the Extensions menu to open the manager.
+
 The Manager page has top-level Manager and Utilities tabs:
 - Manager: installed commands on the left and a sectioned command editor on the right
 - Utilities: bundle import/export tools with a full-height, internally scrolling bundle JSON field

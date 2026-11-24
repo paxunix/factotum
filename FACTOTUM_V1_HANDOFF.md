@@ -537,12 +537,12 @@ Recommended entrypoints:
 * SW: `src/sw/sw.js` → `dist/sw/sw.js`
 * Injected: `overlay.js`, `main_host.js`
 * User-script execution: command code dispatched via `chrome.userScripts.execute()` in USER_SCRIPT world
-* UI pages: `manager.js` (CodeMirror bundled for command code and help-template editing) and `popup.js`
+* Manager page: `manager.js` bundles CodeMirror for command code and help-template editing.
 
 UI access:
 
 * Provide a full-size manager/editor UI via extension pages (recommended for editing code/help).
-* Popup (browser action) acts as a lightweight launcher for the manager page.
+* Clicking the Factotum toolbar action opens the manager page directly.
 
 ---
 

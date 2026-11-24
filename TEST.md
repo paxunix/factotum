@@ -205,7 +205,7 @@ Each test lists: **Setup → Action → Expected**.
   2. keep at least one other valid command installed
 * Action:
 
-  1. open the manager UI
+  1. click the Factotum extension icon and verify the manager opens in one click
   2. export the bundle
   3. re-import that exported bundle into clean storage
 * Expected:

@@ -12,6 +12,12 @@ import {
 
 console.log('[factotum] service worker starting');
 
+chrome.action.onClicked.addListener(() => {
+  chrome.runtime.openOptionsPage().catch((error) => {
+    console.error('[factotum] opening manager failed', error);
+  });
+});
+
 chrome.runtime.onInstalled.addListener(() => {
   console.log('[factotum] installed');
   configureUserScriptWorld().catch((error) => {

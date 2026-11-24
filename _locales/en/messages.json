@@ -8,7 +8,7 @@
     "description": "Extension description"
   },
   "actionTitle": {
-    "message": "Factotum",
+    "message": "Open Factotum Manager",
     "description": "Toolbar action title"
   },
   "managerTitle": {
@@ -763,17 +763,5 @@
   "overlayUserScriptsUnavailable": {
     "message": "User Scripts is not enabled for this extension.",
     "description": "Overlay error message when the userScripts API is unavailable"
-  },
-  "popupTitle": {
-    "message": "Factotum",
-    "description": "Popup title"
-  },
-  "navManager": {
-    "message": "Manager",
-    "description": "Nav label for manager"
-  },
-  "menuManager": {
-    "message": "Open Manager",
-    "description": "Popup menu item to open manager"
   }
 }

@@ -170,8 +170,7 @@ async function buildMain(options = {}) {
       'src/sw/sw.js',
       'src/overlay/overlay.js',
       'src/bridge/main_host.js',
-      'src/ui/manager.js',
-      'src/ui/popup.js'
+      'src/ui/manager.js'
     ],
     outdir: targetDir,
     outbase: 'src',
