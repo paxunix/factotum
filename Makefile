@@ -35,7 +35,7 @@ run: build #help Build locally and print Chrome loading instructions
 	echo "Enable Developer mode and 'Allow User Scripts' after loading."
 
 lint: #help Run lightweight repository lint checks
-	@git diff --check
+	@git --no-pager diff --check
 
 test: #help Run the unit tests
 	@npm test
