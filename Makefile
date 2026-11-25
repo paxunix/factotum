@@ -1,8 +1,9 @@
 # Commake-inspired project commands.
 # See https://niallbunting.com/commake/
 
-.PHONY: all help init install build run lint test e2e plan deploy int versioncheck release tarball clean
+.PHONY: all help init install update build run lint test e2e plan deploy int versioncheck release tarball clean
 .ONESHELL:
+DEPS_STAMP := node_modules/.installed
 
 all: lint test build #help Run local checks and build the development extension
 
@@ -16,18 +17,23 @@ versioncheck: #help Check required local tool versions
 	tar --version >/dev/null
 
 init: versioncheck #help Run through dependencies and check
-	@echo "Dependencies look available. Run 'make install' if node_modules is missing or stale."
+	@echo "Run 'make' to install dependencies, run checks, and build."
 
-install: versioncheck #help Install project packages
-	@npm install
+install: $(DEPS_STAMP) #help Install locked dependencies if missing or stale
 
-build: #help Build the development unpacked extension in dist/
+$(DEPS_STAMP): package.json package-lock.json
+	@npm ci && touch "$@"
+
+update: #help Upgrade dependencies within their declared ranges
+	@npm update && touch "$(DEPS_STAMP)"
+
+build: $(DEPS_STAMP) #help Build the development unpacked extension in dist/
 	@npm run build
 
-release: #help Build the release unpacked extension in release/
+release: $(DEPS_STAMP) #help Build the release unpacked extension in release/
 	@npm run build:release
 
-tarball: #help Build the release tarball in release/
+tarball: $(DEPS_STAMP) #help Build the release tarball in release/
 	@npm run build:tarball
 
 run: build #help Build locally and print Chrome loading instructions
@@ -37,7 +43,7 @@ run: build #help Build locally and print Chrome loading instructions
 lint: #help Run lightweight repository lint checks
 	@git --no-pager diff --check
 
-test: #help Run the unit tests
+test: $(DEPS_STAMP) #help Run the unit tests
 	@npm test
 
 int: #help Run integration tests

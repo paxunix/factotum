@@ -38,14 +38,21 @@ who gave you a free gun full of free bullets.**
 
 ## Development
 
-### Install dependencies
+### Build from a fresh checkout
 
 ```bash
-npm install
+make
 ```
 
-The project also provides a small Commake-inspired `Makefile` wrapper. Run
-`make help` to list the common project commands.
+With Node.js and npm installed, `make` installs the locked dependencies with
+`npm ci`, runs checks and tests, and builds the development extension.
+`make build`, `make release`, `make tarball`, and `make test` also install
+dependencies on first use and after either package file changes. For direct
+npm commands, run `npm ci` first.
+
+Use `make update` to upgrade dependencies within their declared ranges.
+Run `make` and review the lockfile changes before committing an upgrade.
+Run `make help` for the full target list.
 
 ### Build
 
